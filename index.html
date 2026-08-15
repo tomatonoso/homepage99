@@ -132,7 +132,6 @@
         .btn-danger { background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .btn-success { background-color: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .btn-warning { background-color: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
-        .btn-secondary { background-color: #6c757d; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
 
         .container {
             max-width: 1100px;
@@ -599,7 +598,7 @@
                 </form>
             </div>
 
-            <!-- 口口コミ・レビュー -->
+            <!-- 口コミ・レビュー表示＆投稿エリア -->
             <div style="background-color: #ffffff; border: 1px solid #e0e0e0; padding: 18px; border-radius: 8px;">
                 <h3 style="font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-star" style="color: #ff9800;"></i> 商品・出品者の評価・口コミレビュー
@@ -785,7 +784,7 @@
                         </div>
                         <div class="form-group">
                             <label>商品の説明 <span style="color:red;">*</span></label>
-                            <textarea id="new-prod-desc" class="form-control" required placeholder="商品の状態などを詳しくご記入ください"></textarea>
+                            <textarea id="new-prod-desc" class="form-control" required placeholder="商品の状態、使用頻度、サイズ、注意事項などを詳しくご記入ください"></textarea>
                         </div>
                         <div class="form-group">
                             <label>受け取り方法</label>
@@ -853,7 +852,7 @@
                 </div>
                 <div class="form-group">
                     <label>緊急用 電話番号 <span style="color:red;">*</span></label>
-                    <input type="tel" id="reg-phone" class="form-control" required placeholder="09012345678">
+                    <input type="tel" id="reg-phone" class="form-control" required placeholder="09012345678 (ハイフンなし)">
                 </div>
 
                 <div class="lock-section-title"><i class="fa-solid fa-key"></i> 第2ロック：ダブル・パスワード設定</div>
@@ -945,6 +944,7 @@
                 </div>
             </div>
 
+            <!-- Tab Buttons Nav -->
             <div class="admin-tab-nav">
                 <button class="admin-tab-btn active" onclick="switchAdminTab('tab-users')"><i class="fa-solid fa-users"></i> ユーザー管理</button>
                 <button class="admin-tab-btn" onclick="switchAdminTab('tab-products')"><i class="fa-solid fa-box"></i> 出品・商品監視</button>
@@ -954,7 +954,7 @@
                 <button class="admin-tab-btn" onclick="switchAdminTab('tab-inquiries')"><i class="fa-solid fa-headset"></i> お問い合わせ</button>
                 <button class="admin-tab-btn" onclick="switchAdminTab('tab-settings')"><i class="fa-solid fa-sliders"></i> サイト設定・規約編集</button>
                 <button class="admin-tab-btn" onclick="switchAdminTab('tab-news-admin')"><i class="fa-solid fa-bullhorn"></i> お知らせ配信管理</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-reviews-admin')"><i class="fa-solid fa-star"></i> 口口コミ・レビュー監視</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab('tab-reviews-admin')"><i class="fa-solid fa-star"></i> 口コミ・レビュー監視</button>
             </div>
 
             <!-- TAB 1: ユーザー一覧 -->
@@ -989,7 +989,7 @@
 
             <!-- TAB 3: メッセージ監査 -->
             <div id="tab-transactions" class="admin-tab-content">
-                <h3 style="margin-bottom: 8px;"><i class="fa-solid fa-comments"></i> 購入前 相談チャットログ監査</h3>
+                <h3 style="margin-bottom: 8px;"><i class="fa-solid fa-comments"></i> 購入前 相談チャットログ監査（運営確認機能）</h3>
                 <div style="overflow-x:auto; margin-bottom: 25px;">
                     <table>
                         <thead>
@@ -1001,7 +1001,7 @@
                     </table>
                 </div>
 
-                <h3><i class="fa-solid fa-handshake"></i> 購入後 取引ステータス ＆ 強制介入</h3>
+                <h3><i class="fa-solid fa-handshake"></i> 購入後 取引ステータス ＆ メッセージ監査・強制介入</h3>
                 <div style="overflow-x:auto;">
                     <table>
                         <thead>
@@ -1183,71 +1183,72 @@
             document.getElementById('profit-amount-display').innerText = `¥${profit.toLocaleString()}`;
         }
 
-        // 初期管理者は空リスト（ご自身で1人目を自由に登録）
+        // --- データ永続化 (localStorage) 処理 ---
+        function loadStorageData() {
+            adminUsers = JSON.parse(localStorage.getItem('minatomo_adminUsers')) || [];
+            newsList = JSON.parse(localStorage.getItem('minatomo_newsList')) || [
+                { id: "NEWS-1", date: "2026-08-14", target: "重要", title: "「ミナトモ！」リニューアルオープンのお知らせ", content: "フリマ＆ECプラットフォームとして新機能を追加しました！" },
+                { id: "NEWS-2", date: "2026-08-10", target: "出品者", title: "振込申請手続きに関する注意事項", content: "振込口座の名義相違にご注意ください。" }
+            ];
+            reviewsList = JSON.parse(localStorage.getItem('minatomo_reviewsList')) || [
+                { id: "REV-101", productId: 101, rating: 5, author: "アクア好き太郎", comment: "とても状態が良く、LEDの光量も十分でした！迅速な対応ありがとうございました。", date: "2026-08-12 14:20" }
+            ];
+            userList = JSON.parse(localStorage.getItem('minatomo_userList')) || [
+                { id: "USR-001", name: "青山 太郎", email: "aoyama@example.com", phone: "090-1234-5678", status: "アクティブ", kyc: "済", rating: "★4.8 (12件)", bank: { bankName: "みずほ銀行", branchName: "本店", accountType: "普通", accountNumber: "1234567", accountHolder: "アオヤマ タロウ" } },
+                { id: "USR-002", name: "佐藤 美咲", email: "sato@example.com", phone: "080-8765-4321", status: "アクティブ", kyc: "済", rating: "★5.0 (25件)", bank: { bankName: "三菱UFJ銀行", branchName: "渋谷支店", accountType: "普通", accountNumber: "9876543", accountHolder: "JOHN SMITH" } }
+            ];
+            productsList = JSON.parse(localStorage.getItem('minatomo_productsList')) || [
+                { id: 101, name: "LED水槽ライト", price: 3200, seller: "青山 太郎", category: "アクア・ペット用品", description: "60cm水槽用の高輝度LEDライトです。1か月ほど使用しましたが目立つ傷もなく動作良好です。", views: 14, favs: 3, ship: true, hand: true, active: true, recommended: true, image: null },
+                { id: 102, name: "ワイヤレスイヤホン", price: 18500, seller: "佐藤 美咲", category: "家電・スマホ・カメラ", description: "ノイズキャンセリング機能付き。付属品・外箱すべて揃っています。", views: 42, favs: 12, ship: true, hand: false, active: true, recommended: false, image: null }
+            ];
+            prePurchaseChats = JSON.parse(localStorage.getItem('minatomo_prePurchaseChats')) || [];
+            transactionsList = JSON.parse(localStorage.getItem('minatomo_transactionsList')) || [
+                { id: "TRX-501", prodName: "LED水槽ライト", buyer: "佐藤 美咲", seller: "青山 太郎", price: 3200, status: "発送待ち", lastMsg: "購入しました。よろしくお願いします。" }
+            ];
+            reportsList = JSON.parse(localStorage.getItem('minatomo_reportsList')) || [
+                { id: "REP-01", reporter: "佐藤 美咲", targetType: "商品", targetId: "103 (Tシャツ)", reason: "偽ブランドの疑いあり", status: "未対応" }
+            ];
+            payoutsList = JSON.parse(localStorage.getItem('minatomo_payoutsList')) || [
+                { id: "PAY-901", user: "青山 太郎", amount: 10000, bankInfo: "みずほ銀行 本店 普通 1234567 (アオヤマ タロウ)", status: "申請中" }
+            ];
+            inquiriesList = JSON.parse(localStorage.getItem('minatomo_inquiriesList')) || [
+                { id: "INQ-01", sender: "aoyama@example.com", subject: "受取通知の不具合について", body: "ボタンが押せませんでした。", status: "未対応" }
+            ];
+            siteSettings = JSON.parse(localStorage.getItem('minatomo_siteSettings')) || {
+                tokusho: "販売業者: 株式会社ミナトモ\n代表責任者: 代表取締役 港 太郎\n所在地: 〒100-0001 東京都千代田区千代田1-1\n電話番号: 03-0000-0000\nメール: support@minatomo.jp",
+                privacy: "当社は個人情報保護法に基づき利用者の個人情報を適切に管理します。"
+            };
+        }
+
+        function saveStorageData() {
+            localStorage.setItem('minatomo_adminUsers', JSON.stringify(adminUsers));
+            localStorage.setItem('minatomo_newsList', JSON.stringify(newsList));
+            localStorage.setItem('minatomo_reviewsList', JSON.stringify(reviewsList));
+            localStorage.setItem('minatomo_userList', JSON.stringify(userList));
+            localStorage.setItem('minatomo_productsList', JSON.stringify(productsList));
+            localStorage.setItem('minatomo_prePurchaseChats', JSON.stringify(prePurchaseChats));
+            localStorage.setItem('minatomo_transactionsList', JSON.stringify(transactionsList));
+            localStorage.setItem('minatomo_reportsList', JSON.stringify(reportsList));
+            localStorage.setItem('minatomo_payoutsList', JSON.stringify(payoutsList));
+            localStorage.setItem('minatomo_inquiriesList', JSON.stringify(inquiriesList));
+            localStorage.setItem('minatomo_siteSettings', JSON.stringify(siteSettings));
+        }
+
         let adminUsers = [];
+        let newsList = [];
+        let reviewsList = [];
+        let userList = [];
+        let productsList = [];
+        let prePurchaseChats = [];
+        let transactionsList = [];
+        let reportsList = [];
+        let payoutsList = [];
+        let inquiriesList = [];
+        let siteSettings = {};
+
         let currentAdmin = null;
         const currentViewerUser = "購入検討者A"; 
-
-        // 運営からのお知らせデータ
-        let newsList = [
-            { id: "NEWS-1", date: "2026-08-14", target: "重要", title: "「ミナトモ！」リニューアルオープンのお知らせ", content: "フリマ＆ECプラットフォームとして新機能を追加しました！" },
-            { id: "NEWS-2", date: "2026-08-10", target: "出品者", title: "振込申請手続きに関する注意事項", content: "振込口座の名義相違にご注意ください。" }
-        ];
-
-        // 口口コミ・レビューデータ
-        let reviewsList = [
-            { id: "REV-101", productId: 101, rating: 5, author: "アクア好き太郎", comment: "とても状態が良く、LEDの光量も十分でした！迅速な対応ありがとうございました。", date: "2026-08-12 14:20" },
-            { id: "REV-102", productId: 101, rating: 4, author: "サカナ", comment: "綺麗に梱包されていました。大満足です。", date: "2026-08-13 09:15" }
-        ];
-
-        let userList = [
-            { id: "USR-001", name: "青山 太郎", email: "aoyama@example.com", phone: "090-1234-5678", status: "アクティブ", kyc: "済", rating: "★4.8 (12件)", bank: { bankName: "みずほ銀行", branchName: "本店", accountType: "普通", accountNumber: "1234567", accountHolder: "アオヤマ タロウ" } },
-            { id: "USR-002", name: "佐藤 美咲", email: "sato@example.com", phone: "080-8765-4321", status: "アクティブ", kyc: "済", rating: "★5.0 (25件)", bank: { bankName: "三菱UFJ銀行", branchName: "渋谷支店", accountType: "普通", accountNumber: "9876543", accountHolder: "JOHN SMITH" } }
-        ];
-
-        let productsList = [
-            { id: 101, name: "LED水槽ライト", price: 3200, seller: "青山 太郎", category: "アクア・ペット用品", description: "60cm水槽用の高輝度LEDライトです。1か月ほど使用しましたが目立つ傷もなく動作良好です。", views: 14, favs: 3, ship: true, hand: true, active: true, recommended: true, image: null },
-            { id: 102, name: "ワイヤレスイヤホン", price: 18500, seller: "佐藤 美咲", category: "家電・スマホ・カメラ", description: "ノイズキャンセリング機能付き。付属品・外箱すべて揃っています。", views: 42, favs: 12, ship: true, hand: false, active: true, recommended: false, image: null },
-            { id: 103, name: "コットンTシャツ", price: 3900, seller: "鈴木 健太", category: "ファッション", description: "Lサイズ / 未使用品です。サイズが合わなかったため出品いたします。", views: 88, favs: 19, ship: true, hand: true, active: false, recommended: false, image: null }
-        ];
-
-        let prePurchaseChats = [
-            {
-                id: "CHAT-101-1",
-                productId: 101,
-                productName: "LED水槽ライト",
-                sellerName: "青山 太郎",
-                userName: "購入検討者A",
-                messages: [
-                    { sender: "user", text: "はじめまして！直接の手渡しの場合は駅付近での対応は可能でしょうか？", time: "10:15" },
-                    { sender: "seller", text: "お問い合わせありがとうございます。はい、最寄り駅改札前でのお渡しが可能です！", time: "10:20" }
-                ]
-            }
-        ];
-
         let currentActiveProductId = null;
-
-        let transactionsList = [
-            { id: "TRX-501", prodName: "LED水槽ライト", buyer: "佐藤 美咲", seller: "青山 太郎", price: 3200, status: "発送待ち", lastMsg: "購入しました。よろしくお願いします。" }
-        ];
-
-        let reportsList = [
-            { id: "REP-01", reporter: "佐藤 美咲", targetType: "商品", targetId: "103 (Tシャツ)", reason: "偽ブランドの疑いあり", status: "未対応" }
-        ];
-
-        let payoutsList = [
-            { id: "PAY-901", user: "青山 太郎", amount: 10000, bankInfo: "みずほ銀行 本店 普通 1234567 (アオヤマ タロウ)", status: "申請中" }
-        ];
-
-        let inquiriesList = [
-            { id: "INQ-01", sender: "aoyama@example.com", subject: "受取通知の不具合について", body: "ボタンが押せませんでした。", status: "未対応" }
-        ];
-
-        let siteSettings = {
-            tokusho: "販売業者: 株式会社ミナトモ\n代表責任者: 代表取締役 港 太郎\n所在地: 〒100-0001 東京都千代田区千代田1-1\n電話番号: 03-0000-0000\nメール: support@minatomo.jp",
-            privacy: "当社は個人情報保護法に基づき利用者の個人情報を適切に管理します。"
-        };
-
         let selectedCategory = "すべて";
         let selectedReceive = "ALL";
 
@@ -1389,6 +1390,7 @@
             };
 
             reviewsList.unshift(newRev);
+            saveStorageData();
 
             sendToGas({
                 type: "PRODUCT_REVIEW",
@@ -1463,6 +1465,8 @@
                 time: timeStr
             });
 
+            saveStorageData();
+
             sendToGas({
                 type: "PRE_PURCHASE_CHAT",
                 productId: currentActiveProductId,
@@ -1523,7 +1527,6 @@
             }
         }
 
-        // --- 運営者登録（修正版：空白除去を行って厳格照合） ---
         function handleAdminRegister(e) {
             e.preventDefault();
 
@@ -1532,12 +1535,12 @@
                 return;
             }
 
-            const email = document.getElementById('reg-email').value.trim();
-            const phone = document.getElementById('reg-phone').value.trim();
-            const pass1 = document.getElementById('reg-pass1').value.trim();
-            const pass2 = document.getElementById('reg-pass2').value.trim();
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
+            const pass1 = document.getElementById('reg-pass1').value;
+            const pass2 = document.getElementById('reg-pass2').value;
             const secQuestion = document.getElementById('reg-sec-question').value;
-            const secAnswer = document.getElementById('reg-sec-answer').value.trim();
+            const secAnswer = document.getElementById('reg-sec-answer').value;
 
             if (pass1.length > 10) {
                 alert('【エラー】第1パスワードは10桁以内で設定してください。');
@@ -1549,23 +1552,19 @@
             }
 
             adminUsers.push({
-                email: email,
-                phone: phone,
-                pass1: pass1,
-                pass2: pass2,
-                secQuestion: secQuestion,
-                secAnswer: secAnswer
+                email: email, phone: phone, pass1: pass1, pass2: pass2, secQuestion: secQuestion, secAnswer: secAnswer
             });
+
+            saveStorageData();
 
             sendToGas({
                 type: "ADMIN_REGISTER", email: email, phone: phone, secQuestion: secQuestion
             });
 
-            alert('【管理者登録完了】1人目の運営者アカウントが正常に登録されました！ログイン画面からログインしてください。');
+            alert('【管理者登録完了】1人目の運営者アカウントが正常に登録され、保存されました！ログイン画面からログインしてください。');
             toggleAuthMode();
         }
 
-        // --- 運営者ログイン（修正版：確実に一致判定） ---
         function handleAdminLogin(e) {
             e.preventDefault();
 
@@ -1574,16 +1573,13 @@
                 return;
             }
 
-            const email = document.getElementById('login-email').value.trim();
-            const pass1 = document.getElementById('login-pass1').value.trim();
-            const pass2 = document.getElementById('login-pass2').value.trim();
-            const secAns = document.getElementById('login-sec-ans').value.trim();
+            const email = document.getElementById('login-email').value;
+            const pass1 = document.getElementById('login-pass1').value;
+            const pass2 = document.getElementById('login-pass2').value;
+            const secAns = document.getElementById('login-sec-ans').value;
 
             const found = adminUsers.find(a => 
-                a.email.toLowerCase() === email.toLowerCase() &&
-                a.pass1 === pass1 &&
-                a.pass2 === pass2 &&
-                a.secAnswer === secAns
+                a.email === email && a.pass1 === pass1 && a.pass2 === pass2 && a.secAnswer === secAns
             );
 
             if (found) {
@@ -1593,7 +1589,7 @@
                 renderAdminTables();
                 openModal('admin-modal');
             } else {
-                alert('【認証失敗】メールアドレス、第1/第2パスワード、またはセキュリティ質問の回答が一致しません。');
+                alert('【認証失敗】メールアドレス、第1/第2パスワード、またはセキュリティ質問の回答が不一致です。');
             }
         }
 
@@ -1619,90 +1615,6 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // --- 管理者操作各種ボタンの動作定義 ---
-        function toggleUserStatus(userId) {
-            const u = userList.find(x => x.id === userId);
-            if (u) {
-                u.status = (u.status === 'アクティブ') ? '停止中' : 'アクティブ';
-                renderAdminTables();
-            }
-        }
-
-        function toggleProdActive(prodId) {
-            const p = productsList.find(x => x.id === prodId);
-            if (p) {
-                p.active = !p.active;
-                renderProducts();
-                renderAdminTables();
-            }
-        }
-
-        function toggleProdRecommend(prodId) {
-            const p = productsList.find(x => x.id === prodId);
-            if (p) {
-                p.recommended = !p.recommended;
-                renderProducts();
-                renderAdminTables();
-            }
-        }
-
-        function deleteProd(prodId) {
-            if (confirm('この商品を完全に削除してもよろしいですか？')) {
-                productsList = productsList.filter(x => x.id !== prodId);
-                renderProducts();
-                renderAdminTables();
-            }
-        }
-
-        function forceCompleteTrx(trxId) {
-            const t = transactionsList.find(x => x.id === trxId);
-            if (t) {
-                t.status = "取引完了（運営強制）";
-                renderAdminTables();
-                alert('取引を強制完了させました。');
-            }
-        }
-
-        function forceCancelTrx(trxId) {
-            const t = transactionsList.find(x => x.id === trxId);
-            if (t) {
-                t.status = "キャンセル（運営介入）";
-                renderAdminTables();
-                alert('取引をキャンセルしました。');
-            }
-        }
-
-        function processReport(repId, status) {
-            const r = reportsList.find(x => x.id === repId);
-            if (r) {
-                r.status = status;
-                renderAdminTables();
-                alert(`通報 ${repId} を「${status}」に更新しました。`);
-            }
-        }
-
-        function approvePayout(payoutId) {
-            const p = payoutsList.find(x => x.id === payoutId);
-            if (p) {
-                p.status = '完了';
-                renderAdminTables();
-                alert('振込完了処理を行いました。');
-            }
-        }
-
-        function replyInquiry(inqId) {
-            const inq = inquiriesList.find(x => x.id === inqId);
-            if (inq) {
-                const replyText = prompt(`【${inq.sender}】への返信メッセージを入力してください:`);
-                if (replyText) {
-                    inq.status = '回答済';
-                    sendToGas({ type: "INQUIRY_REPLY", inqId: inqId, replyText: replyText });
-                    renderAdminTables();
-                    alert('返信メールを送信し、ステータスを「回答済」に更新しました。');
-                }
-            }
-        }
-
         function addNewAnnouncement(e) {
             e.preventDefault();
             const title = document.getElementById('admin-news-title').value.trim();
@@ -1720,6 +1632,7 @@
                 content: content
             });
 
+            saveStorageData();
             renderNewsList();
             renderAdminTables();
             alert('お知らせを配信掲載しました。');
@@ -1730,6 +1643,7 @@
         function deleteNewsItem(newsId) {
             if (confirm('このお知らせを削除しますか？')) {
                 newsList = newsList.filter(n => n.id !== newsId);
+                saveStorageData();
                 renderNewsList();
                 renderAdminTables();
             }
@@ -1738,8 +1652,101 @@
         function deleteReviewItem(revId) {
             if (confirm('この口コミ・レビューを削除しますか？')) {
                 reviewsList = reviewsList.filter(r => r.id !== revId);
+                saveStorageData();
                 renderAdminTables();
                 if (currentActiveProductId) renderProductReviews(currentActiveProductId);
+            }
+        }
+
+        // --- 運営者画面の各種ボタン制御処理 ---
+        function toggleUserStatus(userId) {
+            const user = userList.find(u => u.id === userId);
+            if (user) {
+                user.status = user.status === 'アクティブ' ? '停止中' : 'アクティブ';
+                saveStorageData();
+                renderAdminTables();
+            }
+        }
+
+        function toggleProdActive(prodId) {
+            const prod = productsList.find(p => p.id === prodId);
+            if (prod) {
+                prod.active = !prod.active;
+                saveStorageData();
+                renderAdminTables();
+                renderProducts();
+            }
+        }
+
+        function toggleProdRecommend(prodId) {
+            const prod = productsList.find(p => p.id === prodId);
+            if (prod) {
+                prod.recommended = !prod.recommended;
+                saveStorageData();
+                renderAdminTables();
+                renderProducts();
+            }
+        }
+
+        function deleteProd(prodId) {
+            if (confirm('この商品を完全に削除しますか？')) {
+                productsList = productsList.filter(p => p.id !== prodId);
+                saveStorageData();
+                renderAdminTables();
+                renderProducts();
+            }
+        }
+
+        function forceCompleteTrx(trxId) {
+            const trx = transactionsList.find(t => t.id === trxId);
+            if (trx) {
+                trx.status = "完了 (強制)";
+                saveStorageData();
+                renderAdminTables();
+                alert(`取引 ${trxId} を強制完了処理しました。`);
+            }
+        }
+
+        function forceCancelTrx(trxId) {
+            const trx = transactionsList.find(t => t.id === trxId);
+            if (trx) {
+                trx.status = "キャンセル済";
+                saveStorageData();
+                renderAdminTables();
+                alert(`取引 ${trxId} をキャンセル処理しました。`);
+            }
+        }
+
+        function handleReport(repId, action) {
+            const rep = reportsList.find(r => r.id === repId);
+            if (rep) {
+                rep.status = action;
+                saveStorageData();
+                renderAdminTables();
+                alert(`通報 ${repId} に対し「${action}」を適用しました。`);
+            }
+        }
+
+        function approvePayout(payId) {
+            const pay = payoutsList.find(p => p.id === payId);
+            if (pay) {
+                pay.status = "完了";
+                saveStorageData();
+                renderAdminTables();
+                alert(`申請 ${payId} の振込完了処理を行いました。`);
+            }
+        }
+
+        function replyInquiry(inqId) {
+            const inq = inquiriesList.find(i => i.id === inqId);
+            if (inq) {
+                const replyText = prompt(`【差出人: ${inq.sender}】への返信内容を入力してください:`);
+                if (replyText) {
+                    inq.status = "回答済";
+                    saveStorageData();
+                    renderAdminTables();
+                    alert("返信メールを送信し、ステータスを回答済に変更しました。");
+                }
             }
         }
 
@@ -1779,16 +1786,16 @@
                 tblTrx.innerHTML += `<tr><td>${t.id}</td><td>${t.prodName}</td><td>${t.buyer}</td><td>${t.seller}</td><td><span class="status-badge bg-info">${t.status}</span></td><td>${t.lastMsg}</td><td><button class="btn-success" onclick="forceCompleteTrx('${t.id}')">強制完了</button> <button class="btn-danger" onclick="forceCancelTrx('${t.id}')">キャンセル</button></td></tr>`;
             });
 
+            const tblReps = document.getElementById('tbl-reports');
+            tblReps.innerHTML = '';
+            reportsList.forEach(r => {
+                tblReps.innerHTML += `<tr><td>${r.id}</td><td>${r.reporter}</td><td>${r.targetType}</td><td>${r.targetId}</td><td>${r.reason}</td><td><span class="status-badge bg-warning">${r.status}</span></td><td><button class="btn-danger" onclick="handleReport('${r.id}', '削除対応')">削除対応</button> <button class="btn-secondary" onclick="handleReport('${r.id}', '却下')">却下</button></td></tr>`;
+            });
+
             let totalVol = 0;
             transactionsList.forEach(t => totalVol += t.price);
             document.getElementById('stat-total-vol').innerText = `¥${totalVol.toLocaleString()}`;
             document.getElementById('stat-total-fee').innerText = `¥${Math.floor(totalVol * 0.10).toLocaleString()}`;
-
-            const tblReports = document.getElementById('tbl-reports');
-            tblReports.innerHTML = '';
-            reportsList.forEach(r => {
-                tblReports.innerHTML += `<tr><td>${r.id}</td><td>${r.reporter}</td><td>${r.targetType}</td><td>${r.targetId}</td><td>${r.reason}</td><td><span class="status-badge ${r.status === '対応済' ? 'bg-success' : 'bg-warning'}">${r.status}</span></td><td><button class="btn-success" onclick="processReport('${r.id}', '対応済')">対応完了</button> <button class="btn-secondary" onclick="processReport('${r.id}', '却下')">却下</button></td></tr>`;
-            });
 
             const tblPayouts = document.getElementById('tbl-payouts');
             tblPayouts.innerHTML = '';
@@ -1868,6 +1875,18 @@
             e.preventDefault();
             const prod = productsList.find(p => p.id === currentActiveProductId);
 
+            transactionsList.unshift({
+                id: `TRX-${Date.now().toString().slice(-4)}`,
+                prodName: prod ? prod.name : "",
+                buyer: document.getElementById('buy-name').value,
+                seller: prod ? prod.seller : "ミナトモ出品者",
+                price: prod ? prod.price : 0,
+                status: "発送待ち",
+                lastMsg: "新規注文が入りました"
+            });
+
+            saveStorageData();
+
             sendToGas({
                 type: "PURCHASE",
                 name: document.getElementById('buy-name').value,
@@ -1878,6 +1897,7 @@
 
             alert('注文が完了しました！ご購入確認メールを送信いたしました。');
             closeModal('checkout-modal');
+            if (currentAdmin) renderAdminTables();
         }
 
         function submitNewProduct(e) {
@@ -1909,6 +1929,7 @@
             };
 
             productsList.unshift(newProd);
+            saveStorageData();
             renderProducts();
 
             sendToGas({
@@ -1937,25 +1958,40 @@
 
         function submitUserInquiry(e) {
             e.preventDefault();
+
+            inquiriesList.unshift({
+                id: `INQ-${Date.now().toString().slice(-4)}`,
+                sender: document.getElementById('inq-email').value,
+                subject: document.getElementById('inq-subject').value,
+                body: document.getElementById('inq-body').value,
+                status: "未対応"
+            });
+
+            saveStorageData();
+
             sendToGas({
                 type: "INQUIRY",
                 email: document.getElementById('inq-email').value,
                 subject: document.getElementById('inq-subject').value,
                 body: document.getElementById('inq-body').value
             });
+
             alert('お問い合わせを送信いたしました。');
             closeModal('inquiry-modal');
             document.getElementById('inquiry-form').reset();
+            if (currentAdmin) renderAdminTables();
         }
 
         function saveSiteSettings(e) {
             e.preventDefault();
             siteSettings.tokusho = document.getElementById('edit-tokusho').value;
             siteSettings.privacy = document.getElementById('edit-privacy').value;
+            saveStorageData();
             alert('サイト設定・特定商取引法/プライバシーポリシー本文を保存しました。');
         }
 
         window.onload = function() {
+            loadStorageData();
             renderNewsList();
             renderProducts();
             initCheckoutModal();
