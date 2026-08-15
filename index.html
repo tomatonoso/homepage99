@@ -2339,21 +2339,21 @@
                         <td>${i.sender}</td>
                         <td>${i.subject}</td>
                         <td>${i.body}</td>
-                        <td><span class="status-badge ${i.status === '回答済' ? 'bg-success' : 'bg-danger'}">${i.status}</span></td>
-                        <td><button class="btn-outline" onclick="replyInquiry('${i.id}')">返信メール作成</button></td>
+                        <td><span class="status-badge ${i.status === '対応済' ? 'bg-success' : 'bg-warning'}">${i.status}</span></td>
+                        <td><button class="btn-outline" onclick="replyInquiry('${i.id}')">返信完了</button></td>
                     </tr>
                 `;
             });
 
-            // 7. 規約本文
+            // 7. サイト設定
             document.getElementById('edit-tokusho').value = siteSettings.tokusho;
             document.getElementById('edit-privacy').value = siteSettings.privacy;
 
             // 8. お知らせ管理
-            const tblAdminNews = document.getElementById('tbl-admin-news');
-            tblAdminNews.innerHTML = '';
+            const tblNews = document.getElementById('tbl-admin-news');
+            tblNews.innerHTML = '';
             newsList.forEach(n => {
-                tblAdminNews.innerHTML += `
+                tblNews.innerHTML += `
                     <tr>
                         <td>${n.id}</td>
                         <td>${n.date}</td>
@@ -2366,292 +2366,135 @@
             });
 
             // 9. レビュー管理
-            const tblAdminRevs = document.getElementById('tbl-admin-reviews');
-            tblAdminRevs.innerHTML = '';
+            const tblRevs = document.getElementById('tbl-admin-reviews');
+            tblRevs.innerHTML = '';
             reviewsList.forEach(r => {
-                const prod = productsList.find(p => p.id === r.productId);
-                const prodName = prod ? prod.name : `ID:${r.productId}`;
-                tblAdminRevs.innerHTML += `
+                tblRevs.innerHTML += `
                     <tr>
                         <td>${r.id}</td>
-                        <td>${prodName}</td>
-                        <td style="color:#ff9500; font-weight:bold;">★${r.rating}</td>
+                        <td>ID: ${r.productId}</td>
+                        <td class="review-stars">${'★'.repeat(r.rating)}</td>
                         <td>${r.author}</td>
                         <td>${r.comment}</td>
-                        <td style="font-size:0.75rem;">${r.date}</td>
+                        <td>${r.date}</td>
                         <td><button class="btn-danger" onclick="deleteReview('${r.id}')">削除</button></td>
                     </tr>
                 `;
             });
         }
 
-        function toggleUserStatus(userId) {
-            const user = userList.find(u => u.id === userId);
-            if (user) {
-                user.status = (user.status === 'アクティブ') ? '停止中' : 'アクティブ';
+        /* --- 管理者操作補助アクション --- */
+        function toggleUserStatus(id) {
+            const u = userList.find(item => item.id === id);
+            if (u) {
+                u.status = (u.status === 'アクティブ') ? '停止' : 'アクティブ';
                 saveStorageData('userList', userList);
                 renderAdminTables();
-                alert(`ユーザー ID:${userId} のステータスを「${user.status}」に変更しました。`);
             }
         }
 
-        function toggleProdActive(prodId) {
-            const prod = productsList.find(p => p.id === prodId);
-            if (prod) {
-                prod.active = !prod.active;
+        function toggleProdActive(id) {
+            const p = productsList.find(item => item.id === id);
+            if (p) {
+                p.active = !p.active;
                 saveStorageData('productsList', productsList);
                 renderProducts();
                 renderAdminTables();
             }
         }
 
-        function toggleProdRecommend(prodId) {
-            const prod = productsList.find(p => p.id === prodId);
-            if (prod) {
-                prod.recommended = !prod.recommended;
+        function toggleProdRecommend(id) {
+            const p = productsList.find(item => item.id === id);
+            if (p) {
+                p.recommended = !p.recommended;
                 saveStorageData('productsList', productsList);
                 renderProducts();
                 renderAdminTables();
             }
         }
 
-        function deleteProd(prodId) {
-            if (confirm('この商品を完全に削除しますか？')) {
-                productsList = productsList.filter(p => p.id !== prodId);
+        function deleteProd(id) {
+            if (confirm('本当にこの商品を削除しますか？')) {
+                productsList = productsList.filter(item => item.id !== id);
                 saveStorageData('productsList', productsList);
                 renderProducts();
                 renderAdminTables();
             }
         }
 
-        // 購入者向け取引ステータス設定・更新機能
-        function updateTransactionStatus(trxId, newStatus) {
-            const trx = transactionsList.find(t => t.id === trxId);
-            if (trx) {
-                trx.status = newStatus;
+        function updateTransactionStatus(id, newStatus) {
+            const t = transactionsList.find(item => item.id === id);
+            if (t) {
+                t.status = newStatus;
                 saveStorageData('transactionsList', transactionsList);
-                
-                sendToGas({
-                    type: "TRANSACTION_STATUS_UPDATE",
-                    transactionId: trxId,
-                    status: newStatus,
-                    productName: trx.prodName,
-                    buyer: trx.buyer,
-                    seller: trx.seller
-                });
-
-                alert(`取引 [${trxId}] の購入者ステータスを「${newStatus}」に更新しました。`);
-                renderAdminTables();
+                sendToGas({ type: "TRX_STATUS_UPDATE", id: id, status: newStatus });
             }
         }
 
-        // 出品者向け振り込み状況設定・更新機能
-        function updatePayoutStatus(trxId, newPayoutStatus) {
-            const trx = transactionsList.find(t => t.id === trxId);
-            if (trx) {
-                trx.payoutStatus = newPayoutStatus;
+        function updatePayoutStatus(id, newPayoutStatus) {
+            const t = transactionsList.find(item => item.id === id);
+            if (t) {
+                t.payoutStatus = newPayoutStatus;
                 saveStorageData('transactionsList', transactionsList);
-
-                sendToGas({
-                    type: "SELLER_PAYOUT_STATUS_UPDATE",
-                    transactionId: trxId,
-                    payoutStatus: newPayoutStatus,
-                    seller: trx.seller,
-                    productName: trx.prodName,
-                    price: trx.price
-                });
-
-                alert(`取引 [${trxId}] の出品者振り込み状況を「${newPayoutStatus}」に設定更新しました。`);
-                renderAdminTables();
+                sendToGas({ type: "PAYOUT_STATUS_UPDATE", id: id, payoutStatus: newPayoutStatus });
             }
         }
 
         function sendPaymentInstruction(trxId) {
-            const trx = transactionsList.find(t => t.id === trxId);
-            if (!trx) return;
-
-            const defaultInstruction = `【ミナトモ！運営事務局より購入手続き（お振込）のご案内】
-
-${trx.buyer} 様
-
-この度はお買い上げいただきありがとうございます。
-以下の指定口座へ代金のお振込をお願いいたします。
-
-----------------------------------
-■ お振込先情報
-銀行名：みなとみらい銀行
-支店名：本店営業部（店番号 001）
-口座種別：普通
-口座番号：9876543
-口座名義：カブシキガイシャ ミナトモ
-お振込金額：¥${trx.price.toLocaleString()}
-----------------------------------
-※お振込時、名義人の前に注文番号「${trx.id}」をご記載ください。
-ご入金確認後、出品者へ発送手続きの案内を行います。`;
-
-            const message = prompt(`購入者【${trx.buyer}】様へ送信する手続き・振込案内文を入力してください：`, defaultInstruction);
-
-            if (message) {
-                const now = new Date();
-                const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-                let chatGroup = prePurchaseChats.find(c => c.productId === trx.productId);
-                if (!chatGroup) {
-                    chatGroup = {
-                        id: `CHAT-${trx.productId}-${Date.now()}`,
-                        productId: trx.productId,
-                        productName: trx.prodName,
-                        sellerName: trx.seller,
-                        userName: trx.buyer,
-                        messages: []
-                    };
-                    prePurchaseChats.push(chatGroup);
-                }
-
-                chatGroup.messages.push({
-                    sender: "admin",
-                    text: message,
-                    time: timeStr
-                });
-
-                trx.status = "支払い済み";
-                trx.lastMsg = "【運営連絡】お振込手続きのご案内を送信しました。";
-
-                saveStorageData('prePurchaseChats', prePurchaseChats);
-                saveStorageData('transactionsList', transactionsList);
-
-                sendToGas({
-                    type: "PAYMENT_INSTRUCTION",
-                    transactionId: trx.id,
-                    buyer: trx.buyer,
-                    seller: trx.seller,
-                    productName: trx.prodName,
-                    price: trx.price,
-                    message: message
-                });
-
-                alert(`購入者 ${trx.buyer} 様のマーケット内取引チャットへ振込案内メッセージを送信しました！`);
-                renderAdminTables();
-            }
-        }
-
-        function forceCancelTrx(trxId) {
-            const trx = transactionsList.find(t => t.id === trxId);
-            if (trx) {
-                trx.status = "キャンセル";
-                saveStorageData('transactionsList', transactionsList);
-                renderAdminTables();
-                alert(`取引 ${trxId} をキャンセル状態に設定しました。`);
-            }
-        }
-
-        function resolveReport(repId) {
-            const rep = reportsList.find(r => r.id === repId);
-            if (rep) {
-                rep.status = "対応済";
-                saveStorageData('reportsList', reportsList);
-                renderAdminTables();
-                alert(`通報 ID:${repId} を対応済に更新しました。`);
-            }
-        }
-
-        function approvePayout(payId) {
-            const pay = payoutsList.find(p => p.id === payId);
-            if (pay) {
-                pay.status = "完了";
-                saveStorageData('payoutsList', payoutsList);
-                renderAdminTables();
-                alert(`振込申請 ID:${payId} の送金手続きを完了としました。`);
-            }
-        }
-
-        function replyInquiry(inqId) {
-            const inq = inquiriesList.find(i => i.id === inqId);
-            if (inq) {
-                const replyText = prompt(`【お問い合わせ返信】\n差出人: ${inq.sender}\n件名: ${inq.subject}\n\n返信内容を入力してください:`);
-                if (replyText) {
-                    inq.status = "回答済";
-                    saveStorageData('inquiriesList', inquiriesList);
-
-                    sendToGas({
-                        type: "INQUIRY_REPLY",
-                        inquiryId: inq.id,
-                        sender: inq.sender,
-                        replyMessage: replyText
+            const msg = prompt("購入者へ送信する振込・決済案内メッセージを入力してください:", "指定口座への振込を確認しました。発送手続きをお進めください。");
+            if (msg) {
+                const t = transactionsList.find(item => item.id === trxId);
+                if (t) {
+                    let chatGroup = prePurchaseChats.find(c => c.productId === t.productId);
+                    if (!chatGroup) {
+                        chatGroup = { id: `CHAT-${t.productId}-${Date.now()}`, productId: t.productId, productName: t.prodName, sellerName: t.seller, userName: t.buyer, messages: [] };
+                        prePurchaseChats.push(chatGroup);
+                    }
+                    const now = new Date();
+                    chatGroup.messages.push({
+                        sender: "admin",
+                        text: msg,
+                        time: `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
                     });
-
-                    alert(`${inq.sender} 様へ返信を送信しました（ステータスを「回答済」に更新）。`);
+                    saveStorageData('prePurchaseChats', prePurchaseChats);
+                    sendToGas({ type: "ADMIN_INSTRUCTION", trxId: trxId, message: msg });
+                    alert("案内を送信しました。");
                     renderAdminTables();
                 }
             }
         }
 
-        function saveSiteSettings(e) {
-            e.preventDefault();
-            siteSettings.tokusho = document.getElementById('edit-tokusho').value;
-            siteSettings.privacy = document.getElementById('edit-privacy').value;
-            saveStorageData('siteSettings', siteSettings);
-
-            sendToGas({
-                type: "SITE_SETTINGS_UPDATE",
-                tokusho: siteSettings.tokusho,
-                privacy: siteSettings.privacy
-            });
-
-            alert('特定商取引法表記・プライバシーポリシーの設定を更新しました。');
-        }
-
-        function addNewAnnouncement(e) {
-            e.preventDefault();
-            const title = document.getElementById('admin-news-title').value.trim();
-            const target = document.getElementById('admin-news-target').value;
-            const content = document.getElementById('admin-news-content').value.trim();
-
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
-            const newNews = {
-                id: `NEWS-${Date.now()}`,
-                date: dateStr,
-                target: target,
-                title: title,
-                content: content
-            };
-
-            newsList.unshift(newNews);
-            saveStorageData('newsList', newsList);
-
-            sendToGas({
-                type: "ANNOUNCEMENT_NEW",
-                newsId: newNews.id,
-                title: title,
-                target: target,
-                content: content
-            });
-
-            alert('新しいお知らせを配信・掲載しました！');
-            document.getElementById('admin-news-title').value = '';
-            document.getElementById('admin-news-content').value = '';
-            
-            renderNewsList();
-            renderAdminTables();
-        }
-
-        function deleteAnnouncement(newsId) {
-            if (confirm('このお知らせを削除しますか？')) {
-                newsList = newsList.filter(n => n.id !== newsId);
-                saveStorageData('newsList', newsList);
-                renderNewsList();
+        function forceCancelTrx(trxId) {
+            if (confirm("この取引を強制キャンセルしますか？")) {
+                updateTransactionStatus(trxId, "キャンセル");
                 renderAdminTables();
             }
         }
 
-        function deleteReview(revId) {
-            if (confirm('この口コミレビューを削除しますか？')) {
-                reviewsList = reviewsList.filter(r => r.id !== revId);
-                saveStorageData('reviewsList', reviewsList);
+        function resolveReport(id) {
+            const r = reportsList.find(item => item.id === id);
+            if (r) {
+                r.status = '対応済';
+                saveStorageData('reportsList', reportsList);
                 renderAdminTables();
-                if (currentActiveProductId) renderProductReviews(currentActiveProductId);
+            }
+        }
+
+        function approvePayout(id) {
+            const p = payoutsList.find(item => item.id === id);
+            if (p) {
+                p.status = '完了';
+                saveStorageData('payoutsList', payoutsList);
+                renderAdminTables();
+            }
+        }
+
+        function replyInquiry(id) {
+            const i = inquiriesList.find(item => item.id === id);
+            if (i) {
+                i.status = '対応済';
+                saveStorageData('inquiriesList', inquiriesList);
+                renderAdminTables();
             }
         }
 
@@ -2661,29 +2504,62 @@ ${trx.buyer} 様
             const subject = document.getElementById('inq-subject').value;
             const body = document.getElementById('inq-body').value;
 
-            const newInq = {
-                id: `INQ-${Date.now()}`,
-                sender: email,
-                subject: subject,
-                body: body,
-                status: "未対応"
-            };
-
+            const newInq = { id: `INQ-${Date.now()}`, sender: email, subject: subject, body: body, status: "未対応" };
             inquiriesList.unshift(newInq);
             saveStorageData('inquiriesList', inquiriesList);
 
-            sendToGas({
-                type: "USER_INQUIRY",
-                inquiryId: newInq.id,
-                email: email,
-                subject: subject,
-                body: body
-            });
-
-            alert('お問い合わせを送信しました。運営からの回答をお待ちください。');
-            document.getElementById('inquiry-form').reset();
+            sendToGas({ type: "USER_INQUIRY", ...newInq });
+            alert("お問い合わせを受け付けました。");
             closeModal('inquiry-modal');
+            document.getElementById('inquiry-form').reset();
             if (currentAdmin) renderAdminTables();
+        }
+
+        function saveSiteSettings(e) {
+            e.preventDefault();
+            siteSettings.tokusho = document.getElementById('edit-tokusho').value;
+            siteSettings.privacy = document.getElementById('edit-privacy').value;
+            saveStorageData('siteSettings', siteSettings);
+            sendToGas({ type: "SITE_SETTINGS_UPDATE", ...siteSettings });
+            alert("サイト設定を保存しました。");
+        }
+
+        function addNewAnnouncement(e) {
+            e.preventDefault();
+            const title = document.getElementById('admin-news-title').value;
+            const target = document.getElementById('admin-news-target').value;
+            const content = document.getElementById('admin-news-content').value;
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+            const newNews = { id: `NEWS-${Date.now()}`, date: dateStr, target: target, title: title, content: content };
+            newsList.unshift(newNews);
+            saveStorageData('newsList', newsList);
+
+            sendToGas({ type: "ANNOUNCEMENT", ...newNews });
+            alert("お知らせを配信しました。");
+            renderNewsList();
+            renderAdminTables();
+            document.getElementById('admin-news-title').value = '';
+            document.getElementById('admin-news-content').value = '';
+        }
+
+        function deleteAnnouncement(id) {
+            if (confirm("このお知らせを削除しますか？")) {
+                newsList = newsList.filter(item => item.id !== id);
+                saveStorageData('newsList', newsList);
+                renderNewsList();
+                renderAdminTables();
+            }
+        }
+
+        function deleteReview(id) {
+            if (confirm("この口コミレビューを削除しますか？")) {
+                reviewsList = reviewsList.filter(item => item.id !== id);
+                saveStorageData('reviewsList', reviewsList);
+                renderAdminTables();
+            }
         }
     </script>
 </body>
