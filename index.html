@@ -493,7 +493,7 @@
         <div class="header-user-nav">
             <button class="btn-outline" onclick="openModal('inquiry-modal')"><i class="fa-solid fa-headset"></i> お問合せ</button>
             <button class="btn-outline" onclick="tryOpenAdmin()"><i class="fa-solid fa-gear"></i> 運営管理</button>
-            <button class="btn-red-sm" onclick="openModal('seller-modal')">出品者登録</button>
+            <button class="btn-red-sm" onclick="openSellerModal()">出品者登録・出品</button>
         </div>
     </header>
 
@@ -543,7 +543,7 @@
     </div>
 
     <!-- Floating Sell Button -->
-    <button class="floating-sell-btn" onclick="openModal('seller-modal')">
+    <button class="floating-sell-btn" onclick="openSellerModal()">
         <i class="fa-solid fa-camera"></i>
         <span>出品</span>
     </button>
@@ -706,132 +706,110 @@
             <hr style="margin: 15px 0;">
 
             <form id="seller-form" onsubmit="submitNewProduct(event)">
-           <!-- 出品フォーム全体 -->
-<form id="seller-item-form" method="POST" action="/submit-item" enctype="multipart/form-data">
+                <div class="grid-2">
+                    <div>
+                        <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">1. 出品者情報</h3>
+                        <div class="form-group">
+                            <label>出品者名 / ショップ名 <span style="color:red;">*</span></label>
+                            <input type="text" id="seller-name-input" class="form-control" required placeholder="例: ミナトモショップ">
+                        </div>
+                        <div class="form-group">
+                            <label>メールアドレス <span style="color:red;">*</span></label>
+                            <input type="email" id="seller-email-input" class="form-control" required placeholder="seller@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>電話番号 <span style="color:red;">*</span></label>
+                            <input type="tel" id="seller-phone-input" class="form-control" required placeholder="090-0000-0000">
+                        </div>
 
-  <!-- 1. 出品者情報（新規登録時のデータを自動連携・非表示で管理画面へ送信） -->
-  <!-- ※ログイン情報からサーバーへ自動連携されるため手入力不要 -->
-  
-  <!-- 2. 受取用 銀行口座情報（登録済み口座を優先適用・変更時のみ折りたたみを解除） -->
-  <div class="form-group" style="background: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-      <span style="font-weight: bold; font-size: 0.9rem;">2. 受取用 銀行口座情報</span>
-      <span style="font-size: 0.8rem; color: #28a745; font-weight: bold;">✓ 登録済み口座へ振り込まれます</span>
-    </div>
-    
-    <details style="margin-top: 8px; font-size: 0.85rem;">
-      <summary style="cursor: pointer; color: #0066cc;">登録口座の確認・変更はこちら</summary>
-      
-      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
-        <div class="form-group">
-          <label>金融機関名</label>
-          <input type="text" id="bank-name-input" name="bank_name" class="form-control" placeholder="例: ゆうちょ銀行 / SMBC">
+                        <h3 style="font-size: 0.95rem; margin: 15px 0 10px 0; border-bottom:1px solid #ddd; padding-bottom:4px;">2. 受取用 銀行口座情報 <span style="color:red;">*</span></h3>
+                        <div class="form-group">
+                            <label>金融機関名 <span style="color:red;">*</span></label>
+                            <input type="text" id="bank-name-input" class="form-control" required placeholder="例: ゆうちょ銀行 / SMBC">
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>支店名 <span style="color:red;">*</span></label>
+                                <input type="text" id="bank-branch-input" class="form-control" required placeholder="本店">
+                            </div>
+                            <div class="form-group">
+                                <label>口座種別 <span style="color:red;">*</span></label>
+                                <select id="bank-type-input" class="form-control"><option value="普通">普通</option><option value="当座">当座</option></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>口座番号 <span style="color:red;">*</span></label>
+                            <input type="text" id="bank-number-input" class="form-control" required placeholder="1234567">
+                        </div>
+                        <div class="form-group">
+                            <label>口座名義 (カタカナ または アルファベット) <span style="color:red;">*</span></label>
+                            <input type="text" id="bank-holder-input" class="form-control" required placeholder="例: ヤマダ タロウ または JOHN SMITH">
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">3. 出品商品情報</h3>
+                        
+                        <div class="form-group">
+                            <label>商品画像 <span style="color:red;">*</span></label>
+                            <div class="image-upload-wrapper" onclick="document.getElementById('new-prod-image').click();">
+                                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: #888;"></i>
+                                <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして画像を選択</div>
+                                <input type="file" id="new-prod-image" accept="image/*" onchange="handleImageUpload(event)">
+                                <div class="img-preview-container" id="img-preview-box" style="display:none;">
+                                    <img id="img-preview" src="" alt="プレビュー">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>商品名 <span style="color:red;">*</span></label>
+                            <input type="text" id="new-prod-name" class="form-control" required placeholder="例: LED水槽ライト">
+                        </div>
+                        <div class="form-group">
+                            <label>販売価格 (円) <span style="color:red;">*</span></label>
+                            <input type="number" id="new-prod-price" class="form-control" required placeholder="3200" min="100" oninput="calculateSellerFee()">
+                            
+                            <div class="fee-calc-box">
+                                <div>販売手数料 (10%): <strong id="fee-amount-display">¥0</strong></div>
+                                <div style="color:#d32f2f;">販売利益 (お受取額): <strong id="profit-amount-display">¥0</strong></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>カテゴリー <span style="color:red;">*</span></label>
+                            <select id="new-prod-cat" class="form-control">
+                                <option value="アクア・ペット用品">アクア・ペット用品</option>
+                                <option value="ファッション">ファッション</option>
+                                <option value="家電・スマホ・カメラ">家電・スマホ・カメラ</option>
+                                <option value="インテリア・家具">インテリア・家具</option>
+                                <option value="本・音楽・ゲーム">本・音楽・ゲーム</option>
+                                <option value="生活雑貨">生活雑貨</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>商品の説明 <span style="color:red;">*</span></label>
+                            <textarea id="new-prod-desc" class="form-control" required placeholder="商品の状態、使用頻度、サイズ、注意事項などを詳しくご記入ください"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>受け取り方法</label>
+                            <div style="display:flex; gap:15px; margin-top:5px;">
+                                <label><input type="checkbox" id="new-ship" checked> 配送対応</label>
+                                <label><input type="checkbox" id="new-hand" checked> 手渡し可能</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px; padding: 12px; background-color: #fdf7f7; border: 1px solid #f5c6cb; border-radius: 6px;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-weight: bold; color: #721c24; cursor: pointer; margin-bottom:0;">
+                                <input type="checkbox" id="agree-fee-checkbox" required style="width: 18px; height: 18px; cursor: pointer;">
+                                商品の販売時にシステム利用手数料 (10%) が差し引かれることに同意します <span style="color:red;">*</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="submit-seller-btn" class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem; margin-top: 15px;">規約と手数料に同意して出品する</button>
+            </form>
         </div>
-
-        <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
-            <label>支店名</label>
-            <input type="text" id="bank-branch-input" name="bank_branch" class="form-control" placeholder="本店">
-          </div>
-          <div class="form-group">
-            <label>口座種別</label>
-            <select id="bank-type-input" name="bank_type" class="form-control">
-              <option value="普通">普通</option>
-              <option value="当座">当座</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>口座番号</label>
-          <input type="text" id="bank-number-input" name="bank_number" class="form-control" placeholder="1234567">
-        </div>
-
-        <div class="form-group">
-          <label>口座名義（カタカナ または アルファベット）</label>
-          <input type="text" id="bank-holder-input" name="bank_holder" class="form-control" placeholder="例: ヤマダ タロウ または JOHN SMITH">
-        </div>
-      </div>
-    </details>
-  </div>
-
-  <!-- 3. 出品商品情報 -->
-  <div>
-    <h3 style="font-size: 0.95rem; margin: 15px 0 10px 0; border-bottom:1px solid #ddd; padding-bottom:4px;">3. 出品商品情報</h3>
-
-    <!-- 商品画像 -->
-    <div class="form-group">
-      <label>商品画像 <span style="color:red;">*</span></label>
-      <div class="image-upload-wrapper" onclick="document.getElementById('new-prod-image').click();" style="cursor: pointer; border: 2px dashed #ccc; padding: 20px; text-align: center;">
-        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: #888;"></i>
-        <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして画像を選択</div>
-        <!-- ※ name属性を追加 -->
-        <input type="file" id="new-prod-image" name="product_image" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
-        <div class="img-preview-container" id="img-preview-box" style="display:none;">
-          <img id="img-preview" src="" alt="プレビュー" style="max-width: 100%; margin-top: 10px;">
-        </div>
-      </div>
     </div>
-
-    <!-- 商品名 -->
-    <div class="form-group">
-      <label>商品名 <span style="color:red;">*</span></label>
-      <input type="text" id="new-prod-name" name="product_name" class="form-control" required placeholder="例: LED水槽ライト">
-    </div>
-
-    <!-- 販売価格 -->
-    <div class="form-group">
-      <label>販売価格 (円) <span style="color:red;">*</span></label>
-      <input type="number" id="new-prod-price" name="product_price" class="form-control" required placeholder="3200" min="100" oninput="calculateSellerFee()">
-    </div>
-
-    <!-- 手数料計算エリア -->
-    <div class="fee-calc-box" style="background: #fdfdfd; padding: 10px; border: 1px solid #eee; margin: 10px 0;">
-      <div>販売手数料 (10%): <strong id="fee-amount-display">¥0</strong></div>
-      <div style="color:#d32f2f;">販売利益 (お受取額): <strong id="profit-amount-display">¥0</strong></div>
-    </div>
-
-    <!-- カテゴリー -->
-    <div class="form-group">
-      <label>カテゴリー <span style="color:red;">*</span></label>
-      <select id="new-prod-cat" name="product_category" class="form-control">
-        <option value="アクア・ペット用品">アクア・ペット用品</option>
-        <option value="ファッション">ファッション</option>
-        <option value="家電・スマホ・カメラ">家電・スマホ・カメラ</option>
-        <option value="インテリア・家具">インテリア・家具</option>
-        <option value="本・音楽・ゲーム">本・音楽・ゲーム</option>
-        <option value="生活雑貨">生活雑貨</option>
-      </select>
-    </div>
-
-    <!-- 商品の説明 -->
-    <div class="form-group">
-      <label>商品の説明 <span style="color:red;">*</span></label>
-      <textarea id="new-prod-desc" name="product_description" class="form-control" required placeholder="商品の状態、使用頻度、サイズ、注意事項などを詳しくご記入ください"></textarea>
-    </div>
-
-    <!-- 受け取り方法 -->
-    <div class="form-group">
-      <label>受け取り方法</label>
-      <div style="display:flex; gap:15px; margin-top:5px;">
-        <label><input type="checkbox" id="new-ship" name="delivery_method[]" value="ship" checked> 配送対応</label>
-        <label><input type="checkbox" id="new-hand" name="delivery_method[]" value="hand" checked> 手渡し可能</label>
-      </div>
-    </div>
-
-    <!-- 同意チェックボックス -->
-    <div class="form-group" style="margin-top: 15px; padding: 12px; background-color: #fdf7f7; border: 1px solid #f5c6cb; border-radius: 6px;">
-      <label style="display: flex; align-items: center; gap: 8px; font-weight: bold; color: #721c24; cursor: pointer; margin-bottom:0;">
-        <input type="checkbox" id="agree-fee-checkbox" name="agree_fee" value="1" required style="width: 18px; height: 18px; cursor: pointer;">
-        商品の販売時にシステム利用手数料（10%）が差し引かれることに同意します <span style="color:red;">*</span>
-      </label>
-    </div>
-
-    <!-- 送信ボタン -->
-    <button type="submit" id="submit-seller-btn" class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem; margin-top: 15px;">規約と手数料に同意して出品する</button>
-  </div>
-
-</form>
 
 
     <!-- MODAL 3: 運営者専用 ログイン ＆ 3重ロック新規登録 (上限1名制限) -->
@@ -972,15 +950,15 @@
 
             <!-- Tab Buttons Nav -->
             <div class="admin-tab-nav">
-                <button class="admin-tab-btn active" onclick="switchAdminTab('tab-users')"><i class="fa-solid fa-users"></i> ユーザー管理</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-products')"><i class="fa-solid fa-box"></i> 出品・商品監視</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-transactions')"><i class="fa-solid fa-comments"></i> 取引介入・メッセージ</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-reports')"><i class="fa-solid fa-triangle-exclamation"></i> 通報管理</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-financial')"><i class="fa-solid fa-coins"></i> 売上・手数料・振込</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-inquiries')"><i class="fa-solid fa-headset"></i> お問い合わせ</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-settings')"><i class="fa-solid fa-sliders"></i> サイト設定・規約編集</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-news-admin')"><i class="fa-solid fa-bullhorn"></i> お知らせ配信管理</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('tab-reviews-admin')"><i class="fa-solid fa-star"></i> 口口コミ・レビュー監視</button>
+                <button class="admin-tab-btn active" onclick="switchAdminTab(event, 'tab-users')"><i class="fa-solid fa-users"></i> ユーザー管理</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-products')"><i class="fa-solid fa-box"></i> 出品・商品監視</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-transactions')"><i class="fa-solid fa-comments"></i> 取引介入・メッセージ</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-reports')"><i class="fa-solid fa-triangle-exclamation"></i> 通報管理</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-financial')"><i class="fa-solid fa-coins"></i> 売上・手数料・振込</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-inquiries')"><i class="fa-solid fa-headset"></i> お問い合わせ</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-settings')"><i class="fa-solid fa-sliders"></i> サイト設定・規約編集</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-news-admin')"><i class="fa-solid fa-bullhorn"></i> お知らせ配信管理</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-reviews-admin')"><i class="fa-solid fa-star"></i> 口口コミ・レビュー監視</button>
             </div>
 
             <!-- TAB 1: ユーザー一覧 -->
@@ -1227,6 +1205,7 @@
         // 状態保持用変数
         let adminUsers = loadStorageData('adminUsers', []);
         let currentAdmin = loadStorageData('currentAdmin', null);
+        let savedSellerProfile = loadStorageData('savedSellerProfile', null); // 出品者の前回登録プロフ
         const currentViewerUser = "購入検討者A"; 
 
         let newsList = loadStorageData('newsList', [
@@ -1531,6 +1510,21 @@
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
+        // 出品モーダルを開く際に登録済みのプロフィールを自動セットする関数
+        function openSellerModal() {
+            if (savedSellerProfile) {
+                document.getElementById('seller-name-input').value = savedSellerProfile.name || '';
+                document.getElementById('seller-email-input').value = savedSellerProfile.email || '';
+                document.getElementById('seller-phone-input').value = savedSellerProfile.phone || '';
+                document.getElementById('bank-name-input').value = savedSellerProfile.bankName || '';
+                document.getElementById('bank-branch-input').value = savedSellerProfile.branchName || '';
+                document.getElementById('bank-type-input').value = savedSellerProfile.accountType || '普通';
+                document.getElementById('bank-number-input').value = savedSellerProfile.accountNumber || '';
+                document.getElementById('bank-holder-input').value = savedSellerProfile.accountHolder || '';
+            }
+            openModal('seller-modal');
+        }
+
         function selectCategory(btn, catName) {
             document.querySelectorAll('#category-chips .chip').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
@@ -1658,14 +1652,14 @@
             alert('ログアウトしました。');
         }
 
-        function switchAdminTab(tabId) {
+        function switchAdminTab(evt, tabId) {
             document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
+            evt.currentTarget.classList.add('active');
             document.getElementById(tabId).classList.add('active');
         }
 
-        // --- 管理者ダッシュボード操作関数群 (全ボタンの完全実装) ---
+        // --- 管理者ダッシュボード操作関数群 ---
 
         // 1. ユーザーアカウントステータス変更
         function toggleUserStatus(userId) {
@@ -1822,7 +1816,7 @@
             tblUsers.innerHTML = '';
             userList.forEach(u => {
                 const bankStr = u.bank ? `<div><strong>${u.bank.bankName}</strong> (${u.bank.branchName})<br>${u.bank.accountType} ${u.bank.accountNumber}<br>名義: ${u.bank.accountHolder}</div>` : '未登録';
-                tblUsers.innerHTML += `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.phone}</td><td>${bankStr}</td><td><span class="status-badge ${u.status === 'アクティブ' ? 'bg-success' : 'bg-danger'}">${u.status}</span></td><td><span class="status-badge ${u.kyc === '済' ? 'bg-info' : 'bg-secondary'}">${u.kyc}</span></td><td>${u.rating}</td><td><button class="btn-warning" onclick="toggleUserStatus('${u.id}')">ステータス変更</button></td></tr>`;
+                tblUsers.innerHTML += `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.phone}</td><td>${bankStr}</td><td><span class="status-badge ${u.status === 'アクティブ' ? 'bg-success' : 'bg-danger'}">${u.status}</span></td><td><span class="status-badge ${u.kyc === '済' ? 'bg-info' : 'bg-secondary'}">${u.kyc}</span></td><td>${u.rating || '-'}</td><td><button class="btn-warning" onclick="toggleUserStatus('${u.id}')">ステータス変更</button></td></tr>`;
             });
 
             const tblProds = document.getElementById('tbl-admin-products');
@@ -1954,6 +1948,7 @@
             closeModal('checkout-modal');
         }
 
+        // 商品出品＆出品者情報更新・補完登録
         function submitNewProduct(e) {
             e.preventDefault();
             
@@ -1966,7 +1961,60 @@
             const name = document.getElementById('new-prod-name').value;
             const price = parseInt(document.getElementById('new-prod-price').value);
             const sellerName = document.getElementById('seller-name-input').value;
+            const sellerEmail = document.getElementById('seller-email-input').value;
+            const sellerPhone = document.getElementById('seller-phone-input').value;
             const description = document.getElementById('new-prod-desc').value;
+
+            const bankName = document.getElementById('bank-name-input').value;
+            const bankBranch = document.getElementById('bank-branch-input').value;
+            const bankType = document.getElementById('bank-type-input').value;
+            const bankNumber = document.getElementById('bank-number-input').value;
+            const bankHolder = document.getElementById('bank-holder-input').value;
+
+            // 次回からの自動補完のためにプロファイルをLocalStorage保存
+            savedSellerProfile = {
+                name: sellerName,
+                email: sellerEmail,
+                phone: sellerPhone,
+                bankName: bankName,
+                branchName: bankBranch,
+                accountType: bankType,
+                accountNumber: bankNumber,
+                accountHolder: bankHolder
+            };
+            saveStorageData('savedSellerProfile', savedSellerProfile);
+
+            // 運営管理用のユーザーリスト（userList）にも登録・更新反映させる
+            let existingUser = userList.find(u => u.email === sellerEmail);
+            if (existingUser) {
+                existingUser.name = sellerName;
+                existingUser.phone = sellerPhone;
+                existingUser.bank = {
+                    bankName: bankName,
+                    branchName: bankBranch,
+                    accountType: bankType,
+                    accountNumber: bankNumber,
+                    accountHolder: bankHolder
+                };
+            } else {
+                userList.push({
+                    id: `USR-${String(userList.length + 1).padStart(3, '0')}`,
+                    name: sellerName,
+                    email: sellerEmail,
+                    phone: sellerPhone,
+                    status: "アクティブ",
+                    kyc: "済",
+                    rating: "新規出品者",
+                    bank: {
+                        bankName: bankName,
+                        branchName: bankBranch,
+                        accountType: bankType,
+                        accountNumber: bankNumber,
+                        accountHolder: bankHolder
+                    }
+                });
+            }
+            saveStorageData('userList', userList);
 
             const newProd = {
                 id: productsList.length + 101,
@@ -1988,22 +2036,26 @@
 
             sendToGas({
                 type: "SELLER_REGISTER",
-                email: document.getElementById('seller-email-input').value,
+                email: sellerEmail,
                 sellerName: sellerName,
                 productName: name,
                 price: price,
                 description: description,
-                bankName: document.getElementById('bank-name-input').value,
-                bankBranch: document.getElementById('bank-branch-input').value,
-                bankType: document.getElementById('bank-type-input').value,
-                bankNumber: document.getElementById('bank-number-input').value,
-                bankHolder: document.getElementById('bank-holder-input').value
+                bankName: bankName,
+                bankBranch: bankBranch,
+                bankType: bankType,
+                bankNumber: bankNumber,
+                bankHolder: bankHolder
             });
 
-            alert('画像と商品情報の登録・出品が完了しました！');
+            alert('画像と商品情報の登録・出品が完了しました！次回以降、入力された口座情報は自動的に入力されます。');
             closeModal('seller-modal');
             
-            document.getElementById('seller-form').reset();
+            // 商品入力部のみリセット（出品者情報・口座情報は残す）
+            document.getElementById('new-prod-name').value = '';
+            document.getElementById('new-prod-price').value = '';
+            document.getElementById('new-prod-desc').value = '';
+            document.getElementById('new-prod-image').value = '';
             currentUploadedImageBase64 = null;
             document.getElementById('img-preview-box').style.display = 'none';
             document.getElementById('fee-amount-display').innerText = '¥0';
