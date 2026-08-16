@@ -1354,10 +1354,27 @@
 
    <script>
     const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxliE_qs_mv-hkGqisojdff6SMp76NMruwRZLDRPbcCLuJJxzwazfg8MFnQ_IJNmojD/exec";
-    const stripe = Stripe('pk_live_51U4gjmL40FGaNRdNzfGUX7pQBZNVoeCT4fT5UigMdv1l7uJW8gDSil1yg9ZGaVqyClH90ya6bE7OAWBdlQR58Rsg00vZviigEW');
-
+  const stripe = Stripe('pk_test_xxxxxxxxxxxxxxxxxxxxxxxx');
     let currentUploadedImageBase64 = null;
     let currentEditImageBase64 = null;
+   const checkoutButton = document.getElementById('checkout-button');
+  if (checkoutButton) {
+    checkoutButton.addEventListener('click', async () => {
+      try {
+        const response = await fetch(GAS_WEBAPP_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'create-checkout-session' })
+        });
+        const session = await response.json();
+        const result = await stripe.redirectToCheckout({
+          sessionId: session.id
+        });
+        if (result.error) alert(result.error.message);
+      } catch (error) {
+        console.error('エラーが発生しました:', error);
+      }
+    });
+  }    
   
         function handleImageUpload(event) {
             const file = event.target.files[0];
