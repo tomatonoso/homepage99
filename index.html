@@ -1357,22 +1357,24 @@
   const stripe = Stripe('pk_test_xxxxxxxxxxxxxxxxxxxxxxxx');
     let currentUploadedImageBase64 = null;
     let currentEditImageBase64 = null;
- const checkoutButton = document.getElementById('checkout-button');
-
-if (!checkoutButton) {
-  console.log('【原因①】「checkout-button」というidのボタンが画面内に見つかりません。');
-} else {
-  console.log('【成功】ボタンの読み込みに成功しました。');
-
-  checkoutButton.addEventListener('click', async () => {
-    console.log('【進行中】ボタンが押されました。GASへ通信を開始します...');
-
-    try {
-      const response = await fetch(GAS_WEBAPP_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'create-checkout-session' })
-      });
-
+const checkoutButton = document.getElementById('checkout-button');
+  if (checkoutButton) {
+    checkoutButton.addEventListener('click', async () => {
+      try {
+        const response = await fetch(GAS_WEBAPP_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'create-checkout-session' })
+        });
+        const session = await response.json();
+        const result = await stripe.redirectToCheckout({
+          sessionId: session.id
+        });
+        if (result.error) alert(result.error.message);
+      } catch (error) {
+        console.error('エラーが発生しました:', error);
+      }
+    });
+  }
       console.log('【進行中】GASからの応答を受信しました。');
       const session = await response.json();
       console.log('【データ確認】取得したセッション情報:', session);
