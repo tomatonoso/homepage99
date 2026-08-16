@@ -2605,10 +2605,12 @@
             openModal('seller-modal');
         }
 
-       function tryOpenAdmin() {
+     // 運営管理ボタンを押したときの処理
+function tryOpenAdmin() {
     currentAdmin = loadStorageData('currentAdmin', null);
     
     if (currentAdmin) {
+        // ログイン済み：管理画面を表示
         const displayEl = document.getElementById('current-admin-display');
         if (displayEl) {
             displayEl.innerText = `管理者: ${currentAdmin.email}`;
@@ -2616,29 +2618,70 @@
         renderAdminTables();
         openModal('admin-modal');
     } else {
-        // 未ログイン時はログイン/新規登録画面を開く
+        // 未ログイン：ログイン/新規登録モーダルを表示
         openModal('admin-login-modal');
     }
 }
-        function registerAdminAccount(email, password) {
-    // 既に登録されたアカウントがあるかチェック
-    const existingAccount = loadStorageData('registeredAdminAccount', null);
-    
-    if (existingAccount) {
-        alert('運営者アカウントは既に登録されています（上限: 1名）。新規登録はできません。');
-        return false;
+
+// 運営者アカウントの新規登録（1名限定）
+function handleAdminRegister(event) {
+    if (event) event.preventDefault();
+
+    // 既に登録済みのアカウントがあるかチェック
+    const registeredAccount = loadStorageData('registeredAdminAccount', null);
+    if (registeredAccount) {
+        alert('運営者アカウントは既に登録されています（上限: 1名）。登録済みの情報でログインしてください。');
+        return;
     }
 
-    // 1人目のアカウント情報を登録
-    const newAdmin = { id: 'ADMIN-001', email: email, password: password };
-    saveStorageData('registeredAdminAccount', newAdmin); // 登録済み枠の確保
-    saveStorageData('currentAdmin', newAdmin);           // ログイン状態にする
+    const email = document.getElementById('admin-input-email').value;
+    const password = document.getElementById('admin-input-pass').value;
 
-    alert('運営者アカウントの登録が完了しました。');
+    if (!email || !password) {
+        alert('メールアドレスとパスワードを入力してください。');
+        return;
+    }
+
+    // 1人目のアカウントを保存＆ログイン状態にする
+    const newAdmin = { id: 'ADMIN-001', email: email, password: password };
+    saveStorageData('registeredAdminAccount', newAdmin); // アカウント登録枠
+    saveStorageData('currentAdmin', newAdmin);           // ログインセッション
+
+    alert('運営者アカウントの登録が完了しました。管理画面へ移動します。');
     closeModal('admin-login-modal');
     tryOpenAdmin();
-    return true;
 }
-    </script>
+
+// 運営者ログイン処理
+function handleAdminLogin(event) {
+    if (event) event.preventDefault();
+
+    const registeredAccount = loadStorageData('registeredAdminAccount', null);
+    if (!registeredAccount) {
+        alert('運営者アカウントが未登録です。先に新規登録を行ってください。');
+        return;
+    }
+
+    const email = document.getElementById('admin-input-email').value;
+    const password = document.getElementById('admin-input-pass').value;
+
+    if (email === registeredAccount.email && password === registeredAccount.password) {
+        saveStorageData('currentAdmin', registeredAccount);
+        alert('ログインしました。');
+        closeModal('admin-login-modal');
+        tryOpenAdmin();
+    } else {
+        alert('メールアドレスまたはパスワードが正しくありません。');
+    }
+}
+
+// ログアウト処理（セッション破棄）
+function logoutAdmin() {
+    currentAdmin = null;
+    saveStorageData('currentAdmin', null); // ログイン状態のみ消去
+    closeModal('admin-modal');
+    alert('ログアウトしました。管理画面を脱出します。');
+}
+</script>
 </body>
 </html>
