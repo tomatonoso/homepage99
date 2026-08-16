@@ -2608,18 +2608,36 @@
        function tryOpenAdmin() {
     currentAdmin = loadStorageData('currentAdmin', null);
     
-    // ログイン情報がない場合は仮データを自動セット
-    if (!currentAdmin) {
-        currentAdmin = { id: 'ADMIN-001', email: 'admin@example.com' };
-        saveStorageData('currentAdmin', currentAdmin);
+    if (currentAdmin) {
+        const displayEl = document.getElementById('current-admin-display');
+        if (displayEl) {
+            displayEl.innerText = `管理者: ${currentAdmin.email}`;
+        }
+        renderAdminTables();
+        openModal('admin-modal');
+    } else {
+        // 未ログイン時はログイン/新規登録画面を開く
+        openModal('admin-login-modal');
+    }
+}
+        function registerAdminAccount(email, password) {
+    // 既に登録されたアカウントがあるかチェック
+    const existingAccount = loadStorageData('registeredAdminAccount', null);
+    
+    if (existingAccount) {
+        alert('運営者アカウントは既に登録されています（上限: 1名）。新規登録はできません。');
+        return false;
     }
 
-    const displayEl = document.getElementById('current-admin-display');
-    if (displayEl) {
-        displayEl.innerText = `管理者: ${currentAdmin.email}`;
-    }
-    renderAdminTables();
-    openModal('admin-modal');
+    // 1人目のアカウント情報を登録
+    const newAdmin = { id: 'ADMIN-001', email: email, password: password };
+    saveStorageData('registeredAdminAccount', newAdmin); // 登録済み枠の確保
+    saveStorageData('currentAdmin', newAdmin);           // ログイン状態にする
+
+    alert('運営者アカウントの登録が完了しました。');
+    closeModal('admin-login-modal');
+    tryOpenAdmin();
+    return true;
 }
     </script>
 </body>
