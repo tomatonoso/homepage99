@@ -2156,16 +2156,22 @@
             }
         }
 
-        function tryOpenAdmin() {
-            currentAdmin = loadStorageData('currentAdmin', null);
-            if (currentAdmin) {
-                document.getElementById('current-admin-display').innerText = `管理者: ${currentAdmin.email}`;
-                renderAdminTables();
-                openModal('admin-modal');
-            } else {
-                openModal('admin-login-modal');
-            }
-        }
+       function tryOpenAdmin() {
+    currentAdmin = loadStorageData('currentAdmin', null);
+    
+    // ログイン情報がない場合は仮データを自動セット
+    if (!currentAdmin) {
+        currentAdmin = { id: 'ADMIN-001', email: 'admin@example.com' };
+        saveStorageData('currentAdmin', currentAdmin);
+    }
+
+    const displayEl = document.getElementById('current-admin-display');
+    if (displayEl) {
+        displayEl.innerText = `管理者: ${currentAdmin.email}`;
+    }
+    renderAdminTables();
+    openModal('admin-modal');
+}
 
         function logoutAdmin() {
             currentAdmin = null;
