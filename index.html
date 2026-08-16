@@ -1357,23 +1357,23 @@
   const stripe = Stripe('pk_test_xxxxxxxxxxxxxxxxxxxxxxxx');
     let currentUploadedImageBase64 = null;
     let currentEditImageBase64 = null;
-const checkoutButton = document.getElementById('checkout-button');
-  if (checkoutButton) {
-    checkoutButton.addEventListener('click', async () => {
-      try {
-        const response = await fetch(GAS_WEBAPP_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'create-checkout-session' })
-        });
-        const session = await response.json();
-        const result = await stripe.redirectToCheckout({
-          sessionId: session.id
-        });
-        if (result.error) alert(result.error.message);
-      } catch (error) {
-        console.error('エラーが発生しました:', error);
-      }
-    });
+let currentUploadedImageBase64 = null;
+let currentEditImageBase64 = null;
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    currentUploadedImageBase64 = e.target.result;
+    const imgPreview = document.getElementById('img-preview');
+    const previewBox = document.getElementById('img-preview-box');
+    imgPreview.src = currentUploadedImageBase64;
+    previewBox.style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
   }
   }
       console.log('【進行中】GASからの応答を受信しました。');
