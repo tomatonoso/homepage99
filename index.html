@@ -2561,6 +2561,47 @@
                 renderAdminTables();
             }
         }
+ function openModal(id) {
+            if (id === 'tokusho-modal') document.getElementById('view-tokusho-content').innerText = siteSettings.tokusho;
+            if (id === 'privacy-modal') document.getElementById('view-privacy-content').innerText = siteSettings.privacy;
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = 'block';
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.style.display = 'none';
+        }
+
+        function selectCategory(btn, cat) {
+            document.querySelectorAll('#category-chips .chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            selectedCategory = cat;
+            renderProducts();
+        }
+
+        function selectReceiveMethod(btn, method) {
+            document.querySelectorAll('.receive-box .pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedReceive = method;
+            renderProducts();
+        }
+
+        function filterProducts() {
+            renderProducts();
+        }
+
+        function openSellerModal() {
+            openModal('seller-modal');
+        }
+
+        function tryOpenAdmin() {
+            if (currentAdmin) {
+                openAdminModal();
+            } else {
+                openModal('admin-login-modal');
+            }
+        }       
     </script>
 </body>
 </html>
