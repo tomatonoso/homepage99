@@ -1693,18 +1693,22 @@
 
             const shipping = prod.shippingFee !== undefined ? prod.shippingFee : 0;
             const total = prod.price + shipping;
-
-            const newTrx = {
-                id: `TRX-${Date.now()}`,
-                productId: prod.id,
-                prodName: prod.name,
-                buyer: name,
-                seller: prod.seller,
-                price: total,
-                status: "購入済み",
-                payoutStatus: "未振込",
-                lastMsg: "購入手続きが完了しました。"
-            };
+　　　　　　 const systemFee = Math.floor(prod.price * 0.10);  // 手数料10%
+            const sellerPayout = prod.price - systemFee;       // 出品者の受取額
+            // 1697行目付近〜
+   　　　　　const newTrx = {
+   　　　　　 id: `TRX-${Date.now()}`,
+ 　　　　　   productId: prod.id,
+  　　　　　  prodName: prod.name,
+  　　　　　  buyer: name,
+  　　　　　  seller: prod.seller,
+  　　　　　  price: total,
+  　　　　　  systemFee: systemFee,        // ★ここを追加
+　　　　　    sellerPayout: sellerPayout,  // ★ここを追加
+   　　　　　 status: "購入済み",
+  　　　　　  payoutStatus: "未振込",
+  　　　　　  lastMsg: "購入手続きが完了しました。"
+　　　　　　};
 
             transactionsList.unshift(newTrx);
             saveStorageData('transactionsList', transactionsList);
