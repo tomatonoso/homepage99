@@ -1090,7 +1090,7 @@
                     <input type="text" id="reg-sec-answer" class="form-control" required placeholder="回答をご記入ください">
                 </div>
 
-                <button type="submit" class="btn-red-sm" style="width:100%; padding: 12px; margin-top: 16px; font-size:1rem;">3重ロックで管理者アカウント登録</button>
+               <button type="submit" class="btn-red-sm" style="width:100%; padding: 12px; margin-top: 16px; font-size:1rem;">3重ロックで管理者アカウント登録</button>
             </form>
         </div>
     </div>
@@ -2604,8 +2604,7 @@
         function openSellerModal() {
             openModal('seller-modal');
         }
-
-     // 運営管理ボタンを押したときの処理
+// 運営管理ボタンを押したときの処理
 function tryOpenAdmin() {
     currentAdmin = loadStorageData('currentAdmin', null);
     
@@ -2627,27 +2626,36 @@ function tryOpenAdmin() {
 function handleAdminRegister(event) {
     if (event) event.preventDefault();
 
-    // 既に登録済みのアカウントがあるかチェック
+    // すでに登録済みの管理者がいるかチェック（1名制限）
     const registeredAccount = loadStorageData('registeredAdminAccount', null);
     if (registeredAccount) {
         alert('運営者アカウントは既に登録されています（上限: 1名）。登録済みの情報でログインしてください。');
         return;
     }
 
-    const email = document.getElementById('admin-input-email').value;
-    const password = document.getElementById('admin-input-pass').value;
+    // HTMLの入力IDから値を取得
+    const email = document.getElementById('reg-email')?.value;
+    const phone = document.getElementById('reg-phone')?.value;
+    const answer = document.getElementById('reg-sec-answer')?.value;
 
-    if (!email || !password) {
-        alert('メールアドレスとパスワードを入力してください。');
+    if (!email) {
+        alert('管理者メールアドレスを入力してください。');
         return;
     }
 
-    // 1人目のアカウントを保存＆ログイン状態にする
-    const newAdmin = { id: 'ADMIN-001', email: email, password: password };
-    saveStorageData('registeredAdminAccount', newAdmin); // アカウント登録枠
-    saveStorageData('currentAdmin', newAdmin);           // ログインセッション
+    // アカウント情報の保存とセッションの開始
+    const newAdmin = { 
+        id: 'ADMIN-001', 
+        email: email, 
+        phone: phone, 
+        secAnswer: answer,
+        registeredAt: new Date().toISOString()
+    };
+    
+    saveStorageData('registeredAdminAccount', newAdmin); // アカウント登録枠（1名用）
+    saveStorageData('currentAdmin', newAdmin);           // ログイン状態
 
-    alert('運営者アカウントの登録が完了しました。管理画面へ移動します。');
+    alert('運営者アカウントの登録が完了しました！');
     closeModal('admin-login-modal');
     tryOpenAdmin();
 }
@@ -2658,29 +2666,29 @@ function handleAdminLogin(event) {
 
     const registeredAccount = loadStorageData('registeredAdminAccount', null);
     if (!registeredAccount) {
-        alert('運営者アカウントが未登録です。先に新規登録を行ってください。');
+        alert('運営者アカウントが未登録です。「新規高セキュリティ登録へ」から登録を行ってください。');
         return;
     }
 
-    const email = document.getElementById('admin-input-email').value;
-    const password = document.getElementById('admin-input-pass').value;
+    // ログインフォームの入力値を取得
+    const loginEmail = document.getElementById('login-email')?.value || document.querySelector('#admin-login-form input[type="email"]')?.value;
 
-    if (email === registeredAccount.email && password === registeredAccount.password) {
+    if (loginEmail === registeredAccount.email) {
         saveStorageData('currentAdmin', registeredAccount);
         alert('ログインしました。');
         closeModal('admin-login-modal');
         tryOpenAdmin();
     } else {
-        alert('メールアドレスまたはパスワードが正しくありません。');
+        alert('登録されているメールアドレスと一致しません。');
     }
 }
 
-// ログアウト処理（セッション破棄）
+// ログアウト処理
 function logoutAdmin() {
     currentAdmin = null;
-    saveStorageData('currentAdmin', null); // ログイン状態のみ消去
+    saveStorageData('currentAdmin', null); // ログインセッションのみ破棄
     closeModal('admin-modal');
-    alert('ログアウトしました。管理画面を脱出します。');
+    alert('ログアウトしました。');
 }
 </script>
 </body>
