@@ -6,6 +6,7 @@
     <title>ミナトモ！ - フリマ＆ECプラットフォーム</title>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         :root {
             --brand-red: #ff3b30;
@@ -1351,12 +1352,13 @@
     </div>
 
 
-    <script>
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxliE_qs_mv-hkGqisojdff6SMp76NMruwRZLDRPbcCLuJJxzwazfg8MFnQ_IJNmojD/exec";
+   <script>
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxliE_qs_mv-hkGqisojdff6SMp76NMruwRZLDRPbcCLuJJxzwazfg8MFnQ_IJNmojD/exec";
+    const stripe = Stripe('pk_live_51U4gjmL40FGaNRdNzfGUX7pQBZNVoeCT4fT5UigMdv1l7uJW8gDSil1yg9ZGaVqyClH90ya6bE7OAWBdlQR58Rsg00vZviigEW');
 
-        let currentUploadedImageBase64 = null;
-        let currentEditImageBase64 = null;
-
+    let currentUploadedImageBase64 = null;
+    let currentEditImageBase64 = null;
+  
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
