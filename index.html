@@ -1146,7 +1146,7 @@
 
     <script>
         // 指定の更新済み GAS WebApp URL
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz-oEQ7Jzhe_jjDKbhssV_7tWWvtc56Fy9PJQ0queN1AjNnMVPra87rCZTPqqwBmIZV/exec";
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbykAIBdZBzFRKxJYu-9WWEth6hxHoAlDxuL-eS5KPuWi3iFkj9j1qQhGpI_cq9B4Pd-/exec";
 
         let currentUploadedImageBase64 = null;
 
@@ -1506,12 +1506,13 @@
         }
 
         // --- 購入手続きモーダルを開く関数 ---
-       function openCheckoutForProduct(prodId) {
-    // 作成したStripeのURLをここに貼り付けます
-    const STRIPE_URL = "https://buy.stripe.com/cNi28s7YM75I7gO7Ne4sE00";
-    
-    // Stripeの外部決済ページへ直接移動します
-    window.location.href = STRIPE_URL;
+       // 削除する部分（1509行目〜1515行目）
+function openCheckoutForProduct(prodId) {
+// 作成したStripeのURLをここに貼り付けます
+const STRIPE_URL = "https://buy.stripe.com/cNi28s7YM75I7gO7Ne4sE00";
+
+// Stripeの外部決済ページへ直接移動します
+window.location.href = STRIPE_URL;
 }
 
         // --- チェックアウト時の送料・合計金額計算 ---
