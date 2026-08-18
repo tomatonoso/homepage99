@@ -1986,10 +1986,24 @@ window.location.href = STRIPE_URL;
         }
 
         // 初期化実行
-        window.onload = function() {
-            renderNewsList();
-            renderProducts();
-        };
+   window.onload = function() {
+    renderNewsList();
+    renderProducts();
+
+    // Stripe決済成功時の自動データ処理
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+        alert('決済が完了しました！データを更新します。');
+        
+        // 管理画面テーブル等の再描画処理
+        if (typeof renderAdminTables === 'function') {
+            renderAdminTables();
+        }
+        
+        // URLの ?success=true を削除して表示を整える
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+};
     </script>
 </body>
 </html>
