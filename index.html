@@ -1508,11 +1508,31 @@
         // --- 購入手続きモーダルを開く関数 ---
        // 削除する部分（1509行目〜1515行目）
 function openCheckoutForProduct(prodId) {
-// 作成したStripeのURLをここに貼り付けます
-const STRIPE_URL = "https://buy.stripe.com/cNi28s7YM75I7gO7Ne4sE00";
+    const prod = productsList.find(p => p.id === prodId);
+    if (!prod) {
+        alert("商品情報が見つかりません。");
+        return;
+    }
 
-// Stripeの外部決済ページへ直接移動します
-window.location.href = STRIPE_URL;
+    // ボタンを押した時の確認用（正しく金額が取れているか画面に出ます）
+    alert("決済へ進みます: " + prod.name + " (" + prod.price + "円)");
+
+    // GASを呼び出して動的にStripe決済画面を発行
+    google.script.run
+        .withSuccessHandler(function(checkoutUrl) {
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            } else {
+                alert("決済URLの作成に失敗しました。GASのコードを確認してください。");
+            }
+        })
+        .withFailureHandler(function(err) {
+            alert("エラーが発生しました: " + err.message);
+        })
+        .createStripeCheckoutSession({
+            productName: prod.name,
+            price: prod.price
+        });
 }
 
         // --- チェックアウト時の送料・合計金額計算 ---
