@@ -1193,14 +1193,16 @@
         }
 
         function calculateSellerFee() {
-            const priceInput = document.getElementById('new-prod-price');
-            const price = parseInt(priceInput.value) || 0;
-            const fee = Math.floor(price * 0.10);
-            const profit = price - fee;
+    const priceInput = document.getElementById('new-prod-price');
+    const price = parseInt(priceInput.value) || 0;
+    
+    // ★ 手数料率を 0.10 (10%) から 0.064 (6.4%) に変更
+    const fee = Math.floor(price * 0.064); 
+    const profit = price - fee;
 
-            document.getElementById('fee-amount-display').innerText = `¥${fee.toLocaleString()}`;
-            document.getElementById('profit-amount-display').innerText = `¥${profit.toLocaleString()}`;
-        }
+    document.getElementById('fee-amount-display').innerText = `¥${fee.toLocaleString()}`;
+    document.getElementById('profit-amount-display').innerText = `¥${profit.toLocaleString()}`;
+}
 
         // 状態保持用変数
         let adminUsers = loadStorageData('adminUsers', []);
@@ -1504,25 +1506,13 @@
         }
 
         // --- 購入手続きモーダルを開く関数 ---
-        function openCheckoutForProduct(prodId) {
-            currentActiveProductId = prodId;
-            const prod = productsList.find(p => p.id === prodId);
-            if (!prod) return;
-
-            // 選択中商品名の表示
-            document.getElementById('selected-prod-display').innerText = `${prod.name} (¥${prod.price.toLocaleString()})`;
-            
-            // 都道府県セレクトボックスの初期化
-            const prefSelect = document.getElementById('checkout-pref-select');
-            prefSelect.innerHTML = '';
-            prefecturesData.forEach((pref, index) => {
-                prefSelect.innerHTML += `<option value="${index}">${pref.name} (送料: ¥${pref.shipping})</option>`;
-            });
-
-            // 再計算を実行してモーダルを表示
-            calcCheckout();
-            openModal('checkout-modal');
-        }
+       function openCheckoutForProduct(prodId) {
+    // 作成したStripeのURLをここに貼り付けます
+    const STRIPE_URL = "https://buy.stripe.com/cNi28s7YM75I7gO7Ne4sE00";
+    
+    // Stripeの外部決済ページへ直接移動します
+    window.location.href = STRIPE_URL;
+}
 
         // --- チェックアウト時の送料・合計金額計算 ---
         function calcCheckout() {
