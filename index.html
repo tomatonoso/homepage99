@@ -6,6 +6,11 @@
     <title>ミナトモ！ - フリマ＆ECプラットフォーム</title>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK (認証機能用) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
     <style>
         :root {
             --brand-red: #ea352d;
@@ -56,8 +61,8 @@
         .search-container {
             display: flex;
             align-items: center;
-            width: 40%;
-            max-width: 500px;
+            width: 35%;
+            max-width: 400px;
         }
 
         .search-input {
@@ -90,6 +95,33 @@
             align-items: center;
             gap: 10px;
             font-size: 0.85rem;
+        }
+
+        /* Amazon風 カート・ユーザー状態表示スタイル */
+        .header-cart-badge {
+            background-color: #f39c12;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .header-cart-badge:hover {
+            background-color: #e67e22;
+        }
+
+        .user-status-text {
+            font-weight: bold;
+            color: var(--text-dark);
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .btn-outline {
@@ -491,6 +523,17 @@
             <button class="search-btn" onclick="filterProducts()">検 索</button>
         </div>
         <div class="header-user-nav">
+            <!-- Amazon風 カートボタン -->
+            <div class="header-cart-badge" onclick="openModal('cart-modal')">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>カート: <strong id="nav-cart-count">0</strong>点</span>
+            </div>
+
+            <!-- 購入者 ログイン / アカウント切り替えボタン -->
+            <div id="user-auth-btn-area">
+                <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
+            </div>
+
             <button class="btn-outline" onclick="openModal('inquiry-modal')"><i class="fa-solid fa-headset"></i> お問合せ</button>
             <button class="btn-outline" onclick="tryOpenAdmin()"><i class="fa-solid fa-gear"></i> 運営管理</button>
             <button class="btn-red-sm" onclick="openSellerModal()">出品者登録・出品</button>
@@ -559,6 +602,69 @@
     </footer>
 
 
+    <!-- MODAL: 購入者用 新規登録・ログイン モーダル -->
+    <div id="buyer-auth-modal" class="modal-panel">
+        <div class="modal-content modal-content-sm">
+            <span class="close-modal" onclick="closeModal('buyer-auth-modal')">&times;</span>
+            <h2 id="buyer-auth-title"><i class="fa-solid fa-user-check" style="color: var(--brand-red);"></i> 購入者ログイン</h2>
+            <hr style="margin: 15px 0;">
+
+            <div id="buyer-login-form">
+                <div class="form-group">
+                    <label>メールアドレス</label>
+                    <input type="email" id="buyer-email" class="form-control" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>パスワード (6文字以上)</label>
+                    <input type="password" id="buyer-password" class="form-control" placeholder="******">
+                </div>
+                <button class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;" onclick="handleBuyerAuth('login')">ログイン</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
+                    アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a>
+                </p>
+            </div>
+
+            <div id="buyer-signup-form" style="display:none;">
+                <div class="form-group">
+                    <label>メールアドレス</label>
+                    <input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>パスワード (6文字以上)</label>
+                    <input type="password" id="buyer-signup-password" class="form-control" placeholder="******">
+                </div>
+                <button class="btn-success" style="width:100%; padding: 10px; margin-top: 10px;" onclick="handleBuyerAuth('signup')">新規登録する</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
+                    すでにアカウントをお持ちですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('login')" style="color:#007bff;">ログインへ戻る</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL: カートの中身 ＆ 注文状況確認 モーダル -->
+    <div id="cart-modal" class="modal-panel">
+        <div class="modal-content modal-content-sm">
+            <span class="close-modal" onclick="closeModal('cart-modal')">&times;</span>
+            <h2><i class="fa-solid fa-cart-shopping" style="color: #f39c12;"></i> 現在のカートの中身</h2>
+            <hr style="margin: 15px 0;">
+
+            <div id="cart-items-list" style="min-height: 100px; max-height: 300px; overflow-y: auto;">
+                <!-- カート内の商品がここに描画されます -->
+            </div>
+
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: right;">
+                <span style="font-size: 1rem;">合計金額: </span>
+                <strong id="cart-total-price" style="font-size: 1.4rem; color: var(--brand-red);">¥0</strong>
+            </div>
+
+            <button id="cart-checkout-btn" class="btn-red-sm" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 15px;" onclick="checkoutCartItems()">
+                まとめて購入手続きへ進む
+            </button>
+        </div>
+    </div>
+
+
     <!-- MODAL: 商品詳細 -->
     <div id="product-detail-modal" class="modal-panel">
         <div class="modal-content" style="max-width: 800px;">
@@ -577,8 +683,9 @@
                         <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color:#444;">【商品の説明】</div>
                         <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; font-size: 0.88rem; line-height: 1.6; white-space: pre-wrap;" id="detail-desc"></div>
                     </div>
-                    <div style="margin-top: 20px;">
-                        <button class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem;" onclick="proceedToCheckoutFromDetail()">購入手続きへ進む</button>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button class="btn-warning" style="flex: 1; padding: 12px; font-size: 0.95rem; font-weight: bold;" onclick="addToCartCurrentProduct()"><i class="fa-solid fa-cart-plus"></i> カートに入れる</button>
+                        <button class="btn-red-sm" style="flex: 1; padding: 12px; font-size: 0.95rem;" onclick="proceedToCheckoutFromDetail()">今すぐ購入手続きへ</button>
                     </div>
                 </div>
             </div>
@@ -771,7 +878,7 @@
                             <input type="number" id="new-prod-price" class="form-control" required placeholder="3200" min="100" oninput="calculateSellerFee()">
                             
                             <div class="fee-calc-box">
-                                <div>販売手数料 (10%): <strong id="fee-amount-display">¥0</strong></div>
+                                <div>販売手数料 (6.4%): <strong id="fee-amount-display">¥0</strong></div>
                                 <div style="color:#d32f2f;">販売利益 (お受取額): <strong id="profit-amount-display">¥0</strong></div>
                             </div>
                         </div>
@@ -801,7 +908,7 @@
                         <div class="form-group" style="margin-top: 15px; padding: 12px; background-color: #fdf7f7; border: 1px solid #f5c6cb; border-radius: 6px;">
                             <label style="display: flex; align-items: center; gap: 8px; font-weight: bold; color: #721c24; cursor: pointer; margin-bottom:0;">
                                 <input type="checkbox" id="agree-fee-checkbox" required style="width: 18px; height: 18px; cursor: pointer;">
-                                商品の販売時にシステム利用手数料 (10%) が差し引かれることに同意します <span style="color:red;">*</span>
+                                商品の販売時にシステム利用手数料 (6.4%) が差し引かれることに同意します <span style="color:red;">*</span>
                             </label>
                         </div>
                     </div>
@@ -1038,7 +1145,7 @@
                 <div class="grid-2" style="margin-bottom:15px;">
                     <div style="background:#e8f4ff; padding:12px; border-radius:6px;">
                         <h4>総流通金額: <span id="stat-total-vol">¥0</span></h4>
-                        <h4>運営手数料 (10%): <span id="stat-total-fee" style="color:var(--brand-red);">¥0</span></h4>
+                        <h4>運営手数料 (6.4%): <span id="stat-total-fee" style="color:var(--brand-red);">¥0</span></h4>
                     </div>
                 </div>
 
@@ -1047,7 +1154,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>申請ID</th><th>ユーザー名</th><th>申請額</th><th>手数料10%控除後振込額</th><th>振込先口座情報</th><th>ステータス</th><th>操作</th>
+                                <th>申請ID</th><th>ユーザー名</th><th>申請額</th><th>手数料6.4%控除後振込額</th><th>振込先口座情報</th><th>ステータス</th><th>操作</th>
                             </tr>
                         </thead>
                         <tbody id="tbl-payouts"></tbody>
@@ -1145,10 +1252,175 @@
 
 
     <script>
+        // 【設定】Firebaseコンソールで取得した初期化キーを入力してください
+        // 1256行目〜1263行目を、Firebaseコンソールから取得した本物の値に置き換えてください
+1256: const firebaseConfig = {
+1257:   apiKey: "AIzaSy...",               // ← 本物のAPIキーを入力
+1258:   authDomain: "xxxx.firebaseapp.com", // ← 本物のauthDomainを入力
+1259:   projectId: "xxxx",                 // ← 本物のprojectIdを入力
+1260:   storageBucket: "xxxx.appspot.com", // ← 本物のstorageBucketを入力
+1261:   messagingSenderId: "xxxx",         // ← 本物のmessagingSenderIdを入力
+1262:   appId: "xxxx"                      // ← 本物のappIdを入力
+1263: };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
         // 指定の更新済み GAS WebApp URL
         const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec";
 
         let currentUploadedImageBase64 = null;
+        let currentBuyerUser = null;
+        let userCart = loadStorageData('cart', []);
+
+        // --- Firebase Auth 監視（ログイン状態自動読み込み） ---
+        auth.onAuthStateChanged(user => {
+            currentBuyerUser = user;
+            const userArea = document.getElementById('user-auth-btn-area');
+            if (user) {
+                userArea.innerHTML = `
+                    <span class="user-status-text"><i class="fa-solid fa-user-check" style="color:#28a745;"></i> ${user.email.split('@')[0]} 様</span>
+                    <button class="btn-secondary" onclick="logoutBuyer()">ログアウト</button>
+                `;
+            } else {
+                userArea.innerHTML = `
+                    <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
+                `;
+            }
+        });
+
+        // --- 購入者ログイン・登録処理 ---
+        function handleBuyerAuth(type) {
+            let email, pass;
+            if (type === 'login') {
+                email = document.getElementById('buyer-email').value.trim();
+                pass = document.getElementById('buyer-password').value.trim();
+            } else {
+                email = document.getElementById('buyer-signup-email').value.trim();
+                pass = document.getElementById('buyer-signup-password').value.trim();
+            }
+
+            if (!email || !pass) {
+                alert("メールアドレスとパスワードを入力してください。");
+                return;
+            }
+
+            if (type === 'signup') {
+                auth.createUserWithEmailAndPassword(email, pass)
+                    .then(() => {
+                        alert("会員登録が完了しました！");
+                        closeModal('buyer-auth-modal');
+                    })
+                    .catch(err => alert("登録エラー: " + err.message));
+            } else {
+                auth.signInWithEmailAndPassword(email, pass)
+                    .then(() => {
+                        alert("ログインしました！");
+                        closeModal('buyer-auth-modal');
+                    })
+                    .catch(err => alert("ログインエラー: " + err.message));
+            }
+        }
+
+        function logoutBuyer() {
+            auth.signOut().then(() => alert("ログアウトしました。"));
+        }
+
+        function toggleBuyerAuthMode(mode) {
+            if (mode === 'signup') {
+                document.getElementById('buyer-login-form').style.display = 'none';
+                document.getElementById('buyer-signup-form').style.display = 'block';
+                document.getElementById('buyer-auth-title').innerText = '新規購入者会員登録';
+            } else {
+                document.getElementById('buyer-login-form').style.display = 'block';
+                document.getElementById('buyer-signup-form').style.display = 'none';
+                document.getElementById('buyer-auth-title').innerText = '購入者ログイン';
+            }
+        }
+
+        // --- カート機能処理 ---
+        function addToCartCurrentProduct() {
+            if (!currentActiveProductId) return;
+            const prod = productsList.find(p => p.id === currentActiveProductId);
+            if (!prod) return;
+
+            const existing = userCart.find(item => item.id === prod.id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                userCart.push({
+                    id: prod.id,
+                    name: prod.name,
+                    price: prod.price,
+                    quantity: 1
+                });
+            }
+
+            saveStorageData('cart', userCart);
+            updateCartUI();
+            alert(`「${prod.name}」をカートに追加しました！`);
+            closeModal('product-detail-modal');
+        }
+
+        function updateCartUI() {
+            const countEl = document.getElementById('nav-cart-count');
+            const totalCount = userCart.reduce((sum, item) => sum + item.quantity, 0);
+            countEl.innerText = totalCount;
+
+            const listEl = document.getElementById('cart-items-list');
+            const priceEl = document.getElementById('cart-total-price');
+
+            if (userCart.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">カートの中に商品はありません。</div>';
+                priceEl.innerText = '¥0';
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+            userCart.forEach((item, idx) => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom: 1px dashed #ddd;">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <span style="font-size:0.85rem; color:#666;">¥${item.price.toLocaleString()} × ${item.quantity}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap: 10px;">
+                            <strong style="color:var(--brand-red);">¥${subtotal.toLocaleString()}</strong>
+                            <button class="btn-danger" onclick="removeFromCart(${idx})">削除</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+            priceEl.innerText = `¥${total.toLocaleString()}`;
+        }
+
+        function removeFromCart(index) {
+            userCart.splice(index, 1);
+            saveStorageData('cart', userCart);
+            updateCartUI();
+        }
+
+        function checkoutCartItems() {
+            if (userCart.length === 0) {
+                alert("カートは空です。");
+                return;
+            }
+
+            if (!currentBuyerUser) {
+                alert("購入手続きへ進むにはログインが必要です。");
+                closeModal('cart-modal');
+                openModal('buyer-auth-modal');
+                return;
+            }
+
+            const item = userCart[0]; // 単一・初回購入の決済へ誘導
+            closeModal('cart-modal');
+            openCheckoutForProduct(item.id);
+        }
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -1167,28 +1439,27 @@
 
         function sendToGas(payload) {
             try {
-        fetch(GAS_WEBAPP_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.url) {
-                // Stripeの決済画面へジャンプ
-                window.location.href = data.url;
-            } else {
-                alert("決済エラー:\n" + JSON.stringify(data.error || data));
+                fetch(GAS_WEBAPP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.url) {
+                        window.location.href = data.url;
+                    } else {
+                        alert("決済エラー:\n" + JSON.stringify(data.error || data));
+                    }
+                })
+                .catch(e => {
+                    alert("通信エラーが発生しました: " + e.message);
+                });
+            } catch (err) {
+                console.error("GAS送信エラー:", err);
             }
-        })
-        .catch(e => {
-            alert("通信エラーが発生しました: " + e.message);
-        });
-    } catch (err) {
-        console.error("GAS送信エラー:", err);
-    }
         }
 
-        // --- データ永続化 (LocalStorage ＆ スプレッドシート連携) ---
+        // --- データ永続化 (LocalStorage) ---
         function loadStorageData(key, defaultVal) {
             try {
                 const stored = localStorage.getItem('minatomo_' + key);
@@ -1203,21 +1474,20 @@
         }
 
         function calculateSellerFee() {
-    const priceInput = document.getElementById('new-prod-price');
-    const price = parseInt(priceInput.value) || 0;
-    
-    // ★ 手数料率を 0.10 (10%) から 0.064 (6.4%) に変更
-    const fee = Math.floor(price * 0.064); 
-    const profit = price - fee;
+            const priceInput = document.getElementById('new-prod-price');
+            const price = parseInt(priceInput.value) || 0;
+            
+            const fee = Math.floor(price * 0.064); 
+            const profit = price - fee;
 
-    document.getElementById('fee-amount-display').innerText = `¥${fee.toLocaleString()}`;
-    document.getElementById('profit-amount-display').innerText = `¥${profit.toLocaleString()}`;
-}
+            document.getElementById('fee-amount-display').innerText = `¥${fee.toLocaleString()}`;
+            document.getElementById('profit-amount-display').innerText = `¥${profit.toLocaleString()}`;
+        }
 
         // 状態保持用変数
         let adminUsers = loadStorageData('adminUsers', []);
         let currentAdmin = loadStorageData('currentAdmin', null);
-        let savedSellerProfile = loadStorageData('savedSellerProfile', null); // 出品者の前回登録プロフ
+        let savedSellerProfile = loadStorageData('savedSellerProfile', null); 
         const currentViewerUser = "購入検討者A"; 
 
         let newsList = loadStorageData('newsList', [
@@ -1515,46 +1785,36 @@
             openCheckoutForProduct(currentActiveProductId);
         }
 
-        // --- 購入手続きモーダルを開く関数 ---
-       // 削除する部分（1509行目〜1515行目）
-function openCheckoutForProduct(prodId) {
-    const prod = productsList.find(p => p.id === prodId);
-    if (!prod) {
-        alert("商品情報が見つかりません。");
-        return;
-    }
+        function openCheckoutForProduct(prodId) {
+            const prod = productsList.find(p => p.id === prodId);
+            if (!prod) {
+                alert("商品情報が見つかりません。");
+                return;
+            }
 
-    // ボタンを押した時の確認用（正しく金額が取れているか画面に出ます）
-    alert("決済へ進みます: " + prod.name + " (" + prod.price + "円)");
+            alert("決済へ進みます: " + prod.name + " (" + prod.price + "円)");
 
-    // GASを呼び出して動的にStripe決済画面を発行
-   // GASを呼び出して動的にStripe決済画面を発行
-    const gasWebAppUrl = "https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec";
-
-    fetch(gasWebAppUrl, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        // 1537行目からの修正箇所
-        body: JSON.stringify({
-            productName: prod.name,
-            price: Math.floor(Number(prod.price))
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.url) {
-            window.location.href = data.url;
-        } else {
-            alert("決済URLの作成に失敗しました:\n" + JSON.stringify(data.error || data));
+            fetch(GAS_WEBAPP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({
+                    productName: prod.name,
+                    price: Math.floor(Number(prod.price))
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert("決済URLの作成に失敗しました:\n" + JSON.stringify(data.error || data));
+                }
+            })
+            .catch(err => {
+                alert("通信エラーが発生しました: " + err.message);
+            });
         }
-    })
-    .catch(err => {
-        alert("通信エラーが発生しました: " + err.message);
-    });
-}
-                
 
-        // --- チェックアウト時の送料・合計金額計算 ---
         function calcCheckout() {
             const prod = productsList.find(p => p.id === currentActiveProductId);
             if (!prod) return;
@@ -1575,7 +1835,6 @@ function openCheckoutForProduct(prodId) {
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // 出品モーダルを開く際に保存済みのプロフィールを復元
         function openSellerModal() {
             if (savedSellerProfile) {
                 document.getElementById('seller-name-input').value = savedSellerProfile.name || '';
@@ -2025,24 +2284,28 @@ function openCheckoutForProduct(prodId) {
         }
 
         // 初期化実行
-   window.onload = function() {
-    renderNewsList();
-    renderProducts();
+        window.onload = function() {
+            renderNewsList();
+            renderProducts();
+            updateCartUI();
 
-    // Stripe決済成功時の自動データ処理
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-        alert('決済が完了しました！データを更新します。');
-        
-        // 管理画面テーブル等の再描画処理
-        if (typeof renderAdminTables === 'function') {
-            renderAdminTables();
-        }
-        
-        // URLの ?success=true を削除して表示を整える
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-};
+            // Stripe決済成功時の自動データ処理
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                alert('決済が完了しました！データを更新します。');
+                
+                // カート情報のクリア
+                userCart = [];
+                saveStorageData('cart', userCart);
+                updateCartUI();
+
+                if (typeof renderAdminTables === 'function') {
+                    renderAdminTables();
+                }
+                
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        };
     </script>
 </body>
 </html>
