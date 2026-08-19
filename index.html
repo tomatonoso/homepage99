@@ -1587,8 +1587,9 @@ const firebaseConfig = {
                 const matchCat = (selectedCategory === "すべて" || p.category === selectedCategory);
                 const matchKey = p.name.toLowerCase().includes(keyword);
                 let matchRec = true;
-                if (selectedReceive === "SHIP") matchRec = p.ship;
-                if (selectedReceive === "HAND") matchRec = p.hand;
+               // 受け取り方法による絞り込みを行わない場合はコメントアウトするか削除します
+// if (selectedReceive === "SHIP") matchRec = p.ship;
+// if (selectedReceive === "HAND") matchRec = p.hand;
                 return matchCat && matchKey && matchRec;
             });
 
