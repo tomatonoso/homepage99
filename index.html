@@ -1645,8 +1645,9 @@ const auth = firebase.auth();
             });
         }
 
-        function openProductDetailModal(prodId) {
-            currentActiveProductId = prodId;
+       function openProductDetailModal(prodId, event) {
+    if (event) event.preventDefault(); // ページの再読み込み（リロード）を防止
+    currentActiveProductId = prodId;
             const prod = productsList.find(p => p.id === prodId);
             if (!prod) return;
 
