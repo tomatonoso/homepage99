@@ -1834,12 +1834,12 @@ fetch(GAS_WEBAPP_URL, {
         price: Math.floor(totalAmount)
     })
 　　})
-　　.then(res => res.json())
-　　.then(data => {
-  　  if (data.url) {
-       　 window.location.href = data.url;
-  　  }
-　});
+    .then(res => res.json())
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        }
+    });
 }
 
    
