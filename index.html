@@ -603,41 +603,35 @@
 
 
     <!-- MODAL: 購入者用 新規登録・ログイン モーダル -->
-    <div id="buyer-auth-modal" class="modal-panel">
-        <div class="modal-content modal-content-sm">
-            <span class="close-modal" onclick="closeModal('buyer-auth-modal')">&times;</span>
-            <h2 id="buyer-auth-title"><i class="fa-solid fa-user-check" style="color: var(--brand-red);"></i> 購入者ログイン</h2>
-            <hr style="margin: 15px 0;">
+   <form id="buyer-login-form" method="post" onsubmit="event.preventDefault(); handleBuyerAuth('login');">
+    <div class="form-group">
+        <label>メールアドレス</label>
+        <input type="email" id="buyer-email" class="form-control" placeholder="user@example.com">
+    </div>
+    <div class="form-group">
+        <label>パスワード (6文字以上)</label>
+        <input type="password" id="buyer-password" class="form-control" placeholder="******">
+    </div>
+    <button type="submit" class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;">ログイン</button>
+    <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
+        アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a>
+    </p>
+</form>
 
-            <div id="buyer-login-form">
-                <div class="form-group">
-                    <label>メールアドレス</label>
-                    <input type="email" id="buyer-email" class="form-control" placeholder="user@example.com">
-                </div>
-                <div class="form-group">
-                    <label>パスワード (6文字以上)</label>
-                    <input type="password" id="buyer-password" class="form-control" placeholder="******">
-                </div>
-                <button class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;" onclick="handleBuyerAuth('login')">ログイン</button>
-                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
-                    アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a>
-                </p>
-            </div>
-
-            <div id="buyer-signup-form" style="display:none;">
-                <div class="form-group">
-                    <label>メールアドレス</label>
-                    <input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com">
-                </div>
-                <div class="form-group">
-                    <label>パスワード (6文字以上)</label>
-                    <input type="password" id="buyer-signup-password" class="form-control" placeholder="******">
-                </div>
-                <button class="btn-success" style="width:100%; padding: 10px; margin-top: 10px;" onclick="handleBuyerAuth('signup')">新規登録する</button>
-                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
-                    すでにアカウントをお持ちですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('login')" style="color:#007bff;">ログインへ戻る</a>
-                </p>
-            </div>
+           <form id="buyer-signup-form" style="display:none;" method="post" onsubmit="event.preventDefault(); handleBuyerAuth('signup');">
+    <div class="form-group">
+        <label>メールアドレス</label>
+        <input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com">
+    </div>
+    <div class="form-group">
+        <label>パスワード (6文字以上)</label>
+        <input type="password" id="buyer-signup-password" class="form-control" placeholder="******">
+    </div>
+    <button type="submit" class="btn-success" style="width:100%; padding: 10px; margin-top: 10px;">新規登録する</button>
+    <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
+        すでにアカウントをお持ちですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('login')" style="color:#007bff;">ログインへ戻る</a>
+    </p>
+</form>
         </div>
     </div>
 
