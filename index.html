@@ -1833,13 +1833,13 @@ fetch(GAS_WEBAPP_URL, {
         productName: "カート注文（" + userCart.length + "点）",
         price: Math.floor(totalAmount)
     })
-})
-.then(res => res.json())
-.then(data => {
-    if (data.url) {
-        window.location.href = data.url;
-    }
-});
+　　})
+　　.then(res => res.json())
+　　.then(data => {
+  　  if (data.url) {
+       　 window.location.href = data.url;
+  　  }
+　});
 }
 
    
