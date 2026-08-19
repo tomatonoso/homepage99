@@ -1255,355 +1255,80 @@
         </div>
     </div>
 
+<script>
+    // 【設定】Firebaseコンソールで取得した初期化キーを入力してください
+    const firebaseConfig = {
+      apiKey: "AIzaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
+      authDomain: "minatomo-6f0fb.firebaseapp.com",
+      projectId: "minatomo-6f0fb",
+      storageBucket: "minatomo-6f0fb.firebasestorage.app",
+      messagingSenderId: "575884962611",
+      appId: "1:575884962611:web:7d279cfc3c346189732c46",
+      measurementId: "G-1G536RCD9M"
+    };
 
-    <script>
-    // ★ここに貼り付けます★
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // 指定の更新済み GAS WebApp URL
+    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec";
+
+    let currentUploadedImageBase64 = null;
+    let currentBuyerUser = null;
+    let userCart = loadStorageData('cart', []);
+
     function selectReceiveMethod(btn, method) {
-        const parent = btn.parentElement;
-        parent.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        selectedReceive = method;
-        renderProducts();
+      document.querySelectorAll('.receive-option').forEach(el => el.classList.remove('selected'));
+      btn.classList.add('selected');
+      const timeContainer = document.getElementById('receiveTimeContainer');
+      const timeSelect = document.getElementById('receiveTime');
+      if (method === 'shipping') {
+        timeContainer.style.display = 'none';
+        timeSelect.removeAttribute('required');
+      } else {
+        timeContainer.style.display = 'block';
+        timeSelect.setAttribute('required', 'true');
+      }
     }
 
-    // 【設定】Firebaseコンソールで取得した初期化キーを入力してください
-    // 1256行目〜1263行目を、Firebaseコンソールから取得した本物の値に置き換えてください
-    const firebaseConfig = {
-        apiKey: "AiZaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
-        // ... (以下そのまま)
+    function renderProducts() {
+      const grid = document.getElementById('productGrid');
+      const container = document.getElementById('productListContainer');
+      const loading = document.getElementById('loadingState');
+      
+      if (!grid) return;
+      grid.innerHTML = '';
 
-    // 【設定】Firebaseコンソールで取得した初期化キーを入力してください
-    // 1256行目〜1263行目を、Firebaseコンソールから取得した本物の値に置き換えてください
-    const firebaseConfig = {
-        apiKey: "AiZaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
-        // ... (以下そのまま)
-        // 【設定】Firebaseコンソールで取得した初期化キーを入力してください
-        // 1256行目〜1263行目を、Firebaseコンソールから取得した本物の値に置き換えてください
-const firebaseConfig = {
-  apiKey: "AIzaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
-  authDomain: "minatomo-6f0fb.firebaseapp.com",
-  projectId: "minatomo-6f0fb",
-  storageBucket: "minatomo-6f0fb.firebasestorage.app",
-  messagingSenderId: "575884962611",
-  appId: "1:575884962611:web:7d279cfc3c346189732c46",
-  measurementId: "G-1G536RCD9M"
-};
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+      if (products.length === 0) {
+        if (loading) loading.style.display = 'none';
+        if (container) container.style.display = 'block';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 0;">現在販売中の商品はありません。</p>';
+        return;
+      }
 
-        // 指定の更新済み GAS WebApp URL
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec";
+      products.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.onclick = () => openProductModal(p.id);
+        
+        const isSoldOut = p.stock <= 0;
+        
+        card.innerHTML = `
+          <div class="product-img-wrapper">
+            <img src="${p.image}" alt="${p.name}" class="product-img" loading="lazy">
+            ${isSoldOut ? '<div class="sold-out-badge">SOLD OUT</div>' : ''}
+          </div>
+          <div class="product-info">
+            <div class="product-title">${p.name}</div>
+            <div class="product-price">¥${p.price.toLocaleString()} <span style="font-size:11px; color:#888; font-weight:normal;">(税込)</span></div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
 
-        let currentUploadedImageBase64 = null;
-        let currentBuyerUser = null;
-        let userCart = loadStorageData('cart', []);
-
-        // --- Firebase Auth 監視（ログイン状態自動読み込み） ---
-        auth.onAuthStateChanged(user => {
-            currentBuyerUser = user;
-            const userArea = document.getElementById('user-auth-btn-area');
-            if (user) {
-                userArea.innerHTML = `
-                    <span class="user-status-text"><i class="fa-solid fa-user-check" style="color:#28a745;"></i> ${user.email.split('@')[0]} 様</span>
-                    <button class="btn-secondary" onclick="logoutBuyer()">ログアウト</button>
-                `;
-            } else {
-                userArea.innerHTML = `
-                    <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
-                `;
-            }
-        });
-
-        // --- 購入者ログイン・登録処理 ---
-        function handleBuyerAuth(type) {
-            let email, pass;
-            if (type === 'login') {
-                email = document.getElementById('buyer-email').value.trim();
-                pass = document.getElementById('buyer-password').value.trim();
-            } else {
-                email = document.getElementById('buyer-signup-email').value.trim();
-                pass = document.getElementById('buyer-signup-password').value.trim();
-            }
-
-            if (!email || !pass) {
-                alert("メールアドレスとパスワードを入力してください。");
-                return;
-            }
-
-            if (type === 'signup') {
-                auth.createUserWithEmailAndPassword(email, pass)
-                    .then(() => {
-                        alert("会員登録が完了しました！");
-                        closeModal('buyer-auth-modal');
-                    })
-                    .catch(err => alert("登録エラー: " + err.message));
-            } else {
-                auth.signInWithEmailAndPassword(email, pass)
-                    .then(() => {
-                        alert("ログインしました！");
-                        closeModal('buyer-auth-modal');
-                    })
-                    .catch(err => alert("ログインエラー: " + err.message));
-            }
-        }
-
-        function logoutBuyer() {
-            auth.signOut().then(() => alert("ログアウトしました。"));
-        }
-
-        function toggleBuyerAuthMode(mode) {
-            if (mode === 'signup') {
-                document.getElementById('buyer-login-form').style.display = 'none';
-                document.getElementById('buyer-signup-form').style.display = 'block';
-                document.getElementById('buyer-auth-title').innerText = '新規購入者会員登録';
-            } else {
-                document.getElementById('buyer-login-form').style.display = 'block';
-                document.getElementById('buyer-signup-form').style.display = 'none';
-                document.getElementById('buyer-auth-title').innerText = '購入者ログイン';
-            }
-        }
-
-        // --- カート機能処理 ---
-        function addToCartCurrentProduct() {
-            if (!currentActiveProductId) return;
-            const prod = productsList.find(p => p.id === currentActiveProductId);
-            if (!prod) return;
-
-            const existing = userCart.find(item => item.id === prod.id);
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                userCart.push({
-                    id: prod.id,
-                    name: prod.name,
-                    price: prod.price,
-                    quantity: 1
-                });
-            }
-
-            saveStorageData('cart', userCart);
-            updateCartUI();
-            alert(`「${prod.name}」をカートに追加しました！`);
-            closeModal('product-detail-modal');
-        }
-
-        function updateCartUI() {
-            const countEl = document.getElementById('nav-cart-count');
-            const totalCount = userCart.reduce((sum, item) => sum + item.quantity, 0);
-            countEl.innerText = totalCount;
-
-            const listEl = document.getElementById('cart-items-list');
-            const priceEl = document.getElementById('cart-total-price');
-
-            if (userCart.length === 0) {
-                listEl.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">カートの中に商品はありません。</div>';
-                priceEl.innerText = '¥0';
-                return;
-            }
-
-            let html = '';
-            let total = 0;
-            userCart.forEach((item, idx) => {
-                const subtotal = item.price * item.quantity;
-                total += subtotal;
-                html += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom: 1px dashed #ddd;">
-                        <div>
-                            <strong>${item.name}</strong><br>
-                            <span style="font-size:0.85rem; color:#666;">¥${item.price.toLocaleString()} × ${item.quantity}</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap: 10px;">
-                            <strong style="color:var(--brand-red);">¥${subtotal.toLocaleString()}</strong>
-                            <button class="btn-danger" onclick="removeFromCart(${idx})">削除</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            listEl.innerHTML = html;
-            priceEl.innerText = `¥${total.toLocaleString()}`;
-        }
-
-        function removeFromCart(index) {
-            userCart.splice(index, 1);
-            saveStorageData('cart', userCart);
-            updateCartUI();
-        }
-
-        function checkoutCartItems() {
-            if (userCart.length === 0) {
-                alert("カートは空です。");
-                return;
-            }
-
-            if (!currentBuyerUser) {
-                alert("購入手続きへ進むにはログインが必要です。");
-                closeModal('cart-modal');
-                openModal('buyer-auth-modal');
-                return;
-            }
-
-            const item = userCart[0]; // 単一・初回購入の決済へ誘導
-            closeModal('cart-modal');
-            openCheckoutForProduct(item.id);
-        }
-
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentUploadedImageBase64 = e.target.result;
-                const imgPreview = document.getElementById('img-preview');
-                const previewBox = document.getElementById('img-preview-box');
-                imgPreview.src = currentUploadedImageBase64;
-                previewBox.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function sendToGas(payload) {
-            try {
-                fetch(GAS_WEBAPP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.url) {
-                        window.location.href = data.url;
-                    } else {
-                        alert("決済エラー:\n" + JSON.stringify(data.error || data));
-                    }
-                })
-                .catch(e => {
-                    alert("通信エラーが発生しました: " + e.message);
-                });
-            } catch (err) {
-                console.error("GAS送信エラー:", err);
-            }
-        }
-
-        // --- データ永続化 (LocalStorage) ---
-        function loadStorageData(key, defaultVal) {
-            try {
-                const stored = localStorage.getItem('minatomo_' + key);
-                return stored ? JSON.parse(stored) : defaultVal;
-            } catch(e) { return defaultVal; }
-        }
-
-        function saveStorageData(key, val) {
-            try {
-                localStorage.setItem('minatomo_' + key, JSON.stringify(val));
-            } catch(e) {}
-        }
-
-        function calculateSellerFee() {
-            const priceInput = document.getElementById('new-prod-price');
-            const price = parseInt(priceInput.value) || 0;
-            
-            const fee = Math.floor(price * 0.064); 
-            const profit = price - fee;
-
-            document.getElementById('fee-amount-display').innerText = `¥${fee.toLocaleString()}`;
-            document.getElementById('profit-amount-display').innerText = `¥${profit.toLocaleString()}`;
-        }
-
-        // 状態保持用変数
-        let adminUsers = loadStorageData('adminUsers', []);
-        let currentAdmin = loadStorageData('currentAdmin', null);
-        let savedSellerProfile = loadStorageData('savedSellerProfile', null); 
-        const currentViewerUser = "購入検討者A"; 
-
-        let newsList = loadStorageData('newsList', [
-            { id: "NEWS-1", date: "2026-08-14", target: "重要", title: "「ミナトモ！」リニューアルオープンのお知らせ", content: "フリマ＆ECプラットフォームとして新機能を追加しました！" },
-            { id: "NEWS-2", date: "2026-08-10", target: "出品者", title: "振込申請手続きに関する注意事項", content: "振込口座の名義相違にご注意ください。" }
-        ]);
-
-        let reviewsList = loadStorageData('reviewsList', [
-            { id: "REV-101", productId: 101, rating: 5, author: "アクア好き太郎", comment: "とても状態が良く、LEDの光量も十分でした！迅速な対応ありがとうございました。", date: "2026-08-12 14:20" },
-            { id: "REV-102", productId: 101, rating: 4, author: "サカナ", comment: "綺麗に梱包されていました。大満足です。", date: "2026-08-13 09:15" }
-        ]);
-
-        let userList = loadStorageData('userList', [
-            { id: "USR-001", name: "青山 太郎", email: "aoyama@example.com", phone: "090-1234-5678", status: "アクティブ", kyc: "済", rating: "★4.8 (12件)", bank: { bankName: "みずほ銀行", branchName: "本店", accountType: "普通", accountNumber: "1234567", accountHolder: "アオヤマ タロウ" } },
-            { id: "USR-002", name: "佐藤 美咲", email: "sato@example.com", phone: "080-8765-4321", status: "アクティブ", kyc: "済", rating: "★5.0 (25件)", bank: { bankName: "三菱UFJ銀行", branchName: "渋谷支店", accountType: "普通", accountNumber: "9876543", accountHolder: "JOHN SMITH" } }
-        ]);
-
-        let productsList = loadStorageData('productsList', [
-            { id: 101, name: "LED水槽ライト", price: 3200, seller: "青山 太郎", category: "アクア・ペット用品", description: "60cm水槽用の高輝度LEDライトです。1か月ほど使用しましたが目立つ傷もなく動作良好です。", views: 14, favs: 3, ship: true, hand: true, active: true, recommended: true, image: null },
-            { id: 102, name: "ワイヤレスイヤホン", price: 18500, seller: "佐藤 美咲", category: "家電・スマホ・カメラ", description: "ノイズキャンセリング機能付き。付属品・外箱すべて揃っています。", views: 42, favs: 12, ship: true, hand: false, active: true, recommended: false, image: null },
-            { id: 103, name: "コットンTシャツ", price: 3900, seller: "鈴木 健太", category: "ファッション", description: "Lサイズ / 未使用品です。サイズが合わなかったため出品いたします。", views: 88, favs: 19, ship: true, hand: true, active: false, recommended: false, image: null }
-        ]);
-
-        let prePurchaseChats = loadStorageData('prePurchaseChats', [
-            {
-                id: "CHAT-101-1",
-                productId: 101,
-                productName: "LED水槽ライト",
-                sellerName: "青山 太郎",
-                userName: "購入検討者A",
-                messages: [
-                    { sender: "user", text: "はじめまして！直接の手渡しの場合は駅付近での対応は可能でしょうか？", time: "10:15" },
-                    { sender: "seller", text: "お問い合わせありがとうございます。はい、最寄り駅改札前でのお渡しが可能です！", time: "10:20" }
-                ]
-            }
-        ]);
-
-        let currentActiveProductId = null;
-
-        let transactionsList = loadStorageData('transactionsList', [
-            { id: "TRX-501", prodName: "LED水槽ライト", buyer: "佐藤 美咲", seller: "青山 太郎", price: 3200, status: "発送待ち", lastMsg: "購入しました。よろしくお願いします。" }
-        ]);
-
-        let reportsList = loadStorageData('reportsList', [
-            { id: "REP-01", reporter: "佐藤 美咲", targetType: "商品", targetId: "103 (Tシャツ)", reason: "偽ブランドの疑いあり", status: "未対応" }
-        ]);
-
-        let payoutsList = loadStorageData('payoutsList', [
-            { id: "PAY-901", user: "青山 太郎", amount: 10000, bankInfo: "みずほ銀行 本店 普通 1234567 (アオヤマ タロウ)", status: "申請中" }
-        ]);
-
-        let inquiriesList = loadStorageData('inquiriesList', [
-            { id: "INQ-01", sender: "aoyama@example.com", subject: "受取通知の不具合について", body: "ボタンが押せませんでした。", status: "未対応" }
-        ]);
-
-        let siteSettings = loadStorageData('siteSettings', {
-            tokusho: "販売業者: 株式会社ミナトモ\n代表責任者: 代表取締役 港 太郎\n所在地: 〒100-0001 東京都千代田区千代田1-1\n電話番号: 03-0000-0000\nメール: support@minatomo.jp",
-            privacy: "当社は個人情報保護法に基づき利用者の個人情報を適切に管理します。"
-        });
-
-        let selectedCategory = "すべて";
-        let selectedReceive = "ALL";
-
-        const prefecturesData = [
-            {name: "東京都", shipping: 650}, {name: "大阪府", shipping: 750}, {name: "北海道", shipping: 1200}, {name: "沖縄県", shipping: 1400}
-        ];
-
-        // お知らせ表示
-        function renderNewsList() {
-            const container = document.getElementById('news-list-container');
-            container.innerHTML = '';
-
-            if (newsList.length === 0) {
-                container.innerHTML = '<div style="font-size:0.85rem; color:#888;">現在お知らせはありません。</div>';
-                return;
-            }
-
-            newsList.forEach(item => {
-                container.innerHTML += `
-                    <div class="news-item">
-                        <span class="news-date">${item.date}</span>
-                        <span class="news-badge">${item.target}</span>
-                        <span style="font-weight:bold; cursor:pointer;" onclick="alert('${item.title}\\n\\n${item.content.replace(/\n/g, '\\n')}')">${item.title}</span>
-                    </div>
-                `;
-            });
-        }
-
-        function renderProducts() {
+      if (loading) loading.style.display = 'none';
+      if (container) container.style.display = 'block';
+    }
             const grid = document.getElementById('main-product-grid');
             grid.innerHTML = '';
             const keyword = document.getElementById('search-keyword').value.toLowerCase();
