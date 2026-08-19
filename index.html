@@ -1833,7 +1833,15 @@ fetch(GAS_WEBAPP_URL, {
         productName: "カート注文（" + userCart.length + "点）",
         price: Math.floor(totalAmount)
     })
-})
+// 1836行目からの正しい状態
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        }
+    });
+} // ← 関数の閉じカッコ
 .then(res => res.json())
 .then(data => {
     if (data.url) {
