@@ -1541,17 +1541,7 @@ function openCheckoutForProduct(prodId) {
         alert("通信エラーが発生しました: " + err.message);
     });
 }
-                alert("決済URLの作成に失敗しました。GASのコードを確認してください。");
-            }
-        })
-        .withFailureHandler(function(err) {
-            alert("エラーが発生しました: " + err.message);
-        })
-        .createStripeCheckoutSession({
-            productName: prod.name,
-            price: prod.price
-        });
-}
+                
 
         // --- チェックアウト時の送料・合計金額計算 ---
         function calcCheckout() {
