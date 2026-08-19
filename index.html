@@ -1847,18 +1847,7 @@ fetch(GAS_WEBAPP_URL, {
         window.location.href = data.url;
     }
 });
-    .then(res => res.json())
-    .then(data => {
-        if (data.url) {
-            window.location.href = data.url;
-        } else {
-            alert("決済URLの作成に失敗しました:\n" + JSON.stringify(data.error || data));
-        }
-    })
-    .catch(err => {
-        alert("通信エラーが発生しました: " + err.message);
-    });
-}
+   
 
         function calcCheckout() {
             const prod = productsList.find(p => p.id === currentActiveProductId);
