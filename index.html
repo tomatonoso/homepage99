@@ -1262,15 +1262,18 @@
         }
 
         // Firebase初期化設定
-        const firebaseConfig = {
-            apiKey: "AIzaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
-            authDomain: "minatomo-9d7e9.firebaseapp.com",
-            projectId: "minatomo-9d7e9",
-            storageBucket: "minatomo-9d7e9.firebasestorage.app",
-            messagingSenderId: "575884962611",
-            appId: "1:575884962611:web:7d279cfc3c346189732c46",
-            measurementId: "G-1G536RCD9M"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyCNvRkOZKon-8gb536Naz9Ot-BmN2faN6c",
+  authDomain: "minatomo-9d7e9.firebaseapp.com",
+  projectId: "minatomo-9d7e9",
+  storageBucket: "minatomo-9d7e9.firebasestorage.app",
+  messagingSenderId: "277190880214",
+  appId: "1:277190880214:web:a140b48145ab8b44f79277",
+  measurementId: "G-HPHQ3QJ19N"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
