@@ -603,7 +603,7 @@
 
 
     <!-- MODAL: 購入者用 新規登録・ログイン モーダル -->
-   <form id="buyer-login-form" method="post" onsubmit="event.preventDefault(); handleBuyerAuth('login');">
+   <div id="buyer-login-form">
     <div class="form-group">
         <label>メールアドレス</label>
         <input type="email" id="buyer-email" class="form-control" placeholder="user@example.com">
@@ -612,12 +612,11 @@
         <label>パスワード (6文字以上)</label>
         <input type="password" id="buyer-password" class="form-control" placeholder="******">
     </div>
-    <button type="submit" class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;">ログイン</button>
+    <button type="button" class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;" onclick="event.preventDefault(); handleBuyerAuth('login');">ログイン</button>
     <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
         アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a>
     </p>
-</form>
-
+</div>
            <form id="buyer-signup-form" style="display:none;" method="post" onsubmit="event.preventDefault(); handleBuyerAuth('signup');">
     <div class="form-group">
         <label>メールアドレス</label>
