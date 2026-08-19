@@ -1793,34 +1793,34 @@
         }
 
         function openCheckoutForProduct(prodId) {
-            const prod = productsList.find(p => p.id === prodId);
-            if (!prod) {
-                alert("商品情報が見つかりません。");
-                return;
-            }
+    const prod = productsList.find(p => p.id === prodId);
+    if (!prod) {
+        alert("商品情報が見つかりません。");
+        return;
+    }
 
-            alert("決済へ進みます: " + prod.name + " (" + prod.price + "円)");
+    alert("決済へ進みます: " + prod.name + " (" + prod.price + "円)");
 
-            fetch(GAS_WEBAPP_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({
-                    productName: prod.name,
-                    price: Math.floor(Number(prod.price))
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    alert("決済URLの作成に失敗しました:\n" + JSON.stringify(data.error || data));
-                }
-            })
-            .catch(err => {
-                alert("通信エラーが発生しました: " + err.message);
-            });
+    fetch(GAS_WEBAPP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({
+            productName: prod.name,
+            price: Math.floor(Number(prod.price))
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            alert("決済URLの作成に失敗しました:\n" + JSON.stringify(data.error || data));
         }
+    })
+    .catch(err => {
+        alert("通信エラーが発生しました: " + err.message);
+    });
+}
 
         function calcCheckout() {
             const prod = productsList.find(p => p.id === currentActiveProductId);
