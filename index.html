@@ -1252,6 +1252,27 @@
 
 
     <script>
+    // ★ここに貼り付けます★
+    function selectReceiveMethod(btn, method) {
+        const parent = btn.parentElement;
+        parent.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        selectedReceive = method;
+        renderProducts();
+    }
+
+    // 【設定】Firebaseコンソールで取得した初期化キーを入力してください
+    // 1256行目〜1263行目を、Firebaseコンソールから取得した本物の値に置き換えてください
+    const firebaseConfig = {
+        apiKey: "AiZaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
+        // ... (以下そのまま)
+
+    // 【設定】Firebaseコンソールで取得した初期化キーを入力してください
+    // 1256行目〜1263行目を、Firebaseコンソールから取得した本物の値に置き換えてください
+    const firebaseConfig = {
+        apiKey: "AiZaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
+        // ... (以下そのまま)
         // 【設定】Firebaseコンソールで取得した初期化キーを入力してください
         // 1256行目〜1263行目を、Firebaseコンソールから取得した本物の値に置き換えてください
 const firebaseConfig = {
