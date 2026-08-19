@@ -603,34 +603,41 @@
 
 
     <!-- MODAL: 購入者用 新規登録・ログイン モーダル -->
-   <div id="buyer-login-form">
-    <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="buyer-email" class="form-control" placeholder="user@example.com">
-    </div>
-    <div class="form-group">
-        <label>パスワード (6文字以上)</label>
-        <input type="password" id="buyer-password" class="form-control" placeholder="******">
-    </div>
-    <button type="button" class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;" onclick="event.preventDefault(); handleBuyerAuth('login');">ログイン</button>
-    <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
-        アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a>
-    </p>
-</div>
-           <form id="buyer-signup-form" style="display:none;" method="post" onsubmit="event.preventDefault(); handleBuyerAuth('signup');">
-    <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com">
-    </div>
-    <div class="form-group">
-        <label>パスワード (6文字以上)</label>
-        <input type="password" id="buyer-signup-password" class="form-control" placeholder="******">
-    </div>
-    <button type="submit" class="btn-success" style="width:100%; padding: 10px; margin-top: 10px;">新規登録する</button>
-    <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
-        すでにアカウントをお持ちですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('login')" style="color:#007bff;">ログインへ戻る</a>
-    </p>
-</form>
+    <div id="buyer-auth-modal" class="modal-panel">
+        <div class="modal-content modal-content-sm">
+            <span class="close-modal" onclick="closeModal('buyer-auth-modal')">&times;</span>
+            <h2 id="buyer-auth-title"><i class="fa-solid fa-user-check" style="color: var(--brand-red);"></i> 購入者ログイン</h2>
+            <hr style="margin: 15px 0;">
+
+            <div id="buyer-login-form">
+                <div class="form-group">
+                    <label>メールアドレス</label>
+                    <input type="email" id="buyer-email" class="form-control" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>パスワード (6文字以上)</label>
+                    <input type="password" id="buyer-password" class="form-control" placeholder="******">
+                </div>
+                <button class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;" onclick="handleBuyerAuth('login')">ログイン</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
+                    アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a>
+                </p>
+            </div>
+
+            <div id="buyer-signup-form" style="display:none;">
+                <div class="form-group">
+                    <label>メールアドレス</label>
+                    <input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>パスワード (6文字以上)</label>
+                    <input type="password" id="buyer-signup-password" class="form-control" placeholder="******">
+                </div>
+                <button class="btn-success" style="width:100%; padding: 10px; margin-top: 10px;" onclick="handleBuyerAuth('signup')">新規登録する</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
+                    すでにアカウントをお持ちですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('login')" style="color:#007bff;">ログインへ戻る</a>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -923,37 +930,25 @@
             <hr style="margin: 15px 0;">
 
             <!-- ログインフォーム -->
-            <!-- ログインフォーム -->
-<form id="buyer-login-form" method="post" onsubmit="event.preventDefault(); handleBuyerAuth('login');">
-    <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="buyer-email" class="form-control" placeholder="user@example.com">
-    </div>
-    <div class="form-group">
-        <label>パスワード (6文字以上)</label>
-        <input type="password" id="buyer-password" class="form-control" placeholder="******">
-    </div>
-    <button type="submit" class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;">ログイン</button>
-    <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
-        アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a>
-    </p>
-</form>
-
-<!-- 新規登録フォーム -->
-<form id="buyer-signup-form" style="display:none;" method="post" onsubmit="event.preventDefault(); handleBuyerAuth('signup');">
-    <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com">
-    </div>
-    <div class="form-group">
-        <label>パスワード (6文字以上)</label>
-        <input type="password" id="buyer-signup-password" class="form-control" placeholder="******">
-    </div>
-    <button type="submit" class="btn-success" style="width:100%; padding: 10px; margin-top: 10px;">新規登録する</button>
-    <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
-        すでにアカウントをお持ちですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('login')" style="color:#007bff;">ログインへ戻る</a>
-    </p>
-</form>
+            <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label>管理者メールアドレス</label>
+                    <input type="email" id="login-email" class="form-control" required placeholder="admin@minatomo.jp">
+                </div>
+                <div class="form-group">
+                    <label>第1パスワード (10桁以内)</label>
+                    <input type="password" id="login-pass1" class="form-control" required placeholder="10桁以内のパスワード">
+                </div>
+                <div class="form-group">
+                    <label>第2パスワード (英数字20桁)</label>
+                    <input type="password" id="login-pass2" class="form-control" required placeholder="20桁の英数字パスワード">
+                </div>
+                <div class="form-group">
+                    <label>セキュリティ質問の回答</label>
+                    <input type="text" id="login-sec-ans" class="form-control" required placeholder="登録時の秘密の質問の回答">
+                </div>
+                <button type="submit" class="btn-outline" style="width:100%; padding: 10px; margin-top: 10px; background:#007bff; color:white;">認証してログイン</button>
+            </form>
 
             <!-- 3重ロック付き 新規管理者登録フォーム -->
             <form id="admin-register-form" style="display:none;" onsubmit="handleAdminRegister(event)">
@@ -1255,100 +1250,1029 @@
         </div>
     </div>
 
-<script>
-    // 【設定】Firebaseコンソールで取得した初期化キー
-    const firebaseConfig = {
-      apiKey: "AIzaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
-      authDomain: "minatomo-6f0fb.firebaseapp.com",
-      projectId: "minatomo-6f0fb",
-      storageBucket: "minatomo-6f0fb.firebasestorage.app",
-      messagingSenderId: "575884962611",
-      appId: "1:575884962611:web:7d279cfc3c346189732c46",
-      measurementId: "G-1G536RCD9M"
-    };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    <script>
+        function selectReceiveMethod(btn, method) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
-    // 指定の更新済み GAS WebApp URL
-    const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec";
+            selectedReceive = method;
+            renderProducts();
+        }
 
-    let currentUploadedImageBase64 = null;
-    let currentBuyerUser = null;
-    let userCart = loadStorageData('cart', []);
+        // Firebase初期化設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
+            authDomain: "minatomo-6f0fb.firebaseapp.com",
+            projectId: "minatomo-6f0fb",
+            storageBucket: "minatomo-6f0fb.firebasestorage.app",
+            messagingSenderId: "575884962611",
+            appId: "1:575884962611:web:7d279cfc3c346189732c46",
+            measurementId: "G-1G536RCD9M"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
-    function selectReceiveMethod(btn, method) {
-      document.querySelectorAll('.receive-option').forEach(el => el.classList.remove('selected'));
-      btn.classList.add('selected');
-      const timeContainer = document.getElementById('receiveTimeContainer');
-      const timeSelect = document.getElementById('receiveTime');
-      if (method === 'shipping') {
-        timeContainer.style.display = 'none';
-        timeSelect.removeAttribute('required');
-      } else {
-        timeContainer.style.display = 'block';
-        timeSelect.setAttribute('required', 'true');
-      }
-    }
+        // 指定の更新済み GAS WebApp URL
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec";
 
-    function renderProducts() {
-      const grid = document.getElementById('productGrid');
-      const container = document.getElementById('productListContainer');
-      const loading = document.getElementById('loadingState');
-      
-      if (!grid) return;
-      grid.innerHTML = '';
+        let currentUploadedImageBase64 = null;
+        let currentBuyerUser = null;
+        let userCart = loadStorageData('cart', []);
 
-      if (typeof products === 'undefined' || products.length === 0) {
-        if (loading) loading.style.display = 'none';
-        if (container) container.style.display = 'block';
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 40px 0;">現在販売中の商品はありません。</p>';
-        return;
-      }
+        // --- Firebase Auth 監視（ログイン状態自動読み込み） ---
+        auth.onAuthStateChanged(user => {
+            currentBuyerUser = user;
+            const userArea = document.getElementById('user-auth-btn-area');
+            if (user) {
+                userArea.innerHTML = `
+                    <span class="user-status-text"><i class="fa-solid fa-user-check" style="color:#28a745;"></i> ${user.email.split('@')[0]} 様</span>
+                    <button class="btn-secondary" onclick="logoutBuyer()">ログアウト</button>
+                `;
+            } else {
+                userArea.innerHTML = `
+                    <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
+                `;
+            }
+        });
 
-      products.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.onclick = () => openProductModal(p.id);
-        
-        const isSoldOut = p.stock <= 0;
-        
-        card.innerHTML = `
-          <div class="product-img-wrapper">
-            <img src="${p.image}" alt="${p.name}" class="product-img" loading="lazy">
-            ${isSoldOut ? '<div class="sold-out-badge">SOLD OUT</div>' : ''}
-          </div>
-          <div class="product-info">
-            <div class="product-title">${p.name}</div>
-            <div class="product-price">¥${p.price ? p.price.toLocaleString() : 0} <span style="font-size:11px; color:#888; font-weight:normal;">(税込)</span></div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
+        // --- 購入者ログイン・登録処理 ---
+        function handleBuyerAuth(type) {
+            let email, pass;
+            if (type === 'login') {
+                email = document.getElementById('buyer-email').value.trim();
+                pass = document.getElementById('buyer-password').value.trim();
+            } else {
+                email = document.getElementById('buyer-signup-email').value.trim();
+                pass = document.getElementById('buyer-signup-password').value.trim();
+            }
 
-      if (loading) loading.style.display = 'none';
-      if (container) container.style.display = 'block';
-    }
+            if (!email || !pass) {
+                alert("メールアドレスとパスワードを入力してください。");
+                return;
+            }
 
-    // ローカルストレージ読み込みヘルパー
-    function loadStorageData(key, defaultValue) {
-      try {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : defaultValue;
-      } catch (e) {
-        return defaultValue;
-      }
-    }
+            if (type === 'signup') {
+                auth.createUserWithEmailAndPassword(email, pass)
+                    .then(() => {
+                        alert("会員登録が完了しました！");
+                        closeModal('buyer-auth-modal');
+                    })
+                    .catch(err => alert("登録エラー: " + err.message));
+            } else {
+                auth.signInWithEmailAndPassword(email, pass)
+                    .then(() => {
+                        alert("ログインしました！");
+                        closeModal('buyer-auth-modal');
+                    })
+                    .catch(err => alert("ログインエラー: " + err.message));
+            }
+        }
 
-    // モーダル操作関数
-    function openProductModal(id) {
-      console.log("Open modal for product:", id);
-    }
+        function logoutBuyer() {
+            auth.signOut().then(() => alert("ログアウトしました。"));
+        }
 
-    // 初期化実行
-    document.addEventListener('DOMContentLoaded', () => {
-      renderProducts();
-    });
-</script>
+        function toggleBuyerAuthMode(mode) {
+            if (mode === 'signup') {
+                document.getElementById('buyer-login-form').style.display = 'none';
+                document.getElementById('buyer-signup-form').style.display = 'block';
+                document.getElementById('buyer-auth-title').innerText = '新規購入者会員登録';
+            } else {
+                document.getElementById('buyer-login-form').style.display = 'block';
+                document.getElementById('buyer-signup-form').style.display = 'none';
+                document.getElementById('buyer-auth-title').innerText = '購入者ログイン';
+            }
+        }
+
+        // --- カート機能処理 ---
+        function addToCartCurrentProduct() {
+            if (!currentActiveProductId) return;
+            const prod = productsList.find(p => p.id === currentActiveProductId);
+            if (!prod) return;
+
+            const existing = userCart.find(item => item.id === prod.id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                userCart.push({
+                    id: prod.id,
+                    name: prod.name,
+                    price: prod.price,
+                    quantity: 1
+                });
+            }
+
+            saveStorageData('cart', userCart);
+            updateCartUI();
+            alert(`「${prod.name}」をカートに追加しました！`);
+            closeModal('product-detail-modal');
+        }
+
+        function updateCartUI() {
+            const countEl = document.getElementById('nav-cart-count');
+            const totalCount = userCart.reduce((sum, item) => sum + item.quantity, 0);
+            countEl.innerText = totalCount;
+
+            const listEl = document.getElementById('cart-items-list');
+            const priceEl = document.getElementById('cart-total-price');
+
+            if (userCart.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">カートの中に商品はありません。</div>';
+                priceEl.innerText = '¥0';
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+            userCart.forEach((item, idx) => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom: 1px dashed #ddd;">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <span style="font-size:0.85rem; color:#666;">¥${item.price.toLocaleString()} × ${item.quantity}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap: 10px;">
+                            <strong style="color:var(--brand-red);">¥${subtotal.toLocaleString()}</strong>
+                            <button class="btn-danger" onclick="removeFromCart(${idx})">削除</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+            priceEl.innerText = `¥${total.toLocaleString()}`;
+        }
+
+        function removeFromCart(index) {
+            userCart.splice(index, 1);
+            saveStorageData('cart', userCart);
+            updateCartUI();
+        }
+
+        function checkoutCartItems() {
+            if (userCart.length === 0) {
+                alert("カートは空です。");
+                return;
+            }
+
+            if (!currentBuyerUser) {
+                alert("購入手続きへ進むにはログインが必要です。");
+                closeModal('cart-modal');
+                openModal('buyer-auth-modal');
+                return;
+            }
+
+            const item = userCart[0]; // 単一・初回購入の決済へ誘導
+            closeModal('cart-modal');
+            openCheckoutForProduct(item.id);
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentUploadedImageBase64 = e.target.result;
+                const imgPreview = document.getElementById('img-preview');
+                const previewBox = document.getElementById('img-preview-box');
+                imgPreview.src = currentUploadedImageBase64;
+                previewBox.style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function sendToGas(payload) {
+            try {
+                fetch(GAS_WEBAPP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.url) {
+                        window.location.href = data.url;
+                    } else {
+                        alert("決済エラー:\n" + JSON.stringify(data.error || data));
+                    }
+                })
+                .catch(e => {
+                    alert("通信エラーが発生しました: " + e.message);
+                });
+            } catch (err) {
+                console.error("GAS送信エラー:", err);
+            }
+        }
+
+        // --- データ永続化 (LocalStorage) ---
+        function loadStorageData(key, defaultVal) {
+            try {
+                const stored = localStorage.getItem('minatomo_' + key);
+                return stored ? JSON.parse(stored) : defaultVal;
+            } catch(e) { return defaultVal; }
+        }
+
+        function saveStorageData(key, val) {
+            try {
+                localStorage.setItem('minatomo_' + key, JSON.stringify(val));
+            } catch(e) {}
+        }
+
+        function calculateSellerFee() {
+            const priceInput = document.getElementById('new-prod-price');
+            const price = parseInt(priceInput.value) || 0;
+            
+            const fee = Math.floor(price * 0.064); 
+            const profit = price - fee;
+
+            document.getElementById('fee-amount-display').innerText = `¥${fee.toLocaleString()}`;
+            document.getElementById('profit-amount-display').innerText = `¥${profit.toLocaleString()}`;
+        }
+
+        // 状態保持用変数
+        let adminUsers = loadStorageData('adminUsers', []);
+        let currentAdmin = loadStorageData('currentAdmin', null);
+        let savedSellerProfile = loadStorageData('savedSellerProfile', null); 
+        const currentViewerUser = "購入検討者A"; 
+
+        let newsList = loadStorageData('newsList', [
+            { id: "NEWS-1", date: "2026-08-14", target: "重要", title: "「ミナトモ！」リニューアルオープンのお知らせ", content: "フリマ＆ECプラットフォームとして新機能を追加しました！" },
+            { id: "NEWS-2", date: "2026-08-10", target: "出品者", title: "振込申請手続きに関する注意事項", content: "振込口座の名義相違にご注意ください。" }
+        ]);
+
+        let reviewsList = loadStorageData('reviewsList', [
+            { id: "REV-101", productId: 101, rating: 5, author: "アクア好き太郎", comment: "とても状態が良く、LEDの光量も十分でした！迅速な対応ありがとうございました。", date: "2026-08-12 14:20" },
+            { id: "REV-102", productId: 101, rating: 4, author: "サカナ", comment: "綺麗に梱包されていました。大満足です。", date: "2026-08-13 09:15" }
+        ]);
+
+        let userList = loadStorageData('userList', [
+            { id: "USR-001", name: "青山 太郎", email: "aoyama@example.com", phone: "090-1234-5678", status: "アクティブ", kyc: "済", rating: "★4.8 (12件)", bank: { bankName: "みずほ銀行", branchName: "本店", accountType: "普通", accountNumber: "1234567", accountHolder: "アオヤマ タロウ" } },
+            { id: "USR-002", name: "佐藤 美咲", email: "sato@example.com", phone: "080-8765-4321", status: "アクティブ", kyc: "済", rating: "★5.0 (25件)", bank: { bankName: "三菱UFJ銀行", branchName: "渋谷支店", accountType: "普通", accountNumber: "9876543", accountHolder: "JOHN SMITH" } }
+        ]);
+
+        let productsList = loadStorageData('productsList', [
+            { id: 101, name: "LED水槽ライト", price: 3200, seller: "青山 太郎", category: "アクア・ペット用品", description: "60cm水槽用の高輝度LEDライトです。1か月ほど使用しましたが目立つ傷もなく動作良好です。", views: 14, favs: 3, ship: true, hand: true, active: true, recommended: true, image: null },
+            { id: 102, name: "ワイヤレスイヤホン", price: 18500, seller: "佐藤 美咲", category: "家電・スマホ・カメラ", description: "ノイズキャンセリング機能付き。付属品・外箱すべて揃っています。", views: 42, favs: 12, ship: true, hand: false, active: true, recommended: false, image: null },
+            { id: 103, name: "コットンTシャツ", price: 3900, seller: "鈴木 健太", category: "ファッション", description: "Lサイズ / 未使用品です。サイズが合わなかったため出品いたします。", views: 88, favs: 19, ship: true, hand: true, active: false, recommended: false, image: null }
+        ]);
+
+        let prePurchaseChats = loadStorageData('prePurchaseChats', [
+            {
+                id: "CHAT-101-1",
+                productId: 101,
+                productName: "LED水槽ライト",
+                sellerName: "青山 太郎",
+                userName: "購入検討者A",
+                messages: [
+                    { sender: "user", text: "はじめまして！直接の手渡しの場合は駅付近での対応は可能でしょうか？", time: "10:15" },
+                    { sender: "seller", text: "お問い合わせありがとうございます。はい、最寄り駅改札前でのお渡しが可能です！", time: "10:20" }
+                ]
+            }
+        ]);
+
+        let currentActiveProductId = null;
+
+        let transactionsList = loadStorageData('transactionsList', [
+            { id: "TRX-501", prodName: "LED水槽ライト", buyer: "佐藤 美咲", seller: "青山 太郎", price: 3200, status: "発送待ち", lastMsg: "購入しました。よろしくお願いします。" }
+        ]);
+
+        let reportsList = loadStorageData('reportsList', [
+            { id: "REP-01", reporter: "佐藤 美咲", targetType: "商品", targetId: "103 (Tシャツ)", reason: "偽ブランドの疑いあり", status: "未対応" }
+        ]);
+
+        let payoutsList = loadStorageData('payoutsList', [
+            { id: "PAY-901", user: "青山 太郎", amount: 10000, bankInfo: "みずほ銀行 本店 普通 1234567 (アオヤマ タロウ)", status: "申請中" }
+        ]);
+
+        let inquiriesList = loadStorageData('inquiriesList', [
+            { id: "INQ-01", sender: "aoyama@example.com", subject: "受取通知の不具合について", body: "ボタンが押せませんでした。", status: "未対応" }
+        ]);
+
+        let siteSettings = loadStorageData('siteSettings', {
+            tokusho: "販売業者: 株式会社ミナトモ\n代表責任者: 代表取締役 港 太郎\n所在地: 〒100-0001 東京都千代田区千代田1-1\n電話番号: 03-0000-0000\nメール: support@minatomo.jp",
+            privacy: "当社は個人情報保護法に基づき利用者の個人情報を適切に管理します。"
+        });
+
+        let selectedCategory = "すべて";
+        let selectedReceive = "ALL";
+
+        const prefecturesData = [
+            {name: "東京都", shipping: 650}, {name: "大阪府", shipping: 750}, {name: "北海道", shipping: 1200}, {name: "沖縄県", shipping: 1400}
+        ];
+
+        // お知らせ表示
+        function renderNewsList() {
+            const container = document.getElementById('news-list-container');
+            container.innerHTML = '';
+
+            if (newsList.length === 0) {
+                container.innerHTML = '<div style="font-size:0.85rem; color:#888;">現在お知らせはありません。</div>';
+                return;
+            }
+
+            newsList.forEach(item => {
+                container.innerHTML += `
+                    <div class="news-item">
+                        <span class="news-date">${item.date}</span>
+                        <span class="news-badge">${item.target}</span>
+                        <span style="font-weight:bold; cursor:pointer;" onclick="alert('${item.title}\\n\\n${item.content.replace(/\n/g, '\\n')}')">${item.title}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('main-product-grid');
+            grid.innerHTML = '';
+            const keyword = document.getElementById('search-keyword').value.toLowerCase();
+
+            const filtered = productsList.filter(p => {
+                if (!p.active) return false;
+                const matchCat = (selectedCategory === "すべて" || p.category === selectedCategory);
+                const matchKey = p.name.toLowerCase().includes(keyword);
+                let matchRec = true;
+                return matchCat && matchKey && matchRec;
+            });
+
+            filtered.forEach(p => {
+                const imgContent = p.image 
+                    ? `<img src="${p.image}" alt="${p.name}">` 
+                    : `<span>${p.name.substring(0, 10)}</span>`;
+
+                grid.innerHTML += `
+                    <div class="product-card" onclick="openProductDetailModal(${p.id})">
+                        <div class="product-image-box">
+                            ${p.recommended ? '<span class="badge-recommend">おすすめ</span>' : ''}
+                            ${imgContent}
+                            <div class="fav-icon"><i class="fa-regular fa-heart"></i></div>
+                            <div class="method-badges">
+                                ${p.ship ? '<span class="badge-shipping">配送</span>' : ''}
+                                ${p.hand ? '<span class="badge-hand">手渡し</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-title">${p.name}</div>
+                            <div class="product-price">¥${p.price.toLocaleString()}</div>
+                            <span class="category-tag-sm">${p.category}</span>
+                            <div class="card-footer-stats">
+                                <span><i class="fa-regular fa-eye"></i> ${p.views}</span>
+                                <span><i class="fa-solid fa-heart" style="color:#ff4d4f;"></i> ${p.favs}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openProductDetailModal(prodId) {
+            currentActiveProductId = prodId;
+            const prod = productsList.find(p => p.id === prodId);
+            if (!prod) return;
+
+            const imgBox = document.getElementById('detail-img-box');
+            if (prod.image) {
+                imgBox.innerHTML = `<img src="${prod.image}" alt="${prod.name}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`;
+            } else {
+                imgBox.innerHTML = `<span>${prod.name}</span>`;
+            }
+
+            document.getElementById('detail-title').innerText = prod.name;
+            document.getElementById('detail-price').innerText = `¥${prod.price.toLocaleString()}`;
+            document.getElementById('detail-category').innerText = prod.category;
+            document.getElementById('detail-seller').innerText = prod.seller;
+            document.getElementById('detail-desc').innerText = prod.description || "商品説明はありません。";
+
+            renderPrePurchaseChatLogs(prodId);
+            renderProductReviews(prodId);
+            openModal('product-detail-modal');
+        }
+
+        function renderProductReviews(prodId) {
+            const container = document.getElementById('product-reviews-container');
+            container.innerHTML = '';
+
+            const productRevs = reviewsList.filter(r => r.productId === prodId);
+
+            if (productRevs.length === 0) {
+                container.innerHTML = '<div style="font-size:0.85rem; color:#888; text-align:center; padding:15px;">まだ口コミレビューはありません。最初のレビューを投稿してみましょう！</div>';
+                return;
+            }
+
+            productRevs.forEach(r => {
+                const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                container.innerHTML += `
+                    <div class="review-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span class="review-stars">${stars}</span>
+                            <span style="font-size:0.75rem; color:#888;">${r.author} • ${r.date}</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:#333;">${r.comment}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function submitProductReview(e) {
+            e.preventDefault();
+            if (!currentActiveProductId) return;
+
+            const rating = parseInt(document.getElementById('rev-rating').value);
+            const author = document.getElementById('rev-author').value.trim();
+            const comment = document.getElementById('rev-comment').value.trim();
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            const newRev = {
+                id: `REV-${Date.now()}`,
+                productId: currentActiveProductId,
+                rating: rating,
+                author: author,
+                comment: comment,
+                date: dateStr
+            };
+
+            reviewsList.unshift(newRev);
+            saveStorageData('reviewsList', reviewsList);
+
+            sendToGas({
+                type: "PRODUCT_REVIEW",
+                productId: currentActiveProductId,
+                rating: rating,
+                author: author,
+                comment: comment
+            });
+
+            alert('口コミを投稿しました！ありがとうございます。');
+            renderProductReviews(currentActiveProductId);
+            document.getElementById('rev-comment').value = '';
+            if (currentAdmin) renderAdminTables();
+        }
+
+        function renderPrePurchaseChatLogs(prodId) {
+            const historyBox = document.getElementById('detail-chat-history');
+            historyBox.innerHTML = '';
+
+            let chatGroup = prePurchaseChats.find(c => c.productId === prodId && (c.userName === currentViewerUser || c.sellerName === currentViewerUser));
+
+            if (!chatGroup || chatGroup.messages.length === 0) {
+                historyBox.innerHTML = `<div style="text-align:center; color:#aaa; font-size:0.8rem; margin-top:80px;">
+                    <i class="fa-solid fa-lock"></i> このチャットは出品者とあなただけに非公開で送信されます。<br>質問・ご相談があれば以下から送信してください。
+                </div>`;
+                return;
+            }
+
+            chatGroup.messages.forEach(m => {
+                const isMyMsg = (m.sender === 'user' && chatGroup.userName === currentViewerUser) || 
+                                (m.sender === 'seller' && chatGroup.sellerName === currentViewerUser);
+
+                historyBox.innerHTML += `
+                    <div class="chat-msg-bubble ${isMyMsg ? 'chat-msg-user' : 'chat-msg-seller'}">
+                        <div>${m.text}</div>
+                        <div class="chat-meta" style="${isMyMsg ? 'color:#e0e0e0;' : 'color:#888;'}">
+                            ${isMyMsg ? 'あなた' : (m.sender === 'seller' ? '出品者' : '相談者')} • ${m.time}
+                        </div>
+                    </div>
+                `;
+            });
+
+            historyBox.scrollTop = historyBox.scrollHeight;
+        }
+
+        function sendPrePurchaseChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input-msg');
+            const msgText = input.value.trim();
+            if (!msgText || !currentActiveProductId) return;
+
+            const now = new Date();
+            const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const prod = productsList.find(p => p.id === currentActiveProductId);
+
+            let chatGroup = prePurchaseChats.find(c => c.productId === currentActiveProductId && c.userName === currentViewerUser);
+            if (!chatGroup) {
+                chatGroup = {
+                    id: `CHAT-${currentActiveProductId}-${Date.now()}`,
+                    productId: currentActiveProductId,
+                    productName: prod ? prod.name : "",
+                    sellerName: prod ? prod.seller : "",
+                    userName: currentViewerUser,
+                    messages: []
+                };
+                prePurchaseChats.push(chatGroup);
+            }
+
+            chatGroup.messages.push({
+                sender: "user",
+                text: msgText,
+                time: timeStr
+            });
+
+            saveStorageData('prePurchaseChats', prePurchaseChats);
+
+            sendToGas({
+                type: "PRE_PURCHASE_CHAT",
+                productId: currentActiveProductId,
+                productName: prod ? prod.name : "",
+                sellerName: prod ? prod.seller : "",
+                message: msgText
+            });
+
+            input.value = '';
+            renderPrePurchaseChatLogs(currentActiveProductId);
+            if (currentAdmin) renderAdminTables();
+        }
+
+        function proceedToCheckoutFromDetail() {
+            closeModal('product-detail-modal');
+            openCheckoutForProduct(currentActiveProductId);
+        }
+
+        function openCheckoutForProduct(prodId) {
+            const prod = productsList.find(p => p.id === prodId);
+            if (!prod) {
+                alert("商品情報が見つかりません。");
+                return;
+            }
+
+            alert("決済へ進みます: " + prod.name + " (" + prod.price + "円)");
+
+            fetch(GAS_WEBAPP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({
+                    productName: prod.name,
+                    price: Math.floor(Number(prod.price))
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert("決済URLの作成に失敗しました:\n" + JSON.stringify(data.error || data));
+                }
+            })
+            .catch(err => {
+                alert("通信エラーが発生しました: " + err.message);
+            });
+        }
+
+        function calcCheckout() {
+            const prod = productsList.find(p => p.id === currentActiveProductId);
+            if (!prod) return;
+
+            const prefIndex = document.getElementById('checkout-pref-select').value || 0;
+            const shippingFee = prefecturesData[prefIndex] ? prefecturesData[prefIndex].shipping : 0;
+            const totalPrice = prod.price + shippingFee;
+
+            document.getElementById('out-prod-price').innerText = `¥${prod.price.toLocaleString()}`;
+            document.getElementById('out-shipping-price').innerText = `¥${shippingFee.toLocaleString()}`;
+            document.getElementById('out-total-price').innerText = `¥${totalPrice.toLocaleString()}`;
+        }
+
+        function openModal(id) {
+            if (id === 'tokusho-modal') document.getElementById('view-tokusho-content').innerText = siteSettings.tokusho;
+            if (id === 'privacy-modal') document.getElementById('view-privacy-content').innerText = siteSettings.privacy;
+            document.getElementById(id).style.display = 'block';
+        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function openSellerModal() {
+            if (savedSellerProfile) {
+                document.getElementById('seller-name-input').value = savedSellerProfile.name || '';
+                document.getElementById('seller-email-input').value = savedSellerProfile.email || '';
+                document.getElementById('seller-phone-input').value = savedSellerProfile.phone || '';
+                document.getElementById('bank-name-input').value = savedSellerProfile.bankName || '';
+                document.getElementById('bank-branch-input').value = savedSellerProfile.branchName || '';
+                document.getElementById('bank-type-input').value = savedSellerProfile.accountType || '普通';
+                document.getElementById('bank-number-input').value = savedSellerProfile.accountNumber || '';
+                document.getElementById('bank-holder-input').value = savedSellerProfile.accountHolder || '';
+            }
+            openModal('seller-modal');
+        }
+
+        function selectCategory(btn, catName) {
+            document.querySelectorAll('#category-chips .chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            selectedCategory = catName;
+            renderProducts();
+        }
+
+        function filterProducts() { renderProducts(); }
+
+        function toggleAuthMode() {
+            const loginForm = document.getElementById('admin-login-form');
+            const regForm = document.getElementById('admin-register-form');
+            const title = document.getElementById('admin-auth-title');
+            const btn = document.getElementById('toggle-auth-btn');
+
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                regForm.style.display = 'none';
+                title.innerHTML = '<i class="fa-solid fa-shield-halved" style="color: #007bff;"></i> 運営者ログイン';
+                btn.innerText = '新規高セキュリティ登録へ';
+            } else {
+                loginForm.style.display = 'none';
+                regForm.style.display = 'block';
+                title.innerHTML = '<i class="fa-solid fa-user-shield" style="color: #ea352d;"></i> 3重ロック 管理者登録';
+                btn.innerText = 'ログインへ戻る';
+            }
+        }
+
+        function handleAdminRegister(e) {
+            e.preventDefault();
+
+            if (adminUsers.length >= 1) {
+                alert('【エラー】すでに運営者が1名登録されています（上限1名）。追加登録はできません。');
+                return;
+            }
+
+            const email = document.getElementById('reg-email').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const pass1 = document.getElementById('reg-pass1').value.trim();
+            const pass2 = document.getElementById('reg-pass2').value.trim();
+            const secQuestion = document.getElementById('reg-sec-question').value;
+            const secAnswer = document.getElementById('reg-sec-answer').value.trim();
+
+            if (pass1.length > 10) {
+                alert('【エラー】第1パスワードは10桁以内で設定してください。');
+                return;
+            }
+            if (pass2.length !== 20) {
+                alert('【エラー】第2パスワードは英数字「20桁ぴったり」で設定してください。');
+                return;
+            }
+
+            const newAdminData = {
+                email: email, phone: phone, pass1: pass1, pass2: pass2, secQuestion: secQuestion, secAnswer: secAnswer
+            };
+
+            adminUsers.push(newAdminData);
+            saveStorageData('adminUsers', adminUsers);
+
+            sendToGas({
+                type: "ADMIN_REGISTER",
+                email: email,
+                phone: phone,
+                pass1: pass1,
+                pass2: pass2,
+                secQuestion: secQuestion,
+                secAnswer: secAnswer
+            });
+
+            alert('【管理者登録完了】1人目の運営者アカウントが正常に登録されました！');
+
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-pass1').value = pass1;
+            document.getElementById('login-pass2').value = pass2;
+            document.getElementById('login-sec-ans').value = secAnswer;
+
+            toggleAuthMode();
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+
+            if (adminUsers.length === 0) {
+                alert('【エラー】運営者がまだ登録されていません。「新規高セキュリティ登録へ」から管理者登録を行ってください。');
+                return;
+            }
+
+            const email = document.getElementById('login-email').value.trim();
+            const pass1 = document.getElementById('login-pass1').value.trim();
+            const pass2 = document.getElementById('login-pass2').value.trim();
+            const secAns = document.getElementById('login-sec-ans').value.trim();
+
+            const found = adminUsers.find(a => 
+                a.email === email && a.pass1 === pass1 && a.pass2 === pass2 && a.secAnswer === secAns
+            );
+
+            if (found) {
+                currentAdmin = found;
+                saveStorageData('currentAdmin', currentAdmin);
+                document.getElementById('current-admin-display').innerText = `管理者: ${found.email}`;
+                closeModal('admin-login-modal');
+                renderAdminTables();
+                openModal('admin-modal');
+            } else {
+                alert('【認証失敗】メールアドレス、第1/第2パスワード、またはセキュリティ質問の回答が一致致しません。');
+            }
+        }
+
+        function tryOpenAdmin() {
+            if (currentAdmin) {
+                renderAdminTables();
+                openModal('admin-modal');
+            } else {
+                openModal('admin-login-modal');
+            }
+        }
+
+        function logoutAdmin() {
+            currentAdmin = null;
+            saveStorageData('currentAdmin', null);
+            closeModal('admin-modal');
+            alert('ログアウトしました。');
+        }
+
+        function switchAdminTab(evt, tabId) {
+            document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+            evt.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function toggleUserStatus(userId) {
+            const user = userList.find(u => u.id === userId);
+            if (user) {
+                user.status = (user.status === 'アクティブ') ? '停止中' : 'アクティブ';
+                saveStorageData('userList', userList);
+                renderAdminTables();
+                alert(`ユーザー ID:${userId} のステータスを「${user.status}」に変更しました。`);
+            }
+        }
+
+        function toggleProdActive(prodId) {
+            const prod = productsList.find(p => p.id === prodId);
+            if (prod) {
+                prod.active = !prod.active;
+                saveStorageData('productsList', productsList);
+                renderProducts();
+                renderAdminTables();
+            }
+        }
+
+        function toggleProdRecommend(prodId) {
+            const prod = productsList.find(p => p.id === prodId);
+            if (prod) {
+                prod.recommended = !prod.recommended;
+                saveStorageData('productsList', productsList);
+                renderProducts();
+                renderAdminTables();
+            }
+        }
+
+        function deleteProd(prodId) {
+            if (confirm('この商品を完全に削除しますか？')) {
+                productsList = productsList.filter(p => p.id !== prodId);
+                saveStorageData('productsList', productsList);
+                renderProducts();
+                renderAdminTables();
+            }
+        }
+
+        function forceCompleteTrx(trxId) {
+            const trx = transactionsList.find(t => t.id === trxId);
+            if (trx) {
+                trx.status = "取引完了（運営強制）";
+                saveStorageData('transactionsList', transactionsList);
+                renderAdminTables();
+                alert(`取引 ${trxId} を強制完了としました。`);
+            }
+        }
+
+        function forceCancelTrx(trxId) {
+            const trx = transactionsList.find(t => t.id === trxId);
+            if (trx) {
+                trx.status = "キャンセル（運営介入）";
+                saveStorageData('transactionsList', transactionsList);
+                renderAdminTables();
+                alert(`取引 ${trxId} を強制キャンセルとしました。`);
+            }
+        }
+
+        function resolveReport(repId) {
+            const rep = reportsList.find(r => r.id === repId);
+            if (rep) {
+                rep.status = "対応済";
+                saveStorageData('reportsList', reportsList);
+                renderAdminTables();
+                alert(`通報 ID:${repId} を対応済に更新しました。`);
+            }
+        }
+
+        function approvePayout(payId) {
+            const pay = payoutsList.find(p => p.id === payId);
+            if (pay) {
+                pay.status = "完了";
+                saveStorageData('payoutsList', payoutsList);
+                renderAdminTables();
+                alert(`振込申請 ID:${payId} の送金手続きを完了としました。`);
+            }
+        }
+
+        function replyInquiry(inqId) {
+            const inq = inquiriesList.find(i => i.id === inqId);
+            if (inq) {
+                const replyText = prompt(`【お問い合わせ返信】\n差出人: ${inq.sender}\n件名: ${inq.subject}\n\n返信本文を入力してください:`);
+                if (replyText) {
+                    inq.status = "回答済";
+                    saveStorageData('inquiriesList', inquiriesList);
+                    sendToGas({
+                        type: "INQUIRY_REPLY",
+                        inquiryId: inqId,
+                        recipient: inq.sender,
+                        replyMessage: replyText
+                    });
+                    renderAdminTables();
+                    alert("返信内容を保存しユーザーに通知しました。");
+                }
+            }
+        }
+
+        function addNewAnnouncement(e) {
+            e.preventDefault();
+            const title = document.getElementById('admin-news-title').value.trim();
+            const target = document.getElementById('admin-news-target').value;
+            const content = document.getElementById('admin-news-content').value.trim();
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+            newsList.unshift({
+                id: `NEWS-${Date.now()}`,
+                date: dateStr,
+                target: target,
+                title: title,
+                content: content
+            });
+
+            saveStorageData('newsList', newsList);
+            renderNewsList();
+            renderAdminTables();
+            alert('お知らせを配信掲載しました。');
+            document.getElementById('admin-news-title').value = '';
+            document.getElementById('admin-news-content').value = '';
+        }
+
+        function deleteNewsItem(newsId) {
+            if (confirm('このお知らせを削除しますか？')) {
+                newsList = newsList.filter(n => n.id !== newsId);
+                saveStorageData('newsList', newsList);
+                renderNewsList();
+                renderAdminTables();
+            }
+        }
+
+        function deleteReviewItem(revId) {
+            if (confirm('この口コミ・レビューを削除しますか？')) {
+                reviewsList = reviewsList.filter(r => r.id !== revId);
+                saveStorageData('reviewsList', reviewsList);
+                renderAdminTables();
+                if (currentActiveProductId) renderProductReviews(currentActiveProductId);
+            }
+        }
+
+        function saveSiteSettings(e) {
+            e.preventDefault();
+            siteSettings.tokusho = document.getElementById('edit-tokusho').value;
+            siteSettings.privacy = document.getElementById('edit-privacy').value;
+            saveStorageData('siteSettings', siteSettings);
+            alert('サイト設定を更新保存しました。');
+        }
+
+        function submitNewProduct(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-prod-name').value.trim();
+            const price = parseInt(document.getElementById('new-prod-price').value);
+            const cat = document.getElementById('new-prod-cat').value;
+            const desc = document.getElementById('new-prod-desc').value.trim();
+            const seller = document.getElementById('seller-name-input').value.trim();
+            const ship = document.getElementById('new-ship').checked;
+            const hand = document.getElementById('new-hand').checked;
+
+            savedSellerProfile = {
+                name: seller,
+                email: document.getElementById('seller-email-input').value.trim(),
+                phone: document.getElementById('seller-phone-input').value.trim(),
+                bankName: document.getElementById('bank-name-input').value.trim(),
+                branchName: document.getElementById('bank-branch-input').value.trim(),
+                accountType: document.getElementById('bank-type-input').value,
+                accountNumber: document.getElementById('bank-number-input').value.trim(),
+                accountHolder: document.getElementById('bank-holder-input').value.trim()
+            };
+            saveStorageData('savedSellerProfile', savedSellerProfile);
+
+            const newProd = {
+                id: Date.now(),
+                name: name,
+                price: price,
+                seller: seller,
+                category: cat,
+                description: desc,
+                views: 0,
+                favs: 0,
+                ship: ship,
+                hand: hand,
+                active: true,
+                recommended: false,
+                image: currentUploadedImageBase64
+            };
+
+            productsList.unshift(newProd);
+            saveStorageData('productsList', productsList);
+
+            sendToGas({
+                type: "NEW_PRODUCT",
+                product: newProd,
+                sellerProfile: savedSellerProfile
+            });
+
+            alert('商品の出品が完了しました！');
+            closeModal('seller-modal');
+            renderProducts();
+            currentUploadedImageBase64 = null;
+            document.getElementById('img-preview-box').style.display = 'none';
+            document.getElementById('seller-form').reset();
+            if (currentAdmin) renderAdminTables();
+        }
+
+        function submitUserInquiry(e) {
+            e.preventDefault();
+            const email = document.getElementById('inq-email').value.trim();
+            const subject = document.getElementById('inq-subject').value.trim();
+            const body = document.getElementById('inq-body').value.trim();
+
+            const newInq = {
+                id: `INQ-${Date.now()}`,
+                sender: email,
+                subject: subject,
+                body: body,
+                status: "未対応"
+            };
+
+            inquiriesList.unshift(newInq);
+            saveStorageData('inquiriesList', inquiriesList);
+
+            sendToGas({
+                type: "USER_INQUIRY",
+                inquiry: newInq
+            });
+
+            alert('お問い合わせを送信しました。運営からの回答をお待ちください。');
+            closeModal('inquiry-modal');
+            document.getElementById('inquiry-form').reset();
+            if (currentAdmin) renderAdminTables();
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+            const prod = productsList.find(p => p.id === currentActiveProductId);
+            if (!prod) return;
+
+            const name = document.getElementById('buy-name').value.trim();
+            const email = document.getElementById('buy-email').value.trim();
+
+            const newTrx = {
+                id: `TRX-${Date.now()}`,
+                prodName: prod.name,
+                buyer: name,
+                seller: prod.seller,
+                price: prod.price,
+                status: "発送待ち",
+                lastMsg: "注文を確定しました。"
+            };
+
+            transactionsList.unshift(newTrx);
+            saveStorageData('transactionsList', transactionsList);
+
+            sendToGas({
+                type: "NEW_ORDER",
+                order: newTrx,
+                buyerEmail: email
+            });
+
+            alert('注文が完了しました！ご利用ありがとうございます。');
+            closeModal('checkout-modal');
+            if (currentAdmin) renderAdminTables();
+        }
+
+        function renderAdminTables() {
+            const tblUsers = document.getElementById('tbl-users');
+            tblUsers.innerHTML = '';
+            userList.forEach(u => {
+                const bankStr = u.bank ? `<div><strong>${u.bank.bankName}</strong> (${u.bank.branchName})<br>${u.bank.accountType} ${u.bank.accountNumber}<br>名義: ${u.bank.accountHolder}</div>` : '未登録';
+                tblUsers.innerHTML += `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.phone}</td><td>${bankStr}</td><td><span class="status-badge ${u.status === 'アクティブ' ? 'bg-success' : 'bg-danger'}">${u.status}</span></td><td><span class="status-badge ${u.kyc === '済' ? 'bg-info' : 'bg-secondary'}">${u.kyc}</span></td><td>${u.rating || '-'}</td><td><button class="btn-warning" onclick="toggleUserStatus('${u.id}')">ステータス変更</button></td></tr>`;
+            });
+
+            const tblProds = document.getElementById('tbl-admin-products');
+            tblProds.innerHTML = '';
+            productsList.forEach(p => {
+                tblProds.innerHTML += `<tr><td>${p.id}</td><td>${p.name}</td><td>¥${p.price.toLocaleString()}</td><td>${p.seller}</td><td><span class="status-badge ${p.active ? 'bg-success' : 'bg-secondary'}">${p.active ? '公開中' : '非公開'}</span></td><td>${p.recommended ? '★おすすめ' : '-'}</td><td><button class="btn-secondary" onclick="toggleProdActive(${p.id})">公開切替</button> <button class="btn-warning" onclick="toggleProdRecommend(${p.id})">おすすめ切替</button> <button class="btn-danger" onclick="deleteProd(${p.id})">削除</button></td></tr>`;
+            });
+        }
+
+        // 初期描画実行
+        window.addEventListener('DOMContentLoaded', () => {
+            renderNewsList();
+            renderProducts();
+            updateCartUI();
+        });
+    </script>
 </body>
 </html>
