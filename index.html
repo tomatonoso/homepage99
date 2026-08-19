@@ -1167,15 +1167,25 @@
 
         function sendToGas(payload) {
             try {
-                fetch(GAS_WEBAPP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).catch(e => console.log('GAS Error:', e));
-            } catch (err) {
-                console.error("GAS送信エラー:", err);
+        fetch(GAS_WEBAPP_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.url) {
+                // Stripeの決済画面へジャンプ
+                window.location.href = data.url;
+            } else {
+                alert("決済エラー:\n" + JSON.stringify(data.error || data));
             }
+        })
+        .catch(e => {
+            alert("通信エラーが発生しました: " + e.message);
+        });
+    } catch (err) {
+        console.error("GAS送信エラー:", err);
+    }
         }
 
         // --- データ永続化 (LocalStorage ＆ スプレッドシート連携) ---
