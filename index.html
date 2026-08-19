@@ -1817,14 +1817,13 @@ const auth = firebase.auth();
         return;
     }
 
-    // カート内の合計金額を計算
+   // カート内の合計金額を計算
 const totalAmount = userCart.reduce((sum, item) => {
     const price = Number(item.price) || 0;
     const quantity = Number(item.quantity) || 1;
     return sum + (price * quantity);
 }, 0);
 
-// アラートの表示
 alert("決済へ進みます: カート合計 (" + totalAmount + "円)");
 
 fetch(GAS_WEBAPP_URL, {
@@ -1835,6 +1834,12 @@ fetch(GAS_WEBAPP_URL, {
         price: Math.floor(totalAmount)
     })
 })
+.then(res => res.json())
+.then(data => {
+    if (data.url) {
+        window.location.href = data.url;
+    }
+});
     .then(res => res.json())
     .then(data => {
         if (data.url) {
