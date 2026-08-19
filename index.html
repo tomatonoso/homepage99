@@ -524,7 +524,8 @@
         </div>
         <div class="header-user-nav">
             <!-- Amazon風 カートボタン -->
-            <div class="header-cart-badge" onclick="openModal('cart-modal')">
+           <!-- 7行目を修正：idを追加し、最初はdisplay: noneで非表示にする -->
+<div id="header-cart-btn" class="header-cart-badge" onclick="openModal('cart-modal')" style="display: none;">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span>カート: <strong id="nav-cart-count">0</strong>点</span>
             </div>
@@ -1286,19 +1287,33 @@ const auth = firebase.auth();
 
         // --- Firebase Auth 監視（ログイン状態自動読み込み） ---
         auth.onAuthStateChanged(user => {
-            currentBuyerUser = user;
-            const userArea = document.getElementById('user-auth-btn-area');
-            if (user) {
-                userArea.innerHTML = `
-                    <span class="user-status-text"><i class="fa-solid fa-user-check" style="color:#28a745;"></i> ${user.email.split('@')[0]} 様</span>
-                    <button class="btn-secondary" onclick="logoutBuyer()">ログアウト</button>
-                `;
-            } else {
-                userArea.innerHTML = `
-                    <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
-                `;
-            }
-        });
+    currentBuyerUser = user;
+    const userArea = document.getElementById('user-auth-btn-area');
+    const cartBtn = document.getElementById('header-cart-btn'); // カートボタンを取得
+
+    if (user) {
+        // ログイン時：ユーザー領域の更新 ＆ カートを表示
+        if (userArea) {
+            userArea.innerHTML = `
+                <span class="user-status-text"><i class="fa-solid fa-user-check"></i></span>
+                <button class="btn-secondary" onclick="logoutBuyer()">ログアウト</button>
+            `;
+        }
+        if (cartBtn) {
+            cartBtn.style.display = 'flex'; // カートを表示
+        }
+    } else {
+        // 未ログイン時：ユーザー領域の更新 ＆ カートを非表示
+        if (userArea) {
+            userArea.innerHTML = `
+                <button class="btn-outline" onclick="openModal('buyer-auth-modal')">ログイン / 新規登録</button>
+            `;
+        }
+        if (cartBtn) {
+            cartBtn.style.display = 'none'; // カートを非表示
+        }
+    }
+});
 
         // --- 購入者ログイン・登録処理 ---
         function handleBuyerAuth(type) {
