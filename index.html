@@ -1146,7 +1146,7 @@
 
     <script>
         // 指定の更新済み GAS WebApp URL
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwpLFjQgvFd42CsxRFLprDyw1qbfAuCnPR40Aszqc0BRhQiBCpiLN1R7eVHoxA7ctgt/exec";
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbySEeQHzsjsldXIFNLiCsTsmLPSk0uCeE9OvHsxkDb1PHyfxNRMNsiFyPiQHtG0rddV/exec";
 
         let currentUploadedImageBase64 = null;
 
@@ -1518,11 +1518,29 @@ function openCheckoutForProduct(prodId) {
     alert("決済へ進みます: " + prod.name + " (" + prod.price + "円)");
 
     // GASを呼び出して動的にStripe決済画面を発行
-    google.script.run
-        .withSuccessHandler(function(checkoutUrl) {
-            if (checkoutUrl) {
-                window.location.href = checkoutUrl;
-            } else {
+   // GASを呼び出して動的にStripe決済画面を発行
+    const gasWebAppUrl = "https://script.google.com/macros/s/ここにあなたのGASのWebアプリURL/exec";
+
+    fetch(gasWebAppUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({
+            productName: prod.name,
+            price: prod.price
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            alert("決済URLの作成に失敗しました:\n" + JSON.stringify(data.error || data));
+        }
+    })
+    .catch(err => {
+        alert("通信エラーが発生しました: " + err.message);
+    });
+}
                 alert("決済URLの作成に失敗しました。GASのコードを確認してください。");
             }
         })
