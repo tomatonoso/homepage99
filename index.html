@@ -1534,9 +1534,10 @@ function openCheckoutForProduct(prodId) {
     fetch(gasWebAppUrl, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
+        // 1537行目からの修正箇所
         body: JSON.stringify({
             productName: prod.name,
-            price: prod.price
+            price: Math.floor(Number(prod.price))
         })
     })
     .then(res => res.json())
