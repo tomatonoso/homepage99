@@ -1811,38 +1811,36 @@ const auth = firebase.auth();
         }
 
         function openCheckoutForProduct(prodId) {
-    const prod = productsList.find(p => p.id === prodId);
-    if (!prod) {
-        alert("商品情報が見つかりません。");
-        return;
-    }
+            const prod = productsList.find(p => p.id === prodId);
+            if (!prod) {
+                alert("商品情報が見つかりません。");
+                return;
+            }
 
-// カート内の合計金額を計算
-const totalAmount = userCart.reduce((sum, item) => {
-    const price = Number(item.price) || 0;
-    const quantity = Number(item.quantity) || 1;
-    return sum + (price * quantity);
-}, 0);
+            // カート内の合計金額を計算
+            const totalAmount = userCart.reduce((sum, item) => {
+                const price = Number(item.price) || 0;
+                const quantity = Number(item.quantity) || 1;
+                return sum + (price * quantity);
+            }, 0);
 
-alert("決済へ進みます: カート合計 (" + totalAmount + "円)");
+            alert("決済へ進みます: カート合計 (" + totalAmount + "円)");
 
-fetch(GAS_WEBAPP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify({
-        productName: "カート注文（" + userCart.length + "点）",
-        price: Math.floor(totalAmount)
-    })
-　　})
-    .then(res => res.json())
-    .then(data => {
-        if (data.url) {
-            window.location.href = data.url;
+            fetch(GAS_WEBAPP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({
+                    productName: "カート注文（" + userCart.length + "点）",
+                    price: Math.floor(totalAmount)
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.url) {
+                    window.location.href = data.url;
+                }
+            });
         }
-    });
-}
-
-   
 
         function calcCheckout() {
             const prod = productsList.find(p => p.id === currentActiveProductId);
@@ -2258,7 +2256,7 @@ fetch(GAS_WEBAPP_URL, {
                 price: prod.price,
                 status: "発送待ち",
                 lastMsg: "注文を確定しました。"
-                    
+            };
 
             transactionsList.unshift(newTrx);
             saveStorageData('transactionsList', transactionsList);
