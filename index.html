@@ -310,6 +310,11 @@
             display: flex; align-items: center; justify-content: center;
             color: #ccc; font-size: 0.85rem;
             z-index: 2;
+            transition: color 0.2s;
+        }
+
+        .fav-icon.active {
+            color: #ff4d4f;
         }
 
         .method-badges {
@@ -519,7 +524,8 @@
     <header>
         <div class="header-logo" onclick="window.location.reload();">ミナトモ！</div>
         <div class="search-container">
-            <input type="text" id="search-keyword" class="search-input" placeholder="何をお探しですか？" onkeyup="filterProducts()">
+            <!-- autocomplete="off" を設定してメールアドレスなどの補完の誤爆を防ぎます -->
+            <input type="text" id="search-keyword" class="search-input" placeholder="何をお探しですか？" autocomplete="off" onkeyup="filterProducts()">
             <button class="search-btn" onclick="filterProducts()">検 索</button>
         </div>
         <div class="header-user-nav">
@@ -600,6 +606,47 @@
         </div>
         <p>&copy; ミナトモ！ All Rights Reserved.</p>
     </footer>
+
+
+    <!-- MODAL: 購入者マイページ モーダル -->
+    <div id="buyer-mypage-modal" class="modal-panel">
+        <div class="modal-content" style="max-width: 850px;">
+            <span class="close-modal" onclick="closeModal('buyer-mypage-modal')">&times;</span>
+            <h2><i class="fa-solid fa-user-gear" style="color: var(--brand-red);"></i> 購入者マイページ</h2>
+            <hr style="margin: 15px 0;">
+
+            <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
+                <button class="admin-tab-btn active" onclick="switchMypageTab(event, 'mypage-tab-chats')"><i class="fa-solid fa-comments"></i> 出品者とのメール (チャット)</button>
+                <button class="admin-tab-btn" onclick="switchMypageTab(event, 'mypage-tab-cart')"><i class="fa-solid fa-cart-shopping"></i> カートの確認</button>
+                <button class="admin-tab-btn" onclick="switchMypageTab(event, 'mypage-tab-favs')"><i class="fa-solid fa-heart"></i> 保存商品 (お気に入り)</button>
+            </div>
+
+            <!-- TAB 1: メール・チャット履歴 -->
+            <div id="mypage-tab-chats" class="admin-tab-content active">
+                <h3 style="font-size:1rem; margin-bottom:10px;">送信済みの非公開チャット・お問い合わせ</h3>
+                <div id="mypage-chats-list" style="max-height:350px; overflow-y:auto;"></div>
+            </div>
+
+            <!-- TAB 2: カート情報 -->
+            <div id="mypage-tab-cart" class="admin-tab-content">
+                <h3 style="font-size:1rem; margin-bottom:10px;">現在のカート内商品</h3>
+                <div id="mypage-cart-list" style="min-height: 100px; max-height: 250px; overflow-y: auto;"></div>
+                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: right;">
+                    <span>合計金額: </span>
+                    <strong id="mypage-cart-total" style="font-size: 1.3rem; color: var(--brand-red);">¥0</strong>
+                </div>
+                <button class="btn-red-sm" style="width: 100%; padding: 10px; font-size: 1rem; margin-top: 15px;" onclick="closeModal('buyer-mypage-modal'); checkoutCartItems();">
+                    カートの商品を購入手続きへ進む
+                </button>
+            </div>
+
+            <!-- TAB 3: 保存商品 (お気に入り) -->
+            <div id="mypage-tab-favs" class="admin-tab-content">
+                <h3 style="font-size:1rem; margin-bottom:10px;">保存した商品一覧</h3>
+                <div id="mypage-favs-grid" class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;"></div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- MODAL: 購入者用 新規登録・ログイン モーダル -->
@@ -699,17 +746,26 @@
                     <span style="font-size: 0.8rem; color: #666;">※メッセージは出品者とあなただけに表示されます</span>
                 </div>
 
-                <div id="detail-chat-history" class="chat-history-box"></div>
+                <!-- 会員限定メッセージ表示領域 -->
+                <div id="chat-auth-required-box" style="display:none; text-align:center; padding:30px 15px; background:#fff; border-radius:6px; border:1px dashed #007bff; margin-bottom:12px;">
+                    <i class="fa-solid fa-user-lock" style="font-size:2rem; color:#007bff; margin-bottom:10px;"></i>
+                    <p style="font-size:0.9rem; font-weight:bold; color:#333; margin-bottom:10px;">出品者への非公開チャット（メール）をご利用いただくには会員登録が必要です。</p>
+                    <button class="btn-outline" onclick="closeModal('product-detail-modal'); openModal('buyer-auth-modal');"><i class="fa-solid fa-user"></i> ログイン / 会員登録する</button>
+                </div>
 
-                <form onsubmit="sendPrePurchaseChat(event)">
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="chat-input-msg" class="form-control" placeholder="例: こちらの商品は手渡しの場合、どのあたりになりますか？" required>
-                        <button type="submit" class="btn-chat" id="send-chat-btn"><i class="fa-solid fa-paper-plane"></i> 非公開で相談送信</button>
-                    </div>
-                </form>
+                <div id="chat-active-box">
+                    <div id="detail-chat-history" class="chat-history-box"></div>
+
+                    <form onsubmit="sendPrePurchaseChat(event)">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="chat-input-msg" class="form-control" placeholder="例: こちらの商品は手渡しの場合、どのあたりになりますか？" required>
+                            <button type="submit" class="btn-chat" id="send-chat-btn"><i class="fa-solid fa-paper-plane"></i> 非公開で相談送信</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <!-- 口口コミ・レビュー -->
+            <!-- 口コミ・レビュー -->
             <div style="background-color: #ffffff; border: 1px solid #e0e0e0; padding: 18px; border-radius: 8px;">
                 <h3 style="font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-star" style="color: #ff9800;"></i> 商品・出品者の評価・口コミレビュー
@@ -878,7 +934,7 @@
                             <input type="number" id="new-prod-price" class="form-control" required placeholder="3200" min="100" oninput="calculateSellerFee()">
                             
                             <div class="fee-calc-box">
-                                <div>販売手数料 (6.4%): <strong id="fee-amount-display">¥0</strong></div>
+                               <div>販売手数料 (10% / Stripe 3.6% + サイト 6.4%): ¥<span id="fee">3,998</span></div>
                                 <div style="color:#d32f2f;">販売利益 (お受取額): <strong id="profit-amount-display">¥0</strong></div>
                             </div>
                         </div>
@@ -908,7 +964,7 @@
                         <div class="form-group" style="margin-top: 15px; padding: 12px; background-color: #fdf7f7; border: 1px solid #f5c6cb; border-radius: 6px;">
                             <label style="display: flex; align-items: center; gap: 8px; font-weight: bold; color: #721c24; cursor: pointer; margin-bottom:0;">
                                 <input type="checkbox" id="agree-fee-checkbox" required style="width: 18px; height: 18px; cursor: pointer;">
-                                商品の販売時にシステム利用手数料 (6.4%) が差し引かれることに同意します <span style="color:red;">*</span>
+                                商品の販売時にシステム利用手数料 (10.0%) が差し引かれることに同意します <span style="color:red;">*</span>
                             </label>
                         </div>
                     </div>
@@ -1283,6 +1339,7 @@
         let currentUploadedImageBase64 = null;
         let currentBuyerUser = null;
         let userCart = loadStorageData('cart', []);
+        let userFavorites = loadStorageData('userFavorites', []);
 
         // --- Firebase Auth 監視 ---
         if (auth) {
@@ -1294,7 +1351,8 @@
                 if (user) {
                     if (userArea) {
                         userArea.innerHTML = `
-                            <span class="user-status-text"><i class="fa-solid fa-user-check"></i></span>
+                            <span class="user-status-text"><i class="fa-solid fa-user-check"></i> ${user.email}</span>
+                            <button class="btn-outline" onclick="openBuyerMypage()"><i class="fa-solid fa-id-card"></i> マイページ</button>
                             <button class="btn-secondary" onclick="logoutBuyer()">ログアウト</button>
                         `;
                     }
@@ -1304,13 +1362,14 @@
                 } else {
                     if (userArea) {
                         userArea.innerHTML = `
-                            <button class="btn-outline" onclick="openModal('buyer-auth-modal')">ログイン / 新規登録</button>
+                            <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
                         `;
                     }
                     if (cartBtn) {
                         cartBtn.style.display = 'none';
                     }
                 }
+                renderProducts();
             });
         }
 
@@ -1366,6 +1425,122 @@
                 document.getElementById('buyer-login-form').style.display = 'block';
                 document.getElementById('buyer-signup-form').style.display = 'none';
                 document.getElementById('buyer-auth-title').innerText = '購入者ログイン';
+            }
+        }
+
+        // --- お気に入り保存機能 ---
+        function toggleFavorite(prodId, event) {
+            if (event) event.stopPropagation();
+            const index = userFavorites.indexOf(prodId);
+            if (index > -1) {
+                userFavorites.splice(index, 1);
+            } else {
+                userFavorites.push(prodId);
+            }
+            saveStorageData('userFavorites', userFavorites);
+            renderProducts();
+        }
+
+        // --- マイページ制御 ---
+        function openBuyerMypage() {
+            if (!currentBuyerUser) {
+                openModal('buyer-auth-modal');
+                return;
+            }
+            renderMypageContent();
+            openModal('buyer-mypage-modal');
+        }
+
+        function switchMypageTab(evt, tabId) {
+            document.querySelectorAll('#buyer-mypage-modal .admin-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#buyer-mypage-modal .admin-tab-content').forEach(c => c.classList.remove('active'));
+            evt.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function renderMypageContent() {
+            // 1. チャットメール履歴
+            const chatListEl = document.getElementById('mypage-chats-list');
+            if (chatListEl) {
+                chatListEl.innerHTML = '';
+                const myUserIdentifier = currentBuyerUser ? currentBuyerUser.email : currentViewerUser;
+                const myChats = prePurchaseChats.filter(c => c.userName === myUserIdentifier || c.userName === currentViewerUser);
+                
+                if (myChats.length === 0) {
+                    chatListEl.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">メッセージ送信履歴はありません。</div>';
+                } else {
+                    myChats.forEach(c => {
+                        const lastMsg = c.messages.length > 0 ? c.messages[c.messages.length - 1] : { text: 'なし', time: '' };
+                        chatListEl.innerHTML += `
+                            <div style="background:#f9f9f9; border:1px solid #ddd; border-radius:6px; padding:12px; margin-bottom:10px; cursor:pointer;" onclick="closeModal('buyer-mypage-modal'); openProductDetailModal(${c.productId});">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                                    <strong style="color:var(--brand-red); font-size:0.95rem;">${c.productName}</strong>
+                                    <span style="font-size:0.75rem; color:#888;">出品者: ${c.sellerName}</span>
+                                </div>
+                                <div style="font-size:0.85rem; color:#333;">最新メッセージ: ${lastMsg.text} (${lastMsg.time})</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            // 2. カート商品
+            const cartListEl = document.getElementById('mypage-cart-list');
+            const cartTotalEl = document.getElementById('mypage-cart-total');
+            if (cartListEl && cartTotalEl) {
+                if (userCart.length === 0) {
+                    cartListEl.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">カートの中に商品はありません。</div>';
+                    cartTotalEl.innerText = '¥0';
+                } else {
+                    let html = '';
+                    let total = 0;
+                    userCart.forEach((item, idx) => {
+                        const subtotal = item.price * item.quantity;
+                        total += subtotal;
+                        html += `
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom: 1px dashed #ddd;">
+                                <div>
+                                    <strong>${item.name}</strong><br>
+                                    <span style="font-size:0.85rem; color:#666;">¥${item.price.toLocaleString()} × ${item.quantity}</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap: 10px;">
+                                    <strong style="color:var(--brand-red);">¥${subtotal.toLocaleString()}</strong>
+                                    <button class="btn-danger" onclick="removeFromCart(${idx}); renderMypageContent();">削除</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    cartListEl.innerHTML = html;
+                    cartTotalEl.innerText = `¥${total.toLocaleString()}`;
+                }
+            }
+
+            // 3. お気に入り保存商品
+            const favGridEl = document.getElementById('mypage-favs-grid');
+            if (favGridEl) {
+                favGridEl.innerHTML = '';
+                const favProducts = productsList.filter(p => userFavorites.includes(p.id));
+                if (favProducts.length === 0) {
+                    favGridEl.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#888; padding:20px;">保存された商品（お気に入り）はありません。</div>';
+                } else {
+                    favProducts.forEach(p => {
+                        const imgContent = p.image 
+                            ? `<img src="${p.image}" alt="${p.name}">` 
+                            : `<span>${p.name.substring(0, 10)}</span>`;
+
+                        favGridEl.innerHTML += `
+                            <div class="product-card" onclick="closeModal('buyer-mypage-modal'); openProductDetailModal(${p.id}, event)">
+                                <div class="product-image-box" style="height:120px;">
+                                    ${imgContent}
+                                </div>
+                                <div class="product-info" style="padding:8px;">
+                                    <div class="product-title" style="font-size:0.8rem;">${p.name}</div>
+                                    <div class="product-price" style="font-size:0.95rem;">¥${p.price.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
             }
         }
 
@@ -1637,12 +1812,14 @@
                     ? `<img src="${p.image}" alt="${p.name}">` 
                     : `<span>${p.name.substring(0, 10)}</span>`;
 
+                const isFav = userFavorites.includes(p.id);
+
                 grid.innerHTML += `
                     <div class="product-card" onclick="openProductDetailModal(${p.id}, event)">
                         <div class="product-image-box">
                             ${p.recommended ? '<span class="badge-recommend">おすすめ</span>' : ''}
                             ${imgContent}
-                            <div class="fav-icon"><i class="fa-regular fa-heart"></i></div>
+                            <div class="fav-icon ${isFav ? 'active' : ''}" onclick="toggleFavorite(${p.id}, event)"><i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i></div>
                             <div class="method-badges">
                                 ${p.ship ? '<span class="badge-shipping">配送</span>' : ''}
                                 ${p.hand ? '<span class="badge-hand">手渡し</span>' : ''}
@@ -1681,7 +1858,19 @@
             document.getElementById('detail-seller').innerText = prod.seller;
             document.getElementById('detail-desc').innerText = prod.description || "商品説明はありません。";
 
-            renderPrePurchaseChatLogs(prodId);
+            // 非会員の場合は非公開チャットを表示しない
+            const authReqBox = document.getElementById('chat-auth-required-box');
+            const chatActiveBox = document.getElementById('chat-active-box');
+
+            if (!currentBuyerUser) {
+                authReqBox.style.display = 'block';
+                chatActiveBox.style.display = 'none';
+            } else {
+                authReqBox.style.display = 'none';
+                chatActiveBox.style.display = 'block';
+                renderPrePurchaseChatLogs(prodId);
+            }
+
             renderProductReviews(prodId);
             openModal('product-detail-modal');
         }
@@ -1754,7 +1943,9 @@
             if (!historyBox) return;
             historyBox.innerHTML = '';
 
-            let chatGroup = prePurchaseChats.find(c => c.productId === prodId && (c.userName === currentViewerUser || c.sellerName === currentViewerUser));
+            const currentUserIdentifier = currentBuyerUser ? currentBuyerUser.email : currentViewerUser;
+
+            let chatGroup = prePurchaseChats.find(c => c.productId === prodId && (c.userName === currentUserIdentifier || c.sellerName === currentUserIdentifier));
 
             if (!chatGroup || chatGroup.messages.length === 0) {
                 historyBox.innerHTML = `<div style="text-align:center; color:#aaa; font-size:0.8rem; margin-top:80px;">
@@ -1764,8 +1955,8 @@
             }
 
             chatGroup.messages.forEach(m => {
-                const isMyMsg = (m.sender === 'user' && chatGroup.userName === currentViewerUser) || 
-                                (m.sender === 'seller' && chatGroup.sellerName === currentViewerUser);
+                const isMyMsg = (m.sender === 'user' && chatGroup.userName === currentUserIdentifier) || 
+                                (m.sender === 'seller' && chatGroup.sellerName === currentUserIdentifier);
 
                 historyBox.innerHTML += `
                     <div class="chat-msg-bubble ${isMyMsg ? 'chat-msg-user' : 'chat-msg-seller'}">
@@ -1786,18 +1977,20 @@
             const msgText = input.value.trim();
             if (!msgText || !currentActiveProductId) return;
 
+            const currentUserIdentifier = currentBuyerUser ? currentBuyerUser.email : currentViewerUser;
+
             const now = new Date();
             const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
             const prod = productsList.find(p => p.id === currentActiveProductId);
 
-            let chatGroup = prePurchaseChats.find(c => c.productId === currentActiveProductId && c.userName === currentViewerUser);
+            let chatGroup = prePurchaseChats.find(c => c.productId === currentActiveProductId && c.userName === currentUserIdentifier);
             if (!chatGroup) {
                 chatGroup = {
                     id: `CHAT-${currentActiveProductId}-${Date.now()}`,
                     productId: currentActiveProductId,
                     productName: prod ? prod.name : "",
                     sellerName: prod ? prod.seller : "",
-                    userName: currentViewerUser,
+                    userName: currentUserIdentifier,
                     messages: []
                 };
                 prePurchaseChats.push(chatGroup);
@@ -1842,7 +2035,7 @@
                 return sum + (price * quantity);
             }, 0) || prod.price;
 
-            alert("決済へ進みます: カート合計 (" + totalAmount + "円)");
+           alert("決済へ進みます: カート合計 (" + total + "円)\n決済ページに移動しますので、そのまま少々お待ちください。");
 
             try {
                 fetch(GAS_WEBAPP_URL, {
@@ -2315,14 +2508,15 @@
                             <td>${u.phone}</td>
                             <td>${bankStr}</td>
                             <td><span class="status-badge ${u.status === 'アクティブ' ? 'bg-success' : 'bg-danger'}">${u.status}</span></td>
-                            <td><span class="status-badge ${u.kyc === '済' ? 'bg-info' : 'bg-secondary'}">${u.kyc}</span></td>
-                            <td>${u.rating || 'なし'}</td>
-                            <td><button class="btn-warning" onclick="toggleUserStatus('${u.id}')">状態切替</button></td>
-                        </tr>`;
+                            <td>${u.kyc}</td>
+                            <td>${u.rating}</td>
+                            <td><button class="btn-outline" onclick="toggleUserStatus('${u.id}')">${u.status === 'アクティブ' ? '利用停止' : '解除'}</button></td>
+                        </tr>
+                    `;
                 });
             }
 
-            // 商品一覧管理テーブルの更新
+            // 商品監視テーブル
             const tblProds = document.getElementById('tbl-admin-products');
             if (tblProds) {
                 tblProds.innerHTML = '';
@@ -2334,22 +2528,23 @@
                             <td>¥${p.price.toLocaleString()}</td>
                             <td>${p.seller}</td>
                             <td><span class="status-badge ${p.active ? 'bg-success' : 'bg-secondary'}">${p.active ? '公開中' : '非公開'}</span></td>
-                            <td>${p.recommended ? '<span class="status-badge bg-warning">おすすめ</span>' : '通常'}</td>
+                            <td>${p.recommended ? '<span class="status-badge bg-warning">おすすめ</span>' : '-'}</td>
                             <td>
-                                <button class="btn-secondary" onclick="toggleProdActive(${p.id})">${p.active ? '非公開化' : '公開化'}</button>
-                                <button class="btn-warning" onclick="toggleProdRecommend(${p.id})">おすすめ切替</button>
+                                <button class="btn-outline" onclick="toggleProdActive(${p.id})">${p.active ? '非公開化' : '公開化'}</button>
+                                <button class="btn-outline" onclick="toggleProdRecommend(${p.id})">${p.recommended ? 'おすすめ解除' : 'おすすめ追加'}</button>
                                 <button class="btn-danger" onclick="deleteProd(${p.id})">削除</button>
                             </td>
-                        </tr>`;
+                        </tr>
+                    `;
                 });
             }
 
-            // チャット監査テーブル
+            // 事前チャット監査
             const tblPreChats = document.getElementById('tbl-pre-chats');
             if (tblPreChats) {
                 tblPreChats.innerHTML = '';
                 prePurchaseChats.forEach(c => {
-                    const lastMsg = c.messages.length > 0 ? c.messages[c.messages.length - 1] : { text: '-', time: '-' };
+                    const lastMsg = c.messages.length > 0 ? c.messages[c.messages.length - 1] : { text: "-", time: "-" };
                     tblPreChats.innerHTML += `
                         <tr>
                             <td>${c.id}</td>
@@ -2358,11 +2553,12 @@
                             <td>${c.userName}</td>
                             <td>${lastMsg.text}</td>
                             <td>${lastMsg.time}</td>
-                        </tr>`;
+                        </tr>
+                    `;
                 });
             }
 
-            // 取引テーブル
+            // 取引介入・監査
             const tblTrx = document.getElementById('tbl-transactions');
             if (tblTrx) {
                 tblTrx.innerHTML = '';
@@ -2379,16 +2575,17 @@
                                 <button class="btn-success" onclick="forceCompleteTrx('${t.id}')">強制完了</button>
                                 <button class="btn-danger" onclick="forceCancelTrx('${t.id}')">強制キャンセル</button>
                             </td>
-                        </tr>`;
+                        </tr>
+                    `;
                 });
             }
 
-            // 通報テーブル
-            const tblReports = document.getElementById('tbl-reports');
-            if (tblReports) {
-                tblReports.innerHTML = '';
+            // 通報管理
+            const tblReps = document.getElementById('tbl-reports');
+            if (tblReps) {
+                tblReps.innerHTML = '';
                 reportsList.forEach(r => {
-                    tblReports.innerHTML += `
+                    tblReps.innerHTML += `
                         <tr>
                             <td>${r.id}</td>
                             <td>${r.reporter}</td>
@@ -2396,46 +2593,47 @@
                             <td>${r.targetId}</td>
                             <td>${r.reason}</td>
                             <td><span class="status-badge ${r.status === '対応済' ? 'bg-success' : 'bg-warning'}">${r.status}</span></td>
-                            <td><button class="btn-outline" onclick="resolveReport('${r.id}')">対応済にする</button></td>
-                        </tr>`;
+                            <td><button class="btn-outline" onclick="resolveReport('${r.id}')">対応完了にする</button></td>
+                        </tr>
+                    `;
                 });
             }
 
             // 売上・振込管理
-            const tblPayouts = document.getElementById('tbl-payouts');
-            if (tblPayouts) {
-                tblPayouts.innerHTML = '';
-                let totalVol = 0;
-                transactionsList.forEach(t => totalVol += t.price);
-                const totalFee = Math.floor(totalVol * 0.064);
-
-                const statVolEl = document.getElementById('stat-total-vol');
-                const statFeeEl = document.getElementById('stat-total-fee');
-                if (statVolEl) statVolEl.innerText = `¥${totalVol.toLocaleString()}`;
-                if (statFeeEl) statFeeEl.innerText = `¥${totalFee.toLocaleString()}`;
-
+            const tblPays = document.getElementById('tbl-payouts');
+            if (tblPays) {
+                tblPays.innerHTML = '';
                 payoutsList.forEach(p => {
                     const fee = Math.floor(p.amount * 0.064);
                     const net = p.amount - fee;
-                    tblPayouts.innerHTML += `
+                    tblPays.innerHTML += `
                         <tr>
                             <td>${p.id}</td>
                             <td>${p.user}</td>
                             <td>¥${p.amount.toLocaleString()}</td>
-                            <td><strong style="color:var(--brand-red);">¥${net.toLocaleString()}</strong></td>
+                            <td><strong>¥${net.toLocaleString()}</strong></td>
                             <td>${p.bankInfo}</td>
                             <td><span class="status-badge ${p.status === '完了' ? 'bg-success' : 'bg-warning'}">${p.status}</span></td>
-                            <td><button class="btn-success" onclick="approvePayout('${p.id}')">送金完了</button></td>
-                        </tr>`;
+                            <td><button class="btn-success" onclick="approvePayout('${p.id}')">振込完了処理</button></td>
+                        </tr>
+                    `;
                 });
             }
 
-            // お問い合わせテーブル
-            const tblInq = document.getElementById('tbl-inquiries');
-            if (tblInq) {
-                tblInq.innerHTML = '';
+            // 総売上計算
+            let totalVol = 0;
+            transactionsList.forEach(t => { totalVol += t.price; });
+            const statVolEl = document.getElementById('stat-total-vol');
+            const statFeeEl = document.getElementById('stat-total-fee');
+            if (statVolEl) statVolEl.innerText = `¥${totalVol.toLocaleString()}`;
+            if (statFeeEl) statFeeEl.innerText = `¥${Math.floor(totalVol * 0.064).toLocaleString()}`;
+
+            // お問合せ
+            const tblInqs = document.getElementById('tbl-inquiries');
+            if (tblInqs) {
+                tblInqs.innerHTML = '';
                 inquiriesList.forEach(i => {
-                    tblInq.innerHTML += `
+                    tblInqs.innerHTML += `
                         <tr>
                             <td>${i.id}</td>
                             <td>${i.sender}</td>
@@ -2443,11 +2641,18 @@
                             <td>${i.body}</td>
                             <td><span class="status-badge ${i.status === '回答済' ? 'bg-success' : 'bg-warning'}">${i.status}</span></td>
                             <td><button class="btn-outline" onclick="replyInquiry('${i.id}')">返信</button></td>
-                        </tr>`;
+                        </tr>
+                    `;
                 });
             }
 
-            // お知らせ配信テーブル
+            // サイト設定入力域の初期化
+            const editTokusho = document.getElementById('edit-tokusho');
+            const editPrivacy = document.getElementById('edit-privacy');
+            if (editTokusho) editTokusho.value = siteSettings.tokusho;
+            if (editPrivacy) editPrivacy.value = siteSettings.privacy;
+
+            // お知らせ管理テーブル
             const tblNews = document.getElementById('tbl-admin-news');
             if (tblNews) {
                 tblNews.innerHTML = '';
@@ -2460,49 +2665,46 @@
                             <td>${n.title}</td>
                             <td>${n.content}</td>
                             <td><button class="btn-danger" onclick="deleteNewsItem('${n.id}')">削除</button></td>
-                        </tr>`;
+                        </tr>
+                    `;
                 });
             }
 
-            // レビュー監視テーブル
-            const tblReviews = document.getElementById('tbl-admin-reviews');
-            if (tblReviews) {
-                tblReviews.innerHTML = '';
+            // 口コミ・レビュー監視テーブル
+            const tblRevs = document.getElementById('tbl-admin-reviews');
+            if (tblRevs) {
+                tblRevs.innerHTML = '';
                 reviewsList.forEach(r => {
-                    tblReviews.innerHTML += `
+                    const prod = productsList.find(p => p.id === r.productId);
+                    const prodName = prod ? prod.name : `商品ID:${r.productId}`;
+                    tblRevs.innerHTML += `
                         <tr>
                             <td>${r.id}</td>
-                            <td>ID: ${r.productId}</td>
-                            <td>★${r.rating}</td>
+                            <td>${prodName}</td>
+                            <td><span class="review-stars">${'★'.repeat(r.rating)}</span></td>
                             <td>${r.author}</td>
                             <td>${r.comment}</td>
                             <td>${r.date}</td>
                             <td><button class="btn-danger" onclick="deleteReviewItem('${r.id}')">削除</button></td>
-                        </tr>`;
+                        </tr>
+                    `;
                 });
             }
         }
 
-        // 画面初期化時の実行
+        // 初期化実行
         window.addEventListener('DOMContentLoaded', () => {
             renderNewsList();
             renderProducts();
             updateCartUI();
 
-            // 都道府県セレクト初期化
             const prefSelect = document.getElementById('checkout-pref-select');
             if (prefSelect) {
                 prefSelect.innerHTML = '';
-                prefecturesData.forEach((p, idx) => {
-                    prefSelect.innerHTML += `<option value="${idx}">${p.name} (送料 ¥${p.shipping})</option>`;
+                prefecturesData.forEach((pref, idx) => {
+                    prefSelect.innerHTML += `<option value="${idx}">${pref.name} (送料: ¥${pref.shipping})</option>`;
                 });
             }
-
-            // 設定の初期表示
-            const editTokusho = document.getElementById('edit-tokusho');
-            const editPrivacy = document.getElementById('edit-privacy');
-            if (editTokusho) editTokusho.value = siteSettings.tokusho;
-            if (editPrivacy) editPrivacy.value = siteSettings.privacy;
         });
     </script>
 </body>
