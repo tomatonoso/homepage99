@@ -1261,7 +1261,7 @@
             renderProducts();
         }
 
-        // Firebase初期化設定（安全なチェックを追加）
+        // Firebase初期化設定
         const firebaseConfig = {
           apiKey: "AIzaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
           authDomain: "minatomo-6f0fb.firebaseapp.com",
@@ -1284,7 +1284,7 @@
         let currentBuyerUser = null;
         let userCart = loadStorageData('cart', []);
 
-        // --- Firebase Auth 監視（ログイン状態自動読み込み） ---
+        // --- Firebase Auth 監視 ---
         if (auth) {
             auth.onAuthStateChanged(user => {
                 currentBuyerUser = user;
@@ -1439,30 +1439,28 @@
         }
 
         function checkoutCartItems() {
-    if (userCart.length === 0) {
-        alert("カートは空です。");
-        return;
-    }
+            if (userCart.length === 0) {
+                alert("カートは空です。");
+                return;
+            }
 
-    if (!currentBuyerUser) {
-        alert("購入手続きへ進むにはログインが必要です。");
-        closeModal('cart-modal');
-        openModal('buyer-auth-modal');
-        return;
-    }
+            if (!currentBuyerUser) {
+                alert("購入手続きへ進むにはログインが必要です。");
+                closeModal('cart-modal');
+                openModal('buyer-auth-modal');
+                return;
+            }
 
-    // カート内の合計金額とまとめて表示する商品名を作成
-    const totalAmount = userCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const combinedName = userCart.map(item => `${item.name}×${item.quantity}`).join(' + ');
+            const totalAmount = userCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const combinedName = userCart.map(item => `${item.name}×${item.quantity}`).join(' + ');
 
-    closeModal('cart-modal');
+            closeModal('cart-modal');
 
-    // sendToGas関数を利用してGASへデータを送信
-    sendToGas({
-        productName: combinedName,
-        price: Math.floor(Number(totalAmount))
-    });
-}
+            sendToGas({
+                productName: combinedName,
+                price: Math.floor(Number(totalAmount))
+            });
+        }
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -1886,6 +1884,7 @@
             const target = document.getElementById(id);
             if (target) target.style.display = 'block';
         }
+
         function closeModal(id) { 
             const target = document.getElementById(id);
             if (target) target.style.display = 'none'; 
@@ -2302,27 +2301,208 @@
         }
 
         function renderAdminTables() {
+            // ユーザーテーブルの更新
             const tblUsers = document.getElementById('tbl-users');
-            if (!tblUsers) return;
-            tblUsers.innerHTML = '';
-            userList.forEach(u => {
-                const bankStr = u.bank ? `<div><strong>${u.bank.bankName}</strong> (${u.bank.branchName})<br>${u.bank.accountType} ${u.bank.accountNumber}<br>名義: ${u.bank.accountHolder}</div>` : '未登録';
-                tblUsers.innerHTML += `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.phone}</td><td>${bankStr}</td><td><span class="status-badge ${u.status === 'アクティブ' ? 'bg-success' : 'bg-danger'}">${u.status}</span></td><td><span class="status-badge ${u.kyc === '済' ? 'bg-info' : 'bg-secondary'}">${u.kyc}</span></td><td>${u.rating || '-'}</td><td><button class="btn-warning" onclick="toggleUserStatus('${u.id}')">ステータス変更</button></td></tr>`;
-            });
+            if (tblUsers) {
+                tblUsers.innerHTML = '';
+                userList.forEach(u => {
+                    const bankStr = u.bank ? `<div><strong>${u.bank.bankName}</strong> (${u.bank.branchName})<br>${u.bank.accountType} ${u.bank.accountNumber}<br>名義: ${u.bank.accountHolder}</div>` : '未登録';
+                    tblUsers.innerHTML += `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td>${u.name}</td>
+                            <td>${u.email}</td>
+                            <td>${u.phone}</td>
+                            <td>${bankStr}</td>
+                            <td><span class="status-badge ${u.status === 'アクティブ' ? 'bg-success' : 'bg-danger'}">${u.status}</span></td>
+                            <td><span class="status-badge ${u.kyc === '済' ? 'bg-info' : 'bg-secondary'}">${u.kyc}</span></td>
+                            <td>${u.rating || 'なし'}</td>
+                            <td><button class="btn-warning" onclick="toggleUserStatus('${u.id}')">状態切替</button></td>
+                        </tr>`;
+                });
+            }
 
+            // 商品一覧管理テーブルの更新
             const tblProds = document.getElementById('tbl-admin-products');
-            if (!tblProds) return;
-            tblProds.innerHTML = '';
-            productsList.forEach(p => {
-                tblProds.innerHTML += `<tr><td>${p.id}</td><td>${p.name}</td><td>¥${p.price.toLocaleString()}</td><td>${p.seller}</td><td><span class="status-badge ${p.active ? 'bg-success' : 'bg-secondary'}">${p.active ? '公開中' : '非公開'}</span></td><td>${p.recommended ? '★おすすめ' : '-'}</td><td><button class="btn-secondary" onclick="toggleProdActive(${p.id})">公開切替</button> <button class="btn-warning" onclick="toggleProdRecommend(${p.id})">おすすめ切替</button> <button class="btn-danger" onclick="deleteProd(${p.id})">削除</button></td></tr>`;
-            });
+            if (tblProds) {
+                tblProds.innerHTML = '';
+                productsList.forEach(p => {
+                    tblProds.innerHTML += `
+                        <tr>
+                            <td>${p.id}</td>
+                            <td>${p.name}</td>
+                            <td>¥${p.price.toLocaleString()}</td>
+                            <td>${p.seller}</td>
+                            <td><span class="status-badge ${p.active ? 'bg-success' : 'bg-secondary'}">${p.active ? '公開中' : '非公開'}</span></td>
+                            <td>${p.recommended ? '<span class="status-badge bg-warning">おすすめ</span>' : '通常'}</td>
+                            <td>
+                                <button class="btn-secondary" onclick="toggleProdActive(${p.id})">${p.active ? '非公開化' : '公開化'}</button>
+                                <button class="btn-warning" onclick="toggleProdRecommend(${p.id})">おすすめ切替</button>
+                                <button class="btn-danger" onclick="deleteProd(${p.id})">削除</button>
+                            </td>
+                        </tr>`;
+                });
+            }
+
+            // チャット監査テーブル
+            const tblPreChats = document.getElementById('tbl-pre-chats');
+            if (tblPreChats) {
+                tblPreChats.innerHTML = '';
+                prePurchaseChats.forEach(c => {
+                    const lastMsg = c.messages.length > 0 ? c.messages[c.messages.length - 1] : { text: '-', time: '-' };
+                    tblPreChats.innerHTML += `
+                        <tr>
+                            <td>${c.id}</td>
+                            <td>${c.productName}</td>
+                            <td>${c.sellerName}</td>
+                            <td>${c.userName}</td>
+                            <td>${lastMsg.text}</td>
+                            <td>${lastMsg.time}</td>
+                        </tr>`;
+                });
+            }
+
+            // 取引テーブル
+            const tblTrx = document.getElementById('tbl-transactions');
+            if (tblTrx) {
+                tblTrx.innerHTML = '';
+                transactionsList.forEach(t => {
+                    tblTrx.innerHTML += `
+                        <tr>
+                            <td>${t.id}</td>
+                            <td>${t.prodName}</td>
+                            <td>${t.buyer}</td>
+                            <td>${t.seller}</td>
+                            <td><span class="status-badge bg-info">${t.status}</span></td>
+                            <td>${t.lastMsg}</td>
+                            <td>
+                                <button class="btn-success" onclick="forceCompleteTrx('${t.id}')">強制完了</button>
+                                <button class="btn-danger" onclick="forceCancelTrx('${t.id}')">強制キャンセル</button>
+                            </td>
+                        </tr>`;
+                });
+            }
+
+            // 通報テーブル
+            const tblReports = document.getElementById('tbl-reports');
+            if (tblReports) {
+                tblReports.innerHTML = '';
+                reportsList.forEach(r => {
+                    tblReports.innerHTML += `
+                        <tr>
+                            <td>${r.id}</td>
+                            <td>${r.reporter}</td>
+                            <td>${r.targetType}</td>
+                            <td>${r.targetId}</td>
+                            <td>${r.reason}</td>
+                            <td><span class="status-badge ${r.status === '対応済' ? 'bg-success' : 'bg-warning'}">${r.status}</span></td>
+                            <td><button class="btn-outline" onclick="resolveReport('${r.id}')">対応済にする</button></td>
+                        </tr>`;
+                });
+            }
+
+            // 売上・振込管理
+            const tblPayouts = document.getElementById('tbl-payouts');
+            if (tblPayouts) {
+                tblPayouts.innerHTML = '';
+                let totalVol = 0;
+                transactionsList.forEach(t => totalVol += t.price);
+                const totalFee = Math.floor(totalVol * 0.064);
+
+                const statVolEl = document.getElementById('stat-total-vol');
+                const statFeeEl = document.getElementById('stat-total-fee');
+                if (statVolEl) statVolEl.innerText = `¥${totalVol.toLocaleString()}`;
+                if (statFeeEl) statFeeEl.innerText = `¥${totalFee.toLocaleString()}`;
+
+                payoutsList.forEach(p => {
+                    const fee = Math.floor(p.amount * 0.064);
+                    const net = p.amount - fee;
+                    tblPayouts.innerHTML += `
+                        <tr>
+                            <td>${p.id}</td>
+                            <td>${p.user}</td>
+                            <td>¥${p.amount.toLocaleString()}</td>
+                            <td><strong style="color:var(--brand-red);">¥${net.toLocaleString()}</strong></td>
+                            <td>${p.bankInfo}</td>
+                            <td><span class="status-badge ${p.status === '完了' ? 'bg-success' : 'bg-warning'}">${p.status}</span></td>
+                            <td><button class="btn-success" onclick="approvePayout('${p.id}')">送金完了</button></td>
+                        </tr>`;
+                });
+            }
+
+            // お問い合わせテーブル
+            const tblInq = document.getElementById('tbl-inquiries');
+            if (tblInq) {
+                tblInq.innerHTML = '';
+                inquiriesList.forEach(i => {
+                    tblInq.innerHTML += `
+                        <tr>
+                            <td>${i.id}</td>
+                            <td>${i.sender}</td>
+                            <td>${i.subject}</td>
+                            <td>${i.body}</td>
+                            <td><span class="status-badge ${i.status === '回答済' ? 'bg-success' : 'bg-warning'}">${i.status}</span></td>
+                            <td><button class="btn-outline" onclick="replyInquiry('${i.id}')">返信</button></td>
+                        </tr>`;
+                });
+            }
+
+            // お知らせ配信テーブル
+            const tblNews = document.getElementById('tbl-admin-news');
+            if (tblNews) {
+                tblNews.innerHTML = '';
+                newsList.forEach(n => {
+                    tblNews.innerHTML += `
+                        <tr>
+                            <td>${n.id}</td>
+                            <td>${n.date}</td>
+                            <td><span class="news-badge">${n.target}</span></td>
+                            <td>${n.title}</td>
+                            <td>${n.content}</td>
+                            <td><button class="btn-danger" onclick="deleteNewsItem('${n.id}')">削除</button></td>
+                        </tr>`;
+                });
+            }
+
+            // レビュー監視テーブル
+            const tblReviews = document.getElementById('tbl-admin-reviews');
+            if (tblReviews) {
+                tblReviews.innerHTML = '';
+                reviewsList.forEach(r => {
+                    tblReviews.innerHTML += `
+                        <tr>
+                            <td>${r.id}</td>
+                            <td>ID: ${r.productId}</td>
+                            <td>★${r.rating}</td>
+                            <td>${r.author}</td>
+                            <td>${r.comment}</td>
+                            <td>${r.date}</td>
+                            <td><button class="btn-danger" onclick="deleteReviewItem('${r.id}')">削除</button></td>
+                        </tr>`;
+                });
+            }
         }
 
-        // 初期描画実行
+        // 画面初期化時の実行
         window.addEventListener('DOMContentLoaded', () => {
             renderNewsList();
             renderProducts();
             updateCartUI();
+
+            // 都道府県セレクト初期化
+            const prefSelect = document.getElementById('checkout-pref-select');
+            if (prefSelect) {
+                prefSelect.innerHTML = '';
+                prefecturesData.forEach((p, idx) => {
+                    prefSelect.innerHTML += `<option value="${idx}">${p.name} (送料 ¥${p.shipping})</option>`;
+                });
+            }
+
+            // 設定の初期表示
+            const editTokusho = document.getElementById('edit-tokusho');
+            const editPrivacy = document.getElementById('edit-privacy');
+            if (editTokusho) editTokusho.value = siteSettings.tokusho;
+            if (editPrivacy) editPrivacy.value = siteSettings.privacy;
         });
     </script>
 </body>
