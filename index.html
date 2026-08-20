@@ -1439,22 +1439,30 @@
         }
 
         function checkoutCartItems() {
-            if (userCart.length === 0) {
-                alert("カートは空です。");
-                return;
-            }
+    if (userCart.length === 0) {
+        alert("カートは空です。");
+        return;
+    }
 
-            if (!currentBuyerUser) {
-                alert("購入手続きへ進むにはログインが必要です。");
-                closeModal('cart-modal');
-                openModal('buyer-auth-modal');
-                return;
-            }
+    if (!currentBuyerUser) {
+        alert("購入手続きへ進むにはログインが必要です。");
+        closeModal('cart-modal');
+        openModal('buyer-auth-modal');
+        return;
+    }
 
-            const item = userCart[0];
-            closeModal('cart-modal');
-            openCheckoutForProduct(item.id);
-        }
+    // カート内の合計金額とまとめて表示する商品名を作成
+    const totalAmount = userCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const combinedName = userCart.map(item => `${item.name}×${item.quantity}`).join(' + ');
+
+    closeModal('cart-modal');
+
+    // sendToGas関数を利用してGASへデータを送信
+    sendToGas({
+        productName: combinedName,
+        price: Math.floor(Number(totalAmount))
+    });
+}
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
