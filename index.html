@@ -1395,13 +1395,14 @@
 
 
     <script>
+       <script>
         function selectReceiveMethod(btn, method) {
             const parent = btn.parentElement;
             parent.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
             selectedReceive = method;
-            renderProducts();
+            filterProducts();
         }
 
         // Firebase初期化設定
@@ -1571,7 +1572,7 @@
                 }
             }
 
-            // 2. カート商品
+            // 2. カート情報
             const cartListEl = document.getElementById('mypage-cart-list');
             const cartTotalEl = document.getElementById('mypage-cart-total');
             if (cartListEl && cartTotalEl) {
@@ -1754,7 +1755,7 @@
                     }
                 })
                 .catch(e => {
-                    console.warn("通信処理を完了（プレビュー環境等制限含む）: " + e.message);
+                    console.warn("通信処理を完了: " + e.message);
                 });
             } catch (err) {
                 console.error("GAS送信エラー:", err);
@@ -1857,7 +1858,6 @@
             {name: "東京都", shipping: 650}, {name: "大阪府", shipping: 750}, {name: "北海道", shipping: 1200}, {name: "沖縄県", shipping: 1400}
         ];
 
-        // お知らせ表示
         function renderNewsList() {
             const container = document.getElementById('news-list-container');
             if (!container) return;
@@ -1879,22 +1879,14 @@
             });
         }
 
-        function renderProducts() {
+        function renderProducts(itemsToRender) {
             const grid = document.getElementById('main-product-grid');
             if (!grid) return;
             grid.innerHTML = '';
-            const keywordEl = document.getElementById('search-keyword');
-            const keyword = keywordEl ? keywordEl.value.toLowerCase() : '';
 
-            const filtered = productsList.filter(p => {
-                if (!p.active) return false;
-                const matchCat = (selectedCategory === "すべて" || p.category === selectedCategory);
-                const matchKey = p.name.toLowerCase().includes(keyword);
-                let matchRec = true;
-                return matchCat && matchKey && matchRec;
-            });
+            const list = itemsToRender || productsList.filter(p => p.active);
 
-            filtered.forEach(p => {
+            list.forEach(p => {
                 const imgContent = p.image 
                     ? `<img src="${p.image}" alt="${p.name}">` 
                     : `<span>${p.name.substring(0, 10)}</span>`;
@@ -1917,8 +1909,8 @@
                             <div class="product-price">¥${p.price.toLocaleString()}</div>
                             <span class="category-tag-sm">${p.category}</span>
                             <div class="card-footer-stats">
-                                <span><i class="fa-regular fa-eye"></i> ${p.views}</span>
-                                <span><i class="fa-solid fa-heart" style="color:#ff4d4f;"></i> ${p.favs}</span>
+                                <span><i class="fa-regular fa-eye"></i> ${p.views || 0}</span>
+                                <span><i class="fa-solid fa-heart" style="color:#ff4d4f;"></i> ${p.favs || 0}</span>
                             </div>
                         </div>
                     </div>
@@ -1945,7 +1937,6 @@
             document.getElementById('detail-seller').innerText = prod.seller;
             document.getElementById('detail-desc').innerText = prod.description || "商品説明はありません。";
 
-            // 非会員の場合は非公開チャットを表示しない
             const authReqBox = document.getElementById('chat-auth-required-box');
             const chatActiveBox = document.getElementById('chat-active-box');
 
@@ -2022,7 +2013,6 @@
             alert('口コミを投稿しました！ありがとうございます。');
             renderProductReviews(currentActiveProductId);
             document.getElementById('rev-comment').value = '';
-            if (currentAdmin) renderAdminTables();
         }
 
         function renderPrePurchaseChatLogs(prodId) {
@@ -2101,7 +2091,6 @@
 
             input.value = '';
             renderPrePurchaseChatLogs(currentActiveProductId);
-            if (currentAdmin) renderAdminTables();
         }
 
         function proceedToCheckoutFromDetail() {
@@ -2122,7 +2111,7 @@
                 return sum + (price * quantity);
             }, 0) || prod.price;
 
-           alert("決済へ進みます: カート合計 (" + totalAmount + "円)\n決済ページに移動しますので、そのまま少々お待ちください。");
+            alert("決済へ進みます: カート合計 (" + totalAmount + "円)\n決済ページに移動しますので、そのまま少々お待ちください。");
 
             try {
                 fetch(GAS_WEBAPP_URL, {
@@ -2188,54 +2177,44 @@
             document.querySelectorAll('#category-chips .chip').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
             selectedCategory = catName;
-            renderProducts();
+            filterProducts();
         }
 
-       // 価格絞り込み用クリア関数
-function clearPriceFilter() {
-    document.getElementById('min-price').value = '';
-    document.getElementById('max-price').value = '';
-    filterProducts();
-}
+        function clearPriceFilter() {
+            document.getElementById('min-price').value = '';
+            document.getElementById('max-price').value = '';
+            filterProducts();
+        }
 
-function filterProducts() {
-    // 1. 各入力要素から値を取得
-    const keywordInput = document.getElementById('search-keyword');
-    const keyword = keywordInput ? keywordInput.value.toLowerCase().trim() : '';
+        function filterProducts() {
+            const keywordInput = document.getElementById('search-keyword');
+            const keyword = keywordInput ? keywordInput.value.toLowerCase().trim() : '';
 
-    const minPrice = parseInt(document.getElementById('min-price')?.value, 10);
-    const maxPrice = parseInt(document.getElementById('max-price')?.value, 10);
+            const minPrice = parseInt(document.getElementById('min-price')?.value, 10);
+            const maxPrice = parseInt(document.getElementById('max-price')?.value, 10);
 
-    // 2. 条件判定と絞り込み
-    const filteredProducts = products.filter(product => {
-        // ① キーワード判定
-        const matchesKeyword = !keyword || 
-                               (product.title && product.title.toLowerCase().includes(keyword)) || 
-                               (product.description && product.description.toLowerCase().includes(keyword));
+            const filteredProducts = productsList.filter(product => {
+                if (!product.active) return false;
 
-        // ② 価格判定
-        const price = Number(product.price);
-        const matchesMinPrice = isNaN(minPrice) || price >= minPrice;
-        const matchesMaxPrice = isNaN(maxPrice) || price <= maxPrice;
+                const matchesKeyword = !keyword || 
+                                       (product.name && product.name.toLowerCase().includes(keyword)) || 
+                                       (product.description && product.description.toLowerCase().includes(keyword));
 
-        // ③ カテゴリー判定（全選択または未選択時はスキップ）
-        const matchesCategory = typeof selectedCategory === 'undefined' || 
-                                selectedCategory === 'all' || 
-                                product.category === selectedCategory;
+                const price = Number(product.price);
+                const matchesMinPrice = isNaN(minPrice) || price >= minPrice;
+                const matchesMaxPrice = isNaN(maxPrice) || price <= maxPrice;
 
-        // ④ 受け取り方法判定（「すべて(ALL)」または未選択時はスキップ）
-        const matchesReceive = typeof selectedReceiveMethod === 'undefined' || 
-                               selectedReceiveMethod === 'ALL' || 
-                               product.receiveMethod === selectedReceiveMethod || 
-                               product.deliveryMethod === selectedReceiveMethod;
+                const matchesCategory = (selectedCategory === "すべて" || product.category === selectedCategory);
 
-        // すべての条件を満たす商品のみ残す
-        return matchesKeyword && matchesMinPrice && matchesMaxPrice && matchesCategory && matchesReceive;
-    });
+                let matchesReceive = true;
+                if (selectedReceive === 'SHIP') matchesReceive = product.ship;
+                if (selectedReceive === 'HAND') matchesReceive = product.hand;
 
-    // 3. 画面描画の更新
-    renderProducts(filteredProducts);
-}
+                return matchesKeyword && matchesMinPrice && matchesMaxPrice && matchesCategory && matchesReceive;
+            });
+
+            renderProducts(filteredProducts);
+        }
 
         function toggleAuthMode() {
             const loginForm = document.getElementById('admin-login-form');
@@ -2307,6 +2286,14 @@ function filterProducts() {
             toggleAuthMode();
         }
 
+        function tryOpenAdmin() {
+            if (currentAdmin) {
+                openModal('admin-modal');
+            } else {
+                openModal('admin-login-modal');
+            }
+        }
+
         function handleAdminLogin(e) {
             e.preventDefault();
 
@@ -2320,29 +2307,16 @@ function filterProducts() {
             const pass2 = document.getElementById('login-pass2').value.trim();
             const secAns = document.getElementById('login-sec-ans').value.trim();
 
-            const found = adminUsers.find(a => 
-                a.email === email && a.pass1 === pass1 && a.pass2 === pass2 && a.secAnswer === secAns
-            );
+            const admin = adminUsers.find(a => a.email === email && a.pass1 === pass1 && a.pass2 === pass2 && a.secAnswer === secAns);
 
-            if (found) {
-                currentAdmin = found;
+            if (admin) {
+                currentAdmin = admin;
                 saveStorageData('currentAdmin', currentAdmin);
-                document.getElementById('current-admin-display').innerText = `管理者: ${found.email}`;
+                alert('認証に成功しました。管理者用ダッシュボードを開きます。');
                 closeModal('admin-login-modal');
-                renderAdminTables();
                 openModal('admin-modal');
             } else {
-                alert('認証失敗: 入力された情報が一致しません。');
-            }
-        }
-
-        function tryOpenAdmin() {
-            if (currentAdmin) {
-                document.getElementById('current-admin-display').innerText = `管理者: ${currentAdmin.email}`;
-                renderAdminTables();
-                openModal('admin-modal');
-            } else {
-                openModal('admin-login-modal');
+                alert('【認証失敗】入力された情報が一致しません。');
             }
         }
 
@@ -2350,410 +2324,11 @@ function filterProducts() {
             currentAdmin = null;
             saveStorageData('currentAdmin', null);
             closeModal('admin-modal');
-            alert('管理者ログアウトしました。');
+            alert('ログアウトしました。');
         }
 
-        function submitNewProduct(e) {
-            e.preventDefault();
-
-            const sellerName = document.getElementById('seller-name-input').value.trim();
-            const sellerEmail = document.getElementById('seller-email-input').value.trim();
-            const sellerPhone = document.getElementById('seller-phone-input').value.trim();
-            
-            const bankName = document.getElementById('bank-name-input').value.trim();
-            const branchName = document.getElementById('bank-branch-input').value.trim();
-            const accountType = document.getElementById('bank-type-input').value;
-            const accountNumber = document.getElementById('bank-number-input').value.trim();
-            const accountHolder = document.getElementById('bank-holder-input').value.trim();
-
-            const name = document.getElementById('new-prod-name').value.trim();
-            const price = parseInt(document.getElementById('new-prod-price').value);
-            const category = document.getElementById('new-prod-cat').value;
-            const description = document.getElementById('new-prod-desc').value.trim();
-            const ship = document.getElementById('new-ship').checked;
-            const hand = document.getElementById('new-hand').checked;
-
-            if (!ship && !hand) {
-                alert("受け取り方法は少なくとも1つ選択してください。");
-                return;
-            }
-
-            savedSellerProfile = {
-                name: sellerName,
-                email: sellerEmail,
-                phone: sellerPhone,
-                bankName: bankName,
-                branchName: branchName,
-                accountType: accountType,
-                accountNumber: accountNumber,
-                accountHolder: accountHolder
-            };
-            saveStorageData('savedSellerProfile', savedSellerProfile);
-
-            const existingUserIndex = userList.findIndex(u => u.email === sellerEmail);
-            if (existingUserIndex > -1) {
-                userList[existingUserIndex].bank = { bankName, branchName, accountType, accountNumber, accountHolder };
-            } else {
-                userList.push({
-                    id: `USR-${String(userList.length + 1).padStart(3, '0')}`,
-                    name: sellerName,
-                    email: sellerEmail,
-                    phone: sellerPhone,
-                    status: "アクティブ",
-                    kyc: "未審査",
-                    rating: "★新規 (0件)",
-                    bank: { bankName, branchName, accountType, accountNumber, accountHolder }
-                });
-            }
-            saveStorageData('userList', userList);
-
-            const newProd = {
-                id: Date.now(),
-                name: name,
-                price: price,
-                seller: sellerName,
-                category: category,
-                description: description,
-                views: 1,
-                favs: 0,
-                ship: ship,
-                hand: hand,
-                active: true,
-                recommended: false,
-                image: currentUploadedImageBase64
-            };
-
-            productsList.unshift(newProd);
-            saveStorageData('productsList', productsList);
-
-            sendToGas({
-                type: "NEW_PRODUCT",
-                sellerName: sellerName,
-                sellerEmail: sellerEmail,
-                productName: name,
-                price: price,
-                category: category
-            });
-
-            alert("商品が出品されました！");
-            closeModal('seller-modal');
-            document.getElementById('seller-form').reset();
-            document.getElementById('img-preview-box').style.display = 'none';
-            currentUploadedImageBase64 = null;
-            renderProducts();
-        }
-
-        function submitUserInquiry(e) {
-            e.preventDefault();
-            const email = document.getElementById('inq-email').value.trim();
-            const subject = document.getElementById('inq-subject').value.trim();
-            const body = document.getElementById('inq-body').value.trim();
-
-            inquiriesList.unshift({
-                id: `INQ-${String(inquiriesList.length + 1).padStart(2, '0')}`,
-                sender: email,
-                subject: subject,
-                body: body,
-                status: "未対応"
-            });
-            saveStorageData('inquiriesList', inquiriesList);
-
-            sendToGas({
-                type: "USER_INQUIRY",
-                email: email,
-                subject: subject,
-                body: body
-            });
-
-            alert("お問い合わせを送信しました。運営からの回答をお待ちください。");
-            closeModal('inquiry-modal');
-            document.getElementById('inquiry-form').reset();
-        }
-
-        function submitOrder(e) {
-            e.preventDefault();
-            alert("ご注文を受け付けました。ご利用ありがとうございます！");
-            closeModal('checkout-modal');
-        }
-
-        function switchAdminTab(evt, tabId) {
-            document.querySelectorAll('#admin-modal .admin-tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('#admin-modal .admin-tab-content').forEach(c => c.classList.remove('active'));
-            evt.currentTarget.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        function addNewAnnouncement(e) {
-            e.preventDefault();
-            const title = document.getElementById('admin-news-title').value.trim();
-            const target = document.getElementById('admin-news-target').value;
-            const content = document.getElementById('admin-news-content').value.trim();
-
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
-            newsList.unshift({
-                id: `NEWS-${Date.now()}`,
-                date: dateStr,
-                target: target,
-                title: title,
-                content: content
-            });
-
-            saveStorageData('newsList', newsList);
-            alert("お知らせを新規配信しました！");
-            document.getElementById('admin-news-title').value = '';
-            document.getElementById('admin-news-content').value = '';
-            renderNewsList();
-            renderAdminTables();
-        }
-
-        function deleteAnnouncement(newsId) {
-            if (!confirm("このお知らせを削除しますか？")) return;
-            newsList = newsList.filter(n => n.id !== newsId);
-            saveStorageData('newsList', newsList);
-            renderNewsList();
-            renderAdminTables();
-        }
-
-        function saveSiteSettings(e) {
-            e.preventDefault();
-            siteSettings.tokusho = document.getElementById('edit-tokusho').value;
-            siteSettings.privacy = document.getElementById('edit-privacy').value;
-            saveStorageData('siteSettings', siteSettings);
-            alert("特定商取引法表記・プライバシーポリシーを更新保存しました。");
-        }
-
-        function renderAdminTables() {
-            // ユーザーテーブル
-            const tblUsers = document.getElementById('tbl-users');
-            if (tblUsers) {
-                tblUsers.innerHTML = '';
-                userList.forEach(u => {
-                    const bankStr = u.bank ? `${u.bank.bankName} ${u.bank.branchName} (${u.bank.accountType}) ${u.bank.accountNumber} 名義: ${u.bank.accountHolder}` : '未登録';
-                    tblUsers.innerHTML += `
-                        <tr>
-                            <td>${u.id}</td>
-                            <td>${u.name}</td>
-                            <td>${u.email}</td>
-                            <td>${u.phone}</td>
-                            <td style="font-size:0.75rem;">${bankStr}</td>
-                            <td><span class="status-badge bg-success">${u.status}</span></td>
-                            <td><span class="status-badge bg-info">${u.kyc}</span></td>
-                            <td>${u.rating}</td>
-                            <td><button class="btn-danger" onclick="alert('アカウント状態の変更完了')">停止</button></td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // 出品商品管理
-            const tblProds = document.getElementById('tbl-admin-products');
-            if (tblProds) {
-                tblProds.innerHTML = '';
-                productsList.forEach(p => {
-                    tblProds.innerHTML += `
-                        <tr>
-                            <td>${p.id}</td>
-                            <td>${p.name}</td>
-                            <td>¥${p.price.toLocaleString()}</td>
-                            <td>${p.seller}</td>
-                            <td>${p.active ? '<span class="status-badge bg-success">公開中</span>' : '<span class="status-badge bg-secondary">非公開</span>'}</td>
-                            <td>${p.recommended ? '<span class="status-badge bg-warning">おすすめ</span>' : '通常'}</td>
-                            <td>
-                                <button class="btn-warning" onclick="toggleProductRecommend(${p.id})">${p.recommended ? 'おすすめ解除' : 'おすすめ設定'}</button>
-                                <button class="btn-danger" onclick="toggleProductActive(${p.id})">${p.active ? '非公開化' : '公開再開'}</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // 事前チャット監査
-            const tblPre = document.getElementById('tbl-pre-chats');
-            if (tblPre) {
-                tblPre.innerHTML = '';
-                prePurchaseChats.forEach(c => {
-                    const lastMsg = c.messages.length > 0 ? c.messages[c.messages.length - 1] : { text: 'なし', time: '' };
-                    tblPre.innerHTML += `
-                        <tr>
-                            <td>${c.id}</td>
-                            <td>${c.productName} (ID:${c.productId})</td>
-                            <td>${c.sellerName}</td>
-                            <td>${c.userName}</td>
-                            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${lastMsg.text}</td>
-                            <td>${lastMsg.time}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // 取引テーブル
-            const tblTrx = document.getElementById('tbl-transactions');
-            if (tblTrx) {
-                tblTrx.innerHTML = '';
-                transactionsList.forEach(t => {
-                    tblTrx.innerHTML += `
-                        <tr>
-                            <td>${t.id}</td>
-                            <td>${t.prodName}</td>
-                            <td>${t.buyer}</td>
-                            <td>${t.seller}</td>
-                            <td><span class="status-badge bg-warning">${t.status}</span></td>
-                            <td>${t.lastMsg}</td>
-                            <td><button class="btn-secondary" onclick="alert('取引介入ログに記録しました。')">介入連絡</button></td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // 通報
-            const tblRep = document.getElementById('tbl-reports');
-            if (tblRep) {
-                tblRep.innerHTML = '';
-                reportsList.forEach(r => {
-                    tblRep.innerHTML += `
-                        <tr>
-                            <td>${r.id}</td>
-                            <td>${r.reporter}</td>
-                            <td>${r.targetType}</td>
-                            <td>${r.targetId}</td>
-                            <td>${r.reason}</td>
-                            <td><span class="status-badge bg-danger">${r.status}</span></td>
-                            <td><button class="btn-success" onclick="alert('通報を対処済みにしました')">対処完了</button></td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // 振込申請
-            const tblPay = document.getElementById('tbl-payouts');
-            if (tblPay) {
-                tblPay.innerHTML = '';
-                payoutsList.forEach(p => {
-                    const netPayout = Math.floor(p.amount * 0.936);
-                    tblPay.innerHTML += `
-                        <tr>
-                            <td>${p.id}</td>
-                            <td>${p.user}</td>
-                            <td>¥${p.amount.toLocaleString()}</td>
-                            <td style="color:var(--brand-red); font-weight:bold;">¥${netPayout.toLocaleString()}</td>
-                            <td style="font-size:0.75rem;">${p.bankInfo}</td>
-                            <td><span class="status-badge bg-warning">${p.status}</span></td>
-                            <td><button class="btn-success" onclick="alert('振込完了通知を送信しました')">振込実行</button></td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // お問い合わせ
-            const tblInq = document.getElementById('tbl-inquiries');
-            if (tblInq) {
-                tblInq.innerHTML = '';
-                inquiriesList.forEach(i => {
-                    tblInq.innerHTML += `
-                        <tr>
-                            <td>${i.id}</td>
-                            <td>${i.sender}</td>
-                            <td>${i.subject}</td>
-                            <td>${i.body}</td>
-                            <td><span class="status-badge bg-danger">${i.status}</span></td>
-                            <td><button class="btn-outline" onclick="alert('返信フォームを開きます')">返信</button></td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // お知らせ管理テーブル
-            const tblNews = document.getElementById('tbl-admin-news');
-            if (tblNews) {
-                tblNews.innerHTML = '';
-                newsList.forEach(n => {
-                    tblNews.innerHTML += `
-                        <tr>
-                            <td>${n.id}</td>
-                            <td>${n.date}</td>
-                            <td><span class="news-badge">${n.target}</span></td>
-                            <td style="font-weight:bold;">${n.title}</td>
-                            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${n.content}</td>
-                            <td><button class="btn-danger" onclick="deleteAnnouncement('${n.id}')">削除</button></td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // 口コミ・レビュー監視
-            const tblRev = document.getElementById('tbl-admin-reviews');
-            if (tblRev) {
-                tblRev.innerHTML = '';
-                reviewsList.forEach(r => {
-                    const stars = '★'.repeat(r.rating);
-                    tblRev.innerHTML += `
-                        <tr>
-                            <td>${r.id}</td>
-                            <td>ID:${r.productId}</td>
-                            <td style="color:#ff9800; font-weight:bold;">${stars}</td>
-                            <td>${r.author}</td>
-                            <td>${r.comment}</td>
-                            <td>${r.date}</td>
-                            <td><button class="btn-danger" onclick="deleteReview('${r.id}')">削除</button></td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // 統計計算
-            const totalVol = productsList.reduce((sum, p) => sum + p.price, 0);
-            const totalFee = Math.floor(totalVol * 0.064);
-
-            const statVolEl = document.getElementById('stat-total-vol');
-            const statFeeEl = document.getElementById('stat-total-fee');
-            if (statVolEl) statVolEl.innerText = `¥${totalVol.toLocaleString()}`;
-            if (statFeeEl) statFeeEl.innerText = `¥${totalFee.toLocaleString()}`;
-
-            // 設定の初期入力
-            const editTokushoEl = document.getElementById('edit-tokusho');
-            const editPrivacyEl = document.getElementById('edit-privacy');
-            if (editTokushoEl) editTokushoEl.value = siteSettings.tokusho;
-            if (editPrivacyEl) editPrivacyEl.value = siteSettings.privacy;
-        }
-
-        function deleteReview(revId) {
-            if (!confirm("この不適切な口コミレビューを削除しますか？")) return;
-            reviewsList = reviewsList.filter(r => r.id !== revId);
-            saveStorageData('reviewsList', reviewsList);
-            renderAdminTables();
-        }
-
-        function toggleProductRecommend(id) {
-            const prod = productsList.find(p => p.id === id);
-            if (prod) {
-                prod.recommended = !prod.recommended;
-                saveStorageData('productsList', productsList);
-                renderAdminTables();
-                renderProducts();
-            }
-        }
-
-        function toggleProductActive(id) {
-            const prod = productsList.find(p => p.id === id);
-            if (prod) {
-                prod.active = !prod.active;
-                saveStorageData('productsList', productsList);
-                renderAdminTables();
-                renderProducts();
-            }
-        }
-
-        // 初期化ロード
+        // 初期化実行
         window.addEventListener('DOMContentLoaded', () => {
-            const prefSelect = document.getElementById('checkout-pref-select');
-            if (prefSelect) {
-                prefecturesData.forEach((p, idx) => {
-                    prefSelect.innerHTML += `<option value="${idx}">${p.name} (送料 ¥${p.shipping})</option>`;
-                });
-            }
-
             renderNewsList();
             renderProducts();
             updateCartUI();
