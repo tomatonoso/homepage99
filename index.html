@@ -644,6 +644,16 @@
                 <button class="chip" onclick="selectCategory(this, '本・音楽・ゲーム')">本・音楽・ゲーム</button>
                 <button class="chip" onclick="selectCategory(this, '生活雑貨')">生活雑貨</button>
             </div>
+            <!-- 価格絞り込みフォーム -->
+<div class="price-filter-container" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.9rem;">
+    <span>価格:</span>
+    <input type="number" id="min-price" class="form-control" placeholder="下限なし" style="width: 110px; padding: 6px 10px;" oninput="filterProducts()">
+    <span>円 〜</span>
+    <input type="number" id="max-price" class="form-control" placeholder="上限なし" style="width: 110px; padding: 6px 10px;" oninput="filterProducts()">
+    <span>円</span>
+    
+    <button class="btn-secondary" onclick="clearPriceFilter()" style="padding: 6px 12px; margin-left: 8px;">クリア</button>
+</div>
 
             <div class="receive-box">
                 <span>受け取り方法:</span>
@@ -2177,7 +2187,34 @@
             renderProducts();
         }
 
-        function filterProducts() { renderProducts(); }
+       // 価格絞り込み用クリア関数
+function clearPriceFilter() {
+    document.getElementById('min-price').value = '';
+    document.getElementById('max-price').value = '';
+    filterProducts();
+}
+
+// 修正後の filterProducts 関数
+function filterProducts() {
+    const keyword = document.getElementById('search-keyword').value.toLowerCase();
+    const minPrice = parseInt(document.getElementById('min-price').value, 10);
+    const maxPrice = parseInt(document.getElementById('max-price').value, 10);
+
+    const filteredProducts = products.filter(product => {
+        // キーワード判定
+        const matchesKeyword = product.title.toLowerCase().includes(keyword) || 
+                               (product.description && product.description.toLowerCase().includes(keyword));
+
+        // 価格判定
+        const price = Number(product.price);
+        const matchesMinPrice = isNaN(minPrice) || price >= minPrice;
+        const matchesMaxPrice = isNaN(maxPrice) || price <= maxPrice;
+
+        return matchesKeyword && matchesMinPrice && matchesMaxPrice;
+    });
+
+    renderProducts(filteredProducts);
+}
 
         function toggleAuthMode() {
             const loginForm = document.getElementById('admin-login-form');
