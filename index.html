@@ -645,13 +645,14 @@
                 <button class="chip" onclick="selectCategory(this, '生活雑貨')">生活雑貨</button>
             </div>
             <!-- 価格絞り込みフォーム -->
+<!-- 価格絞り込みフォーム -->
 <div class="price-filter-container" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.9rem;">
     <span>価格:</span>
-    <input type="number" id="min-price" class="form-control" placeholder="下限なし" style="width: 110px; padding: 6px 10px;" oninput="filterProducts()">
+    <input type="number" id="min-price" class="form-control" placeholder="下限なし" style="width: 110px; padding: 6px 10px;">
     <span>円 〜</span>
-    <input type="number" id="max-price" class="form-control" placeholder="上限なし" style="width: 110px; padding: 6px 10px;" oninput="filterProducts()">
+    <input type="number" id="max-price" class="form-control" placeholder="上限なし" style="width: 110px; padding: 6px 10px;">
     <span>円</span>
-    
+
     <button class="btn-secondary" onclick="clearPriceFilter()" style="padding: 6px 12px; margin-left: 8px;">クリア</button>
 </div>
 
