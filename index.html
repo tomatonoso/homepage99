@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <!-- スマホ対応用に表示領域（Viewport）を設定 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ミナトモ！ - フリマ＆ECプラットフォーム</title>
     <!-- FontAwesome -->
@@ -516,6 +517,78 @@
             margin-bottom: 10px;
         }
         .review-stars { color: #ff9800; font-weight: bold; }
+        /* ==========================================
+           スマートフォン用レスポンシブスタイル (画面幅768px以下)
+           ========================================== */
+        @media (max-width: 768px) {
+            /* ヘッダーの要素を縦並びに配置変更 */
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 12px;
+            }
+
+            .header-logo {
+                font-size: 1.4rem;
+            }
+
+            .search-container {
+                width: 100%;
+                max-width: none;
+            }
+
+            .header-user-nav {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .header-user-nav button, 
+            .header-cart-badge {
+                font-size: 0.75rem;
+                padding: 6px 8px;
+            }
+
+            /* 商品一覧をスマホで2列表示に変更 */
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .product-image-box {
+                height: 130px;
+            }
+
+            /* 2列レイアウトを1列に切り替え（モーダル・フォーム内） */
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            /* モーダルの余白調整 */
+            .modal-content {
+                padding: 16px 12px;
+                margin: 10px auto;
+                width: 95%;
+            }
+
+            /* フローティング出品ボタンをスマホ用にサイズ調整 */
+            .floating-sell-btn {
+                width: 56px;
+                height: 56px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 0.75rem;
+            }
+
+            /* 受け取り方法などの選択要素の折り返し調整 */
+            .receive-box {
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
