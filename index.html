@@ -2197,25 +2197,42 @@ function clearPriceFilter() {
     filterProducts();
 }
 
-// 修正後の filterProducts 関数
 function filterProducts() {
-    const keyword = document.getElementById('search-keyword').value.toLowerCase();
-    const minPrice = parseInt(document.getElementById('min-price').value, 10);
-    const maxPrice = parseInt(document.getElementById('max-price').value, 10);
+    // 1. 各入力要素から値を取得
+    const keywordInput = document.getElementById('search-keyword');
+    const keyword = keywordInput ? keywordInput.value.toLowerCase().trim() : '';
 
+    const minPrice = parseInt(document.getElementById('min-price')?.value, 10);
+    const maxPrice = parseInt(document.getElementById('max-price')?.value, 10);
+
+    // 2. 条件判定と絞り込み
     const filteredProducts = products.filter(product => {
-        // キーワード判定
-        const matchesKeyword = product.title.toLowerCase().includes(keyword) || 
+        // ① キーワード判定
+        const matchesKeyword = !keyword || 
+                               (product.title && product.title.toLowerCase().includes(keyword)) || 
                                (product.description && product.description.toLowerCase().includes(keyword));
 
-        // 価格判定
+        // ② 価格判定
         const price = Number(product.price);
         const matchesMinPrice = isNaN(minPrice) || price >= minPrice;
         const matchesMaxPrice = isNaN(maxPrice) || price <= maxPrice;
 
-        return matchesKeyword && matchesMinPrice && matchesMaxPrice;
+        // ③ カテゴリー判定（全選択または未選択時はスキップ）
+        const matchesCategory = typeof selectedCategory === 'undefined' || 
+                                selectedCategory === 'all' || 
+                                product.category === selectedCategory;
+
+        // ④ 受け取り方法判定（「すべて(ALL)」または未選択時はスキップ）
+        const matchesReceive = typeof selectedReceiveMethod === 'undefined' || 
+                               selectedReceiveMethod === 'ALL' || 
+                               product.receiveMethod === selectedReceiveMethod || 
+                               product.deliveryMethod === selectedReceiveMethod;
+
+        // すべての条件を満たす商品のみ残す
+        return matchesKeyword && matchesMinPrice && matchesMaxPrice && matchesCategory && matchesReceive;
     });
 
+    // 3. 画面描画の更新
     renderProducts(filteredProducts);
 }
 
