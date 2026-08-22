@@ -2360,24 +2360,35 @@ function submitBuyerRequest(e) {
         // 既存カードと同じデザイン・スタイルに合わせる
         modalCard.style.cssText = 'background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.06);';
         modalCard.innerHTML = `
-            <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算</div>
-            <div style="color: var(--brand-red); font-weight: bold; font-size: 1rem; margin-bottom: 8px;">¥${formattedBudget}</div>
-            <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${title}</div>
-            <div style="font-size: 0.8rem; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 12px;">${desc}</div>
-            <button class="btn-outline" style="width: 100%; font-size: 0.85rem;">この商品を提案する</button>
-        `;
-        // リクエスト一覧エリアの先頭（既存カードのすぐ上）に挿入
-        modalGrid.insertBefore(modalCard, modalGrid.firstChild);
-    }
-        modalContainer.insertBefore(modalCard, modalContainer.firstChild);
-    }   
-
-    alert("購入リクエストを投稿しました！");
-    document.getElementById('buyer-request-form').reset();
-    closeModal('request-post-modal');
+        const modalGrid = document.querySelector('#request-list-modal .product-grid');
+if (modalGrid) {
+    const formattedBudget = Number(budget).toLocaleString();
+    const modalCard = document.createElement('div');
+    
+    // 既存カードと同じデザイン・スタイルに合わせる
+    modalCard.style.cssText = 'background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-bottom: 8px;';
+    
+    // タグをきちんと閉じるように修正
+    modalCard.innerHTML = `
+        <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算</div>
+        <div style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥${formattedBudget}</div>
+        <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">タイトルまたは内容</div>
+        <div style="font-size: 0.8rem; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px;">詳細テキストが入ります...</div>
+        <button class="btn-outline" style="width: 100%; font-size: 0.85rem;">詳細を見る</button>
+    `;
+    
+    // リクエスト一覧エリアの先頭（既存カードのすぐ上）に挿入
+    modalGrid.insertBefore(modalCard, modalGrid.firstChild);
 }
-        // ▲ 追加：逆出品（購入リクエスト）の機能制御 ▲
 
+alert("購入リクエストを投稿しました！");
+document.getElementById('buyer-request-form').reset();
+closeModal('request-post-modal');
+
+// ▲ 追加：逆出品（購入リクエスト）の機能制御 ▲
+
+
+      
         function openSellerModal() {
             if (savedSellerProfile) {
                 document.getElementById('seller-name-input').value = savedSellerProfile.name || '';
