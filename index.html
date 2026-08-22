@@ -679,7 +679,7 @@
         <!-- ▼ 追加：逆出品（購入リクエスト）エリア ▼ -->
         <div class="section-header">
             <span>購入リクエスト（逆出品一覧）</span>
-            <button class="btn-outline" onclick="openRequestModal()"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
+           <button class="btn-outline" onclick="checkAuthAndOpenModal('request-post-modal')"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
         </div>
 
         <!-- 10個まで表示し、横スクロールで一番右に全てボタンを配置 -->
@@ -962,7 +962,7 @@
                     <div style="color: var(--brand-red); font-weight: bold; font-size: 1.2rem; margin-bottom: 8px;">¥5,000</div>
                     <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem;">〇〇の限定フィギュア探しています</div>
                     <div style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; flex-grow: 1; margin-bottom: 15px;">箱無しでも構いません。傷が少ないものを希望します。</div>
-                    <button class="btn-outline" style="width: 100%; padding: 8px;" onclick="closeModal('request-list-modal'); openModal('private-chat-modal');">この商品を提案する</button>
+                 <button class="btn-outline" style="width: 100%; padding: 8px;" onclick="checkAuthAndOpenModal('private-chat-modal', 'request-list-modal');">この商品を提案する</button>
                 </div>
                 
                 <!-- リクエストカード 2 -->
@@ -2554,7 +2554,21 @@
             
             openModal('checkout-modal'); // 既存の購入手続きモーダルを開く
         }
-        // ▲ 追加：チャット画面の制御 ▲
-    </script>
+       // 556行目
+    }
+    // ▲ 追加：チャット画面の制御 ▲
+
+    // ★ ここから追加 ★
+    function checkAuthAndOpenModal(modalId, closeId = null) {
+        if (!currentBuyerUser) {
+            alert("この機能を利用するには購入者としてログインしてください。");
+            if (closeId) closeModal(closeId);
+            openModal('buyer-auth-modal');
+            return;
+        }
+        openModal(modalId);
+    }
+
+</script>
 </body>
 </html>
