@@ -1552,6 +1552,23 @@
 
     
        <script>
+           // モーダルを開く共通関数
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block'; // または 'flex'
+    } else {
+        console.error("指定されたモーダルが見つかりません: " + modalId);
+    }
+}
+
+// モーダルを閉じる共通関数
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
         function selectReceiveMethod(btn, method) {
             const parent = btn.parentElement;
             parent.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
