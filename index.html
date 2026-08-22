@@ -615,8 +615,8 @@
             </div>
 
             <button class="btn-outline" onclick="openModal('inquiry-modal')"><i class="fa-solid fa-headset"></i> お問合せ</button>
-     <button class="btn-outline" onclick="tryOpenAdmin()"><i class="fa-solid fa-gear"></i> 運営管理</button>
-<button class="btn-red-sm" onclick="openSellerModal()">出品者登録・出品</button>
+        <button class="btn-outline" onclick="tryOpenAdmin()" style="position: relative; z-index: 99999; pointer-events: auto;"><i class="fa-solid fa-gear"></i> 運営管理</button>
+<button class="btn-red-sm" onclick="openSellerModal()" style="position: relative; z-index: 99999; pointer-events: auto;">出品者登録・出品</button>
         </div>
     </header>
 
@@ -662,10 +662,9 @@
                 <button class="pill-btn active" onclick="selectReceiveMethod(this, 'ALL')">すべて</button>
                 <button class="pill-btn" onclick="selectReceiveMethod(this, 'SHIP')">配送のみ</button>
                 <button class="pill-btn" onclick="selectReceiveMethod(this, 'HAND')">手渡し可能</button>
-              <!-- 修正例 -->
-<button class="btn-primary" onclick="filterProducts()">
-    <i class="fa-solid fa-magnifying-glass"></i> 検索
-</button>
+               <button class="btn-primary" onclick="filterProducts()" style="b...
+   　　　　　　 <i class="fa-solid fa-magnifying-glass"></i> 検索
+　　　　　　　</button>
             </div>
         </div>
 
@@ -1043,7 +1042,10 @@
         </div>
     </div>
     <!-- ▲ 追加：プライベートチャット・交渉モーダル ▲ -->
-    
+    <!-- MODAL 1: 購入手続き -->
+    <div id="checkout-modal" class="modal-panel">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('checkout-modal')">&times;</span>
     <!-- MODAL 1: 購入手続き -->
     <div id="checkout-modal" class="modal-panel">
         <div class="modal-content">
@@ -1218,7 +1220,7 @@
 
 
     <!-- MODAL 3: 運営者専用 ログイン ＆ 3重ロック新規登録 (上限1名制限) -->
-  <div id="admin-login-modal" class="modal-panel">
+  <div id="admin-modal" class="modal-panel">
         <div class="modal-content modal-content-sm">
            <span class="close-modal" onclick="closeModal('admin-modal')">&times;</span>
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1342,7 +1344,7 @@
 
 
     <!-- MODAL 7: 運営者統合管理ダッシュボード -->
-    <div id="admin-dashboard-modal" class="modal-panel">
+    <div id="admin-modal" class="modal-panel">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('admin-modal')">&times;</span>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
@@ -1553,9 +1555,10 @@
        <script>
            // モーダルを開く共通関数
 function openModal(modalId) {
+    alert("関数が呼ばれました！ ID: " + modalId);
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.style.display = 'flex';
+   modal.style.display = 'flex';
     } else {
         console.error("指定されたモーダルが見つかりません: " + modalId);
     }
@@ -2422,7 +2425,7 @@ function submitBuyerRequest(e) {
             const minPrice = parseInt(document.getElementById('min-price')?.value, 10);
             const maxPrice = parseInt(document.getElementById('max-price')?.value, 10);
 
-           const filteredProducts = products.filter(product => {
+            const filteredProducts = productsList.filter(product => {
                 if (!product.active) return false;
 
                 const matchesKeyword = !keyword || 
@@ -2515,10 +2518,12 @@ function submitBuyerRequest(e) {
             toggleAuthMode();
         }
 
-      function tryOpenAdmin() {
-    // とにかく直接ログインモーダルを開く
-    openModal('admin-login-modal');
-}
+        function tryOpenAdmin() {
+            if (currentAdmin) {
+                openModal('admin-modal');
+            } else {
+                openModal('admin-login-modal');
+            }
         }
 
         function handleAdminLogin(e) {
