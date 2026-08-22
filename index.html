@@ -2621,14 +2621,13 @@ function submitBuyerRequest(e) {
         function openSellerModal() {
             openModal('seller-modal'); // または対応する出品のモーダルID
         }
-           document.addEventListener("DOMContentLoaded", function() {
-    // 「運営管理」という文字、あるいは指定のボタンをすべて探してイベントを強制登録する
+          document.addEventListener("DOMContentLoaded", function() {
     const buttons = document.querySelectorAll("button");
     buttons.forEach(btn => {
         if (btn.textContent.includes("運営管理") || btn.textContent.includes("テスト用")) {
             btn.addEventListener("click", function(e) {
                 e.preventDefault();
-                alert("ボタンがクリックされました！"); // 動作確認用のアラート
+                // openModal関数を直接実行して、admin-modalを開く
                 openModal('admin-modal');
             });
         }
