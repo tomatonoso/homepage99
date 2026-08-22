@@ -945,17 +945,102 @@
        </div>
        <!-- ▲ 追加：逆出品（購入リクエスト）投稿モーダル ▲ -->
 
-　       <!-- ▼ ここから追加：逆出品（購入リクエスト）一覧モーダル ▼ -->
-         <div id="request-list-modal" class="modal-panel">
-             <div class="modal-content">
-                 <span class="close-modal" onclick="closeModal('request-list-modal')">&times;</span>
-                 <h2><i class="fa-solid fa-list" style="color: var(--brand-red);"></i> 購入リクエスト一覧</h2>
-                 
-                 <!-- （中略：先ほどお渡しした一覧モーダルの残りのコード） -->
+　      <!-- ▼ 追加：逆出品（購入リクエスト）一覧モーダル ▼ -->
+    <div id="request-list-modal" class="modal-panel">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('request-list-modal')">&times;</span>
+            <h2><i class="fa-solid fa-list" style="color: var(--brand-red);"></i> 購入リクエスト一覧</h2>
+            <hr style="margin: 15px 0;">
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">他のユーザーが探している商品の一覧です。お持ちの商品があれば提案してみましょう。</p>
 
-             </div>
-         </div>
-         <!-- ▲ 追加：逆出品（購入リクエスト）一覧モーダル ▲ -->
+            <!-- カードを並べるエリア（スクロール可能） -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; max-height: 60vh; overflow-y: auto; padding-right: 5px;">
+                
+                <!-- リクエストカード 1 -->
+                <div style="background: #fff; padding: 16px; border-radius: var(--radius); box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
+                    <div style="font-size: 0.75rem; color: #888;">希望予算</div>
+                    <div style="color: var(--brand-red); font-weight: bold; font-size: 1.2rem; margin-bottom: 8px;">¥5,000</div>
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem;">〇〇の限定フィギュア探しています</div>
+                    <div style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; flex-grow: 1; margin-bottom: 15px;">箱無しでも構いません。傷が少ないものを希望します。</div>
+                    <button class="btn-outline" style="width: 100%; padding: 8px;" onclick="closeModal('request-list-modal'); openModal('private-chat-modal');">この商品を提案する</button>
+                </div>
+                
+                <!-- リクエストカード 2 -->
+                <div style="background: #fff; padding: 16px; border-radius: var(--radius); box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
+                    <div style="font-size: 0.75rem; color: #888;">希望予算</div>
+                    <div style="color: var(--brand-red); font-weight: bold; font-size: 1.2rem; margin-bottom: 8px;">¥12,000</div>
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem;">ブランドXの黒色リュック</div>
+                    <div style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; flex-grow: 1; margin-bottom: 15px;">できれば新品未使用、またはそれに近い状態で探しています。通勤で使いたいです。</div>
+                    <button class="btn-outline" style="width: 100%; padding: 8px;" onclick="closeModal('request-list-modal'); openModal('private-chat-modal');">この商品を提案する</button>
+                </div>
+
+                <!-- リクエストカード 3 -->
+                <div style="background: #fff; padding: 16px; border-radius: var(--radius); box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
+                    <div style="font-size: 0.75rem; color: #888;">希望予算</div>
+                    <div style="color: var(--brand-red); font-weight: bold; font-size: 1.2rem; margin-bottom: 8px;">¥3,500</div>
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem;">絶版になった〇〇というビジネス書</div>
+                    <div style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; flex-grow: 1; margin-bottom: 15px;">書き込みがあっても読めれば問題ありません。</div>
+                    <button class="btn-outline" style="width: 100%; padding: 8px;" onclick="closeModal('request-list-modal'); openModal('private-chat-modal');">この商品を提案する</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- ▲ 追加：逆出品（購入リクエスト）一覧モーダル ▲ -->
+    <!-- ▼ 追加：プライベートチャット・交渉モーダル ▼ -->
+    <div id="private-chat-modal" class="modal-panel">
+        <div class="modal-content" style="max-width: 600px; display: flex; flex-direction: column; height: 80vh;">
+            
+            <!-- ヘッダー部分 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 1.1rem;"><i class="fa-solid fa-comments" style="color: var(--brand-red);"></i> 交渉ルーム（〇〇の限定フィギュア）</h2>
+                <span class="close-modal" onclick="closeModal('private-chat-modal')" style="position: static; margin: 0;">&times;</span>
+            </div>
+            
+            <!-- プライバシーの注意書き -->
+            <div style="font-size: 0.8rem; color: #666; background: #f9f9f9; padding: 8px 12px; border-radius: 5px; margin-bottom: 15px;">
+                <i class="fa-solid fa-lock" style="color: #4CAF50;"></i> このチャットはリクエスト投稿者とあなた（提案者）のみが閲覧可能です。
+            </div>
+
+            <!-- チャット履歴エリア -->
+            <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px; background: #f0f2f5; border-radius: 8px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 15px;">
+                
+                <!-- 相手（購入者）のメッセージ例 -->
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                    <div style="width: 35px; height: 35px; background: #ccc; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 0.75rem; flex-shrink: 0;">購入者</div>
+                    <div style="background: #fff; padding: 10px 15px; border-radius: 15px; border-top-left-radius: 0; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 0.9rem;">
+                        リクエストを見ていただきありがとうございます！箱無しでも大丈夫です。傷の具合がわかる写真はありますか？
+                    </div>
+                </div>
+
+                <!-- 自分（出品者）のメッセージ例 -->
+                <div style="display: flex; gap: 10px; align-items: flex-start; flex-direction: row-reverse;">
+                    <div style="width: 35px; height: 35px; background: var(--brand-red); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 0.75rem; flex-shrink: 0;">あなた</div>
+                    <div style="background: #e3f2fd; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 0; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 0.9rem;">
+                        今出先なので、後ほど写真を送りますね！予算5,000円とのことですが、送料込みで5,500円でいかがでしょうか？
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- メッセージ入力・決済ボタンエリア -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="chat-input" class="form-control" placeholder="メッセージを入力..." style="flex-grow: 1; margin: 0;">
+                    <button class="btn-red-sm" onclick="sendChatMessage()" style="white-space: nowrap;"><i class="fa-solid fa-paper-plane"></i> 送信</button>
+                </div>
+                
+                <div style="text-align: center; margin-top: 10px;">
+                    <p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">※条件が合意したら決済へお進みください</p>
+                    <button class="btn-outline" style="width: 100%; border-color: #4CAF50; color: #4CAF50; font-weight: bold; background: #f0fdf4;" onclick="proceedToNegotiatedCheckout()">
+                        <i class="fa-solid fa-credit-card"></i> 合意した条件で決済へ進む（Stripe）
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- ▲ 追加：プライベートチャット・交渉モーダル ▲ -->
     <!-- MODAL 1: 購入手続き -->
     <div id="checkout-modal" class="modal-panel">
         <div class="modal-content">
@@ -2433,6 +2518,43 @@
             renderProducts();
             updateCartUI();
         });
+           // ▼ 追加：チャット画面の制御 ▼
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // 自分のメッセージを画面に疑似的に追加
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = "display: flex; gap: 10px; align-items: flex-start; flex-direction: row-reverse; margin-top: 15px;";
+            msgDiv.innerHTML = `
+                <div style="width: 35px; height: 35px; background: var(--brand-red); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 0.75rem; flex-shrink: 0;">あなた</div>
+                <div style="background: #e3f2fd; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 0; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 0.9rem;">
+                    ${message}
+                </div>
+            `;
+            
+            chatMessages.appendChild(msgDiv);
+            input.value = ''; // 入力欄を空にする
+            
+            // スクロールを一番下へ移動
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // ※実際はここでデータベースにメッセージを送信する処理を記述します
+        }
+
+        // 交渉成立後、決済モーダルへ進む処理
+        function proceedToNegotiatedCheckout() {
+            closeModal('private-chat-modal'); // チャットを閉じる
+            
+            // ※実際はここで、チャットで合意した金額をStripeに渡す処理を行います
+            alert("合意した金額でStripe決済画面へ移行します。（現在はモックアップとして通常の購入画面を開きます）");
+            
+            openModal('checkout-modal'); // 既存の購入手続きモーダルを開く
+        }
+        // ▲ 追加：チャット画面の制御 ▲
     </script>
 </body>
 </html>
