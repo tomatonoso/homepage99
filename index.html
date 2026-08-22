@@ -2621,18 +2621,33 @@ function submitBuyerRequest(e) {
         function openSellerModal() {
             openModal('seller-modal'); // または対応する出品のモーダルID
         }
-          document.addEventListener("DOMContentLoaded", function() {
-    const buttons = document.querySelectorAll("button");
-    buttons.forEach(btn => {
-        if (btn.textContent.includes("運営管理") || btn.textContent.includes("テスト用")) {
-            btn.addEventListener("click", function(e) {
-                e.preventDefault();
-                // openModal関数を直接実行して、admin-modalを開く
-                openModal('admin-modal');
-            });
+ // 運営管理ボタン用
+        function tryOpenAdmin() {
+            openModal('admin-modal'); // または対応する管理者のモーダルID
         }
-    });
-});
+
+        // 出品者登録・出品ボタン用
+        function openSellerModal() {
+            openModal('seller-modal'); // または対応する出品のモーダルID
+        }
+
+        // ▼ ここに先ほどの確実なクリック処理を追加する
+        document.addEventListener("DOMContentLoaded", function() {
+            const adminBtn = document.querySelector("button[onclick*='tryOpenAdmin'], button[onclick*='admin-modal']");
+            if (adminBtn) {
+                adminBtn.addEventListener("click", function() {
+                    openModal('admin-modal');
+                });
+            }
+
+            const sellerBtn = document.querySelector("button[onclick*='openSellerModal']");
+            if (sellerBtn) {
+                sellerBtn.addEventListener("click", function() {
+                    openModal('seller-modal');
+                });
+            }
+        });
+    </script>         
 </script>
 </body>
 </html>
