@@ -2648,6 +2648,25 @@ function submitBuyerRequest(e) {
                 });
             }
         });
+           // 【最終手段】キャプチャリング段階でクリックを強制奪取してモーダルを開く
+document.addEventListener('click', function(e) {
+    // クリックされた要素、またはその親が「運営管理」ボタンかどうかを判定
+    const adminBtn = e.target.closest("button[onclick*='tryOpenAdmin'], button:has(.fa-gear)");
+    if (adminBtn) {
+        e.stopPropagation(); // ほかの邪魔なイベントをすべて止める
+        e.preventDefault();
+        tryOpenAdmin();      // 確実に開く
+        return;
+    }
+
+    const sellerBtn = e.target.closest("button[onclick*='openSellerModal']");
+    if (sellerBtn) {
+        e.stopPropagation();
+        e.preventDefault();
+        openSellerModal();
+        return;
+    }
+}, true); // 第3引数の true がキモ（イベントの最上流でキャッチする）
     </script>         
 </script>
 </body>
