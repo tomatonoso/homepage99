@@ -1555,6 +1555,7 @@
        <script>
            // モーダルを開く共通関数
 function openModal(modalId) {
+    alert("関数が呼ばれました！ ID: " + modalId);
     const modal = document.getElementById(modalId);
     if (modal) {
    modal.style.display = 'flex';
