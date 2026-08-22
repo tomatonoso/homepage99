@@ -694,7 +694,8 @@
             <!-- （※同様のカードが最大10件並ぶ想定） -->
 
             <!-- 一番右に現れる「全て」ボタン（購入者投稿・一覧ページへ飛ぶ） -->
-            <div style="min-width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8f9fa; border-radius: var(--radius); cursor: pointer; border: 1px dashed #ccc; transition: background 0.2s;" onclick="location.href='buyer-requests.html' /* 実際のページURLに変更してください */">
+          <!-- 一番右に現れる「全て」ボタン（モーダルを開く） -->
+            <div style="min-width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8f9fa; border-radius: var(--radius); cursor: pointer; border: 1px dashed #ccc; transition: background 0.2s;" onclick="openModal('request-list-modal')">>
                 <i class="fa-solid fa-circle-arrow-right" style="font-size: 1.8rem; color: var(--brand-red); margin-bottom: 8px;"></i>
                 <span style="font-size: 0.9rem; font-weight: bold; color: var(--text-dark);">全て見る</span>
             </div>
@@ -940,7 +941,21 @@
         </div>
     </div>
     <!-- ▲ 追加：逆出品（購入リクエスト）投稿モーダル ▲ -->
+           </div>
+       </div>
+       <!-- ▲ 追加：逆出品（購入リクエスト）投稿モーダル ▲ -->
 
+　       <!-- ▼ ここから追加：逆出品（購入リクエスト）一覧モーダル ▼ -->
+         <div id="request-list-modal" class="modal-panel">
+             <div class="modal-content">
+                 <span class="close-modal" onclick="closeModal('request-list-modal')">&times;</span>
+                 <h2><i class="fa-solid fa-list" style="color: var(--brand-red);"></i> 購入リクエスト一覧</h2>
+                 
+                 <!-- （中略：先ほどお渡しした一覧モーダルの残りのコード） -->
+
+             </div>
+         </div>
+         <!-- ▲ 追加：逆出品（購入リクエスト）一覧モーダル ▲ -->
     <!-- MODAL 1: 購入手続き -->
     <div id="checkout-modal" class="modal-panel">
         <div class="modal-content">
