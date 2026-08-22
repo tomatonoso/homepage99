@@ -667,16 +667,43 @@
             </div>
         </div>
 
-        <!-- Product List -->
+      <!-- Product List -->
         <div class="section-header">
             <span>おすすめ・登録商品一覧</span>
         </div>
 
-        <div class="product-grid" id="main-product-grid">
+        <div class="product-grid" id="main-product-grid" style="margin-bottom: 40px;">
             <!-- Dynamic Cards -->
         </div>
 
+        <!-- ▼ 追加：逆出品（購入リクエスト）エリア ▼ -->
+        <div class="section-header">
+            <span>購入リクエスト（逆出品一覧）</span>
+            <button class="btn-outline" onclick="openRequestModal()"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
+        </div>
+
+        <!-- 10個まで表示し、横スクロールで一番右に全てボタンを配置 -->
+        <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;" id="buyer-requests-scroll">
+            
+            <!-- ※以下は動的に生成される想定のリクエストカードのHTML例です（最大10個） -->
+            <div style="min-width: 220px; background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color);">
+                <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥5,000</span></div>
+                <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">〇〇の限定フィギュア探しています</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">箱無しでも構いません。傷が少ないものを希望します。</div>
+            </div>
+            <!-- （※同様のカードが最大10件並ぶ想定） -->
+
+            <!-- 一番右に現れる「全て」ボタン（購入者投稿・一覧ページへ飛ぶ） -->
+            <div style="min-width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8f9fa; border-radius: var(--radius); cursor: pointer; border: 1px dashed #ccc; transition: background 0.2s;" onclick="location.href='buyer-requests.html' /* 実際のページURLに変更してください */">
+                <i class="fa-solid fa-circle-arrow-right" style="font-size: 1.8rem; color: var(--brand-red); margin-bottom: 8px;"></i>
+                <span style="font-size: 0.9rem; font-weight: bold; color: var(--text-dark);">全て見る</span>
+            </div>
+        </div>
+        <!-- ▲ 追加：逆出品（購入リクエスト）エリア ▲ -->
+
     </div>
+
+    <!-- Floating Sell Button -->
 
     <!-- Floating Sell Button -->
     <button class="floating-sell-btn" onclick="openSellerModal()">
@@ -888,7 +915,36 @@
         </div>
     </div>
 
+<!-- ▼ 追加：逆出品（購入リクエスト）投稿モーダル ▼ -->
+    <div id="request-post-modal" class="modal-panel">
+        <div class="modal-content modal-content-sm">
+            <span class="close-modal" onclick="closeModal('request-post-modal')">&times;</span>
+            <h2><i class="fa-solid fa-hand-holding-dollar" style="color: var(--brand-red);"></i> 購入リクエストを投稿</h2>
+            <hr style="margin: 15px 0;">
 
+            <form id="buyer-request-form" onsubmit="submitBuyerRequest(event)">
+                <div class="form-group">
+                    <label>探している商品名 <span style="color:red;">*</span></label>
+                    <input type="text" id="req-title" class="form-control" required placeholder="例: 〇〇ブランドのMサイズシャツ">
+                </div>
+                <div class="form-group">
+                    <label>希望予算 (円) <span style="color:red;">*</span></label>
+                    <input type="number" id="req-budget" class="form-control" required placeholder="5000" min="300">
+                </div>
+                <div class="form-group">
+                    <label>詳細な希望条件 <span style="color:red;">*</span></label>
+                    <textarea id="req-desc" class="form-control" required placeholder="商品の状態、色、付属品の有無など、出品者に伝えたい条件をご記入ください" style="min-height: 100px;"></textarea>
+                </div>
+                <button type="submit" class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem; margin-top: 15px;">リクエストを投稿する</button>
+            </form>
+        </div>
+    </div>
+    <!-- ▲ 追加：逆出品（購入リクエスト）投稿モーダル ▲ -->
+
+    <!-- MODAL 1: 購入手続き -->
+    <div id="checkout-modal" class="modal-panel">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('checkout-modal')">&times;</span>
     <!-- MODAL 1: 購入手続き -->
     <div id="checkout-modal" class="modal-panel">
         <div class="modal-content">
@@ -2147,7 +2203,7 @@
             document.getElementById('out-total-price').innerText = `¥${totalPrice.toLocaleString()}`;
         }
 
-        function openModal(id) {
+      function openModal(id) {
             if (id === 'tokusho-modal') document.getElementById('view-tokusho-content').innerText = siteSettings.tokusho;
             if (id === 'privacy-modal') document.getElementById('view-privacy-content').innerText = siteSettings.privacy;
             const target = document.getElementById(id);
@@ -2158,6 +2214,35 @@
             const target = document.getElementById(id);
             if (target) target.style.display = 'none'; 
         }
+
+        // ▼ 追加：逆出品（購入リクエスト）の機能制御 ▼
+        function openRequestModal() {
+            // 購入者がログインしているか判定
+            if (!currentBuyerUser) {
+                alert("リクエストを投稿するにはログインが必要です。");
+                openModal('buyer-auth-modal'); // 未ログイン時はログインモーダルを開く
+                return;
+            }
+            // ログイン済みなら投稿モーダルを開く
+            openModal('request-post-modal');
+        }
+
+        function submitBuyerRequest(e) {
+            e.preventDefault();
+            
+            // フォームの値を取得
+            const title = document.getElementById('req-title').value;
+            const budget = document.getElementById('req-budget').value;
+            const desc = document.getElementById('req-desc').value;
+
+            // GASやFirebase等へデータ送信する処理をここに記述します
+            console.log("投稿データ:", { title, budget, desc });
+
+            alert("購入リクエストを投稿しました！");
+            document.getElementById('buyer-request-form').reset();
+            closeModal('request-post-modal');
+        }
+        // ▲ 追加：逆出品（購入リクエスト）の機能制御 ▲
 
         function openSellerModal() {
             if (savedSellerProfile) {
