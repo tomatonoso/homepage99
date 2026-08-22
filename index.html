@@ -2594,7 +2594,15 @@ function submitBuyerRequest(e) {
         }
         openModal(modalId);
     }
+// 運営管理ボタン用
+        function tryOpenAdmin() {
+            openModal('admin-modal'); // または対応する管理者のモーダルID
+        }
 
+        // 出品者登録・出品ボタン用
+        function openSellerModal() {
+            openModal('seller-modal'); // または対応する出品のモーダルID
+        }
 </script>
 </body>
 </html>
