@@ -2515,12 +2515,10 @@ function submitBuyerRequest(e) {
             toggleAuthMode();
         }
 
-        function tryOpenAdmin() {
-            if (currentAdmin) {
-                openModal('admin-modal');
-            } else {
-                openModal('admin-login-modal');
-            }
+      function tryOpenAdmin() {
+    // とにかく直接ログインモーダルを開く
+    openModal('admin-login-modal');
+}
         }
 
         function handleAdminLogin(e) {
