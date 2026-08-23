@@ -2716,6 +2716,51 @@ document.addEventListener('submit', function(e) {
         chatsList.prepend(newItem);
     }
 });
+// --- 交渉ルームの送信内容をマイページ（出品者とのメール）に反映する処理 ---
+document.addEventListener('click', function(e) {
+    // 送信ボタン（「送信」テキストが含まれるボタン）が押されたか判定
+    const sendBtn = e.target.closest('button');
+    if (!sendBtn || !sendBtn.innerText.includes('送信')) return;
+
+    // 交渉ルーム内の入力エリア（textarea または input）を探す
+    const modal = sendBtn.closest('.modal, [id*="modal"]');
+    if (!modal) return;
+
+    const inputArea = modal.querySelector('input[type="text"], textarea');
+    if (!inputArea || !inputArea.value.trim()) return;
+
+    const messageText = inputArea.value.trim();
+
+    // モーダルのタイトル（「〇〇の限定フィギュア」など）を取得
+    const titleElement = modal.querySelector('h2, h3, .modal-title');
+    const roomTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : 'お問い合わせ';
+
+    // マイページのメッセージリスト（id="mypage-chats-list"）を取得
+    const chatsList = document.getElementById('mypage-chats-list');
+
+    if (chatsList) {
+        // 初期表示メッセージをクリア
+        if (chatsList.innerText.includes('履歴はありません')) {
+            chatsList.innerHTML = '';
+        }
+
+        // マイページに追加する要素を作成
+        const newItem = document.createElement('div');
+        newItem.style.cssText = "padding: 12px; border-bottom: 1px solid #eee; margin-bottom: 8px; background: #fafafa; border-radius: 6px;";
+        newItem.innerHTML = `
+            <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">
+                ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+            </div>
+            <div style="font-weight: bold; font-size: 0.9rem; color: #333; margin-bottom: 4px;">${roomTitle}</div>
+            <div style="font-size: 0.85rem; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                最新メッセージ: ${messageText}
+            </div>
+        `;
+
+        // リストの最上部に挿入
+        chatsList.prepend(newItem);
+    }
+}, true);
 </script>
 </body>
 </html>
