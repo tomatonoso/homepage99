@@ -2670,9 +2670,14 @@ function tryOpenRequestModal() {
     }
 }
 // ▲ ここまで追記 ▲
-// 未ログイン時にマイページやチャットのモーダルを開こうとしたら自動でブロックする処理
+// 未ログイン時にマイページやチャットを開こうとしたら自動でブロックする処理（閉じるボタン除外版）
 document.addEventListener('click', function(e) {
-    // クリックされた要素またはその親要素を取得
+    // ×ボタンや「閉じる」処理（closeModal）が含まれる要素をクリックした場合は除外する
+    if (e.target.closest('[onclick*="closeModal"], .close, .modal-close')) {
+        return;
+    }
+
+    // マイページやチャットを開く要素をクリックしたか判定
     const target = e.target.closest('[onclick*="buyer-mypage-modal"], [onclick*="buyer-chat-modal"]');
     
     if (target && !isBuyerLoggedIn) {
