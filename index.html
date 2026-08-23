@@ -615,8 +615,8 @@
             </div>
 
             <button class="btn-outline" onclick="openModal('inquiry-modal')"><i class="fa-solid fa-headset"></i> お問合せ</button>
-        <button class="btn-outline" onclick="tryOpenAdmin()" style="position: relative; z-index: 99999; pointer-events: auto;"><i class="fa-solid fa-gear"></i> 運営管理</button>
-<button class="btn-red-sm" onclick="openSellerModal()" style="position: relative; z-index: 99999; pointer-events: auto;">出品者登録・出品</button>
+<button class="btn-outline" onclick="tryOpenAdmin()"><i class="fa-solid fa-gear"></i> 運営管理</button>
+<button class="btn-red-sm" onclick="openSellerModal()">出品者登録・出品</button>
         </div>
     </header>
 
@@ -2613,23 +2613,14 @@ function submitBuyerRequest(e) {
     }
 // 運営管理ボタン用
         function tryOpenAdmin() {
-            openModal('admin-modal'); // または対応する管理者のモーダルID
+            openModal('admin-login-modal'); // または対応する管理者のモーダルID
         }
 
         // 出品者登録・出品ボタン用
         function openSellerModal() {
             openModal('seller-modal'); // または対応する出品のモーダルID
         }
- // 運営管理ボタン用
-        function tryOpenAdmin() {
-            openModal('admin-modal'); // または対応する管理者のモーダルID
-        }
-
-        // 出品者登録・出品ボタン用
-        function openSellerModal() {
-            openModal('seller-modal'); // または対応する出品のモーダルID
-        }
-
+ 
         // ▼ ここに先ほどの確実なクリック処理を追加する
         document.addEventListener("DOMContentLoaded", function() {
             const adminBtn = document.querySelector("button[onclick*='tryOpenAdmin'], button[onclick*='admin-modal']");
