@@ -2568,7 +2568,23 @@ function submitBuyerRequest(e) {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             if (!message) return;
-
+// ▼ 2571行目に追加 ▼
+    // マイページ（出品者とのメール）へ最新メッセージを反映
+    const chatsList = document.getElementById('mypage-chats-list');
+    if (chatsList) {
+        if (chatsList.innerText.includes('履歴はありません')) {
+            chatsList.innerHTML = '';
+        }
+        const newItem = document.createElement('div');
+        newItem.style.cssText = "padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 8px; background: #f9f9f9; border-radius: 6px;";
+        newItem.innerHTML = `
+            <div style="font-size: 0.75rem; color: #888;">${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+            <div style="font-weight: bold; font-size: 0.9rem; margin: 2px 0;">交渉ルーム（〇〇の限定フィギュア）</div>
+            <div style="font-size: 0.85rem; color: #444;">最新: ${message}</div>
+        `;
+        chatsList.prepend(newItem);
+    }
+// ▲ ここまで追加 ▲
             const chatMessages = document.getElementById('chat-messages');
             
             // 自分のメッセージを画面に疑似的に追加
