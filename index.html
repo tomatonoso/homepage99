@@ -680,7 +680,7 @@
         <!-- ▼ 追加：逆出品（購入リクエスト）エリア ▼ -->
         <div class="section-header">
             <span>購入リクエスト（逆出品一覧）</span>
-    <button class="btn-outline" onclick="tryOpenRequestModal()"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
+       <button class="btn-outline" onclick="openRequestModal()"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
         </div>
 
      <!-- 10個まで表示し、横スクロールで一番右に全てボタンを配置 -->
@@ -2611,57 +2611,24 @@ function submitBuyerRequest(e) {
         }
         openModal(modalId);
     }
-// --- 商品表示・検索用関数 ---
-function filterProducts() {
-    const searchInput = document.getElementById('search-input');
-    const keyword = searchInput ? searchInput.value.toLowerCase() : '';
-    const cards = document.querySelectorAll('.product-card');
-
-    cards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        if (text.includes(keyword)) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
+// 運営管理ボタン用
+        function tryOpenAdmin() {
+            openModal('admin-login-modal'); // または対応する管理者のモーダルID
         }
-    });
-}
 
-// --- 運営管理ボタン用 ---
-function tryOpenAdmin() {
-    openModal('admin-login-modal');
-}
-
-// --- 出品者登録・出品ボタン用 ---
-function openSellerModal() {
-    openModal('seller-modal');
-}
-
-// --- 購入者ログイン判定・リクエスト投稿用 ---
-let isBuyerLoggedIn = false; // 購入者のログイン状態（初期値: 未ログイン）
-
-function tryOpenRequestModal() {
-    if (isBuyerLoggedIn) {
-        openModal('request-modal'); // ログイン済ならリクエスト投稿を開く
-    } else {
-        alert('リクエストの投稿には購入者ログインが必要です。');
-        openModal('buyer-auth-modal'); // 未ログインなら購入者ログイン画面を開く
-    }
-}
-function tryOpenRequestModal() {
-    if (isBuyerLoggedIn) {
-        openModal('request-modal'); // ログイン済ならリクエスト投稿モーダルを開く
-    } else {
-        alert('リクエストの投稿には購入者ログインが必要です。');
-        openModal('buyer-auth-modal'); // 未ログインなら購入者ログイン画面を開く
-    }
-}
-// ▲ ここまで追加 ▲
-
-// 2619行目〜（出品者登録・出品ボタン用）
-function openSellerModal() {
-    openModal('seller-modal');
-}
+        // 出品者登録・出品ボタン用
+        function openSellerModal() {
+            openModal('seller-modal'); // または対応する出品のモーダルID
+        }
+ 
+        // ▼ ここに先ほどの確実なクリック処理を追加する
+        document.addEventListener("DOMContentLoaded", function() {
+            const adminBtn = document.querySelector("button[onclick*='tryOpenAdmin'], button[onclick*='admin-modal']");
+            if (adminBtn) {
+                adminBtn.addEventListener("click", function() {
+                    openModal('admin-modal');
+                });
+            }
 
             const sellerBtn = document.querySelector("button[onclick*='openSellerModal']");
             if (sellerBtn) {
