@@ -2687,6 +2687,35 @@ document.addEventListener('click', function(e) {
         openModal('buyer-auth-modal');
     }
 }, true);
+// --- 購入リクエスト送信時にマイページへ自動追加する処理 ---
+document.addEventListener('submit', function(e) {
+    // フォーム送信（またはリクエスト投稿）が行われたとき
+    const form = e.target;
+    
+    // 入力されたタイトルや価格を取得（入力欄を探す）
+    const titleInput = form.querySelector('input[type="text"], textarea');
+    const priceInput = form.querySelector('input[type="number"]');
+    
+    const titleVal = titleInput ? titleInput.value : '購入リクエスト';
+    const priceVal = priceInput ? priceInput.value : '';
+
+    // マイページの送信済みリスト（id="mypage-chats-list"）を取得
+    const chatsList = document.getElementById('mypage-chats-list');
+
+    if (chatsList) {
+        // リストに追加するHTMLを作成
+        const newItem = document.createElement('div');
+        newItem.style.cssText = "padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 8px;";
+        newItem.innerHTML = `
+            <div style="font-size: 0.8rem; color: #888;">${new Date().toLocaleDateString()} 送信済み</div>
+            <div style="font-weight: bold; font-size: 0.95rem;">${titleVal}</div>
+            ${priceVal ? `<div style="font-size: 0.85rem; color: #e60012;">予算: ¥${priceVal}</div>` : ''}
+        `;
+
+        // マイページの先頭に追加
+        chatsList.prepend(newItem);
+    }
+});
 </script>
 </body>
 </html>
