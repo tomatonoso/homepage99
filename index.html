@@ -2670,7 +2670,18 @@ function tryOpenRequestModal() {
     }
 }
 // ▲ ここまで追記 ▲
-
+// 未ログイン時にマイページやチャットのモーダルを開こうとしたら自動でブロックする処理
+document.addEventListener('click', function(e) {
+    // クリックされた要素またはその親要素を取得
+    const target = e.target.closest('[onclick*="buyer-mypage-modal"], [onclick*="buyer-chat-modal"]');
+    
+    if (target && !isBuyerLoggedIn) {
+        e.stopPropagation();
+        e.preventDefault();
+        alert('マイページやメッセージ機能の利用には購入者ログインが必要です。');
+        openModal('buyer-auth-modal');
+    }
+}, true);
 </script>
 </body>
 </html>
