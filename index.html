@@ -680,7 +680,7 @@
         <!-- ▼ 追加：逆出品（購入リクエスト）エリア ▼ -->
         <div class="section-header">
             <span>購入リクエスト（逆出品一覧）</span>
-       <button class="btn-outline" onclick="openRequestModal()"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
+       <button class="btn-outline" tryOpenRequestModal()="openRequestModal()"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
         </div>
 
      <!-- 10個まで表示し、横スクロールで一番右に全てボタンを配置 -->
@@ -2655,8 +2655,22 @@ document.addEventListener('click', function(e) {
         openSellerModal();
         return;
     }
-}, true); // 第3引数の true がキモ（イベントの最上流でキャッチする）
-    </script>         
+// 2658行目：
+    }, true); // 第3引数の true がキモ（イベントの最上流でキャッチする）
+
+// ▼ ここから追記（購入者ログイン判定・リクエスト投稿制御） ▼
+let isBuyerLoggedIn = false; // 初期状態：未ログイン
+
+function tryOpenRequestModal() {
+    if (isBuyerLoggedIn) {
+        openModal('request-modal'); 
+    } else {
+        alert('リクエストの投稿には購入者ログインが必要です。');
+        openModal('buyer-auth-modal');
+    }
+}
+// ▲ ここまで追記 ▲
+
 </script>
 </body>
 </html>
