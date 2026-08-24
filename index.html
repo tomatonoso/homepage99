@@ -3178,9 +3178,19 @@ const shipping = shippingEl ? shippingEl.value : '配送';
     };
 
     // 配列データ（productsList）の先頭に追加
-    if (typeof productsList !== 'undefined') {
-        productsList.unshift(newProduct);
-    }
+   if (typeof productsList !== 'undefined') {
+    const newProduct = {
+        id: newProdId,
+        name: name,
+        price: price,
+        description: desc,
+        shipping: shipping,
+        category: category,
+        image: imgSrc,
+        seller: '出品者'
+    };
+    productsList.unshift(newProduct);
+}
 
     // 3. 画面（おすすめ・登録商品一覧）へHTMLカードを直接生成して追加
     // ※商品一覧を囲んでいる親要素のIDを指定してください（例: 'product-list' や 'items-container'）
@@ -3289,8 +3299,12 @@ if (adminTableBody) {
         mainGrid.prepend(card);
     }
 
+ // 画面更新を描画させてからアラートを出す
+setTimeout(() => {
     alert('商品を出品しました！');
-    document.getElementById('seller-form').reset();
+    const form = document.getElementById('seller-form');
+    if (form) form.reset();
+}, 50);
 }
 // 1. ページ読み込み時に LocalStorage から商品を復元する処理
 document.addEventListener('DOMContentLoaded', () => {
