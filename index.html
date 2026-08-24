@@ -608,7 +608,28 @@
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span>カート: <strong id="nav-cart-count">0</strong>点</span>
             </div>
+<script>
+// ボタンから呼ばれる関数を最初に完全に定義しておく
+window.openModal = function(id) { 
+    const el = document.getElementById(id); 
+    if(el) el.style.display = 'block'; 
+};
 
+window.tryOpenAdmin = function() { 
+    const adminTab = document.getElementById('admin-tab') || document.querySelector('.admin-section'); 
+    if(adminTab) adminTab.style.display = 'block';
+    else alert('管理画面エリアが見つかりません');
+};
+
+window.openMypageSellTab = function() { 
+    if(typeof openMypageTab === 'function') {
+        openMypageTab('mypage-tab-sell');
+    } else {
+        const target = document.getElementById('mypage-tab-sell');
+        if(target) target.style.display = 'block';
+    }
+};
+</script>
             <!-- 購入者 ログイン / アカウント切り替えボタン -->
             <div id="user-auth-btn-area">
                 <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
