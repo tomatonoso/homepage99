@@ -3223,17 +3223,18 @@ function submitNewProduct(event) {
 
     // 1. 入力値の取得
   // 1. 各入力要素の安全な取得
-const nameEl = document.getElementById('new-prod-name');
-const priceEl = document.getElementById('new-prod-price');
-const descEl = document.getElementById('new-prod-desc');
-const shippingEl = document.getElementById('new-prod-shipping');
+// 1. 各入力要素の安全な取得（constを外し、すでに上にある前提で代入に直す）
+nameEl = document.getElementById('new-prod-name');
+priceEl = document.getElementById('new-prod-price');
+descEl = document.getElementById('new-prod-desc');
+shippingEl = document.getElementById('new-prod-shipping');
 
 // エラーで途中で止まらないよう安全に値を取り出す
 const name = nameEl ? nameEl.value : '';
 const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
 const desc = descEl ? descEl.value : '';
 const shipping = shippingEl ? shippingEl.value : '配送';
-    const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
+const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
     
     const imgPreview = document.getElementById('img-preview');
     const imgSrc = (imgPreview && imgPreview.src) ? imgPreview.src : '';
