@@ -3217,6 +3217,62 @@ function submitNewProduct(event) {
     alert('商品を出品しました！');
     document.getElementById('seller-form').reset();
 }
+// 1. ページ読み込み時に LocalStorage から商品を復元する処理
+document.addEventListener('DOMContentLoaded', () => {
+    const savedProducts = localStorage.getItem('my_products_list');
+    if (savedProducts) {
+        // 保存されていたデータを配列に復元
+        productsList = JSON.parse(savedProducts);
+        // 画面を再描画（※お使いの描画関数を実行）
+        if (typeof renderProducts === 'function') renderProducts();
+    }
+});
+
+// 2. 出品処理（submitNewProduct 内の保存処理）
+function submitNewProduct(event) {
+    event.preventDefault();
+
+    // --- (前回の入力値取得処理) ---
+    const name = document.getElementById('new-prod-name').value;
+    const price = parseInt(document.getElementById('new-prod-price').value, 10);
+    const desc = document.getElementById('new-prod-desc').value;
+    const shipping = document.getElementById('new-prod-shipping').value;
+    const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
+    const imgPreview = document.getElementById('img-preview');
+    const imgSrc = (imgPreview && imgPreview.src) ? imgPreview.src : '';
+
+    const newProdId = 'prod_' + Date.now();
+    const newProduct = {
+        id: newProdId,
+        name: name,
+        price: price,
+        description: desc,
+        shipping: shipping,
+        category: category,
+        image: imgSrc,
+        seller: '出品者',
+        views: 0,
+        likes: 0
+    };
+
+    // 配列の先頭に追加
+    productsList.unshift(newProduct);
+
+    // ★ LocalStorage に配列全体を保存 ★
+    localStorage.setItem('my_products_list', JSON.stringify(productsList));
+
+    // 画面にカードを追加する処理
+    const container = document.getElementById('product-list') || document.querySelector('.product-grid');
+    if (container) {
+        // （※前回のカード生成処理を実行）
+        if (typeof renderProducts === 'function') {
+            renderProducts(); // 全体を再描画するか、Directにprependする
+        }
+    }
+
+    alert('商品を出品しました！（再起動しても保持されます）');
+    document.getElementById('seller-form').reset();
+}
 </script>
 </body>
 </html>
