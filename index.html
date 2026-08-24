@@ -732,10 +732,11 @@
             <hr style="margin: 15px 0;">
 
             <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
-                <button class="admin-tab-btn active" onclick="switchMypageTab(event, 'mypage-tab-chats')"><i class="fa-solid fa-comments"></i> 出品者とのメール (チャット)</button>
-                <button class="admin-tab-btn" onclick="switchMypageTab(event, 'mypage-tab-cart')"><i class="fa-solid fa-cart-shopping"></i> カートの確認</button>
-                <button class="admin-tab-btn" onclick="switchMypageTab(event, 'mypage-tab-favs')"><i class="fa-solid fa-heart"></i> 保存商品 (お気に入り)</button>
-                <button class="admin-tab-btn" onclick="switchMypageTab(event, 'mypage-tab-sell')"><i class="fa-solid fa-box-open"></i> 出品する</button>
+               <!-- タブボタンの記述例 -->
+<button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-chat', this)">メール (チャット)</button>
+<button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">カートの確認</button>
+<button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-fav', this)">保存商品 (お気に入り)</button>
+<button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-sell', this)">出品する</button>
             </div>
 
             <!-- TAB 1: メール・チャット履歴 -->
@@ -3108,6 +3109,32 @@ function switchMyTab(tabId) {
     const sellBtn = document.querySelector('.admin-tab-btn[onclick*="mypage-tab-sell"]');
     if (sellBtn) {
         sellBtn.classList.add('active');
+    }
+}
+function openMypageTab(tabId, element) {
+    // 1. 全てのタブコンテンツ（.admin-tab-content または .tab-content）を非表示にする
+    const contents = document.querySelectorAll('.admin-tab-content');
+    contents.forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+    });
+
+    // 2. 全てのタブボタンの active スタイルを解除する
+    const buttons = document.querySelectorAll('.admin-tab-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // 3. 押されたタブ（tabId）だけを表示する
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+        targetTab.classList.add('active');
+    }
+
+    // 4. クリックされたボタンを active にする
+    if (element) {
+        element.classList.add('active');
     }
 }
 </script>
