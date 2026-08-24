@@ -616,7 +616,7 @@
 
             <button class="btn-outline" onclick="openModal('inquiry-modal')"><i class="fa-solid fa-headset"></i> お問合せ</button>
 <button class="btn-outline" onclick="tryOpenAdmin()"><i class="fa-solid fa-gear"></i> 運営管理</button>
-<button class="btn-red-sm" onclick="openSellerModal()">出品者登録・出品</button>
+<button class="btn-red-sm" onclick="openMypageSellTab()">出品者登録・出品</button>
         </div>
     </header>
 
@@ -3050,6 +3050,31 @@ function switchMyTab(tabId) {
     document.getElementById(tabId)?.classList.add('active');
     event.currentTarget.classList.add('active');
 }
+<script>
+  // 〜 既存のJavaScript処理 〜
+
+  // ▼ ここに追加します ▼
+  function openMypageSellTab() {
+      // 1. 購入者マイページのモーダルを開く
+      openModal('buyer-mypage-modal');
+
+      // 2. マイページ内のすべてのタブコンテンツとボタンのアクティブ状態を解除
+      document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.admin-tab-btn').forEach(el => el.classList.remove('active'));
+
+      // 3. 「出品する」タブコンテンツをアクティブ化
+      const sellTab = document.getElementById('mypage-tab-sell');
+      if (sellTab) {
+          sellTab.classList.add('active');
+      }
+
+      // 4. 「出品する」タブボタンをアクティブ化
+      const sellBtn = document.querySelector('.admin-tab-btn[onclick*="mypage-tab-sell"]');
+      if (sellBtn) {
+          sellBtn.classList.add('active');
+      }
+  }
+</script>
 </script>
 </body>
 </html>
