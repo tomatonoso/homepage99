@@ -2773,17 +2773,16 @@ window.startStripeCheckout = async function(title, price) {
      // ▼ 2773行目の修正例（通常出品で使っているパスに合わせて書き換えます）
 // ▼ GASへのPOST送信（CORS回避対応）
 const response = await fetch('https://script.google.com/macros/s/AKfycbwumbQImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktVDMrZbGFRLAFX/exec', {
-    method: 'POST',
-    // headers: { 'Content-Type': '...' } はあえて指定しないか、以下のように指定します
-    headers: {
-        'Content-Type': 'text/plain;charset=utf-8',
-    },
-    body: JSON.stringify({
-        price: price,
-        productName: productName,
-        sellerAccountId: 'acct_1xxxxxxxxx'
-    })
-});
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify({
+                price: price,
+                productName: productName,
+                sellerAccountId: 'acct_1xxxxxxxxx' // ← カンマや構文エラーを解消
+            })
+        });
 
 const data = await response.json();
 });
