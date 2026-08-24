@@ -2637,7 +2637,16 @@ function sendPriceOffer() {
         return;
     }
 
-    const chatBox = document.getElementById('chat-messages-container') || document.querySelector('.chat-messages'); // お使いのチャットログ要素のID/クラス
+ // 2640行目: チャット領域を確実に取得する処理に置き換え
+const chatBox = document.getElementById('chat-messages-container') 
+             || document.getElementById('chat-messages') 
+             || document.getElementById('chat-log')
+             || document.querySelector('.chat-messages')
+             || (document.getElementById('chat-input') ? document.getElementById('chat-input').closest('div[style*="flex-direction"]').previousElementSibling : null);
+
+const modal = document.getElementById('private-chat-modal');
+const titleElement = modal ? modal.querySelector('h2') : null;
+const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
     const modal = document.getElementById('private-chat-modal');
     const titleElement = modal ? modal.querySelector('h2') : null;
     const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
