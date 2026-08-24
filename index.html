@@ -3225,8 +3225,8 @@ function submitNewProduct(event) {
   // 1. 各入力要素の安全な取得
 // 1. 各入力要素の安全な取得（constを外し、すでに上にある前提で代入に直す）
 // 3227行目付近の該当部分をこのように書き換えます
-let nameEl = document.getElementById('new-prod-name');
-let priceEl = document.getElementById('new-prod-price');
+nameEl = document.getElementById('new-prod-name');
+priceEl = document.getElementById('new-prod-price');
 let descEl = document.getElementById('new-prod-desc');
 let shippingEl = document.getElementById('new-prod-shipping');
 // エラーで途中で止まらないよう安全に値を取り出す
