@@ -3177,7 +3177,7 @@ function submitNewProduct(event) {
 
     // 3. 画面（おすすめ・登録商品一覧）へHTMLカードを直接生成して追加
     // ※商品一覧を囲んでいる親要素のIDを指定してください（例: 'product-list' や 'items-container'）
-    const container = document.getElementById('product-list') || document.querySelector('.product-grid');
+   const container = document.getElementById('main-product-grid') || document.querySelector('.product-grid');
 
     if (container) {
         const card = document.createElement('div');
