@@ -3142,6 +3142,51 @@ function openMypageTab(tabId, element) {
         element.classList.add('active');
     }
 }
+function submitNewProduct(event) {
+    event.preventDefault();
+
+    // 入力値の取得
+    const name = document.getElementById('new-prod-name').value;
+    const price = parseInt(document.getElementById('new-prod-price').value, 10);
+    const desc = document.getElementById('new-prod-desc').value;
+    const shipping = document.getElementById('new-prod-shipping').value;
+    const sellerName = document.getElementById('seller-name-input').value;
+    
+    // 画像プレビューの取得
+    const imgPreview = document.getElementById('img-preview');
+    const imgSrc = (imgPreview && imgPreview.src) ? imgPreview.src : '';
+
+    // 新規商品のデータオブジェクト作成
+    const newProduct = {
+        id: 'prod_' + Date.now(), // ユニークIDを発行
+        name: name,
+        price: price,
+        description: desc,
+        shipping: shipping,
+        seller: sellerName || '新規出品者',
+        category: 'その他',
+        image: imgSrc
+    };
+
+    // 1. 商品配列データ（productsList）の先頭に追加
+    if (typeof productsList !== 'undefined') {
+        productsList.unshift(newProduct);
+    }
+
+    // 2. 画面上の商品一覧表示（レンダリング関数）を再実行
+    if (typeof renderProducts === 'function') {
+        renderProducts();
+    } else if (typeof displayProducts === 'function') {
+        displayProducts();
+    }
+
+    alert('商品を出品しました！');
+
+    // フォームの初期化とモーダル/タブの調整
+    document.getElementById('seller-form').reset();
+    const previewBox = document.getElementById('img-preview-box');
+    if (previewBox) previewBox.style.display = 'none';
+}
 </script>
 </body>
 </html>
