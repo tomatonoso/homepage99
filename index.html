@@ -2631,8 +2631,8 @@ function sendChatMessage() {
     // ... 既存のメッセージ送信処理 ...
 }
 
-// ▼ 提案者が金額を提示する処理
-function sendPriceOffer() {
+// ▼ 提案者が金額を提示する処理（windowに直接登録）
+window.sendPriceOffer = function() {
     const priceInput = document.getElementById('offer-price-input');
     if (!priceInput || !priceInput.value) {
         alert('提示する金額を入力してください。');
@@ -2660,7 +2660,7 @@ function sendPriceOffer() {
             <div style="font-size: 0.85rem; color: #2e7d32; font-weight: bold;">🤝 条件が提示されました</div>
             <div style="font-size: 1.1rem; font-weight: bold; margin: 5px 0; color: #1b5e20;">${itemTitle}</div>
             <div style="font-size: 1.3rem; font-weight: bold; color: #d32f2f;">金額: ¥${offerPrice.toLocaleString()}</div>
-            <button onclick="openCheckoutWithOffer('${itemTitle}', ${offerPrice})" style="margin-top: 10px; width: 100%; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+            <button onclick="window.openCheckoutWithOffer('${itemTitle}', ${offerPrice})" style="margin-top: 10px; width: 100%; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
                 <i class="fa-solid fa-credit-card"></i> この条件（¥${offerPrice.toLocaleString()}）で購入手続きへ進む
             </button>
         </div>
@@ -2676,13 +2676,28 @@ function sendPriceOffer() {
     }
 
     priceInput.value = '';
-}
+};
 
 // ▼ 提示された金額で購入手続き（配送先入力モーダル）を開く処理
-function openCheckoutWithOffer(title, price) {
+window.openCheckoutWithOffer = function(title, price) {
     const privateModal = document.getElementById('private-chat-modal');
     if (privateModal) privateModal.style.display = 'none';
 
+    const selectedItemEl = document.getElementById('checkout-item-name');
+    const priceEl = document.getElementById('checkout-item-price');
+    const totalEl = document.getElementById('checkout-total-price');
+
+    if (selectedItemEl) selectedItemEl.innerText = title;
+    if (priceEl) priceEl.innerText = '¥' + price.toLocaleString();
+    if (totalEl) totalEl.innerText = '¥' + price.toLocaleString();
+
+    const checkoutModal = document.getElementById('checkout-modal') || document.getElementById('buy-modal');
+    if (checkoutModal) {
+        checkoutModal.style.display = 'block';
+    } else {
+        alert('購入手続き画面を開けませんでした。');
+    }
+};
     const selectedItemEl = document.getElementById('checkout-item-name');
     const priceEl = document.getElementById('checkout-item-price');
     const totalEl = document.getElementById('checkout-total-price');
