@@ -3054,26 +3054,40 @@ function switchMyTab(tabId) {
   // 〜 既存のJavaScript処理 〜
 
   // ▼ ここに追加します ▼
-  function openMypageSellTab() {
-      // 1. 購入者マイページのモーダルを開く
-      openModal('buyer-mypage-modal');
+ function openMypageSellTab() {
+    // 1. 購入者マイページのモーダルを開く
+    if (typeof openModal === 'function') {
+        openModal('buyer-mypage-modal');
+    } else {
+        const modal = document.getElementById('buyer-mypage-modal');
+        if (modal) {
+            modal.classList.add('active');
+            modal.style.display = 'block';
+        }
+    }
 
-      // 2. マイページ内のすべてのタブコンテンツとボタンのアクティブ状態を解除
-      document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.admin-tab-btn').forEach(el => el.classList.remove('active'));
+    // 2. マイページ内のすべてのタブコンテンツとボタンのアクティブ状態を解除・非表示
+    document.querySelectorAll('#buyer-mypage-modal .admin-tab-content').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none'; // ★明示的に非表示
+    });
+    document.querySelectorAll('#buyer-mypage-modal .admin-tab-btn').forEach(el => {
+        el.classList.remove('active');
+    });
 
-      // 3. 「出品する」タブコンテンツをアクティブ化
-      const sellTab = document.getElementById('mypage-tab-sell');
-      if (sellTab) {
-          sellTab.classList.add('active');
-      }
+    // 3. 「出品する」タブコンテンツをアクティブ化＆表示
+    const sellTab = document.getElementById('mypage-tab-sell');
+    if (sellTab) {
+        sellTab.classList.add('active');
+        sellTab.style.display = 'block'; // ★明示的に表示
+    }
 
-      // 4. 「出品する」タブボタンをアクティブ化
-      const sellBtn = document.querySelector('.admin-tab-btn[onclick*="mypage-tab-sell"]');
-      if (sellBtn) {
-          sellBtn.classList.add('active');
-      }
-  }
+    // 4. 「出品する」タブボタンをアクティブ化
+    const sellBtn = document.querySelector('.admin-tab-btn[onclick*="mypage-tab-sell"]');
+    if (sellBtn) {
+        sellBtn.classList.add('active');
+    }
+}
 </script>
 </body>
 </html>
