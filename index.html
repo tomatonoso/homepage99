@@ -3344,110 +3344,97 @@ setTimeout(() => {
 }, 50);
 }
 // 1. ページ読み込み時に LocalStorage から商品を復元する処理
-document.addEventListener('DOMContentLoaded', () => {
-    const savedProducts = localStorage.getItem('my_products_list');
-    if (savedProducts) {
-        // 保存されていたデータを配列に復元
-        productsList = JSON.parse(savedProducts);
-        // 画面を再描画（※お使いの描画関数を実行）
-        if (typeof renderProducts === 'function') renderProducts();
+<script>
+// --- 1. ページ読み込み時に商品データを自動表示する処理 ---
+document.addEventListener("DOMContentLoaded", function() {
+    let products = JSON.parse(localStorage.getItem('my_products_list')) || (typeof productsList !== 'undefined' ? productsList : []);
+    
+    const container = document.getElementById('main-product-grid') || document.querySelector('.product-grid');
+    if (container && products.length > 0) {
+        container.innerHTML = ''; 
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.style.cssText = 'background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); cursor:pointer; margin-bottom:12px;';
+            card.innerHTML = `
+                <div style="background:#f0f2f5; height:160px; display:flex; align-items:center; justify-content:center; font-weight:bold;">
+                    ${p.image ? `<img src="${p.image}" style="width:100%; height:100%; object-fit:cover;">` : p.name}
+                </div>
+                <div style="padding:10px;">
+                    <div style="font-weight:500; margin-bottom:4px;">${p.name}</div>
+                    <div style="color:#e60012; font-weight:bold;">¥${Number(p.price || 0).toLocaleString()}</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
     }
 });
 
-// 2. 出品処理（submitNewProduct 内の保存処理）
-function submitNewProduct(event) {
-    event.preventDefault();
+// --- 2. 出品ボタンが押されたときの処理 ---
+window.submitNewProduct = function(event) {
+    if (event) event.preventDefault();
 
-    // --- (前回の入力値取得処理) ---
-    const name = document.getElementById('new-prod-name').value;
-    const price = parseInt(document.getElementById('new-prod-price').value, 10);
-    const desc = document.getElementById('new-prod-desc').value;
-    const shipping = document.getElementById('new-prod-shipping').value;
-    const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
-    const imgPreview = document.getElementById('img-preview');
-    const imgSrc = (imgPreview && imgPreview.src) ? imgPreview.src : '';
-
+    const name = document.getElementById('new-prod-name')?.value || '';
+    const price = parseInt(document.getElementById('new-prod-price')?.value, 10) || 0;
+    const desc = document.getElementById('new-prod-desc')?.value || '';
+    const category = document.getElementById('new-prod-category')?.value || 'その他';
     const newProdId = 'prod_' + Date.now();
+
     const newProduct = {
         id: newProdId,
         name: name,
         price: price,
         description: desc,
-        shipping: shipping,
         category: category,
-        image: imgSrc,
-        seller: '出品者',
-        views: 0,
-        likes: 0
+        seller: '出品者'
     };
 
-    // 配列の先頭に追加
-    productsList.unshift(newProduct);
+    let products = JSON.parse(localStorage.getItem('my_products_list')) || [];
+    products.unshift(newProduct);
+    localStorage.setItem('my_products_list', JSON.stringify(products));
 
-    // ★ LocalStorage に配列全体を保存 ★
-    localStorage.setItem('my_products_list', JSON.stringify(productsList));
+    alert('商品を出品しました！');
+    location.reload(); 
+};
 
-    // 画面にカードを追加する処理
-    const container = document.getElementById('product-list') || document.querySelector('.product-grid');
-    if (container) {
-        // （※前回のカード生成処理を実行）
-        if (typeof renderProducts === 'function') {
-            renderProducts(); // 全体を再描画するか、Directにprependする
-        }
+// --- 3. 運営管理・お問い合わせ・各種ボタンを確実に動かすための共通関数 ---
+window.openModal = function(id) { 
+    const el = document.getElementById(id); 
+    if(el) el.style.display = 'block'; 
+};
+
+window.closeModal = function(id) { 
+    const el = document.getElementById(id); 
+    if(el) el.style.display = 'none'; 
+};
+
+window.tryOpenAdmin = function() { 
+    // 管理画面のコンテナやタブを表示する
+    const adminTab = document.getElementById('admin-tab') || document.querySelector('.admin-section') || document.getElementById('admin-modal'); 
+    if(adminTab) {
+        adminTab.style.display = 'block';
+    } else {
+        alert('管理画面エリアが見つかりません。');
     }
+};
 
-    alert('商品を出品しました！（再起動しても保持されます）');
-    document.getElementById('seller-form').reset();
-}
-           // カテゴリーフィルターを切り替える関数
-function selectCategory(buttonElement, categoryName) {
-    // 1. すべてのチップから active クラスを外す
-    const chips = document.querySelectorAll('.category-scroll .chip');
-    chips.forEach(chip => chip.classList.remove('active'));
-
-    // 2. クリックされたボタンに active クラスを付与する
-    if (buttonElement) {
-        buttonElement.classList.add('active');
+window.openMypageSellTab = function(tabName, el) { 
+    if(typeof openMypageTab === 'function') {
+        openMypageTab(tabName, el);
+    } else {
+        // 代替タブ切り替え処理
+        document.querySelectorAll('.mypage-tab-content').forEach(c => c.style.display = 'none');
+        const target = document.getElementById(tabName);
+        if(target) target.style.display = 'block';
     }
+};
 
-    // 3. 配列からカテゴリーで絞り込んで再描画する処理（productsList がある場合）
-    if (typeof productsList !== 'undefined' && typeof renderProducts === 'function') {
-        // 必要に応じて絞り込み変数を更新して再描画
-        window.currentCategory = categoryName;
-        renderProducts();
-    }
-}
-// 1. カテゴリー選択エラーを解消する関数
-function selectCategory(buttonElement, categoryName) {
-    const chips = document.querySelectorAll('.category-scroll .chip, .chip');
-    chips.forEach(chip => chip.classList.remove('active'));
-    if (buttonElement) {
-        buttonElement.classList.add('active');
-    }
-    window.currentCategory = categoryName;
-    if (typeof renderProducts === 'function') {
-        renderProducts();
-    }
-}
-
-// 2. モーダルを開くエラーを解消する関数
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'block';
-}
-
-// 3. 管理画面を開くエラーを解消する関数
-function tryOpenAdmin() {
-    const adminTab = document.getElementById('admin-tab');
-    if (adminTab) adminTab.style.display = 'block';
-}
-
-// 4. マイページの出品タブを開くエラーを解消する関数
-function openMypageSellTab() {
-    if (typeof openMypageTab === 'function') {
-        openMypageTab('mypage-tab-sell');
-    }
-}
+window.selectCategory = function(btn, cat) { 
+    document.querySelectorAll('.chip, .category-scroll .chip').forEach(c => c.classList.remove('active')); 
+    if(btn) btn.classList.add('active'); 
+    window.currentCategory = cat;
+    if(typeof renderProducts === 'function') renderProducts();
+};
 </script>
 </body>
 </html>
