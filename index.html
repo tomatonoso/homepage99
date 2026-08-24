@@ -2780,45 +2780,22 @@ const response = await fetch('https://script.google.com/macros/s/AKfycbwumbQImy9
             body: JSON.stringify({
                 price: price,
                 productName: productName,
-                sellerAccountId: 'acct_1xxxxxxxxx' // ← カンマや構文エラーを解消
+                sellerAccountId: 'acct_1xxxxxxxxx'
             })
         });
 
-const data = await response.json();
-});
         const data = await response.json();
 
         if (data.url) {
-            // Stripeの決済画面へ自動リダイレクト
             window.location.href = data.url;
         } else {
-            alert('決済ページの作成に失敗しました。');
+            alert('決済ページの作成に失敗しました: ' + (data.error || '詳細不明'));
         }
     } catch (error) {
         console.error('決済エラー:', error);
         alert('通信エラーが発生しました。');
     }
 };
-// ▼ 提示された金額で購入手続き（配送先入力モーダル）を開く処理
-function openCheckoutWithOffer(title, price) {
-    const privateModal = document.getElementById('private-chat-modal');
-    if (privateModal) privateModal.style.display = 'none';
-
-    const selectedItemEl = document.getElementById('checkout-item-name');
-    const priceEl = document.getElementById('checkout-item-price');
-    const totalEl = document.getElementById('checkout-total-price');
-
-    if (selectedItemEl) selectedItemEl.innerText = title;
-    if (priceEl) priceEl.innerText = '¥' + price.toLocaleString();
-    if (totalEl) totalEl.innerText = '¥' + price.toLocaleString();
-
-    const checkoutModal = document.getElementById('checkout-modal') || document.getElementById('buy-modal');
-    if (checkoutModal) {
-        checkoutModal.style.display = 'block';
-    } else {
-        alert('購入手続き画面を開けませんでした。');
-    }
-}
 // ▼ 提示された金額で購入手続き（配送先入力モーダル）を開く処理
 function openCheckoutWithOffer(title, price) {
     const privateModal = document.getElementById('private-chat-modal');
