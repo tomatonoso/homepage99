@@ -629,6 +629,19 @@ window.openMypageSellTab = function() {
         if(target) target.style.display = 'block';
     }
 };
+// 買い手認証処理
+window.handleBuyerAuth = function(event) {
+    if (event) event.preventDefault();
+    alert('認証処理を実行しました');
+};
+
+// モーダルを閉じる処理
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
 </script>
             <!-- 購入者 ログイン / アカウント切り替えボタン -->
             <div id="user-auth-btn-area">
