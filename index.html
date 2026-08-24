@@ -2584,7 +2584,60 @@ function submitBuyerRequest(e) {
         `;
         chatsList.prepend(newItem);
     }
+    // ▼ マイページ（出品者とのメール）へ最新メッセージを反映する処理
+    const chatsList = document.getElementById('mypage-chats-list');
+    if (chatsList) {
+        if (chatsList.innerText.includes('履歴はありません')) {
+            chatsList.innerHTML = '';
+        }
+        const newItem = document.createElement('div');
+        newItem.style.cssText = "padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 8px; background: #f9f9f9; border-radius: 6px;";
+        newItem.innerHTML = `
+            <div style="font-size: 0.75rem; color: #888;">${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+            <div style="font-weight: bold; font-size: 0.9rem; margin: 2px 0;">交渉ルーム（〇〇の限定フィギュア）</div>
+            <div style="font-size: 0.85rem; color: #444;">最新: ${message}</div>
+        `;
+        chatsList.prepend(newItem);
+    }
 // ▲ ここまで追加 ▲
+            // ▼ 合意した条件で決済画面（Stripe Connect）へ遷移する処理
+async function proceedToNegotiation() {
+    const chatInput = document.getElementById('chat-input');
+    const modal = document.getElementById('private-chat-modal');
+    
+    // 金額の自動判定（入力値から数字を抽出。取得できない場合は既定値）
+    let price = 5500; 
+    if (chatInput && chatInput.value) {
+        const extractedPrice = chatInput.value.replace(/[^0-9]/g, '');
+        if (extractedPrice) price = parseInt(extractedPrice, 10);
+    }
+
+    const titleElement = modal ? modal.querySelector('h2') : null;
+    const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
+
+    try {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: price,
+                title: itemTitle,
+                sellerAccountId: 'acct_1xxxxxxxxx' // 出品者のStripe Connect ID
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.url) {
+            window.location.href = data.url; // Stripe画面へ自動リダイレクト
+        } else {
+            alert('決済ページの作成に失敗しました。');
+        }
+    } catch (error) {
+        console.error('決済エラー:', error);
+        alert('通信エラーが発生しました。');
+    }
+}
             const chatMessages = document.getElementById('chat-messages');
             
             // 自分のメッセージを画面に疑似的に追加
