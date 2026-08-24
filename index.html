@@ -1622,6 +1622,12 @@ window.openMypageSellTab = function() {
 
     
        <script>
+// 買い手認証・ログイン処理の関数を定義
+window.handleBuyerAuth = function(event) {
+    if (event) event.preventDefault();
+    // 処理内容（必要に応じてフォームの値を取得するなどの処理を記述）
+    alert('認証処理を実行しました');
+};
 // 【エラー防止用】不足している関数をグローバルに定義
 window.openModal = function(modalId) {
     const modal = document.getElementById(modalId);
