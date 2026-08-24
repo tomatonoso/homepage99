@@ -1650,7 +1650,7 @@ function closeModal(modalId) {
         const auth = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth() : null;
 
         // 指定の更新済み GAS WebApp URL
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw3Wln-HADJl4uzQLI08D8QGX2hJMLvBfrmxNLp_vPyJzRU0cfm1f1NtK1T2wk1RrXx/exec";
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz48YuNqpsAtg7ZK3jElTnbaS6T4NrHvNLy6z5lx_GiOBIkkxXNCYqk7oQ913-yzsSN/exec";
 
         let currentUploadedImageBase64 = null;
         let currentBuyerUser = null;
@@ -2768,7 +2768,7 @@ window.startStripeCheckout = async function(title, price) {
         const productName = selectedPref ? `${title} (${selectedPref})` : title;
 
         // GASでStripeの決済URL（cs_live_...）を作成して取得する
-        const response = await fetch('https://script.google.com/macros/s/AKfycbw3Wln-HADJl4uzQLI08D8QGX2hJMLvBfrmxNLp_vPyJzRU0cfm1f1NtK1T2wk1RrXx/exec', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbz48YuNqpsAtg7ZK3jElTnbaS6T4NrHvNLy6z5lx_GiOBIkkxXNCYqk7oQ913-yzsSN/exec', {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8'
