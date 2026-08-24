@@ -3384,7 +3384,6 @@ setTimeout(() => {
 }, 50);
 }
 // 1. ページ読み込み時に LocalStorage から商品を復元する処理
-<script>
 // --- 1. ページ読み込み時に商品データを自動表示する処理 ---
 document.addEventListener("DOMContentLoaded", function() {
     let products = JSON.parse(localStorage.getItem('my_products_list')) || (typeof productsList !== 'undefined' ? productsList : []);
