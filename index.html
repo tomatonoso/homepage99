@@ -2713,8 +2713,8 @@ window.openCheckoutWithOffer = function(title, price) {
         alert('購入手続き画面を開けませんでした。');
     }
 }
-// ▼ 提案者が金額を提示する処理
-function sendPriceOffer() {
+// ▼ 提案者が金額を提示する処理（Stripe決済リンクを生成してカード表示）
+window.sendPriceOffer = function() {
     const priceInput = document.getElementById('offer-price-input');
     if (!priceInput || !priceInput.value) {
         alert('提示する金額を入力してください。');
@@ -2727,7 +2727,6 @@ function sendPriceOffer() {
         return;
     }
 
-    // チャット領域を安全に取得
     const chatBox = document.getElementById('chat-messages-container') 
                  || document.getElementById('chat-messages') 
                  || document.getElementById('chat-log')
@@ -2738,14 +2737,14 @@ function sendPriceOffer() {
     const titleElement = modal ? modal.querySelector('h2') : null;
     const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
 
-    // チャット画面に決済カード付きメッセージを追加
+    // チャット画面にStripe連携用のカードメッセージを追加
     const offerHtml = `
         <div style="background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center;">
             <div style="font-size: 0.85rem; color: #2e7d32; font-weight: bold;">🤝 条件が提示されました</div>
             <div style="font-size: 1.1rem; font-weight: bold; margin: 5px 0; color: #1b5e20;">${itemTitle}</div>
             <div style="font-size: 1.3rem; font-weight: bold; color: #d32f2f;">金額: ¥${offerPrice.toLocaleString()}</div>
-            <button onclick="openCheckoutWithOffer('${itemTitle}', ${offerPrice})" style="margin-top: 10px; width: 100%; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                <i class="fa-solid fa-credit-card"></i> この条件（¥${offerPrice.toLocaleString()}）で購入手続きへ進む
+            <button onclick="window.startStripeCheckout('${itemTitle}', ${offerPrice})" style="margin-top: 10px; width: 100%; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                <i class="fa-solid fa-credit-card"></i> この条件（¥${offerPrice.toLocaleString()}）で購入手続き（Stripe）へ進む
             </button>
         </div>
     `;
@@ -2760,8 +2759,42 @@ function sendPriceOffer() {
     }
 
     priceInput.value = '';
-}
+};
 
+// ▼ ボタンを押した時にStripe Connect決済（バックエンドAPI）を呼び出す処理
+window.startStripeCheckout = async function(title, price) {
+    try {
+        // 都道府県（選択されている場合）を取得する例
+        const prefEl = document.getElementById('prefecture-select');
+        const selectedPref = prefEl ? prefEl.value : '';
+        const productName = selectedPref ? `${title} (${selectedPref})` : title;
+
+        // バックエンド（Stripe Connect決済作成API）へリクエスト
+        const response = await fetch('/create-checkout-session', { // ←実際のStripe決済APIのURLに合わせて変更してください
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                price: price,
+                productName: productName,
+                sellerAccountId: 'acct_1xxxxxxxxx' // ←出品者のStripe ConnectアカウントID
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.url) {
+            // Stripeの決済画面へ自動リダイレクト
+            window.location.href = data.url;
+        } else {
+            alert('決済ページの作成に失敗しました。');
+        }
+    } catch (error) {
+        console.error('決済エラー:', error);
+        alert('通信エラーが発生しました。');
+    }
+};
 // ▼ 提示された金額で購入手続き（配送先入力モーダル）を開く処理
 function openCheckoutWithOffer(title, price) {
     const privateModal = document.getElementById('private-chat-modal');
