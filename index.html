@@ -1025,23 +1025,27 @@
             </div>
 
             <!-- メッセージ入力・決済ボタンエリア -->
-            <div style="border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                <!-- 都道府県の選択ドロップダウン -->
+          <!-- メッセージ入力・金額提示エリア -->
+<div style="border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+    
+    <!-- メッセージ入力 -->
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="chat-input" class="form-control" placeholder="メッセージを入力..." style="flex-grow: 1; margin: 0;">
+        <button class="btn-red-sm" onclick="sendChatMessage()" style="white-space: nowrap;"><i class="fa-solid fa-paper-plane"></i> 送信</button>
+    </div>
 
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="chat-input" class="form-control" placeholder="メッセージを入力..." style="flex-grow: 1; margin: 0;">
-                    <button class="btn-red-sm" onclick="sendChatMessage()" style="white-space: nowrap;"><i class="fa-solid fa-paper-plane"></i> 送信</button>
-                </div>
-                
-                <div style="text-align: center; margin-top: 10px;">
-                    <p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">※条件が合意したら決済へお進みください</p>
-                    <button class="btn-outline" style="width: 100%; border-color: #4CAF50; color: #4CAF50; font-weight: bold; background: #f0fdf4;" onclick="proceedToNegotiatedCheckout()">
-                        <i class="fa-solid fa-credit-card"></i> 合意した条件で決済へ進む（Stripe）
-                    </button>
-                </div>
-            </div>
-
+    <!-- 提案者専用：金額提示入力エリア -->
+    <div style="background: #f0f7ff; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; margin-top: 5px;">
+        <div style="font-size: 0.8rem; font-weight: bold; color: #084298; margin-bottom: 5px;">【提案者用】条件・金額の提示</div>
+        <div style="display: flex; gap: 8px;">
+            <input type="number" id="offer-price-input" class="form-control" placeholder="提示金額（例: 5000）" style="flex: 1; margin: 0;">
+            <button type="button" class="btn-outline" onclick="sendPriceOffer()" style="background: #0d6efd; color: white; border: none; white-space: nowrap; font-size: 0.85rem; padding: 6px 12px;">
+                <i class="fa-solid fa-handshake"></i> 条件を提示
+            </button>
         </div>
+    </div>
+
+</div>
     </div>
     <!-- ▲ 追加：プライベートチャット・交渉モーダル ▲ -->
     <!-- MODAL 1: 購入手続き -->
@@ -2619,6 +2623,76 @@ function submitBuyerRequest(e) {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             if (!message) return;
+            // ▼ 提案者が金額を提示する処理
+function sendPriceOffer() {
+    const priceInput = document.getElementById('offer-price-input');
+    if (!priceInput || !priceInput.value) {
+        alert('提示する金額を入力してください。');
+        return;
+    }
+    
+    const offerPrice = parseInt(priceInput.value, 10);
+    if (isNaN(offerPrice) || offerPrice <= 0) {
+        alert('正しい金額を入力してください。');
+        return;
+    }
+
+    const chatBox = document.getElementById('chat-messages-container') || document.querySelector('.chat-messages'); // お使いのチャットログ要素のID/クラス
+    const modal = document.getElementById('private-chat-modal');
+    const titleElement = modal ? modal.querySelector('h2') : null;
+    const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
+
+    // チャット画面に「決済カード付きメッセージ」を追加
+    const offerHtml = `
+        <div style="background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center;">
+            <div style="font-size: 0.85rem; color: #2e7d32; font-weight: bold;">🤝 条件が提示されました</div>
+            <div style="font-size: 1.1rem; font-weight: bold; margin: 5px 0; color: #1b5e20;">${itemTitle}</div>
+            <div style="font-size: 1.3rem; font-weight: bold; color: #d32f2f;">金額: ¥${offerPrice.toLocaleString()}</div>
+            <button onclick="openCheckoutWithOffer('${itemTitle}', ${offerPrice})" style="margin-top: 10px; width: 100%; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                <i class="fa-solid fa-credit-card"></i> この条件（¥${offerPrice.toLocaleString()}）で購入手続きへ進む
+            </button>
+        </div>
+    `;
+
+    if (chatBox) {
+        const msgDiv = document.createElement('div');
+        msgDiv.innerHTML = offerHtml;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    priceInput.value = '';
+}
+// グローバル変数（購入金額と商品名を保持）
+let currentCheckoutTitle = '';
+let currentCheckoutPrice = 0;
+
+// チャット内の「購入手続きへ進む」を押したときの処理
+function openCheckoutWithOffer(title, price) {
+    currentCheckoutTitle = title;
+    currentCheckoutPrice = price;
+
+    // 交渉モーダルを閉じる（お使いの閉じる関数や処理）
+    const privateModal = document.getElementById('private-chat-modal');
+    if (privateModal) privateModal.style.display = 'none';
+
+    // 「購入手続き・配送先入力」モーダル内の表示更新
+    const selectedItemEl = document.getElementById('checkout-item-name'); // 注文内容の商品名要素
+    const priceEl = document.getElementById('checkout-item-price');      // 商品価格表示要素
+    const totalEl = document.getElementById('checkout-total-price');     // 合計金額表示要素
+
+    if (selectedItemEl) selectedItemEl.innerText = title;
+    if (priceEl) priceEl.innerText = '¥' + price.toLocaleString();
+    if (totalEl) totalEl.innerText = '¥' + price.toLocaleString();
+
+    // 「購入手続き・配送先入力」モーダルを開く
+    const checkoutModal = document.getElementById('checkout-modal') || document.getElementById('buy-modal'); // お使いの配送先入力モーダルのID
+    if (checkoutModal) {
+        checkoutModal.style.display = 'block';
+    } else {
+        alert('購入手続き画面を開けませんでした。');
+    }
+}
 // ▼ 2571行目に追加 ▼
     // マイページ（出品者とのメール）へ最新メッセージを反映
     const chatsList = document.getElementById('mypage-chats-list');
