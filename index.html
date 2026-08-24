@@ -768,7 +768,64 @@
   <div id="mypage-tab-sell" class="admin-tab-content">
     <h3 style="font-size:1rem; margin-bottom:10px;">新規出品</h3>
     
-    <!-- ★ ここに以前の 1230〜1296行目にあった <form> ... </form> をそのまま移動して貼り付けます ★ -->
+   <form id="seller-form" onsubmit="submitNewProduct(event)">
+  <!-- 1. 出品者情報（個人情報） -->
+  <h4 style="margin: 15px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">出品者情報</h4>
+  
+  <div class="form-group" style="margin-bottom: 10px;">
+    <label>お名前 <span style="color:red;">*</span></label>
+    <input type="text" id="seller-name" required placeholder="山田 太郎" style="width: 100%; padding: 8px; box-sizing: border-box;">
+  </div>
+
+  <div class="form-group" style="margin-bottom: 10px;">
+    <label>電話番号 <span style="color:red;">*</span></label>
+    <input type="tel" id="seller-phone" required placeholder="090-1234-5678" style="width: 100%; padding: 8px; box-sizing: border-box;">
+  </div>
+
+  <div class="form-group" style="margin-bottom: 10px;">
+    <label>メールアドレス <span style="color:red;">*</span></label>
+    <input type="email" id="seller-email" required placeholder="example@email.com" style="width: 100%; padding: 8px; box-sizing: border-box;">
+  </div>
+
+  <div class="form-group" style="margin-bottom: 10px;">
+    <label>振込口座情報（銀行名・支店名・口座番号・名義） <span style="color:red;">*</span></label>
+    <input type="text" id="seller-bank" required placeholder="○○銀行 ○○支店 普通 1234567 ヤマダタロウ" style="width: 100%; padding: 8px; box-sizing: border-box;">
+  </div>
+
+  <!-- 2. 出品商品情報 -->
+  <h4 style="margin: 20px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">商品情報</h4>
+
+  <div class="form-group" style="margin-bottom: 10px;">
+    <label>商品画像 <span style="color:red;">*</span></label>
+    <input type="file" id="product-image" accept="image/*" required style="width: 100%;">
+  </div>
+
+  <div class="form-group" style="margin-bottom: 10px;">
+    <label>商品名 <span style="color:red;">*</span></label>
+    <input type="text" id="product-title" required placeholder="例：〇〇限定フィギュア" style="width: 100%; padding: 8px; box-sizing: border-box;">
+  </div>
+
+  <div class="form-group" style="margin-bottom: 10px;">
+    <label>販売価格 (円) <span style="color:red;">*</span></label>
+    <input type="number" id="product-price" min="1" required placeholder="3000" style="width: 100%; padding: 8px; box-sizing: border-box;">
+  </div>
+
+  <div class="form-group" style="margin-bottom: 10px;">
+    <label>配送料の負担 <span style="color:red;">*</span></label>
+    <select id="product-shipping" required style="width: 100%; padding: 8px; box-sizing: border-box;">
+      <option value="">選択してください</option>
+      <option value="送料込み(出品者負担)">送料込み (出品者負担)</option>
+      <option value="着払い(購入者負担)">着払い (購入者負担)</option>
+    </select>
+  </div>
+
+  <div class="form-group" style="margin-bottom: 15px;">
+    <label>商品説明 <span style="color:red;">*</span></label>
+    <textarea id="product-desc" rows="4" required placeholder="商品の状態やサイズなどの詳細を入力してください" style="width: 100%; padding: 8px; box-sizing: border-box;"></textarea>
+  </div>
+
+  <button type="submit" class="btn-red-sm" style="width: 100%; padding: 12px; font-size: 1rem;">出品を完了する</button>
+</form>
 
   </div>
 <!-- ▲ ここまでを追加 ▲ -->
