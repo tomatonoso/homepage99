@@ -2770,8 +2770,8 @@ window.startStripeCheckout = async function(title, price) {
         const productName = selectedPref ? `${title} (${selectedPref})` : title;
 
         // バックエンド（Stripe Connect決済作成API）へリクエスト
-        const response = await fetch('/create-checkout-session', { // ←実際のStripe決済APIのURLに合わせて変更してください
-            method: 'POST',
+     // ▼ 2773行目の修正例（通常出品で使っているパスに合わせて書き換えます）
+const response = await fetch('https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec', {
             headers: {
                 'Content-Type': 'application/json',
             },
