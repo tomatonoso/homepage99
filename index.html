@@ -2771,17 +2771,17 @@ window.startStripeCheckout = async function(title, price) {
 
         // バックエンド（Stripe Connect決済作成API）へリクエスト
      // ▼ 2773行目の修正例（通常出品で使っているパスに合わせて書き換えます）
-const response = await fetch('https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec', {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                price: price,
-                productName: productName,
-                sellerAccountId: 'acct_1xxxxxxxxx' // ←出品者のStripe ConnectアカウントID
-            })
-        });
-
+const response = await fetch('https://script.google.com/macros/s/AKfycbwumbQImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktVDMrZbGFRLAFX/exec', {
+    method: 'POST', // ←★ここを追加（POST指定）
+    headers: {
+        'Content-Type': 'text/plain', // ←★'text/plain' に変更
+    },
+    body: JSON.stringify({
+        price: price,
+        productName: productName,
+        sellerAccountId: 'acct_1xxxxxxxxx' // ←実際のConnectアカウントID（変数等）が入るように調整
+    })
+});
         const data = await response.json();
 
         if (data.url) {
