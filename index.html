@@ -3373,6 +3373,24 @@ function submitNewProduct(event) {
     alert('商品を出品しました！（再起動しても保持されます）');
     document.getElementById('seller-form').reset();
 }
+           // カテゴリーフィルターを切り替える関数
+function selectCategory(buttonElement, categoryName) {
+    // 1. すべてのチップから active クラスを外す
+    const chips = document.querySelectorAll('.category-scroll .chip');
+    chips.forEach(chip => chip.classList.remove('active'));
+
+    // 2. クリックされたボタンに active クラスを付与する
+    if (buttonElement) {
+        buttonElement.classList.add('active');
+    }
+
+    // 3. 配列からカテゴリーで絞り込んで再描画する処理（productsList がある場合）
+    if (typeof productsList !== 'undefined' && typeof renderProducts === 'function') {
+        // 必要に応じて絞り込み変数を更新して再描画
+        window.currentCategory = categoryName;
+        renderProducts();
+    }
+}
 </script>
 </body>
 </html>
