@@ -3221,15 +3221,66 @@ if (adminTableBody) {
     row.innerHTML = `
         <td>${newProdId}</td>
         <td>${name}</td>
-        <td>¥${price.toLocaleString()}</td>
-        <td>${sellerName || '出品者'}</td>
-        <td><span style="color:green;">公開中</span></td>
-        <td><input type="checkbox" checked></td>
-        <td><button onclick="this.closest('tr').remove();" style="color:red; border:none; background:none; cursor:pointer;">削除</button></td>
-    `;
-    // テーブルの先頭に行を追加
-    adminTableBody.prepend(row);
-}
+       <td>¥${price.toLocaleString()}</td>
+            <td>${sellerName || '出品者'}</td>
+            <td><span style="color:green;">公開中</span></td>
+            <td><input type="checkbox" checked></td>
+            <td><button onclick="this.closest('tr').remove();" style="color:red; border:none; background:none; cursor:pointer;">削除</button></td>
+        `;
+        // 管理テーブルの先頭に行を追加
+        adminTableBody.prepend(row);
+    }
+
+    // ★ 1. 配列データ（productsList）の先頭に新商品を追加
+    if (typeof productsList !== 'undefined') {
+        productsList.unshift({
+            id: newProdId,
+            name: name,
+            price: price,
+            description: desc,
+            shipping: shipping,
+            category: category,
+            image: imgSrc,
+            seller: sellerName || '出品者',
+            views: 0,
+            likes: 0
+        });
+        // LocalStorageに保存して再起動時も残るようにする
+        localStorage.setItem('my_products_list', JSON.stringify(productsList));
+    }
+
+    // ★ 2. 表側（おすすめ・登録商品一覧）にカードを直接生成して追加
+    const mainGrid = document.getElementById('main-product-grid');
+    if (mainGrid) {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.onclick = function(e) { openProductDetailModal(newProdId, e); };
+
+        const imageHtml = imgSrc 
+            ? `<img src="${imgSrc}" alt="${name}" style="width:100%; height:160px; object-fit:cover; border-radius:8px 8px 0 0;">`
+            : `<div style="width:100%; height:160px; background:#e9ecef; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#333;">${name}</div>`;
+
+        card.innerHTML = `
+            <div style="position:relative; background:#f0f2f5; border-radius:12px; overflow:hidden;">
+                ${imageHtml}
+                <button style="position:absolute; top:8px; right:8px; background:white; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer;">♡</button>
+                <div style="position:absolute; bottom:8px; left:8px; display:flex; gap:4px;">
+                    <span style="background:#007bff; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:bold;">配送</span>
+                    <span style="background:#28a745; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:bold;">手渡し</span>
+                </div>
+            </div>
+            <div style="padding:10px 4px;">
+                <div style="font-size:0.95rem; color:#333; font-weight:500; margin-bottom:4px;">${name}</div>
+                <div style="color:#e60012; font-weight:bold; font-size:1.1rem; margin-bottom:6px;">¥${price.toLocaleString()}</div>
+                <span style="background:#e8f4ff; color:#007bff; font-size:0.75rem; padding:3px 8px; border-radius:12px; display:inline-block; margin-bottom:6px;">${category}</span>
+                <div style="font-size:0.75rem; color:#888; display:flex; gap:10px;">
+                    <span>👁 0</span>
+                    <span>♥ 0</span>
+                </div>
+            </div>
+        `;
+        mainGrid.prepend(card);
+    }
 
     alert('商品を出品しました！');
     document.getElementById('seller-form').reset();
