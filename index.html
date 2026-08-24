@@ -3145,47 +3145,77 @@ function openMypageTab(tabId, element) {
 function submitNewProduct(event) {
     event.preventDefault();
 
-    // 入力値の取得
+    // 1. 入力値の取得
     const name = document.getElementById('new-prod-name').value;
     const price = parseInt(document.getElementById('new-prod-price').value, 10);
     const desc = document.getElementById('new-prod-desc').value;
-    const shipping = document.getElementById('new-prod-shipping').value;
-    const sellerName = document.getElementById('seller-name-input').value;
+    const shipping = document.getElementById('new-prod-shipping').value; // '配送' や '手渡し' など
+    const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
     
-    // 画像プレビューの取得
     const imgPreview = document.getElementById('img-preview');
     const imgSrc = (imgPreview && imgPreview.src) ? imgPreview.src : '';
 
-    // 新規商品のデータオブジェクト作成
+    // 2. 新規商品データオブジェクトを作成
+    const newProdId = 'prod_' + Date.now();
     const newProduct = {
-        id: 'prod_' + Date.now(), // ユニークIDを発行
+        id: newProdId,
         name: name,
         price: price,
         description: desc,
         shipping: shipping,
-        seller: sellerName || '新規出品者',
-        category: 'その他',
-        image: imgSrc
+        category: category,
+        image: imgSrc,
+        seller: '出品者',
+        views: 0,
+        likes: 0
     };
 
-    // 1. 商品配列データ（productsList）の先頭に追加
+    // 配列データ（productsList）の先頭に追加
     if (typeof productsList !== 'undefined') {
         productsList.unshift(newProduct);
     }
 
-    // 2. 画面上の商品一覧表示（レンダリング関数）を再実行
-    if (typeof renderProducts === 'function') {
-        renderProducts();
-    } else if (typeof displayProducts === 'function') {
-        displayProducts();
+    // 3. 画面（おすすめ・登録商品一覧）へHTMLカードを直接生成して追加
+    // ※商品一覧を囲んでいる親要素のIDを指定してください（例: 'product-list' や 'items-container'）
+    const container = document.getElementById('product-list') || document.querySelector('.product-grid');
+
+    if (container) {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.onclick = function(e) { openProductDetailModal(newProdId, e); };
+
+        // 画像の表示切替
+        const imageHtml = imgSrc 
+            ? `<img src="${imgSrc}" alt="${name}" style="width:100%; height:160px; object-fit:cover; border-radius:8px 8px 0 0;">`
+            : `<div style="width:100%; height:160px; background:#e9ecef; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#333;">${name}</div>`;
+
+        // 画像カードのHTML構築（画像のデザインを再現）
+        card.innerHTML = `
+            <div style="position:relative; background:#f0f2f5; border-radius:12px; overflow:hidden;">
+                ${imageHtml}
+                <button style="position:absolute; top:8px; right:8px; background:white; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer;">♡</button>
+                <div style="position:absolute; bottom:8px; left:8px; display:flex; gap:4px;">
+                    <span style="background:#007bff; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:bold;">配送</span>
+                    <span style="background:#28a745; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:bold;">手渡し</span>
+                </div>
+            </div>
+            <div style="padding:10px 4px;">
+                <div style="font-size:0.95rem; color:#333; font-weight:500; margin-bottom:4px;">${name}</div>
+                <div style="color:#e60012; font-weight:bold; font-size:1.1rem; margin-bottom:6px;">¥${price.toLocaleString()}</div>
+                <span style="background:#e8f4ff; color:#007bff; font-size:0.75rem; padding:3px 8px; border-radius:12px; display:inline-block; margin-bottom:6px;">${category}</span>
+                <div style="font-size:0.75rem; color:#888; display:flex; gap:10px;">
+                    <span>👁 0</span>
+                    <span>♥ 0</span>
+                </div>
+            </div>
+        `;
+
+        // 一覧の先頭に追加
+        container.prepend(card);
     }
 
     alert('商品を出品しました！');
-
-    // フォームの初期化とモーダル/タブの調整
     document.getElementById('seller-form').reset();
-    const previewBox = document.getElementById('img-preview-box');
-    if (previewBox) previewBox.style.display = 'none';
 }
 </script>
 </body>
