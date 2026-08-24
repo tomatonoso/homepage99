@@ -1601,6 +1601,32 @@
 
     
        <script>
+// 【エラー防止用】不足している関数をグローバルに定義
+window.openModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'block';
+};
+
+window.tryOpenAdmin = function() {
+    const adminTab = document.getElementById('admin-tab');
+    if (adminTab) adminTab.style.display = 'block';
+};
+
+window.openMypageSellTab = function() {
+    if (typeof openMypageTab === 'function') {
+        openMypageTab('mypage-tab-sell');
+    }
+};
+
+window.selectCategory = function(buttonElement, categoryName) {
+    const chips = document.querySelectorAll('.category-scroll .chip, .chip');
+    chips.forEach(chip => chip.classList.remove('active'));
+    if (buttonElement) buttonElement.classList.add('active');
+    window.currentCategory = categoryName;
+    if (typeof renderProducts === 'function') {
+        renderProducts();
+    }
+};
            // モーダルを開く共通関数
 function openModal(modalId) {
     alert("関数が呼ばれました！ ID: " + modalId);
