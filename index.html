@@ -728,13 +728,14 @@
     <div id="buyer-mypage-modal" class="modal-panel">
         <div class="modal-content" style="max-width: 850px;">
             <span class="close-modal" onclick="closeModal('buyer-mypage-modal')">&times;</span>
-            <h2><i class="fa-solid fa-user-gear" style="color: var(--brand-red);"></i> 購入者マイページ</h2>
+          <h2><i class="fa-solid fa-user-gear" style="..."></i> マイページ</h2>
             <hr style="margin: 15px 0;">
 
             <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
                 <button class="admin-tab-btn active" onclick="switchMypageTab(event, 'mypage-tab-chats')"><i class="fa-solid fa-comments"></i> 出品者とのメール (チャット)</button>
                 <button class="admin-tab-btn" onclick="switchMypageTab(event, 'mypage-tab-cart')"><i class="fa-solid fa-cart-shopping"></i> カートの確認</button>
                 <button class="admin-tab-btn" onclick="switchMypageTab(event, 'mypage-tab-favs')"><i class="fa-solid fa-heart"></i> 保存商品 (お気に入り)</button>
+                <button class="admin-tab-btn" onclick="switchMypageTab(event, 'mypage-tab-sell')"><i class="fa-solid fa-box-open"></i> 出品する</button>
             </div>
 
             <!-- TAB 1: メール・チャット履歴 -->
@@ -756,13 +757,24 @@
                 </button>
             </div>
 
-            <!-- TAB 3: 保存商品 (お気に入り) -->
-            <div id="mypage-tab-favs" class="admin-tab-content">
-                <h3 style="font-size:1rem; margin-bottom:10px;">保存した商品一覧</h3>
-                <div id="mypage-favs-grid" class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;"></div>
-            </div>
-        </div>
-    </div>
+          <!-- TAB 3: 保存商品 (お気に入り) -->
+  <div id="mypage-tab-favs" class="admin-tab-content">
+    <h3 style="font-size:1rem; margin-bottom:10px;">保存した商品一覧</h3>
+    <div id="mypage-favs-grid" class="product-grid" style="..."></div>
+  </div><!-- 763行目の </div> -->
+
+<!-- ▼ 763行目の直下にここから追加 ▼ -->
+  <!-- TAB 4: 出品する -->
+  <div id="mypage-tab-sell" class="admin-tab-content">
+    <h3 style="font-size:1rem; margin-bottom:10px;">新規出品</h3>
+    
+    <!-- ★ ここに以前の 1230〜1296行目にあった <form> ... </form> をそのまま移動して貼り付けます ★ -->
+
+  </div>
+<!-- ▲ ここまでを追加 ▲ -->
+
+</div><!-- 764行目の </div> -->
+</div><!-- 765行目の </div> -->
 
 
     <!-- MODAL: 購入者用 新規登録・ログイン モーダル -->
@@ -1227,75 +1239,7 @@
                             <input type="text" id="new-prod-name" class="form-control" required placeholder="例: LED水槽ライト">
                         </div>
                         <div class="form-group">
-                            <!-- ▼ 1230行目の直前に追加 ▼ -->
-<div id="mypage" class="tab-panel active">
-  <h2>マイページ</h2>
-
-  <!-- サブタブ切り替えボタン -->
-  <div class="mypage-sub-tabs">
-    <button class="sub-tab-btn" onclick="switchMyTab('buy-list')">購入履歴</button>
-    <button class="sub-tab-btn" onclick="switchMyTab('sell-list')">出品管理</button>
-    <button class="sub-tab-btn active" onclick="switchMyTab('new-sell')">新規出品</button>
-  </div>
-
-  <!-- 1. 購入履歴エリア -->
-  <div id="buy-list" class="sub-panel">
-    <p>購入した商品の一覧がここに表示されます。</p>
-  </div>
-
-  <!-- 2. 出品管理エリア -->
-  <div id="sell-list" class="sub-panel">
-    <p>出品中の商品や売上管理がここに表示されます。</p>
-  </div>
-
-  <!-- 3. 新規出品エリア（ここから下のフォームを囲む） -->
-  <div id="new-sell" class="sub-panel active">
-<!-- ▲ ここまでを追加 ▲ -->
-
-  <!-- 1230行目〜：<label>販売価格 (円) ... -->
-                            <label>販売価格 (円) <span style="color:red;">*</span></label>
-                            <input type="number" id="new-prod-price" class="form-control" required placeholder="3200" min="100" oninput="calculateSellerFee()">
-                            
-                            <div class="fee-calc-box">
-                               <div>販売手数料 (10% / Stripe 3.6% + サイト 6.4%): <span id="fee-amount-display">¥0</span></div>
-                                <div style="color:#d32f2f;">販売利益 (お受取額): <strong id="profit-amount-display">¥0</strong></div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>カテゴリー <span style="color:red;">*</span></label>
-                            <select id="new-prod-cat" class="form-control">
-                                <option value="アクア・ペット用品">アクア・ペット用品</option>
-                                <option value="ファッション">ファッション</option>
-                                <option value="家電・スマホ・カメラ">家電・スマホ・カメラ</option>
-                                <option value="インテリア・家具">インテリア・家具</option>
-                                <option value="本・音楽・ゲーム">本・音楽・ゲーム</option>
-                                <option value="生活雑貨">生活雑貨</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>商品の説明 <span style="color:red;">*</span></label>
-                            <textarea id="new-prod-desc" class="form-control" required placeholder="商品の状態、使用頻度、サイズ、注意事項などを詳しくご記入ください"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>受け取り方法</label>
-                            <div style="display:flex; gap:15px; margin-top:5px;">
-                                <label><input type="checkbox" id="new-ship" checked> 配送対応</label>
-                                <label><input type="checkbox" id="new-hand" checked> 手渡し可能</label>
-                            </div>
-                        </div>
-
-                        <div class="form-group" style="margin-top: 15px; padding: 12px; background-color: #fdf7f7; border: 1px solid #f5c6cb; border-radius: 6px;">
-                            <label style="display: flex; align-items: center; gap: 8px; font-weight: bold; color: #721c24; cursor: pointer; margin-bottom:0;">
-                                <input type="checkbox" id="agree-fee-checkbox" required style="width: 18px; height: 18px; cursor: pointer;">
-                                商品の販売時にシステム利用手数料 (10.0%) が差し引かれることに同意します <span style="color:red;">*</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" id="submit-seller-btn" class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem; margin-top: 15px;">規約と手数料に同意して出品する</button>
-            </form>
-        </div>
-    </div>
+                  
     </div>
     </div>
 
