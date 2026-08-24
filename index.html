@@ -2624,31 +2624,32 @@ function submitBuyerRequest(e) {
             const message = input.value.trim();
             if (!message) return;
             // ▼ 提案者が金額を提示する処理
+// ▼ 提案者が金額を提示する処理
 function sendPriceOffer() {
     const priceInput = document.getElementById('offer-price-input');
     if (!priceInput || !priceInput.value) {
         alert('提示する金額を入力してください。');
         return;
     }
-    
+
     const offerPrice = parseInt(priceInput.value, 10);
     if (isNaN(offerPrice) || offerPrice <= 0) {
         alert('正しい金額を入力してください。');
         return;
     }
 
- // 2640行目: チャット領域を確実に取得する処理に置き換え
-const chatBox = document.getElementById('chat-messages-container') 
-             || document.getElementById('chat-messages') 
-             || document.getElementById('chat-log')
-             || document.querySelector('.chat-messages')
-             || (document.getElementById('chat-input') ? document.getElementById('chat-input').closest('div[style*="flex-direction"]').previousElementSibling : null);
+    // チャット領域を安全に取得
+    const chatBox = document.getElementById('chat-messages-container') 
+                 || document.getElementById('chat-messages') 
+                 || document.getElementById('chat-log')
+                 || document.querySelector('.chat-messages')
+                 || (document.getElementById('chat-input') ? document.getElementById('chat-input').closest('div[style*="flex-direction"]').previousElementSibling : null);
 
-const modal = document.getElementById('private-chat-modal');
-const titleElement = modal ? modal.querySelector('h2') : null;
-const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
-   
-    // チャット画面に「決済カード付きメッセージ」を追加
+    const modal = document.getElementById('private-chat-modal');
+    const titleElement = modal ? modal.querySelector('h2') : null;
+    const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
+
+    // チャット画面に決済カード付きメッセージを追加
     const offerHtml = `
         <div style="background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center;">
             <div style="font-size: 0.85rem; color: #2e7d32; font-weight: bold;">🤝 条件が提示されました</div>
@@ -2665,34 +2666,27 @@ const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム
         msgDiv.innerHTML = offerHtml;
         chatBox.appendChild(msgDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
+    } else {
+        alert('チャット表示エリアが見つかりませんでした。');
     }
 
     priceInput.value = '';
 }
-// グローバル変数（購入金額と商品名を保持）
-let currentCheckoutTitle = '';
-let currentCheckoutPrice = 0;
 
-// チャット内の「購入手続きへ進む」を押したときの処理
+// ▼ 提示された金額で購入手続き（配送先入力モーダル）を開く処理
 function openCheckoutWithOffer(title, price) {
-    currentCheckoutTitle = title;
-    currentCheckoutPrice = price;
-
-    // 交渉モーダルを閉じる（お使いの閉じる関数や処理）
     const privateModal = document.getElementById('private-chat-modal');
     if (privateModal) privateModal.style.display = 'none';
 
-    // 「購入手続き・配送先入力」モーダル内の表示更新
-    const selectedItemEl = document.getElementById('checkout-item-name'); // 注文内容の商品名要素
-    const priceEl = document.getElementById('checkout-item-price');      // 商品価格表示要素
-    const totalEl = document.getElementById('checkout-total-price');     // 合計金額表示要素
+    const selectedItemEl = document.getElementById('checkout-item-name');
+    const priceEl = document.getElementById('checkout-item-price');
+    const totalEl = document.getElementById('checkout-total-price');
 
     if (selectedItemEl) selectedItemEl.innerText = title;
     if (priceEl) priceEl.innerText = '¥' + price.toLocaleString();
     if (totalEl) totalEl.innerText = '¥' + price.toLocaleString();
 
-    // 「購入手続き・配送先入力」モーダルを開く
-    const checkoutModal = document.getElementById('checkout-modal') || document.getElementById('buy-modal'); // お使いの配送先入力モーダルのID
+    const checkoutModal = document.getElementById('checkout-modal') || document.getElementById('buy-modal');
     if (checkoutModal) {
         checkoutModal.style.display = 'block';
     } else {
