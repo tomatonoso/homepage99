@@ -1227,6 +1227,32 @@
                             <input type="text" id="new-prod-name" class="form-control" required placeholder="例: LED水槽ライト">
                         </div>
                         <div class="form-group">
+                            <!-- ▼ 1230行目の直前に追加 ▼ -->
+<div id="mypage" class="tab-panel active">
+  <h2>マイページ</h2>
+
+  <!-- サブタブ切り替えボタン -->
+  <div class="mypage-sub-tabs">
+    <button class="sub-tab-btn" onclick="switchMyTab('buy-list')">購入履歴</button>
+    <button class="sub-tab-btn" onclick="switchMyTab('sell-list')">出品管理</button>
+    <button class="sub-tab-btn active" onclick="switchMyTab('new-sell')">新規出品</button>
+  </div>
+
+  <!-- 1. 購入履歴エリア -->
+  <div id="buy-list" class="sub-panel">
+    <p>購入した商品の一覧がここに表示されます。</p>
+  </div>
+
+  <!-- 2. 出品管理エリア -->
+  <div id="sell-list" class="sub-panel">
+    <p>出品中の商品や売上管理がここに表示されます。</p>
+  </div>
+
+  <!-- 3. 新規出品エリア（ここから下のフォームを囲む） -->
+  <div id="new-sell" class="sub-panel active">
+<!-- ▲ ここまでを追加 ▲ -->
+
+  <!-- 1230行目〜：<label>販売価格 (円) ... -->
                             <label>販売価格 (円) <span style="color:red;">*</span></label>
                             <input type="number" id="new-prod-price" class="form-control" required placeholder="3200" min="100" oninput="calculateSellerFee()">
                             
@@ -1269,6 +1295,8 @@
                 <button type="submit" id="submit-seller-btn" class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem; margin-top: 15px;">規約と手数料に同意して出品する</button>
             </form>
         </div>
+    </div>
+    </div>
     </div>
 
 
@@ -3069,6 +3097,15 @@ document.addEventListener('click', function(e) {
         chatsList.prepend(newItem);
     }
 }, true);
+function switchMyTab(tabId) {
+    // すべてのサブパネルとボタンの選択状態を解除
+    document.querySelectorAll('.sub-panel').forEach(panel => panel.classList.remove('active'));
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    // 選択されたサブパネルとボタンをアクティブ化
+    document.getElementById(tabId)?.classList.add('active');
+    event.currentTarget.classList.add('active');
+}
 </script>
 </body>
 </html>
