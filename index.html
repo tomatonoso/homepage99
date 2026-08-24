@@ -3227,8 +3227,8 @@ function submitNewProduct(event) {
 // 3227行目付近の該当部分をこのように書き換えます
 nameEl = document.getElementById('new-prod-name');
 priceEl = document.getElementById('new-prod-price');
-let descEl = document.getElementById('new-prod-desc');
-let shippingEl = document.getElementById('new-prod-shipping');
+descEl = document.getElementById('new-prod-desc');
+shippingEl = document.getElementById('new-prod-shipping');
 // エラーで途中で止まらないよう安全に値を取り出す
 const name = nameEl ? nameEl.value : '';
 const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
