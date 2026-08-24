@@ -3391,6 +3391,37 @@ function selectCategory(buttonElement, categoryName) {
         renderProducts();
     }
 }
+// 1. カテゴリー選択エラーを解消する関数
+function selectCategory(buttonElement, categoryName) {
+    const chips = document.querySelectorAll('.category-scroll .chip, .chip');
+    chips.forEach(chip => chip.classList.remove('active'));
+    if (buttonElement) {
+        buttonElement.classList.add('active');
+    }
+    window.currentCategory = categoryName;
+    if (typeof renderProducts === 'function') {
+        renderProducts();
+    }
+}
+
+// 2. モーダルを開くエラーを解消する関数
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'block';
+}
+
+// 3. 管理画面を開くエラーを解消する関数
+function tryOpenAdmin() {
+    const adminTab = document.getElementById('admin-tab');
+    if (adminTab) adminTab.style.display = 'block';
+}
+
+// 4. マイページの出品タブを開くエラーを解消する関数
+function openMypageSellTab() {
+    if (typeof openMypageTab === 'function') {
+        openMypageTab('mypage-tab-sell');
+    }
+}
 </script>
 </body>
 </html>
