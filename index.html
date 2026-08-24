@@ -3146,10 +3146,17 @@ function submitNewProduct(event) {
     event.preventDefault();
 
     // 1. 入力値の取得
-    const name = document.getElementById('new-prod-name').value;
-    const price = parseInt(document.getElementById('new-prod-price').value, 10);
-    const desc = document.getElementById('new-prod-desc').value;
-    const shipping = document.getElementById('new-prod-shipping').value; // '配送' や '手渡し' など
+  // 1. 各入力要素の安全な取得
+const nameEl = document.getElementById('new-prod-name');
+const priceEl = document.getElementById('new-prod-price');
+const descEl = document.getElementById('new-prod-desc');
+const shippingEl = document.getElementById('new-prod-shipping');
+
+// エラーで途中で止まらないよう安全に値を取り出す
+const name = nameEl ? nameEl.value : '';
+const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
+const desc = descEl ? descEl.value : '';
+const shipping = shippingEl ? shippingEl.value : '配送';
     const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
     
     const imgPreview = document.getElementById('img-preview');
