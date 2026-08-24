@@ -3213,6 +3213,23 @@ function submitNewProduct(event) {
         // 一覧の先頭に追加
         container.prepend(card);
     }
+    // 管理画面のテーブルを取得
+const adminTableBody = document.getElementById('tbl-admin-products');
+
+if (adminTableBody) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${newProdId}</td>
+        <td>${name}</td>
+        <td>¥${price.toLocaleString()}</td>
+        <td>${sellerName || '出品者'}</td>
+        <td><span style="color:green;">公開中</span></td>
+        <td><input type="checkbox" checked></td>
+        <td><button onclick="this.closest('tr').remove();" style="color:red; border:none; background:none; cursor:pointer;">削除</button></td>
+    `;
+    // テーブルの先頭に行を追加
+    adminTableBody.prepend(row);
+}
 
     alert('商品を出品しました！');
     document.getElementById('seller-form').reset();
