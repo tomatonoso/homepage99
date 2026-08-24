@@ -1650,7 +1650,7 @@ function closeModal(modalId) {
         const auth = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth() : null;
 
         // 指定の更新済み GAS WebApp URL
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec";
+        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwIZlSH2vtsG8udk9nGjlsJ8qNQTqf4hDMvYFYZ6YoBjIM68DrVJVBdZbHIR4fkHFA/exec";
 
         let currentUploadedImageBase64 = null;
         let currentBuyerUser = null;
@@ -2772,17 +2772,27 @@ window.startStripeCheckout = async function(title, price) {
         // バックエンド（Stripe Connect決済作成API）へリクエスト
      // ▼ 2773行目の修正例（通常出品で使っているパスに合わせて書き換えます）
 // ▼ GASへのPOST送信（CORS回避対応）
-const response = await fetch('https://script.google.com/macros/s/AKfycbwumbQImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktVDMrZbGFRLAFX/exec', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify({
-                price: price,
-                productName: productName,
-                sellerAccountId: 'acct_1xxxxxxxxx'
-            })
+// GAS（Webアプリ）へCORSを回避して送信するための隠しフォーム生成
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://script.google.com/macros/s/AKfycbwIZlSH2vtsG8udk9nGjlsJ8qNQTqf4hDMvYFYZ6YoBjIM68DrVJVBdZbHIR4fkHFA/exec';
+        form.target = '_top'; // 送信後にリダイレクト先（Stripe決済画面）へ直接遷移
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'postData';
+        input.value = JSON.stringify({
+            price: price,
+            productName: productName,
+            sellerAccountId: 'acct_1xxxxxxxxx'
         });
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        
+        // フォームを自動送信（画面がGAS経由でStripe決済画面へジャンプします）
+        form.submit();
+        return;
 
         const data = await response.json();
 
