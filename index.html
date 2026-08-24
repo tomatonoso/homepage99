@@ -2810,7 +2810,10 @@ function openCheckoutWithOffer(title, price) {
 }
 // ▼ 2571行目に追加 ▼
     // マイページ（出品者とのメール）へ最新メッセージを反映
+  // ▼ 2813行目〜：先に chatInput を宣言する
+    const chatInput = document.getElementById('chat-input');
     const chatsList = document.getElementById('mypage-chats-list');
+    
     if (chatsList) {
         if (chatsList.innerText.includes('履歴はありません')) {
             chatsList.innerHTML = '';
@@ -2819,10 +2822,17 @@ function openCheckoutWithOffer(title, price) {
         newItem.style.cssText = "padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 8px; background: #f9f9f9; border-radius: 6px;";
         newItem.innerHTML = `
             <div style="font-size: 0.75rem; color: #888;">${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-            <div style="font-weight: bold; font-size: 0.9rem; margin: 2px 0;">交渉ルーム（〇〇の限定フィギュア）</div>
-            <div style="font-size: 0.85rem; color: #444;">最新: ${chatInput ? chatInput.value : ''}</div>
+            <div style="font-weight: bold; font-size: 0.9rem; margin: 2px 0;">交渉ルーム（○○の限定フィギュア）</div>
+            <div style="font-size: 0.85rem; color: #444;">最新: ${chatInput && chatInput.value ? chatInput.value : ''}</div>
         `;
         chatsList.prepend(newItem);
+    }
+}
+
+// ▼ 合意した条件で決済画面 (Stripe Connect) へ遷移する処理
+async function proceedToNegotiation() {
+    // ※ ここにあった const chatInput の宣言は削除（上に移動したため）
+    const modal = document.getElementById('private-chat-modal');
     }
     
             // ▼ 合意した条件で決済画面（Stripe Connect）へ遷移する処理
