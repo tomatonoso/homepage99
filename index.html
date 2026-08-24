@@ -2647,10 +2647,7 @@ const chatBox = document.getElementById('chat-messages-container')
 const modal = document.getElementById('private-chat-modal');
 const titleElement = modal ? modal.querySelector('h2') : null;
 const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
-    const modal = document.getElementById('private-chat-modal');
-    const titleElement = modal ? modal.querySelector('h2') : null;
-    const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
-
+   
     // チャット画面に「決済カード付きメッセージ」を追加
     const offerHtml = `
         <div style="background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center;">
