@@ -1027,7 +1027,55 @@
             <!-- メッセージ入力・決済ボタンエリア -->
             <div style="border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
                 <!-- 都道府県の選択ドロップダウン -->
-<select id="prefecture-select" style="width: 100%; padding: 8px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="chat-input" class="form-control" placeholder="メッセージを入力..." style="flex-grow: 1; margin: 0;">
+                    <button class="btn-red-sm" onclick="sendChatMessage()" style="white-space: nowrap;"><i class="fa-solid fa-paper-plane"></i> 送信</button>
+                </div>
+                
+                <div style="text-align: center; margin-top: 10px;">
+                    <p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">※条件が合意したら決済へお進みください</p>
+                    <button class="btn-outline" style="width: 100%; border-color: #4CAF50; color: #4CAF50; font-weight: bold; background: #f0fdf4;" onclick="proceedToNegotiatedCheckout()">
+                        <i class="fa-solid fa-credit-card"></i> 合意した条件で決済へ進む（Stripe）
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- ▲ 追加：プライベートチャット・交渉モーダル ▲ -->
+    <!-- MODAL 1: 購入手続き -->
+    
+    <!-- MODAL 1: 購入手続き -->
+    <div id="checkout-modal" class="modal-panel">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('checkout-modal')">&times;</span>
+            <h2><i class="fa-solid fa-cart-shopping" style="color: var(--brand-red);"></i> 購入手続き・配送先入力</h2>
+            <hr style="margin: 15px 0;">
+
+            <form onsubmit="submitOrder(event)">
+                <div class="grid-2">
+                    <div>
+                        <h3 style="font-size: 1rem; margin-bottom: 10px;">お届け先情報</h3>
+                        <div class="form-group">
+                            <label>お名前 <span style="color:red;">*</span></label>
+                            <input type="text" id="buy-name" class="form-control" required value="青山 太郎">
+                        </div>
+                        <div class="form-group">
+                            <label>メールアドレス <span style="color:red;">*</span></label>
+                            <input type="email" id="buy-email" class="form-control" required value="aoyama@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>電話番号 <span style="color:red;">*</span></label>
+                            <input type="tel" id="buy-phone" class="form-control" required value="090-1234-5678">
+                        </div>
+                        <div class="form-group">
+                            <label>郵便番号 <span style="color:red;">*</span></label>
+                            <input type="text" id="buy-zip" class="form-control" required value="100-0001">
+                        </div>
+                        <div class="form-group">
+                            <label>都道府県 <span style="color:red;">*</span></label>
+                        <select id="checkout-pref-select" class="form-control" onchange="calcCheckout()" required>
     <option value="">都道府県を選択してください</option>
     <option value="北海道">北海道</option>
     <option value="青森県">青森県</option>
@@ -1077,54 +1125,6 @@
     <option value="鹿児島県">鹿児島県</option>
     <option value="沖縄県">沖縄県</option>
 </select>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="chat-input" class="form-control" placeholder="メッセージを入力..." style="flex-grow: 1; margin: 0;">
-                    <button class="btn-red-sm" onclick="sendChatMessage()" style="white-space: nowrap;"><i class="fa-solid fa-paper-plane"></i> 送信</button>
-                </div>
-                
-                <div style="text-align: center; margin-top: 10px;">
-                    <p style="font-size: 0.75rem; color: #888; margin-bottom: 5px;">※条件が合意したら決済へお進みください</p>
-                    <button class="btn-outline" style="width: 100%; border-color: #4CAF50; color: #4CAF50; font-weight: bold; background: #f0fdf4;" onclick="proceedToNegotiatedCheckout()">
-                        <i class="fa-solid fa-credit-card"></i> 合意した条件で決済へ進む（Stripe）
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <!-- ▲ 追加：プライベートチャット・交渉モーダル ▲ -->
-    <!-- MODAL 1: 購入手続き -->
-    
-    <!-- MODAL 1: 購入手続き -->
-    <div id="checkout-modal" class="modal-panel">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('checkout-modal')">&times;</span>
-            <h2><i class="fa-solid fa-cart-shopping" style="color: var(--brand-red);"></i> 購入手続き・配送先入力</h2>
-            <hr style="margin: 15px 0;">
-
-            <form onsubmit="submitOrder(event)">
-                <div class="grid-2">
-                    <div>
-                        <h3 style="font-size: 1rem; margin-bottom: 10px;">お届け先情報</h3>
-                        <div class="form-group">
-                            <label>お名前 <span style="color:red;">*</span></label>
-                            <input type="text" id="buy-name" class="form-control" required value="青山 太郎">
-                        </div>
-                        <div class="form-group">
-                            <label>メールアドレス <span style="color:red;">*</span></label>
-                            <input type="email" id="buy-email" class="form-control" required value="aoyama@example.com">
-                        </div>
-                        <div class="form-group">
-                            <label>電話番号 <span style="color:red;">*</span></label>
-                            <input type="tel" id="buy-phone" class="form-control" required value="090-1234-5678">
-                        </div>
-                        <div class="form-group">
-                            <label>郵便番号 <span style="color:red;">*</span></label>
-                            <input type="text" id="buy-zip" class="form-control" required value="100-0001">
-                        </div>
-                        <div class="form-group">
-                            <label>都道府県 <span style="color:red;">*</span></label>
-                            <select id="checkout-pref-select" class="form-control" onchange="calcCheckout()"></select>
                         </div>
                         <div class="form-group">
                             <label>市区町村・番地 <span style="color:red;">*</span></label>
