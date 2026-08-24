@@ -765,71 +765,107 @@
 
 <!-- ▼ 763行目の直下にここから追加 ▼ -->
   <!-- TAB 4: 出品する -->
-  <div id="mypage-tab-sell" class="admin-tab-content">
-    <h3 style="font-size:1rem; margin-bottom:10px;">新規出品</h3>
-    
-   <form id="seller-form" onsubmit="submitNewProduct(event)">
-  <!-- 1. 出品者情報（個人情報） -->
-  <h4 style="margin: 15px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">出品者情報</h4>
-  
-  <div class="form-group" style="margin-bottom: 10px;">
-    <label>お名前 <span style="color:red;">*</span></label>
-    <input type="text" id="seller-name" required placeholder="山田 太郎" style="width: 100%; padding: 8px; box-sizing: border-box;">
-  </div>
+ <div id="mypage-tab-sell" class="admin-tab-content">
+  <h3 style="font-size:1rem; margin-bottom:15px;"><i class="fa-solid fa-store" style="color: var(--brand-red);"></i> 出品者新規登録 & 商品出品</h3>
 
-  <div class="form-group" style="margin-bottom: 10px;">
-    <label>電話番号 <span style="color:red;">*</span></label>
-    <input type="tel" id="seller-phone" required placeholder="090-1234-5678" style="width: 100%; padding: 8px; box-sizing: border-box;">
-  </div>
+  <form id="seller-form" onsubmit="submitNewProduct(event)">
+    <div class="grid-2">
+      <!-- 左コラム：出品者情報 & 振込口座 -->
+      <div>
+        <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">1. 出品者情報</h3>
+        
+        <div class="form-group">
+          <label>出品者名 / ショップ名 <span style="color:red;">*</span></label>
+          <input type="text" id="seller-name-input" class="form-control" required placeholder="例: ミナトモショップ">
+        </div>
 
-  <div class="form-group" style="margin-bottom: 10px;">
-    <label>メールアドレス <span style="color:red;">*</span></label>
-    <input type="email" id="seller-email" required placeholder="example@email.com" style="width: 100%; padding: 8px; box-sizing: border-box;">
-  </div>
+        <div class="form-group">
+          <label>メールアドレス <span style="color:red;">*</span></label>
+          <input type="email" id="seller-email-input" class="form-control" required placeholder="seller@example.com">
+        </div>
 
-  <div class="form-group" style="margin-bottom: 10px;">
-    <label>振込口座情報（銀行名・支店名・口座番号・名義） <span style="color:red;">*</span></label>
-    <input type="text" id="seller-bank" required placeholder="○○銀行 ○○支店 普通 1234567 ヤマダタロウ" style="width: 100%; padding: 8px; box-sizing: border-box;">
-  </div>
+        <div class="form-group">
+          <label>電話番号 <span style="color:red;">*</span></label>
+          <input type="tel" id="seller-phone-input" class="form-control" required placeholder="090-0000-0000">
+        </div>
 
-  <!-- 2. 出品商品情報 -->
-  <h4 style="margin: 20px 0 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">商品情報</h4>
+        <h3 style="font-size: 0.95rem; margin: 15px 0 10px 0; border-bottom:1px solid #ddd; padding-bottom:4px;">2. 受取用 銀行口座情報</h3>
+        
+        <div class="form-group">
+          <label>金融機関名 <span style="color:red;">*</span></label>
+          <input type="text" id="bank-name-input" class="form-control" required placeholder="例: ゆうちょ銀行 / SMBC">
+        </div>
 
-  <div class="form-group" style="margin-bottom: 10px;">
-    <label>商品画像 <span style="color:red;">*</span></label>
-    <input type="file" id="product-image" accept="image/*" required style="width: 100%;">
-  </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>支店名 <span style="color:red;">*</span></label>
+            <input type="text" id="bank-branch-input" class="form-control" required placeholder="本店">
+          </div>
+          <div class="form-group">
+            <label>口座種別 <span style="color:red;">*</span></label>
+            <select id="bank-type-input" class="form-control">
+              <option value="普通">普通</option>
+              <option value="当座">当座</option>
+            </select>
+          </div>
+        </div>
 
-  <div class="form-group" style="margin-bottom: 10px;">
-    <label>商品名 <span style="color:red;">*</span></label>
-    <input type="text" id="product-title" required placeholder="例：〇〇限定フィギュア" style="width: 100%; padding: 8px; box-sizing: border-box;">
-  </div>
+        <div class="form-group">
+          <label>口座番号 <span style="color:red;">*</span></label>
+          <input type="text" id="bank-number-input" class="form-control" required placeholder="1234567">
+        </div>
 
-  <div class="form-group" style="margin-bottom: 10px;">
-    <label>販売価格 (円) <span style="color:red;">*</span></label>
-    <input type="number" id="product-price" min="1" required placeholder="3000" style="width: 100%; padding: 8px; box-sizing: border-box;">
-  </div>
+        <div class="form-group">
+          <label>口座名義 (カタカナ または アルファベット) <span style="color:red;">*</span></label>
+          <input type="text" id="bank-holder-input" class="form-control" required placeholder="例: ヤマダ タロウ または JOHN SMITH">
+        </div>
+      </div>
 
-  <div class="form-group" style="margin-bottom: 10px;">
-    <label>配送料の負担 <span style="color:red;">*</span></label>
-    <select id="product-shipping" required style="width: 100%; padding: 8px; box-sizing: border-box;">
-      <option value="">選択してください</option>
-      <option value="送料込み(出品者負担)">送料込み (出品者負担)</option>
-      <option value="着払い(購入者負担)">着払い (購入者負担)</option>
-    </select>
-  </div>
+      <!-- 右コラム：出品商品情報 -->
+      <div>
+        <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">3. 出品商品情報</h3>
+        
+        <div class="form-group">
+          <label>商品画像 <span style="color:red;">*</span></label>
+          <div class="image-upload-wrapper" onclick="document.getElementById('new-prod-image').click();">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: #888;"></i>
+            <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして画像を選択</div>
+            <input type="file" id="new-prod-image" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
+            <div class="img-preview-container" id="img-preview-box" style="display:none;">
+              <img id="img-preview" src="" alt="プレビュー">
+            </div>
+          </div>
+        </div>
 
-  <div class="form-group" style="margin-bottom: 15px;">
-    <label>商品説明 <span style="color:red;">*</span></label>
-    <textarea id="product-desc" rows="4" required placeholder="商品の状態やサイズなどの詳細を入力してください" style="width: 100%; padding: 8px; box-sizing: border-box;"></textarea>
-  </div>
+        <div class="form-group">
+          <label>商品名 <span style="color:red;">*</span></label>
+          <input type="text" id="new-prod-name" class="form-control" required placeholder="例: LED水槽ライト">
+        </div>
 
-  <button type="submit" class="btn-red-sm" style="width: 100%; padding: 12px; font-size: 1rem;">出品を完了する</button>
-</form>
+        <div class="form-group">
+          <label>販売価格 (円) <span style="color:red;">*</span></label>
+          <input type="number" id="new-prod-price" class="form-control" min="1" required placeholder="3000">
+        </div>
 
-  </div>
-<!-- ▲ ここまでを追加 ▲ -->
+        <div class="form-group">
+          <label>配送料の負担 <span style="color:red;">*</span></label>
+          <select id="new-prod-shipping" class="form-control" required>
+            <option value="">選択してください</option>
+            <option value="送料込み(出品者負担)">送料込み(出品者負担)</option>
+            <option value="着払い(購入者負担)">着払い(購入者負担)</option>
+          </select>
+        </div>
 
+        <div class="form-group">
+          <label>商品説明 <span style="color:red;">*</span></label>
+          <textarea id="new-prod-desc" class="form-control" rows="3" required placeholder="商品の状態などを入力"></textarea>
+        </div>
+
+        <button type="submit" class="btn-red-sm" style="width:100%; margin-top:15px; padding:10px;">出品を完了する</button>
+      </div>
+    </div>
+  </form>
+</div>
 </div><!-- 764行目の </div> -->
 </div><!-- 765行目の </div> -->
 
@@ -1227,78 +1263,7 @@
     </div>
 
 
-    <!-- MODAL 2: 出品者新規登録 ＆ 出品 -->
-    <div id="seller-modal" class="modal-panel">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('seller-modal')">&times;</span>
-            <h2><i class="fa-solid fa-store" style="color: var(--brand-red);"></i> 出品者新規登録 ＆ 商品出品</h2>
-            <hr style="margin: 15px 0;">
 
-            <form id="seller-form" onsubmit="submitNewProduct(event)">
-                <div class="grid-2">
-                    <div>
-                        <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">1. 出品者情報</h3>
-                        <div class="form-group">
-                            <label>出品者名 / ショップ名 <span style="color:red;">*</span></label>
-                            <input type="text" id="seller-name-input" class="form-control" required placeholder="例: ミナトモショップ">
-                        </div>
-                        <div class="form-group">
-                            <label>メールアドレス <span style="color:red;">*</span></label>
-                            <input type="email" id="seller-email-input" class="form-control" required placeholder="seller@example.com">
-                        </div>
-                        <div class="form-group">
-                            <label>電話番号 <span style="color:red;">*</span></label>
-                            <input type="tel" id="seller-phone-input" class="form-control" required placeholder="090-0000-0000">
-                        </div>
-
-                        <h3 style="font-size: 0.95rem; margin: 15px 0 10px 0; border-bottom:1px solid #ddd; padding-bottom:4px;">2. 受取用 銀行口座情報 <span style="color:red;">*</span></h3>
-                        <div class="form-group">
-                            <label>金融機関名 <span style="color:red;">*</span></label>
-                            <input type="text" id="bank-name-input" class="form-control" required placeholder="例: ゆうちょ銀行 / SMBC">
-                        </div>
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label>支店名 <span style="color:red;">*</span></label>
-                                <input type="text" id="bank-branch-input" class="form-control" required placeholder="本店">
-                            </div>
-                            <div class="form-group">
-                                <label>口座種別 <span style="color:red;">*</span></label>
-                                <select id="bank-type-input" class="form-control"><option value="普通">普通</option><option value="当座">当座</option></select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>口座番号 <span style="color:red;">*</span></label>
-                            <input type="text" id="bank-number-input" class="form-control" required placeholder="1234567">
-                        </div>
-                        <div class="form-group">
-                            <label>口座名義 (カタカナ または アルファベット) <span style="color:red;">*</span></label>
-                            <input type="text" id="bank-holder-input" class="form-control" required placeholder="例: ヤマダ タロウ または JOHN SMITH">
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">3. 出品商品情報</h3>
-                        
-                        <div class="form-group">
-                            <label>商品画像 <span style="color:red;">*</span></label>
-                            <div class="image-upload-wrapper" onclick="document.getElementById('new-prod-image').click();">
-                                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: #888;"></i>
-                                <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして画像を選択</div>
-                                <input type="file" id="new-prod-image" accept="image/*" onchange="handleImageUpload(event)">
-                                <div class="img-preview-container" id="img-preview-box" style="display:none;">
-                                    <img id="img-preview" src="" alt="プレビュー">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>商品名 <span style="color:red;">*</span></label>
-                            <input type="text" id="new-prod-name" class="form-control" required placeholder="例: LED水槽ライト">
-                        </div>
-                        <div class="form-group">
-                  
-    </div>
-    </div>
 
 
     <!-- MODAL 3: 運営者専用 ログイン ＆ 3重ロック新規登録 (上限1名制限) -->
