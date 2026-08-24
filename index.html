@@ -3143,6 +3143,17 @@ function openMypageTab(tabId, element) {
     }
 }
 function submitNewProduct(event) {
+    if (event) event.preventDefault();
+    
+    // ★★★★ ここに追加（貼り付け）します！ ★★★★
+    console.log("【デバッグ1】出品ボタンが押されました！");
+
+    const nameEl = document.getElementById('new-prod-name');
+    const priceEl = document.getElementById('new-prod-price');
+    console.log("【デバッグ2】入力要素の取得:", { nameEl, priceEl });
+    // ===========================================
+
+    // 1. 入力値の取得 ... (これ以降に既存の処理が続きます)
     event.preventDefault();
 
     // 1. 入力値の取得
