@@ -3480,7 +3480,7 @@ function selectCategory(category) {
 // === 運営管理・お問合せ・出品登録ボタンを強制的に動かす共通処理 ===
 document.addEventListener('click', function(e) {
     // 1. 運営管理ボタン
-   if (e.target.closest("button[onclick*='tryOpenAdmin']")) {
+   if (e.target.closest("button") && e.target.closest("button").getAttribute('onclick')?.includes('tryOpenAdmin'))
         e.stopPropagation();
         e.preventDefault();
         if (typeof tryOpenAdmin === 'function') {
@@ -3493,7 +3493,7 @@ document.addEventListener('click', function(e) {
     }
     
     // 2. お問合せボタン
-    if (e.target.closest("button[onclick*='inquiry']")) {
+   if (e.target.closest("button") && e.target.closest("button").getAttribute('onclick')?.includes('inquiry')) {
         e.preventDefault();
         if (typeof openModal === 'function') {
             openModal('inquiry-modal');
@@ -3505,7 +3505,7 @@ document.addEventListener('click', function(e) {
     }
     
     // 3. 出品者登録・出品ボタン
-    if (e.target.closest("button[onclick*='Sell'], .btn-red-sm")) {
+   if (e.target.closest("button") && (e.target.closest("button").getAttribute('onclick')?.includes('Sell') || e.target.closest("button").classList.contains('btn-red-sm'))) {
         e.stopPropagation();
         e.preventDefault();
         if (typeof openMypageSellTab === 'function') {
