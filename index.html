@@ -772,11 +772,6 @@ window.closeModal = function(modalId) {
 <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">カートの確認</button>
 <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-fav', this)">保存商品 (お気に入り)</button>
 <button type="button" class="admin-tab-btn" onclick="openMypageTab('mypage-tab-sell', this)">出品する</button>
-    document.querySelectorAll('.admin-tab-btn').forEach(function(btn) {
-        btn.classList.remove('active');
-    });
-    this.classList.add('active');
-">出品する</button>
             </div>
 
             <!-- TAB 1: メール・チャット履歴 -->
