@@ -3230,11 +3230,11 @@ const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
 const desc = descEl ? descEl.value : '';
 const shipping = shippingEl ? shippingEl.value : '配送';
 // エラーで途中で止まらないよう安全に値を取り出す
-const name = nameEl ? nameEl.value : '';
-const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
-const desc = descEl ? descEl.value : '';
-const shipping = shippingEl ? shippingEl.value : '配送';
-const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
+name = nameEl ? nameEl.value : '';
+price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
+desc = descEl ? descEl.value : '';
+shipping = shippingEl ? shippingEl.value : '配送';
+category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
     
     const imgPreview = document.getElementById('img-preview');
     const imgSrc = (imgPreview && imgPreview.src) ? imgPreview.src : '';
