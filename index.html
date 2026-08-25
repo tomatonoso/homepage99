@@ -3226,7 +3226,7 @@ console.log("【デバッグ2】 入力要素の取得:", { nameEl, priceEl, des
 
 // エラーで途中で止まらないよう安全に値を取り出す
 // 1. 各入力要素の安全な取得
-const nameEl = document.getElementById('new-prod-name');
+nameEl = document.getElementById('new-prod-name');
 const priceEl = document.getElementById('new-prod-price');
 const descEl = document.getElementById('new-prod-desc');
 const shippingEl = document.getElementById('new-prod-shipping');
@@ -3453,6 +3453,14 @@ window.selectCategory = function(btn, cat) {
     if(btn) btn.classList.add('active'); 
     window.currentCategory = cat;
     if(typeof renderProducts === 'function') renderProducts();
+};
+window.selectCategory = function(button, categoryName) {
+    // アクティブクラスの切り替えなどの処理
+    document.querySelectorAll('.chip').forEach(btn => btn.classList.remove('active'));
+    if (button) button.classList.add('active');
+    
+    // 必要に応じた絞り込み処理など
+    console.log("選択されたカテゴリ:", categoryName);
 };
 </script>
 </body>
