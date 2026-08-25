@@ -3055,9 +3055,9 @@ function tryOpenRequestModal() {
 // 未ログイン時にマイページやチャットを開こうとしたら自動でブロックする処理（閉じるボタン除外版）
 document.addEventListener('click', function(e) {
     // ×ボタンや「閉じる」処理（closeModal）が含まれる要素をクリックした場合は除外する
-    if (e.target.closest('[onclick*="closeModal"], .close, .modal-close')) {
-        return;
-    }
+  if (e.target.closest('[onclick*="closeModal"], .close, .modal-close, .admin-tab-btn, [onclick*="openMypageTab"]')) {
+    return;
+}
 
     // マイページやチャットを開く要素をクリックしたか判定
     const target = e.target.closest('[onclick*="buyer-mypage-modal"], [onclick*="buyer-chat-modal"]');
