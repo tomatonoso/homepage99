@@ -3225,17 +3225,21 @@ console.log("【デバッグ2】 入力要素の取得:", { nameEl, priceEl, des
 // event.preventDefault();
 
 // エラーで途中で止まらないよう安全に値を取り出す
+// 1. 各入力要素の安全な取得
+const nameEl = document.getElementById('new-prod-name');
+const priceEl = document.getElementById('new-prod-price');
+const descEl = document.getElementById('new-prod-desc');
+const shippingEl = document.getElementById('new-prod-shipping');
+
+// デバッグ用ログ
+console.log("【デバッグ2】 入力要素の取得:", { nameEl, priceEl, descEl, shippingEl });
+
+// 安全に値を取り出す（ここで一度だけ const で宣言する）
 const name = nameEl ? nameEl.value : '';
 const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
 const desc = descEl ? descEl.value : '';
 const shipping = shippingEl ? shippingEl.value : '配送';
-// エラーで途中で止まらないよう安全に値を取り出す
-name = nameEl ? nameEl.value : '';
-price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
-desc = descEl ? descEl.value : '';
-shipping = shippingEl ? shippingEl.value : '配送';
-category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
-    
+const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
     const imgPreview = document.getElementById('img-preview');
     const imgSrc = (imgPreview && imgPreview.src) ? imgPreview.src : '';
 
@@ -3410,31 +3414,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // --- 2. 出品ボタンが押されたときの処理 ---
-window.submitNewProduct = function(event) {
-    if (event) event.preventDefault();
 
-    const name = document.getElementById('new-prod-name')?.value || '';
-    const price = parseInt(document.getElementById('new-prod-price')?.value, 10) || 0;
-    const desc = document.getElementById('new-prod-desc')?.value || '';
-    const category = document.getElementById('new-prod-category')?.value || 'その他';
-    const newProdId = 'prod_' + Date.now();
-
-    const newProduct = {
-        id: newProdId,
-        name: name,
-        price: price,
-        description: desc,
-        category: category,
-        seller: '出品者'
-    };
-
-    let products = JSON.parse(localStorage.getItem('my_products_list')) || [];
-    products.unshift(newProduct);
-    localStorage.setItem('my_products_list', JSON.stringify(products));
-
-    alert('商品を出品しました！');
-    location.reload(); 
-};
 
 // --- 3. 運営管理・お問い合わせ・各種ボタンを確実に動かすための共通関数 ---
 window.openModal = function(id) { 
