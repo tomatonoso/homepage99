@@ -3518,6 +3518,25 @@ document.addEventListener('click', function(e) {
         return;
     }
 }, true);
+// === ボタンから呼ばれる関数を確実にグローバルに定義する ===
+window.openModal = window.openModal || function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'block';
+};
+
+window.tryOpenAdmin = window.tryOpenAdmin || function() {
+    const adminModal = document.getElementById('admin-login-modal') || document.getElementById('admin-dashboard-modal');
+    if (adminModal) adminModal.style.display = 'block';
+};
+
+window.openMypageSellTab = window.openMypageSellTab || function() {
+    const sellModal = document.getElementById('seller-modal') || document.getElementById('new-product-modal');
+    if (sellModal) {
+        sellModal.style.display = 'block';
+    } else {
+        alert('出品画面が見つかりません');
+    }
+};
 </script>
 </body>
 </html>
