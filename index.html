@@ -771,13 +771,15 @@ window.closeModal = function(modalId) {
 <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-chat', this)">メール (チャット)</button>
 <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">カートの確認</button>
 <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-fav', this)">保存商品 (お気に入り)</button>
-<button type="button" class="admin-tab-btn" onclick="(function(btn){
+<button type="button" class="admin-tab-btn" onclick="(function(e, btn){
+    e.stopPropagation();
+    e.preventDefault();
     document.querySelectorAll('.admin-tab-content').forEach(c => { c.classList.remove('active'); c.style.display = 'none'; });
     const target = document.getElementById('mypage-tab-sell');
     if(target) { target.classList.add('active'); target.style.display = 'block'; }
     document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-})(this);">出品する</button>
+})(event, this);">出品する</button>
             </div>
 
             <!-- TAB 1: メール・チャット履歴 -->
