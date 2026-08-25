@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <!-- スマホ対応用に表示領域（Viewport）を設定 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ミナトモ！ - フリマ＆ECプラットフォーム</title>
     <!-- FontAwesome -->
@@ -98,7 +97,6 @@
             font-size: 0.85rem;
         }
 
-        /* Amazon風 カート・ユーザー状態表示スタイル */
         .header-cart-badge {
             background-color: #f39c12;
             color: white;
@@ -118,11 +116,13 @@
 
         .user-status-text {
             font-weight: bold;
-            color: var(--text-dark);
-            max-width: 120px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: var(--green-badge);
+            background: #e8f5e9;
+            padding: 6px 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-outline {
@@ -147,21 +147,6 @@
             cursor: pointer;
         }
 
-        .btn-chat {
-            background-color: #17a2b8;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 4px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-chat:hover { background-color: #138496; }
         .btn-danger { background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .btn-success { background-color: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
         .btn-warning { background-color: #ffc107; color: #212529; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
@@ -173,7 +158,6 @@
             padding: 0 16px;
         }
 
-        /* お知らせエリア Style */
         .news-banner-section {
             background-color: #fff8e1;
             border: 1px solid #ffe082;
@@ -199,10 +183,7 @@
             gap: 10px;
         }
         .news-item:last-child { border-bottom: none; }
-        .news-date { font-size: 0.75rem; color: #888; }
-        .news-badge { background-color: #ff9800; color: white; font-size: 0.7rem; padding: 1px 6px; border-radius: 3px; font-weight: bold; }
 
-        /* Filter Section */
         .filter-section { margin-bottom: 24px; }
         .filter-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 10px; color: var(--text-dark); }
         .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; }
@@ -262,7 +243,6 @@
             justify-content: space-between;
         }
 
-        /* Product Grid */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -302,30 +282,6 @@
             object-fit: cover;
         }
 
-        .fav-icon {
-            position: absolute;
-            top: 10px; right: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: #ccc; font-size: 0.85rem;
-            z-index: 2;
-            transition: color 0.2s;
-            pointer-events: none;
-        }
-
-        .fav-icon.active {
-            color: #ff4d4f;
-        }
-
-        .method-badges {
-            position: absolute;
-            bottom: 8px; left: 8px;
-            display: flex; gap: 4px;
-            z-index: 2;
-        }
-
         .badge-shipping { background-color: var(--blue-badge); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
         .badge-hand { background-color: var(--green-badge); color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
         .badge-recommend { background-color: #ff9800; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; position: absolute; top: 10px; left: 10px; z-index: 2; }
@@ -341,7 +297,6 @@
         .product-title { font-size: 0.9rem; color: var(--text-dark); line-height: 1.3; }
         .product-price { font-size: 1.1rem; font-weight: bold; color: var(--brand-red); }
         .category-tag-sm { background-color: #e8f4ff; color: #007bff; font-size: 0.75rem; padding: 3px 8px; border-radius: 10px; width: fit-content; }
-        .card-footer-stats { display: flex; align-items: center; gap: 12px; font-size: 0.75rem; color: #888; margin-top: auto; padding-top: 6px; }
 
         .floating-sell-btn {
             position: fixed;
@@ -365,7 +320,6 @@
         .footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 15px; flex-wrap: wrap; }
         .footer-links a { color: var(--text-dark); text-decoration: none; cursor: pointer; }
 
-        /* Modals */
         .modal-panel {
             display: none;
             position: fixed;
@@ -412,9 +366,7 @@
             text-align: center;
             background-color: #fafafa;
             cursor: pointer;
-            transition: border-color 0.2s;
         }
-        .image-upload-wrapper:hover { border-color: var(--brand-red); }
         .image-upload-wrapper input[type="file"] { display: none; }
         .img-preview-container {
             margin-top: 10px;
@@ -440,156 +392,6 @@
         .admin-tab-btn.active { background: #007bff; color: white; }
         .admin-tab-content { display: none; }
         .admin-tab-content.active { display: block; }
-
-        .status-badge { padding: 2px 6px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; color: white; }
-        .bg-success { background-color: #28a745; }
-        .bg-danger { background-color: #dc3545; }
-        .bg-warning { background-color: #ffc107; color: #212529; }
-        .bg-secondary { background-color: #6c757d; }
-        .bg-info { background-color: #17a2b8; }
-
-        .lock-section-title {
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #d9534f;
-            background: #fdf7f7;
-            padding: 6px 10px;
-            border-left: 3px solid #d9534f;
-            margin: 12px 0 8px 0;
-        }
-
-        .fee-calc-box {
-            background-color: #fff9e6;
-            border: 1px solid #ffe0b2;
-            border-radius: 6px;
-            padding: 10px 14px;
-            margin-top: 8px;
-            font-size: 0.85rem;
-            line-height: 1.6;
-        }
-
-        .chat-history-box {
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            height: 220px;
-            overflow-y: auto;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .chat-msg-bubble {
-            max-width: 80%;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .chat-msg-user {
-            align-self: flex-end;
-            background-color: #007bff;
-            color: white;
-            border-bottom-right-radius: 2px;
-        }
-
-        .chat-msg-seller {
-            align-self: flex-start;
-            background-color: #e9ecef;
-            color: #333;
-            border-bottom-left-radius: 2px;
-        }
-
-        .chat-meta {
-            font-size: 0.7rem;
-            color: #888;
-            margin-top: 2px;
-            text-align: right;
-        }
-
-        .review-box {
-            background-color: #fafafa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-        .review-stars { color: #ff9800; font-weight: bold; }
-        /* ==========================================
-           スマートフォン用レスポンシブスタイル (画面幅768px以下)
-           ========================================== */
-        @media (max-width: 768px) {
-            /* ヘッダーの要素を縦並びに配置変更 */
-            header {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px 12px;
-            }
-
-            .header-logo {
-                font-size: 1.4rem;
-            }
-
-            .search-container {
-                width: 100%;
-                max-width: none;
-            }
-
-            .header-user-nav {
-                width: 100%;
-                justify-content: space-between;
-                flex-wrap: wrap;
-                gap: 6px;
-            }
-
-            .header-user-nav button, 
-            .header-cart-badge {
-                font-size: 0.75rem;
-                padding: 6px 8px;
-            }
-
-            /* 商品一覧をスマホで2列表示に変更 */
-            .product-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-
-            .product-image-box {
-                height: 130px;
-            }
-
-            /* 2列レイアウトを1列に切り替え（モーダル・フォーム内） */
-            .grid-2 {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            /* モーダルの余白調整 */
-            .modal-content {
-                padding: 16px 12px;
-                margin: 10px auto;
-                width: 95%;
-            }
-
-            /* フローティング出品ボタンをスマホ用にサイズ調整 */
-            .floating-sell-btn {
-                width: 56px;
-                height: 56px;
-                bottom: 20px;
-                right: 20px;
-                font-size: 0.75rem;
-            }
-
-            /* 受け取り方法などの選択要素の折り返し調整 */
-            .receive-box {
-                flex-wrap: wrap;
-                gap: 8px;
-                padding: 10px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -598,74 +400,31 @@
     <header>
         <div class="header-logo" onclick="window.location.reload();">ミナトモ！</div>
         <div class="search-container">
-            <!-- autocomplete="off" を設定してメールアドレスなどの補完の誤爆を防ぎます -->
-         <input type="text" id="search-keyword" class="search-input" placeholder="何をお探しですか？" autocomplete="one-time-code" onkeyup="filterProducts()">
+            <input type="text" id="search-keyword" class="search-input" placeholder="何をお探しですか？" autocomplete="off" onkeyup="filterProducts()">
             <button class="search-btn" onclick="filterProducts()">検 索</button>
         </div>
         <div class="header-user-nav">
-            <!-- Amazon風 カートボタン -->
             <div id="header-cart-btn" class="header-cart-badge" onclick="openModal('cart-modal')" style="display: none;">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span>カート: <strong id="nav-cart-count">0</strong>点</span>
+                <span>カート: <strong id="nav-cart-count">0</strong>점</span>
             </div>
-<script>
-// ボタンから呼ばれる関数を最初に完全に定義しておく
-window.openModal = function(id) { 
-    const el = document.getElementById(id); 
-    if(el) el.style.display = 'block'; 
-};
-
-window.tryOpenAdmin = function() { 
-    const adminTab = document.getElementById('admin-tab') || document.querySelector('.admin-section'); 
-    if(adminTab) adminTab.style.display = 'block';
-    else alert('管理画面エリアが見つかりません');
-};
-
-window.openMypageSellTab = function() { 
-    if(typeof openMypageTab === 'function') {
-        openMypageTab('mypage-tab-sell');
-    } else {
-        const target = document.getElementById('mypage-tab-sell');
-        if(target) target.style.display = 'block';
-    }
-};
-// 買い手認証処理
-window.handleBuyerAuth = function(event) {
-    if (event) event.preventDefault();
-    alert('認証処理を実行しました');
-};
-
-// モーダルを閉じる処理
-window.closeModal = function(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-    }
-};
-</script>
-            <!-- 購入者 ログイン / アカウント切り替えボタン -->
             <div id="user-auth-btn-area">
                 <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
             </div>
-
-           <button class="btn-outline" onclick="const m = document.getElementById('inquiry-modal'); if(m) m.style.display='block'; else alert('お問合せ画面が見つかりません');"><i class="fa-solid fa-headset"></i> お問合せ</button>
-
-<button class="btn-outline" onclick="const m = document.getElementById('admin-login-modal'); if(m) m.style.display='block'; else alert('管理画面が見つかりません');"><i class="fa-solid fa-gear"></i> 運営管理</button>
-
-<button class="btn-red-sm" onclick="const m = document.getElementById('seller-modal') || document.getElementById('new-product-modal'); if(m) m.style.display='block'; else alert('出品画面が見つかりません');">出品者登録・出品</button>
+            <button class="btn-outline" onclick="openModal('inquiry-modal')"><i class="fa-solid fa-headset"></i> お問合せ</button>
+            <button class="btn-outline" onclick="openModal('admin-login-modal')"><i class="fa-solid fa-gear"></i> 運営管理</button>
+            <button class="btn-red-sm" onclick="checkAuthAndOpenSell()">出品者登録・出品</button>
+        </div>
     </header>
 
     <div class="container">
-
-        <!-- 運営からのお知らせ表示エリア -->
+        <!-- お知らせエリア -->
         <div class="news-banner-section">
             <div class="news-header">
                 <i class="fa-solid fa-bullhorn"></i>
                 <span>運営からのお知らせ</span>
             </div>
-            <div id="news-list-container">
-                <!-- Dynamic News List -->
-            </div>
+            <div id="news-list-container"></div>
         </div>
 
         <!-- Filters -->
@@ -680,110 +439,85 @@ window.closeModal = function(modalId) {
                 <button class="chip" onclick="selectCategory(this, '本・音楽・ゲーム')">本・音楽・ゲーム</button>
                 <button class="chip" onclick="selectCategory(this, '生活雑貨')">生活雑貨</button>
             </div>
-            <!-- 価格絞り込みフォーム -->
-<!-- 価格絞り込みフォーム -->
-<div class="price-filter-container" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.9rem;">
-    <span>価格:</span>
-    <input type="number" id="min-price" class="form-control" placeholder="下限なし" style="width: 110px; padding: 6px 10px;">
-    <span>円 〜</span>
-    <input type="number" id="max-price" class="form-control" placeholder="上限なし" style="width: 110px; padding: 6px 10px;">
-    <span>円</span>
-
-    <button class="btn-secondary" onclick="clearPriceFilter()" style="padding: 6px 12px; margin-left: 8px;">クリア</button>
-</div>
+            
+            <div class="price-filter-container" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.9rem;">
+                <span>価格:</span>
+                <input type="number" id="min-price" class="form-control" placeholder="下限なし" style="width: 110px; padding: 6px 10px;" oninput="filterProducts()">
+                <span>円 〜</span>
+                <input type="number" id="max-price" class="form-control" placeholder="上限なし" style="width: 110px; padding: 6px 10px;" oninput="filterProducts()">
+                <span>円</span>
+                <button class="btn-secondary" onclick="clearPriceFilter()" style="padding: 6px 12px; margin-left: 8px;">クリア</button>
+            </div>
 
             <div class="receive-box">
                 <span>受け取り方法:</span>
                 <button class="pill-btn active" onclick="selectReceiveMethod(this, 'ALL')">すべて</button>
                 <button class="pill-btn" onclick="selectReceiveMethod(this, 'SHIP')">配送のみ</button>
                 <button class="pill-btn" onclick="selectReceiveMethod(this, 'HAND')">手渡し可能</button>
-               <button class="btn-primary" onclick="filterProducts()" style="b...
-   　　　　　　 <i class="fa-solid fa-magnifying-glass"></i> 検索
-　　　　　　　</button>
             </div>
         </div>
 
-      <!-- Product List -->
+        <!-- Product List -->
         <div class="section-header">
             <span>おすすめ・登録商品一覧</span>
         </div>
+        <div class="product-grid" id="main-product-grid" style="margin-bottom: 40px;"></div>
 
-        <div class="product-grid" id="main-product-grid" style="margin-bottom: 40px;">
-            <!-- Dynamic Cards -->
-        </div>
-
-        <!-- ▼ 追加：逆出品（購入リクエスト）エリア ▼ -->
+        <!-- 購入リクエスト -->
         <div class="section-header">
             <span>購入リクエスト（逆出品一覧）</span>
-       <button class="btn-outline" tryOpenRequestModal()="openRequestModal()"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
+            <button class="btn-outline" onclick="openModal('request-post-modal')"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
         </div>
-
-     <!-- 10個まで表示し、横スクロールで一番右に全てボタンを配置 -->
-        <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;" id="buyer-requests-scroll">
-            
-            <!-- ※以下は動的に生成される想定のリクエストカードのHTML例です（最大10個） -->
+        <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;">
             <div style="min-width: 220px; background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color);">
                 <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥5,000</span></div>
                 <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">〇〇の限定フィギュア探しています</div>
-                <div style="font-size: 0.8rem; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">箱無しでも構いません。傷が少ないものを希望します。</div>
-            </div>
-            <!-- （※同様のカードが最大10件並ぶ想定） -->
-
-            <!-- 一番右に現れる「全て」ボタン（購入者投稿・一覧ページへ飛ぶ） -->
-          <!-- 一番右に現れる「全て」ボタン（モーダルを開く） -->
-            <div style="min-width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8f9fa; border-radius: var(--radius); cursor: pointer; border: 1px dashed #ccc; transition: background 0.2s;" onclick="openModal('request-list-modal')">>
-                <i class="fa-solid fa-circle-arrow-right" style="font-size: 1.8rem; color: var(--brand-red); margin-bottom: 8px;"></i>
-                <span style="font-size: 0.9rem; font-weight: bold; color: var(--text-dark);">全て見る</span>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">箱無しでも構いません。傷が少ないものを希望します。</div>
             </div>
         </div>
-        <!-- ▲ 追加：逆出品（購入リクエスト）エリア ▲ -->
-
     </div>
 
-    <!-- Floating Sell Button -->
-
-    <!-- Floating Sell Button -->
-    <button class="floating-sell-btn" onclick="openSellerModal()">
+    <button class="floating-sell-btn" onclick="checkAuthAndOpenSell()">
         <i class="fa-solid fa-camera"></i>
         <span>出品</span>
     </button>
 
-    <!-- Footer -->
     <footer>
         <div class="footer-links">
             <a onclick="openModal('tokusho-modal')">特定商取引法に基づく表記</a> | 
-            <a onclick="openModal('privacy-modal')">個人情報保護方針（プライバシーポリシー）</a> | 
+            <a onclick="openModal('privacy-modal')">個人情報保護方針</a> | 
             <a onclick="openModal('inquiry-modal')">お問い合わせ</a>
         </div>
         <p>&copy; ミナトモ！ All Rights Reserved.</p>
     </footer>
 
-
-    <!-- MODAL: 購入者マイページ モーダル -->
+    <!-- MODAL: マイページ -->
     <div id="buyer-mypage-modal" class="modal-panel">
         <div class="modal-content" style="max-width: 850px;">
             <span class="close-modal" onclick="closeModal('buyer-mypage-modal')">&times;</span>
-          <h2><i class="fa-solid fa-user-gear" style="..."></i> マイページ</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2><i class="fa-solid fa-user-gear"></i> マイページ</h2>
+                <button class="btn-danger" onclick="handleLogout()" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</button>
+            </div>
             <hr style="margin: 15px 0;">
 
             <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
-               <!-- タブボタンの記述例 -->
-<button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-chat', this)">メール (チャット)</button>
-<button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">カートの確認</button>
-<button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-fav', this)">保存商品 (お気に入り)</button>
-<button type="button" class="admin-tab-btn" onclick="openMypageTab('mypage-tab-sell', this)">出品する</button>
+                <button class="admin-tab-btn active" onclick="openMypageTab('mypage-tab-chats', this)">メール (チャット)</button>
+                <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">現在のカート内商品</button>
+                <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-favs', this)">保存商品</button>
+                <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-sell', this)">出品する</button>
             </div>
 
-            <!-- TAB 1: メール・チャット履歴 -->
             <div id="mypage-tab-chats" class="admin-tab-content active">
-                <h3 style="font-size:1rem; margin-bottom:10px;">送信済みの非公開チャット・お問い合わせ</h3>
-                <div id="mypage-chats-list" style="max-height:350px; overflow-y:auto;"></div>
+                <h3>送信済みの非公開チャット・お問い合わせ</h3>
+                <div id="mypage-chats-list" style="max-height:350px; overflow-y:auto; margin-top:10px;">
+                    <p style="color:#888; font-size:0.9rem;">現在やり取り中のチャットはありません。</p>
+                </div>
             </div>
 
-            <!-- TAB 2: カート情報 -->
             <div id="mypage-tab-cart" class="admin-tab-content">
-                <h3 style="font-size:1rem; margin-bottom:10px;">現在のカート内商品</h3>
-                <div id="mypage-cart-list" style="min-height: 100px; max-height: 250px; overflow-y: auto;"></div>
+                <h3>現在のカート内商品</h3>
+                <div id="mypage-cart-list" style="min-height: 100px; max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
                 <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: right;">
                     <span>合計金額: </span>
                     <strong id="mypage-cart-total" style="font-size: 1.3rem; color: var(--brand-red);">¥0</strong>
@@ -793,2772 +527,728 @@ window.closeModal = function(modalId) {
                 </button>
             </div>
 
-          <!-- TAB 3: 保存商品 (お気に入り) -->
-  <div id="mypage-tab-favs" class="admin-tab-content">
-    <h3 style="font-size:1rem; margin-bottom:10px;">保存した商品一覧</h3>
-    <div id="mypage-favs-grid" class="product-grid" style="..."></div>
-  </div><!-- 763行目の </div> -->
-
-<!-- ▼ 763行目の直下にここから追加 ▼ -->
-  <!-- TAB 4: 出品する -->
- <div id="mypage-tab-sell" class="admin-tab-content">
-  <h3 style="font-size:1rem; margin-bottom:15px;"><i class="fa-solid fa-store" style="color: var(--brand-red);"></i> 出品者新規登録 & 商品出品</h3>
-
-  <form id="seller-form" onsubmit="submitNewProduct(event)">
-    <div class="grid-2">
-      <!-- 左コラム：出品者情報 & 振込口座 -->
-      <div>
-        <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">1. 出品者情報</h3>
-        
-        <div class="form-group">
-          <label>出品者名 / ショップ名 <span style="color:red;">*</span></label>
-          <input type="text" id="seller-name-input" class="form-control" required placeholder="例: ミナトモショップ">
-        </div>
-
-        <div class="form-group">
-          <label>メールアドレス <span style="color:red;">*</span></label>
-          <input type="email" id="seller-email-input" class="form-control" required placeholder="seller@example.com">
-        </div>
-
-        <div class="form-group">
-          <label>電話番号 <span style="color:red;">*</span></label>
-          <input type="tel" id="seller-phone-input" class="form-control" required placeholder="090-0000-0000">
-        </div>
-
-        <h3 style="font-size: 0.95rem; margin: 15px 0 10px 0; border-bottom:1px solid #ddd; padding-bottom:4px;">2. 受取用 銀行口座情報</h3>
-        
-        <div class="form-group">
-          <label>金融機関名 <span style="color:red;">*</span></label>
-          <input type="text" id="bank-name-input" class="form-control" required placeholder="例: ゆうちょ銀行 / SMBC">
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label>支店名 <span style="color:red;">*</span></label>
-            <input type="text" id="bank-branch-input" class="form-control" required placeholder="本店">
-          </div>
-          <div class="form-group">
-            <label>口座種別 <span style="color:red;">*</span></label>
-            <select id="bank-type-input" class="form-control">
-              <option value="普通">普通</option>
-              <option value="当座">当座</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>口座番号 <span style="color:red;">*</span></label>
-          <input type="text" id="bank-number-input" class="form-control" required placeholder="1234567">
-        </div>
-
-        <div class="form-group">
-          <label>口座名義 (カタカナ または アルファベット) <span style="color:red;">*</span></label>
-          <input type="text" id="bank-holder-input" class="form-control" required placeholder="例: ヤマダ タロウ または JOHN SMITH">
-        </div>
-      </div>
-
-      <!-- 右コラム：出品商品情報 -->
-      <div>
-        <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">3. 出品商品情報</h3>
-        
-        <div class="form-group">
-          <label>商品画像 <span style="color:red;">*</span></label>
-          <div class="image-upload-wrapper" onclick="document.getElementById('new-prod-image').click();">
-            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: #888;"></i>
-            <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして画像を選択</div>
-            <input type="file" id="new-prod-image" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
-            <div class="img-preview-container" id="img-preview-box" style="display:none;">
-              <img id="img-preview" src="" alt="プレビュー">
+            <div id="mypage-tab-favs" class="admin-tab-content">
+                <h3>保存した商品一覧</h3>
+                <div id="mypage-favs-grid" class="product-grid" style="margin-top:10px;"></div>
             </div>
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label>商品名 <span style="color:red;">*</span></label>
-          <input type="text" id="new-prod-name" class="form-control" required placeholder="例: LED水槽ライト">
-        </div>
+            <div id="mypage-tab-sell" class="admin-tab-content">
+                <h3><i class="fa-solid fa-store" style="color: var(--brand-red);"></i> 出品者新規登録 & 商品出品</h3>
+                <form id="seller-form" onsubmit="submitNewProduct(event)">
+                    <div class="grid-2" style="margin-top:10px;">
+                        <div>
+                            <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">1. 出品者情報</h3>
+                            <div class="form-group"><label>出品者名 / ショップ名 *</label><input type="text" id="seller-name-input" class="form-control" required placeholder="ミナトモショップ"></div>
+                            <div class="form-group"><label>メールアドレス *</label><input type="email" id="seller-email-input" class="form-control" required placeholder="seller@example.com"></div>
+                            <div class="form-group"><label>電話番号 *</label><input type="tel" id="seller-phone-input" class="form-control" required placeholder="090-0000-0000"></div>
 
-        <div class="form-group">
-          <label>販売価格 (円) <span style="color:red;">*</span></label>
-          <input type="number" id="new-prod-price" class="form-control" min="1" required placeholder="3000">
+                            <h3 style="font-size: 0.95rem; margin: 15px 0 10px 0; border-bottom:1px solid #ddd; padding-bottom:4px;">2. 受取用 銀行口座情報</h3>
+                            <div class="form-group"><label>金融機関名 *</label><input type="text" id="bank-name-input" class="form-control" required placeholder="ゆうちょ銀行"></div>
+                            <div class="grid-2">
+                                <div class="form-group"><label>支店名 *</label><input type="text" id="bank-branch-input" class="form-control" required placeholder="本店"></div>
+                                <div class="form-group"><label>口座種別 *</label><select id="bank-type-input" class="form-control"><option value="普通">普通</option><option value="当座">当座</option></select></div>
+                            </div>
+                            <div class="form-group"><label>口座番号 *</label><input type="text" id="bank-number-input" class="form-control" required placeholder="1234567"></div>
+                            <div class="form-group"><label>口座名義 *</label><input type="text" id="bank-holder-input" class="form-control" required placeholder="ヤマダ タロウ"></div>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">3. 出品商品情報</h3>
+                            <div class="form-group">
+                                <label>商品画像 *</label>
+                                <div class="image-upload-wrapper" onclick="document.getElementById('new-prod-image').click();">
+                                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.8rem; color: #888;"></i>
+                                    <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして画像を選択</div>
+                                    <input type="file" id="new-prod-image" accept="image/*" onchange="handleImageUpload(event)">
+                                    <div class="img-preview-container" id="img-preview-box" style="display:none;"><img id="img-preview" src=""></div>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>商品名 *</label><input type="text" id="new-prod-name" class="form-control" required placeholder="商品名"></div>
+                            <div class="form-group"><label>カテゴリー *</label>
+                                <select id="new-prod-category" class="form-control">
+                                    <option value="ファッション">ファッション</option>
+                                    <option value="家電・スマホ・カメラ">家電・スマホ・カメラ</option>
+                                    <option value="インテリア・家具">インテリア・家具</option>
+                                    <option value="アクア・ペット用品">アクア・ペット用品</option>
+                                    <option value="本・音楽・ゲーム">本・音楽・ゲーム</option>
+                                    <option value="生活雑貨">生活雑貨</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>販売価格 (円) *</label><input type="number" id="new-prod-price" class="form-control" required min="1" placeholder="3000"></div>
+                            <div class="form-group"><label>配送料の負担 *</label><select id="new-prod-shipping" class="form-control"><option value="送料込み(出品者負担)">送料込み(出品者負担)</option><option value="着払い(購入者負担)">着払い(購入者負担)</option></select></div>
+                            <div class="form-group"><label>商品説明 *</label><textarea id="new-prod-desc" class="form-control" rows="3" required placeholder="商品の状態"></textarea></div>
+                            <button type="submit" class="btn-red-sm" style="width:100%; margin-top:15px; padding:10px;">出品を完了する</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <div class="form-group">
-          <label>配送料の負担 <span style="color:red;">*</span></label>
-          <select id="new-prod-shipping" class="form-control" required>
-            <option value="">選択してください</option>
-            <option value="送料込み(出品者負担)">送料込み(出品者負担)</option>
-            <option value="着払い(購入者負担)">着払い(購入者負担)</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>商品説明 <span style="color:red;">*</span></label>
-          <textarea id="new-prod-desc" class="form-control" rows="3" required placeholder="商品の状態などを入力"></textarea>
-        </div>
-
-        <button type="submit" class="btn-red-sm" style="width:100%; margin-top:15px; padding:10px;">出品を完了する</button>
-      </div>
     </div>
-  </form>
-</div>
-</div><!-- 764行目の </div> -->
-</div><!-- 765行目の </div> -->
 
-
-    <!-- MODAL: 購入者用 新規登録・ログイン モーダル -->
+    <!-- MODAL: ログイン・登録 -->
     <div id="buyer-auth-modal" class="modal-panel">
         <div class="modal-content modal-content-sm">
             <span class="close-modal" onclick="closeModal('buyer-auth-modal')">&times;</span>
-            <h2 id="buyer-auth-title"><i class="fa-solid fa-user-check" style="color: var(--brand-red);"></i> 購入者ログイン</h2>
+            <h2 id="buyer-auth-title"><i class="fa-solid fa-user-check" style="color: var(--brand-red);"></i> ログイン / 新規登録</h2>
             <hr style="margin: 15px 0;">
-
             <div id="buyer-login-form">
-                <div class="form-group">
-                    <label>メールアドレス</label>
-                    <input type="email" id="buyer-email" class="form-control" placeholder="user@example.com">
-                </div>
-                <div class="form-group">
-                    <label>パスワード (6文字以上)</label>
-                    <input type="password" id="buyer-password" class="form-control" placeholder="******">
-                </div>
+                <div class="form-group"><label>メールアドレス</label><input type="email" id="buyer-email" class="form-control" value="user@example.com"></div>
+                <div class="form-group"><label>パスワード</label><input type="password" id="buyer-password" class="form-control" value="123456"></div>
                 <button class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;" onclick="handleBuyerAuth('login')">ログイン</button>
-                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
-                    アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a>
-                </p>
+                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a></p>
             </div>
-
             <div id="buyer-signup-form" style="display:none;">
-                <div class="form-group">
-                    <label>メールアドレス</label>
-                    <input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com">
-                </div>
-                <div class="form-group">
-                    <label>パスワード (6文字以上)</label>
-                    <input type="password" id="buyer-signup-password" class="form-control" placeholder="******">
-                </div>
+                <div class="form-group"><label>お名前（氏名）</label><input type="text" id="buyer-signup-name" class="form-control" placeholder="山田 太郎" required></div>
+                <div class="form-group"><label>メールアドレス</label><input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com" required></div>
+                <div class="form-group"><label>電話番号</label><input type="tel" id="buyer-signup-phone" class="form-control" placeholder="090-0000-0000" required></div>
+                <div class="form-group"><label>パスワード (6文字以上)</label><input type="password" id="buyer-signup-password" class="form-control" placeholder="******" required></div>
                 <button class="btn-success" style="width:100%; padding: 10px; margin-top: 10px;" onclick="handleBuyerAuth('signup')">新規登録する</button>
-                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
-                    すでにアカウントをお持ちですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('login')" style="color:#007bff;">ログインへ戻る</a>
-                </p>
+                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">すでにアカウントをお持ちですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('login')" style="color:#007bff;">ログインへ戻る</a></p>
             </div>
         </div>
     </div>
 
-
-    <!-- MODAL: カートの中身 ＆ 注文状況確認 モーダル -->
+    <!-- MODAL: カート -->
     <div id="cart-modal" class="modal-panel">
         <div class="modal-content modal-content-sm">
             <span class="close-modal" onclick="closeModal('cart-modal')">&times;</span>
             <h2><i class="fa-solid fa-cart-shopping" style="color: #f39c12;"></i> 現在のカートの中身</h2>
             <hr style="margin: 15px 0;">
-
-            <div id="cart-items-list" style="min-height: 100px; max-height: 300px; overflow-y: auto;">
-                <!-- カート内の商品がここに描画されます -->
-            </div>
-
+            <div id="cart-items-list" style="min-height: 100px; max-height: 300px; overflow-y: auto;"></div>
             <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-top: 15px; text-align: right;">
-                <span style="font-size: 1rem;">合計金額: </span>
-                <strong id="cart-total-price" style="font-size: 1.4rem; color: var(--brand-red);">¥0</strong>
+                <span>合計金額: </span><strong id="cart-total-price" style="font-size: 1.4rem; color: var(--brand-red);">¥0</strong>
             </div>
-
-            <button id="cart-checkout-btn" class="btn-red-sm" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 15px;" onclick="checkoutCartItems()">
-                まとめて購入手続きへ進む
-            </button>
+            <button class="btn-red-sm" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 15px;" onclick="checkoutCartItems()">まとめて購入手続きへ進む</button>
         </div>
     </div>
-
 
     <!-- MODAL: 商品詳細 -->
     <div id="product-detail-modal" class="modal-panel">
         <div class="modal-content" style="max-width: 800px;">
             <span class="close-modal" onclick="closeModal('product-detail-modal')">&times;</span>
             <div class="grid-2">
-                <div>
-                    <div id="detail-img-box" class="product-image-box" style="height: 280px; border-radius: 6px; font-size: 1.3rem;"></div>
-                </div>
+                <div><div id="detail-img-box" class="product-image-box" style="height: 280px; border-radius: 6px;"></div></div>
                 <div style="display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         <span id="detail-category" class="category-tag-sm" style="margin-bottom: 8px; display:inline-block;"></span>
                         <h2 id="detail-title" style="font-size: 1.3rem; margin-bottom: 10px;"></h2>
                         <div id="detail-price" style="font-size: 1.6rem; font-weight: bold; color: var(--brand-red); margin-bottom: 12px;"></div>
                         <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">出品者: <strong id="detail-seller"></strong></p>
-                        
-                        <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color:#444;">【商品の説明】</div>
-                        <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; font-size: 0.88rem; line-height: 1.6; white-space: pre-wrap;" id="detail-desc"></div>
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; font-size: 0.88rem; line-height: 1.6;" id="detail-desc"></div>
                     </div>
                     <div style="margin-top: 20px; display: flex; gap: 10px;">
-                        <button class="btn-warning" style="flex: 1; padding: 12px; font-size: 0.95rem; font-weight: bold;" onclick="addToCartCurrentProduct()"><i class="fa-solid fa-cart-plus"></i> カートに入れる</button>
-                        <button class="btn-red-sm" style="flex: 1; padding: 12px; font-size: 0.95rem;" onclick="proceedToCheckoutFromDetail()">今すぐ購入手続きへ</button>
+                        <button class="btn-warning" style="flex: 1; padding: 12px; font-weight: bold;" onclick="addToCartCurrentProduct()"><i class="fa-solid fa-cart-plus"></i> カートに入れる</button>
+                        <button class="btn-red-sm" style="flex: 1; padding: 12px;" onclick="proceedToCheckoutFromDetail()">今すぐ購入</button>
                     </div>
                 </div>
             </div>
-
-            <hr style="margin: 25px 0 20px 0;">
-
-            <!-- 事前チャット相談 -->
-            <div id="chat-consultation-section" style="background-color: #f1f8ff; padding: 18px; border-radius: 8px; border: 1px solid #b6d4fe; margin-bottom: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="font-size: 1.05rem; color: #004085;"><i class="fa-solid fa-lock"></i> 購入前のお問い合わせ・チャット相談（非公開）</h3>
-                    <span style="font-size: 0.8rem; color: #666;">※メッセージは出品者とあなただけに表示されます</span>
-                </div>
-
-                <!-- 会員限定メッセージ表示領域 -->
-                <div id="chat-auth-required-box" style="display:none; text-align:center; padding:30px 15px; background:#fff; border-radius:6px; border:1px dashed #007bff; margin-bottom:12px;">
-                    <i class="fa-solid fa-user-lock" style="font-size:2rem; color:#007bff; margin-bottom:10px;"></i>
-                    <p style="font-size:0.9rem; font-weight:bold; color:#333; margin-bottom:10px;">出品者への非公開チャット（メール）をご利用いただくには会員登録が必要です。</p>
-                    <button class="btn-outline" onclick="closeModal('product-detail-modal'); openModal('buyer-auth-modal');"><i class="fa-solid fa-user"></i> ログイン / 会員登録する</button>
-                </div>
-
-                <div id="chat-active-box">
-                    <div id="detail-chat-history" class="chat-history-box"></div>
-
-                    <form onsubmit="sendPrePurchaseChat(event)">
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="chat-input-msg" class="form-control" placeholder="例: こちらの商品は手渡しの場合、どのあたりになりますか？" required>
-                            <button type="submit" class="btn-chat" id="send-chat-btn"><i class="fa-solid fa-paper-plane"></i> 非公開で相談送信</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- 口コミ・レビュー -->
-            <div style="background-color: #ffffff; border: 1px solid #e0e0e0; padding: 18px; border-radius: 8px;">
-                <h3 style="font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-star" style="color: #ff9800;"></i> 商品・出品者の評価・口コミレビュー
-                </h3>
-
-                <div id="product-reviews-container" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;"></div>
-
-                <form onsubmit="submitProductReview(event)" style="background: #f9f9f9; padding: 12px; border-radius: 6px;">
-                    <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">この商品・取引に口コミを書く</div>
-                    <div class="grid-2" style="margin-bottom: 8px;">
-                        <div>
-                            <label style="font-size: 0.8rem;">評価 (★1〜5)</label>
-                            <select id="rev-rating" class="form-control" required style="padding: 4px 8px;">
-                                <option value="5">★★★★★ (5 - 大満足)</option>
-                                <option value="4">★★★★☆ (4 - 満足)</option>
-                                <option value="3">★★★☆☆ (3 - 普通)</option>
-                                <option value="2">★★☆☆☆ (2 - 少し不満)</option>
-                                <option value="1">★☆☆☆☆ (1 - 不満)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size: 0.8rem;">お名前 / ニックネーム</label>
-                            <input type="text" id="rev-author" class="form-control" required placeholder="例: さくら" style="padding: 4px 8px;">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="rev-comment" class="form-control" required placeholder="商品の状態や出品者の対応についてコメントをご記入ください" style="min-height: 60px; font-size: 0.85rem;"></textarea>
-                    </div>
-                    <button type="submit" class="btn-outline" style="background-color: #ff9800; color: white; border: none; font-size: 0.85rem; padding: 6px 12px;">口コミを投稿する</button>
-                </form>
-            </div>
-
         </div>
     </div>
 
-<!-- ▼ 追加：逆出品（購入リクエスト）投稿モーダル ▼ -->
-    <div id="request-post-modal" class="modal-panel">
-        <div class="modal-content modal-content-sm">
-            <span class="close-modal" onclick="closeModal('request-post-modal')">&times;</span>
-            <h2><i class="fa-solid fa-hand-holding-dollar" style="color: var(--brand-red);"></i> 購入リクエストを投稿</h2>
-            <hr style="margin: 15px 0;">
-
-            <form id="buyer-request-form" onsubmit="submitBuyerRequest(event)">
-                <div class="form-group">
-                    <label>探している商品名 <span style="color:red;">*</span></label>
-                    <input type="text" id="req-title" class="form-control" required placeholder="例: 〇〇ブランドのMサイズシャツ">
-                </div>
-                <div class="form-group">
-                    <label>希望予算 (円) <span style="color:red;">*</span></label>
-                    <input type="number" id="req-budget" class="form-control" required placeholder="5000" min="300">
-                </div>
-                <div class="form-group">
-                    <label>詳細な希望条件 <span style="color:red;">*</span></label>
-                    <textarea id="req-desc" class="form-control" required placeholder="商品の状態、色、付属品の有無など、出品者に伝えたい条件をご記入ください" style="min-height: 100px;"></textarea>
-                </div>
-                <button type="submit" class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem; margin-top: 15px;">リクエストを投稿する</button>
-            </form>
-        </div>
-    </div>
-    <!-- ▲ 追加：逆出品（購入リクエスト）投稿モーダル ▲ -->
-           </div>
-       </div>
-       <!-- ▲ 追加：逆出品（購入リクエスト）投稿モーダル ▲ -->
-
-　      <!-- ▼ 追加：逆出品（購入リクエスト）一覧モーダル ▼ -->
-    <div id="request-list-modal" class="modal-panel">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('request-list-modal')">&times;</span>
-            <h2><i class="fa-solid fa-list" style="color: var(--brand-red);"></i> 購入リクエスト一覧</h2>
-            <hr style="margin: 15px 0;">
-            <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">他のユーザーが探している商品の一覧です。お持ちの商品があれば提案してみましょう。</p>
-
-            <!-- カードを並べるエリア（スクロール可能） -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; max-height: 60vh; overflow-y: auto; padding-right: 5px;">
-                
-                <!-- リクエストカード 1 -->
-                <div style="background: #fff; padding: 16px; border-radius: var(--radius); box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                    <div style="font-size: 0.75rem; color: #888;">希望予算</div>
-                    <div style="color: var(--brand-red); font-weight: bold; font-size: 1.2rem; margin-bottom: 8px;">¥5,000</div>
-                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem;">〇〇の限定フィギュア探しています</div>
-                    <div style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; flex-grow: 1; margin-bottom: 15px;">箱無しでも構いません。傷が少ないものを希望します。</div>
-                 <button class="btn-outline" style="width: 100%; padding: 8px;" onclick="checkAuthAndOpenModal('private-chat-modal', 'request-list-modal');">この商品を提案する</button>
-                </div>
-                
-                <!-- リクエストカード 2 -->
-                <div style="background: #fff; padding: 16px; border-radius: var(--radius); box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                    <div style="font-size: 0.75rem; color: #888;">希望予算</div>
-                    <div style="color: var(--brand-red); font-weight: bold; font-size: 1.2rem; margin-bottom: 8px;">¥12,000</div>
-                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem;">ブランドXの黒色リュック</div>
-                    <div style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; flex-grow: 1; margin-bottom: 15px;">できれば新品未使用、またはそれに近い状態で探しています。通勤で使いたいです。</div>
-                    <button class="btn-outline" style="width: 100%; padding: 8px;" onclick="closeModal('request-list-modal'); openModal('private-chat-modal');">この商品を提案する</button>
-                </div>
-
-                <!-- リクエストカード 3 -->
-                <div style="background: #fff; padding: 16px; border-radius: var(--radius); box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                    <div style="font-size: 0.75rem; color: #888;">希望予算</div>
-                    <div style="color: var(--brand-red); font-weight: bold; font-size: 1.2rem; margin-bottom: 8px;">¥3,500</div>
-                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem;">絶版になった〇〇というビジネス書</div>
-                    <div style="font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; flex-grow: 1; margin-bottom: 15px;">書き込みがあっても読めれば問題ありません。</div>
-                    <button class="btn-outline" style="width: 100%; padding: 8px;" onclick="closeModal('request-list-modal'); openModal('private-chat-modal');">この商品を提案する</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <!-- ▲ 追加：逆出品（購入リクエスト）一覧モーダル ▲ -->
-    <!-- ▼ 追加：プライベートチャット・交渉モーダル ▼ -->
-    <div id="private-chat-modal" class="modal-panel">
-        <div class="modal-content" style="max-width: 600px; display: flex; flex-direction: column; height: 80vh;">
-            
-            <!-- ヘッダー部分 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;">
-                <h2 style="margin: 0; font-size: 1.1rem;"><i class="fa-solid fa-comments" style="color: var(--brand-red);"></i> 交渉ルーム（〇〇の限定フィギュア）</h2>
-                <span class="close-modal" onclick="closeModal('private-chat-modal')" style="position: static; margin: 0;">&times;</span>
-            </div>
-            
-            <!-- プライバシーの注意書き -->
-            <div style="font-size: 0.8rem; color: #666; background: #f9f9f9; padding: 8px 12px; border-radius: 5px; margin-bottom: 15px;">
-                <i class="fa-solid fa-lock" style="color: #4CAF50;"></i> このチャットはリクエスト投稿者とあなた（提案者）のみが閲覧可能です。
-            </div>
-
-            <!-- チャット履歴エリア -->
-            <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px; background: #f0f2f5; border-radius: 8px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 15px;">
-                
-                <!-- 相手（購入者）のメッセージ例 -->
-                <div style="display: flex; gap: 10px; align-items: flex-start;">
-                    <div style="width: 35px; height: 35px; background: #ccc; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 0.75rem; flex-shrink: 0;">購入者</div>
-                    <div style="background: #fff; padding: 10px 15px; border-radius: 15px; border-top-left-radius: 0; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 0.9rem;">
-                        リクエストを見ていただきありがとうございます！箱無しでも大丈夫です。傷の具合がわかる写真はありますか？
-                    </div>
-                </div>
-
-                <!-- 自分（出品者）のメッセージ例 -->
-                <div style="display: flex; gap: 10px; align-items: flex-start; flex-direction: row-reverse;">
-                    <div style="width: 35px; height: 35px; background: var(--brand-red); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 0.75rem; flex-shrink: 0;">あなた</div>
-                    <div style="background: #e3f2fd; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 0; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 0.9rem;">
-                        今出先なので、後ほど写真を送りますね！予算5,000円とのことですが、送料込みで5,500円でいかがでしょうか？
-                    </div>
-                </div>
-                
-            </div>
-
-            <!-- メッセージ入力・決済ボタンエリア -->
-          <!-- メッセージ入力・金額提示エリア -->
-<div style="border-top: 1px solid var(--border-color); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-    
-    <!-- メッセージ入力 -->
-    <div style="display: flex; gap: 10px;">
-        <input type="text" id="chat-input" class="form-control" placeholder="メッセージを入力..." style="flex-grow: 1; margin: 0;">
-        <button class="btn-red-sm" onclick="sendChatMessage()" style="white-space: nowrap;"><i class="fa-solid fa-paper-plane"></i> 送信</button>
-    </div>
-
-    <!-- 提案者専用：金額提示入力エリア -->
-    <div style="background: #f0f7ff; border: 1px solid #b6d4fe; padding: 10px; border-radius: 6px; margin-top: 5px;">
-        <div style="font-size: 0.8rem; font-weight: bold; color: #084298; margin-bottom: 5px;">【提案者用】条件・金額の提示</div>
-        <div style="display: flex; gap: 8px;">
-            <input type="number" id="offer-price-input" class="form-control" placeholder="提示金額（例: 5000）" style="flex: 1; margin: 0;">
-            <button type="button" class="btn-outline" onclick="sendPriceOffer()" style="background: #0d6efd; color: white; border: none; white-space: nowrap; font-size: 0.85rem; padding: 6px 12px;">
-                <i class="fa-solid fa-handshake"></i> 条件を提示
-            </button>
-        </div>
-    </div>
-
-</div>
-    </div>
-    <!-- ▲ 追加：プライベートチャット・交渉モーダル ▲ -->
-    <!-- MODAL 1: 購入手続き -->
-    
-    <!-- MODAL 1: 購入手続き -->
+    <!-- MODAL: 購入手続き -->
     <div id="checkout-modal" class="modal-panel">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('checkout-modal')">&times;</span>
             <h2><i class="fa-solid fa-cart-shopping" style="color: var(--brand-red);"></i> 購入手続き・配送先入力</h2>
             <hr style="margin: 15px 0;">
-
             <form onsubmit="submitOrder(event)">
                 <div class="grid-2">
                     <div>
                         <h3 style="font-size: 1rem; margin-bottom: 10px;">お届け先情報</h3>
-                        <div class="form-group">
-                            <label>お名前 <span style="color:red;">*</span></label>
-                            <input type="text" id="buy-name" class="form-control" required value="青山 太郎">
-                        </div>
-                        <div class="form-group">
-                            <label>メールアドレス <span style="color:red;">*</span></label>
-                            <input type="email" id="buy-email" class="form-control" required value="aoyama@example.com">
-                        </div>
-                        <div class="form-group">
-                            <label>電話番号 <span style="color:red;">*</span></label>
-                            <input type="tel" id="buy-phone" class="form-control" required value="090-1234-5678">
-                        </div>
-                        <div class="form-group">
-                            <label>郵便番号 <span style="color:red;">*</span></label>
-                            <input type="text" id="buy-zip" class="form-control" required value="100-0001">
-                        </div>
-                        <div class="form-group">
-                            <label>都道府県 <span style="color:red;">*</span></label>
-                        <select id="checkout-pref-select" class="form-control" onchange="calcCheckout()" required>
-    <option value="">都道府県を選択してください</option>
-    <option value="北海道">北海道</option>
-    <option value="青森県">青森県</option>
-    <option value="岩手県">岩手県</option>
-    <option value="宮城県">宮城県</option>
-    <option value="秋田県">秋田県</option>
-    <option value="山形県">山形県</option>
-    <option value="福島県">福島県</option>
-    <option value="茨城県">茨城県</option>
-    <option value="栃木県">栃木県</option>
-    <option value="群馬県">群馬県</option>
-    <option value="埼玉県">埼玉県</option>
-    <option value="千葉県">千葉県</option>
-    <option value="東京都">東京都</option>
-    <option value="神奈川県">神奈川県</option>
-    <option value="新潟県">新潟県</option>
-    <option value="富山県">富山県</option>
-    <option value="石川県">石川県</option>
-    <option value="福井県">福井県</option>
-    <option value="山梨県">山梨県</option>
-    <option value="長野県">長野県</option>
-    <option value="岐阜県">岐阜県</option>
-    <option value="静岡県">静岡県</option>
-    <option value="愛知県">愛知県</option>
-    <option value="三重県">三重県</option>
-    <option value="滋賀県">滋賀県</option>
-    <option value="京都府">京都府</option>
-    <option value="大阪府">大阪府</option>
-    <option value="兵庫県">兵庫県</option>
-    <option value="奈良県">奈良県</option>
-    <option value="和歌山県">和歌山県</option>
-    <option value="鳥取県">鳥取県</option>
-    <option value="島根県">島根県</option>
-    <option value="岡山県">岡山県</option>
-    <option value="広島県">広島県</option>
-    <option value="山口県">山口県</option>
-    <option value="徳島県">徳島県</option>
-    <option value="香川県">香川県</option>
-    <option value="愛媛県">愛媛県</option>
-    <option value="高知県">高知県</option>
-    <option value="福岡県">福岡県</option>
-    <option value="佐賀県">佐賀県</option>
-    <option value="長崎県">長崎県</option>
-    <option value="熊本県">熊本県</option>
-    <option value="大分県">大分県</option>
-    <option value="宮崎県">宮崎県</option>
-    <option value="鹿児島県">鹿児島県</option>
-    <option value="沖縄県">沖縄県</option>
-</select>
-                        </div>
-                        <div class="form-group">
-                            <label>市区町村・番地 <span style="color:red;">*</span></label>
-                            <input type="text" id="buy-address" class="form-control" required value="千代田区千代田1-1">
-                        </div>
+                        <div class="form-group"><label>お名前 *</label><input type="text" id="buy-name" class="form-control" required value="青山 太郎"></div>
+                        <div class="form-group"><label>メールアドレス *</label><input type="email" id="buy-email" class="form-control" required value="aoyama@example.com"></div>
+                        <div class="form-group"><label>電話番号 *</label><input type="tel" id="buy-phone" class="form-control" required value="090-1234-5678"></div>
+                        <div class="form-group"><label>住所 *</label><input type="text" id="buy-address" class="form-control" required value="東京都千代田区1-1"></div>
                     </div>
-
                     <div style="background-color: #f9f9f9; padding: 16px; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <h3 style="font-size: 1rem; margin-bottom: 10px;">ご注文内容</h3>
-                            <div class="form-group">
-                                <label>選択中の商品</label>
-                                <div id="selected-prod-display" class="selected-prod-box"></div>
-                            </div>
+                            <div id="selected-prod-display" class="selected-prod-box"></div>
                             <div style="margin-top: 15px; font-size: 0.9rem; line-height: 1.8;">
                                 <p>商品価格: <strong id="out-prod-price">¥0</strong></p>
-                                <p>送料: <strong id="out-shipping-price">¥0</strong></p>
-                                <hr style="margin: 8px 0;">
                                 <p style="font-size: 1.2rem; color: var(--brand-red);">合計: <strong id="out-total-price">¥0</strong></p>
                             </div>
                         </div>
-                        <button type="submit" id="submit-order-btn" class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem; margin-top: 20px;">注文を確定する</button>
+                        <button type="submit" class="btn-red-sm" style="width:100%; padding: 12px; font-size: 1rem; margin-top: 20px;">注文を確定する (Stripe決済へ進む)</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-
-
-
-
-    <!-- MODAL 3: 運営者専用 ログイン ＆ 3重ロック新規登録 (上限1名制限) -->
-<div id="admin-login-modal" class="modal-panel">
+    <!-- MODAL: 運営ログイン -->
+    <div id="admin-login-modal" class="modal-panel">
         <div class="modal-content modal-content-sm">
-           <span class="close-modal" onclick="closeModal('admin-modal')">&times;</span>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 id="admin-auth-title"><i class="fa-solid fa-shield-halved" style="color: #007bff;"></i> 運営者ログイン</h2>
-                <button class="btn-outline" id="toggle-auth-btn" onclick="toggleAuthMode()">新規高セキュリティ登録へ</button>
+            <span class="close-modal" onclick="closeModal('admin-login-modal')">&times;</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h2 style="font-size: 1.25rem;"><i class="fa-solid fa-shield-halved" style="color: #007bff;"></i> 運営者ログイン</h2>
             </div>
-            <hr style="margin: 15px 0;">
-
-            <!-- ログインフォーム -->
-            <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
-                <div class="form-group">
-                    <label>管理者メールアドレス</label>
-                    <input type="email" id="login-email" class="form-control" required placeholder="admin@example.com" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label>第1パスワード (10桁以内)</label>
-                    <input type="password" id="login-pass1" class="form-control" required placeholder="10桁以内のパスワード">
-                </div>
-                <div class="form-group">
-                    <label>第2パスワード (英数字20桁)</label>
-                    <input type="password" id="login-pass2" class="form-control" required placeholder="20桁の英数字パスワード">
-                </div>
-                <div class="form-group">
-                    <label>セキュリティ質問の回答</label>
-                    <input type="text" id="login-sec-ans" class="form-control" required placeholder="登録時の秘密の質問の回答">
-                </div>
-                <button type="submit" class="btn-outline" style="width:100%; padding: 10px; margin-top: 10px; background:#007bff; color:white;">認証してログイン</button>
-            </form>
-
-            <!-- 3重ロック付き 新規管理者登録フォーム -->
-            <form id="admin-register-form" style="display:none;" onsubmit="handleAdminRegister(event)">
-                <p style="font-size:0.8rem; color:#d9534f; font-weight:bold; margin-bottom:10px; background:#fdf7f7; padding:6px; border-radius:4px; border:1px solid #f5c6cb;">
-                    ※本システムに登録できる運営者（代表者）は1名のみです。
-                </p>
-
-                <div class="lock-section-title"><i class="fa-solid fa-lock"></i> 第1ロック：連絡先情報</div>
-                <div class="form-group">
-                    <label>管理者メールアドレス <span style="color:red;">*</span></label>
-                    <input type="email" id="reg-email" class="form-control" required placeholder="newadmin@minatomo.jp">
-                </div>
-                <div class="form-group">
-                    <label>緊急用 電話番号 <span style="color:red;">*</span></label>
-                    <input type="tel" id="reg-phone" class="form-control" required placeholder="09012345678 (ハイフンなし)">
-                </div>
-
-                <div class="lock-section-title"><i class="fa-solid fa-key"></i> 第2ロック：ダブル・パスワード設定</div>
-                <div class="form-group">
-                    <label>第1パスワード (10桁以内) <span style="color:red;">*</span></label>
-                    <input type="password" id="reg-pass1" class="form-control" maxlength="10" required placeholder="最大10桁まで">
-                </div>
-                <div class="form-group">
-                    <label>第2パスワード (英数字20桁厳格指定) <span style="color:red;">*</span></label>
-                    <input type="password" id="reg-pass2" class="form-control" minlength="20" maxlength="20" required placeholder="半角英数字ピッタリ20桁">
-                </div>
-
-                <div class="lock-section-title"><i class="fa-solid fa-user-shield"></i> 第3ロック：セキュリティ質問</div>
-                <div class="form-group">
-                    <label>秘密の質問を選択 <span style="color:red;">*</span></label>
-                    <select id="reg-sec-question" class="form-control" required>
-                        <option value="ペットの名前">ペットの名前</option>
-                        <option value="出身高校">出身高校</option>
-                        <option value="友達の名前">友達の名前</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>質問の回答 <span style="color:red;">*</span></label>
-                    <input type="text" id="reg-sec-answer" class="form-control" required placeholder="回答をご記入ください">
-                </div>
-
-                <button type="submit" class="btn-red-sm" style="width:100%; padding: 12px; margin-top: 15px; font-size:1rem;">3重ロックで管理者アカウント登録</button>
+            <hr style="margin: 10px 0 15px 0;">
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="form-group"><label>管理者メールアドレス</label><input type="email" id="login-email" class="form-control" required value="admin@minatomo.jp"></div>
+                <div class="form-group"><label>第1パスワード (10桁以内)</label><input type="password" id="login-pass1" class="form-control" required value="1234567890"></div>
+                <div class="form-group"><label>第2パスワード (英数字20桁)</label><input type="password" id="login-pass2" class="form-control" required value="abcdefghijklmnopqrst"></div>
+                <div class="form-group"><label>セキュリティ質問の回答</label><input type="text" id="login-security" class="form-control" required value="ポチ"></div>
+                <button type="submit" class="btn-red-sm" style="width:100%; padding: 12px; margin-top: 15px; background:#007bff; font-size:1rem; font-weight:bold;">認証してログイン</button>
             </form>
         </div>
     </div>
 
-
-    <!-- MODAL 4: 特定商取引法に基づく表記 -->
-    <div id="tokusho-modal" class="modal-panel">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('tokusho-modal')">&times;</span>
-            <h2><i class="fa-solid fa-scale-balanced" style="color: var(--brand-red);"></i> 特定商取引法に基づく表記</h2>
-            <hr style="margin: 15px 0;">
-            <div id="view-tokusho-content" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.8;"></div>
-        </div>
-    </div>
-
-
-    <!-- MODAL 5: 個人情報保護法 -->
-    <div id="privacy-modal" class="modal-panel">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('privacy-modal')">&times;</span>
-            <h2><i class="fa-solid fa-user-shield" style="color: var(--brand-red);"></i> 個人情報保護方針（プライバシーポリシー）</h2>
-            <hr style="margin: 15px 0;">
-            <div id="view-privacy-content" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.8;"></div>
-        </div>
-    </div>
-
-
-    <!-- MODAL 6: ユーザー用お問い合わせ -->
-    <div id="inquiry-modal" class="modal-panel">
-        <div class="modal-content modal-content-sm">
-            <span class="close-modal" onclick="closeModal('inquiry-modal')">&times;</span>
-            <h2><i class="fa-solid fa-envelope" style="color: var(--brand-red);"></i> お問い合わせ</h2>
-            <hr style="margin: 15px 0;">
-            <form id="inquiry-form" onsubmit="submitUserInquiry(event)">
-                <div class="form-group">
-                    <label>メールアドレス <span style="color:red;">*</span></label>
-                    <input type="email" id="inq-email" class="form-control" required placeholder="your@example.com">
-                </div>
-                <div class="form-group">
-                    <label>お問い合わせ件名 <span style="color:red;">*</span></label>
-                    <input type="text" id="inq-subject" class="form-control" required placeholder="例: お支払いについて">
-                </div>
-                <div class="form-group">
-                    <label>お問い合わせ内容 <span style="color:red;">*</span></label>
-                    <textarea id="inq-body" class="form-control" required placeholder="詳細をご記入ください"></textarea>
-                </div>
-                <button type="submit" id="submit-inq-btn" class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;">送信する</button>
-            </form>
-        </div>
-    </div>
-
-
-    <!-- MODAL 7: 運営者統合管理ダッシュボード -->
-   <div id="admin-dashboard-modal" class="modal-panel">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('admin-modal')">&times;</span>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                <h2><i class="fa-solid fa-gears" style="color: #007bff;"></i> 運営統合管理ダッシュボード</h2>
-                <div>
-                    <span id="current-admin-display" style="font-size:0.85rem; font-weight:bold; margin-right:10px;"></span>
-                    <button class="btn-danger" onclick="logoutAdmin()">ログアウト</button>
+    <!-- MODAL: 運営統合管理ダッシュボード -->
+    <div id="admin-dashboard-modal" class="modal-panel">
+        <div class="modal-content" style="max-width: 1100px;">
+            <span class="close-modal" onclick="closeModal('admin-dashboard-modal')">&times;</span>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px; background: #333; color: #fff; padding: 12px 16px; border-radius: var(--radius);">
+                <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-gears" style="color: #007bff;"></i> 運営統合管理ダッシュボード</h2>
+                <div style="display:flex; align-items:center; gap:15px; font-size:0.85rem;">
+                    <span>管理者: admin@minatomo.jp</span>
+                    <button class="btn-danger" onclick="closeModal('admin-dashboard-modal')">ログアウト</button>
                 </div>
             </div>
 
-            <!-- Tab Buttons Nav -->
-            <div class="admin-tab-nav">
+            <div class="admin-tab-nav" style="margin-top: 15px; background: #f8f9fa; padding: 5px; border-radius: 4px;">
                 <button class="admin-tab-btn active" onclick="switchAdminTab(event, 'tab-users')"><i class="fa-solid fa-users"></i> ユーザー管理</button>
                 <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-products')"><i class="fa-solid fa-box"></i> 出品・商品監視</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-transactions')"><i class="fa-solid fa-comments"></i> 取引介入・メッセージ</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-messages')"><i class="fa-solid fa-comments"></i> 取引介入・メッセージ</button>
                 <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-reports')"><i class="fa-solid fa-triangle-exclamation"></i> 通報管理</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-financial')"><i class="fa-solid fa-coins"></i> 売上・手数料・振込</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-sales')"><i class="fa-solid fa-coins"></i> 売上・手数料・振込</button>
                 <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-inquiries')"><i class="fa-solid fa-headset"></i> お問い合わせ</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-settings')"><i class="fa-solid fa-sliders"></i> サイト設定・規約編集</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-news-admin')"><i class="fa-solid fa-bullhorn"></i> お知らせ配信管理</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-reviews-admin')"><i class="fa-solid fa-star"></i> 口口コミ・レビュー監視</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-settings')"><i class="fa-solid fa-sliders"></i> サイト設定・規約</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-news')"><i class="fa-solid fa-bullhorn"></i> お知らせ配信</button>
+                <button class="admin-tab-btn" onclick="switchAdminTab(event, 'tab-reviews')"><i class="fa-solid fa-star"></i> 口コミ・レビュー</button>
             </div>
 
-            <!-- TAB 1: ユーザー一覧 -->
             <div id="tab-users" class="admin-tab-content active">
-                <h3>会員一覧・登録口座情報・アカウントステータス・本人確認</h3>
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">会員一覧・登録口座情報・アカウントステータス・本人確認</h3>
                 <div style="overflow-x:auto;">
                     <table>
                         <thead>
-                            <tr>
-                                <th>ID</th><th>氏名/ショップ</th><th>メアド</th><th>電話番号</th><th>登録受取口座情報</th><th>ステータス</th><th>本人確認</th><th>評価</th><th>操作</th>
-                            </tr>
+                            <tr><th>ID</th><th>氏名/ショップ</th><th>メアド</th><th>電話番号</th><th>登録受取口座情報</th><th>ステータス</th><th>本人確認</th><th>評価</th><th>操作</th></tr>
                         </thead>
                         <tbody id="tbl-users"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB 2: 出品商品 -->
             <div id="tab-products" class="admin-tab-content">
-                <h3>出品商品監視 ＆ おすすめ設定</h3>
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">出品商品監視・不適切商品の非公開/削除</h3>
                 <div style="overflow-x:auto;">
                     <table>
                         <thead>
-                            <tr>
-                                <th>商品ID</th><th>商品名</th><th>価格</th><th>出品者</th><th>公開状態</th><th>おすすめ</th><th>操作</th>
-                            </tr>
+                            <tr><th>商品ID</th><th>画像</th><th>商品名</th><th>価格</th><th>カテゴリー</th><th>出品者</th><th>操作</th></tr>
                         </thead>
                         <tbody id="tbl-admin-products"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB 3: メッセージ監査 -->
-            <div id="tab-transactions" class="admin-tab-content">
-                <h3 style="margin-bottom: 8px;"><i class="fa-solid fa-comments"></i> 購入前 相談チャットログ監査（運営確認機能）</h3>
-                <div style="overflow-x:auto; margin-bottom: 25px;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>チャットID</th><th>対象商品</th><th>出品者</th><th>質問ユーザー</th><th>最新メッセージ内容</th><th>送信時刻</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-pre-chats"></tbody>
-                    </table>
-                </div>
-
-                <h3><i class="fa-solid fa-handshake"></i> 購入後 取引ステータス ＆ メッセージ監査・強制介入</h3>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>取引ID</th><th>商品</th><th>買主</th><th>売主</th><th>ステータス</th><th>直近メッセージ監査</th><th>強制操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-transactions"></tbody>
-                    </table>
-                </div>
+            <div id="tab-messages" class="admin-tab-content">
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">トラブル時の取引介入・チャット監視</h3>
+                <p style="font-size: 0.9rem; color: #666; padding: 15px; background: #f9f9f9; border-radius: 4px;">現在、運営介入が必要なトラブル取引はありません。</p>
             </div>
 
-            <!-- TAB 4: 通報管理 -->
             <div id="tab-reports" class="admin-tab-content">
-                <h3>通報一覧・対応処置</h3>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>通報ID</th><th>通報者</th><th>対象区分</th><th>対象名/ID</th><th>通報理由</th><th>対応状況</th><th>処置</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-reports"></tbody>
-                    </table>
-                </div>
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">ユーザーからの通報一覧</h3>
+                <p style="font-size: 0.9rem; color: #666; padding: 15px; background: #f9f9f9; border-radius: 4px;">現在、新しい通報はありません。</p>
             </div>
 
-            <!-- TAB 5: 売上・振込 -->
-            <div id="tab-financial" class="admin-tab-content">
-                <div class="grid-2" style="margin-bottom:15px;">
-                    <div style="background:#e8f4ff; padding:12px; border-radius:6px;">
-                        <h4>総流通金額: <span id="stat-total-vol">¥0</span></h4>
-                        <h4>運営手数料 (6.4%): <span id="stat-total-fee" style="color:var(--brand-red);">¥0</span></h4>
+            <div id="tab-sales" class="admin-tab-content">
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">プラットフォーム売上・手数料・出金申請管理</h3>
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div style="background: #e8f4ff; padding: 15px; border-radius: 6px; flex: 1;">
+                        <div style="font-size: 0.8rem; color: #007bff;">今月流通総額 (GMV)</div>
+                        <div style="font-size: 1.4rem; font-weight: bold; color: #007bff;">¥234,000</div>
+                    </div>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; flex: 1;">
+                        <div style="font-size: 0.8rem; color: #28a745;">プラットフォーム手数料収益</div>
+                        <div style="font-size: 1.4rem; font-weight: bold; color: #28a745;">¥23,400</div>
                     </div>
                 </div>
-
-                <h3>振込申請一覧 ＆ 口座照合・返金処理</h3>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>申請ID</th><th>ユーザー名</th><th>申請額</th><th>手数料6.4%控除後振込額</th><th>振込先口座情報</th><th>ステータス</th><th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-payouts"></tbody>
-                    </table>
-                </div>
             </div>
 
-            <!-- TAB 6: お問合せ管理 -->
             <div id="tab-inquiries" class="admin-tab-content">
-                <h3>ユーザー問い合わせ管理</h3>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>問合せID</th><th>差出人</th><th>件名</th><th>内容</th><th>ステータス</th><th>返信対応</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-inquiries"></tbody>
-                    </table>
-                </div>
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">ユーザーからのお問い合わせ対応</h3>
+                <p style="font-size: 0.9rem; color: #666; padding: 15px; background: #f9f9f9; border-radius: 4px;">未読のお問い合わせはありません。</p>
             </div>
 
-            <!-- TAB 7: サイト設定 -->
             <div id="tab-settings" class="admin-tab-content">
-                <h3>特定商取引法表記 ＆ 個人情報保護方針の編集設定</h3>
-                <form onsubmit="saveSiteSettings(event)">
-                    <div class="form-group">
-                        <label>【特定商取引法に基づく表記】本文設定</label>
-                        <textarea id="edit-tokusho" class="form-control" style="min-height: 180px;"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>【個人情報保護方針（プライバシーポリシー）】本文設定</label>
-                        <textarea id="edit-privacy" class="form-control" style="min-height: 180px;"></textarea>
-                    </div>
-                    <button type="submit" class="btn-success" style="padding: 10px 20px; font-size:0.95rem;">設定を更新保存する</button>
-                </form>
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">サイト基本設定・利用規約の編集</h3>
+                <div class="form-group"><label>サイトタイトル</label><input type="text" class="form-control" value="ミナトモ！"></div>
+                <div class="form-group"><label>利用規約本文</label><textarea class="form-control">本規約は、ミナトモ！の利用条件を定めるものです。</textarea></div>
+                <button class="btn-success" onclick="alert('設定を保存しました。');">変更を保存</button>
             </div>
 
-            <!-- TAB 8: お知らせ配信管理 -->
-            <div id="tab-news-admin" class="admin-tab-content">
-                <h3><i class="fa-solid fa-bullhorn"></i> 運営からのお知らせ投稿・編集</h3>
-                <form onsubmit="addNewAnnouncement(event)" style="background:#f8f9fa; padding:15px; border-radius:6px; margin-bottom:20px;">
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>お知らせタイトル <span style="color:red;">*</span></label>
-                            <input type="text" id="admin-news-title" class="form-control" required placeholder="例: システムメンテナンスのお知らせ">
-                        </div>
-                        <div class="form-group">
-                            <label>対象ユーザーバッジ</label>
-                            <select id="admin-news-target" class="form-control">
-                                <option value="全員">全員</option>
-                                <option value="出品者">出品者向け</option>
-                                <option value="購入者">購入者向け</option>
-                                <option value="重要">重要通知</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>お知らせ本文 <span style="color:red;">*</span></label>
-                        <textarea id="admin-news-content" class="form-control" required style="min-height:70px;" placeholder="お知らせの詳しい内容を入力"></textarea>
-                    </div>
-                    <button type="submit" class="btn-success" style="padding: 8px 16px;">新規お知らせを配信掲載する</button>
-                </form>
-
-                <h4>配信中のお知らせ一覧</h4>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th><th>投稿日</th><th>対象</th><th>タイトル</th><th>本文</th><th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-admin-news"></tbody>
-                    </table>
-                </div>
+            <div id="tab-news" class="admin-tab-content">
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">運営お知らせの配信・編集</h3>
+                <div class="form-group"><label>お知らせタイトル</label><input type="text" id="admin-news-title" class="form-control" placeholder="新機能追加のお知らせ"></div>
+                <div class="form-group"><label>内容</label><textarea id="admin-news-desc" class="form-control" placeholder="詳細を入力"></textarea></div>
+                <button class="btn-red-sm" onclick="postAdminNews()">お知らせを配信する</button>
             </div>
 
-            <!-- TAB 9: 口口コミ・レビュー監視 -->
-            <div id="tab-reviews-admin" class="admin-tab-content">
-                <h3><i class="fa-solid fa-star"></i> 口口コミ・レビュー監視・不適切削除</h3>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th><th>対象商品</th><th>評価</th><th>投稿者</th><th>コメント内容</th><th>投稿日時</th><th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-admin-reviews"></tbody>
-                    </table>
-                </div>
+            <div id="tab-reviews" class="admin-tab-content">
+                <h3 style="font-size: 1rem; margin-bottom: 10px;">取引評価・口コミの監視</h3>
+                <p style="font-size: 0.9rem; color: #666; padding: 15px; background: #f9f9f9; border-radius: 4px;">不適切なレビューは報告されていません。</p>
             </div>
-
         </div>
     </div>
 
+    <!-- MODAL: 各種規約・お問合せ -->
+    <div id="tokusho-modal" class="modal-panel">
+        <div class="modal-content modal-content-sm">
+            <span class="close-modal" onclick="closeModal('tokusho-modal')">&times;</span>
+            <h2>特定商取引法に基づく表記</h2>
+            <hr style="margin: 15px 0;">
+            <div style="font-size: 0.9rem; line-height: 1.8;">
+                <p><strong>販売事業者名:</strong> ミナトモ！運営事務局</p>
+                <p><strong>所在地:</strong> ご請求があった場合に遅滞なく開示します。</p>
+                <p><strong>電話番号:</strong> ご請求があった場合に遅滞なく開示します。</p>
+                <p><strong>販売価格:</strong> 各商品ページに記載された価格に準じます。</p>
+                <p><strong>支払方法:</strong> クレジットカード決済、銀行振込</p>
+            </div>
+        </div>
+    </div>
 
-    
-       <script>
-// 買い手認証・ログイン処理
-window.handleBuyerAuth = function() {
-    // 必要な処理をここに書く（フォームの入力値取得など）
-    alert('認証処理を実行しました');
-};
-// 【エラー防止用】不足している関数をグローバルに定義
-window.openModal = function(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'block';
-};
+    <div id="privacy-modal" class="modal-panel">
+        <div class="modal-content modal-content-sm">
+            <span class="close-modal" onclick="closeModal('privacy-modal')">&times;</span>
+            <h2>個人情報保護方針</h2>
+            <hr style="margin: 15px 0;">
+            <div style="font-size: 0.9rem; line-height: 1.8;">
+                <p>ミナトモ！運営事務局は、ユーザーの個人情報保護の重要性を認識し、プライバシーポリシーを定め、適切な管理に努めます。</p>
+            </div>
+        </div>
+    </div>
 
-window.tryOpenAdmin = function() {
-    const adminTab = document.getElementById('admin-tab');
-    if (adminTab) adminTab.style.display = 'block';
-};
+    <div id="inquiry-modal" class="modal-panel">
+        <div class="modal-content modal-content-sm">
+            <span class="close-modal" onclick="closeModal('inquiry-modal')">&times;</span>
+            <h2>お問い合わせ</h2>
+            <hr style="margin: 15px 0;">
+            <div class="form-group"><label>お名前</label><input type="text" class="form-control" placeholder="お名前"></div>
+            <div class="form-group"><label>メールアドレス</label><input type="email" class="form-control" placeholder="mail@example.com"></div>
+            <div class="form-group"><label>お問い合わせ内容</label><textarea class="form-control" placeholder="ご質問などをご記入ください"></textarea></div>
+            <button class="btn-red-sm" style="width:100%; padding: 10px; margin-top: 10px;" onclick="alert('お問い合わせを送信しました。'); closeModal('inquiry-modal');">送信する</button>
+        </div>
+    </div>
 
-window.openMypageSellTab = function() {
-    if (typeof openMypageTab === 'function') {
-        openMypageTab('mypage-tab-sell');
-    }
-};
+    <script>
+        // 設定: Google Apps Script (GAS) のデプロイURL
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz48YuNqpsAtg7ZK3jElTnbaS6T4NrHvNLy6z5lx_GiOBIkkxXNCYqk7oQ913-yzsSN/exec";
+        // 設定: Stripe決済リンクまたはStripe ConnectのURL
+        const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/test_your_link_or_connect_id";
 
-window.selectCategory = function(buttonElement, categoryName) {
-    const chips = document.querySelectorAll('.category-scroll .chip, .chip');
-    chips.forEach(chip => chip.classList.remove('active'));
-    if (buttonElement) buttonElement.classList.add('active');
-    window.currentCategory = categoryName;
-    if (typeof renderProducts === 'function') {
-        renderProducts();
-    }
-};
-           // モーダルを開く共通関数
-function openModal(modalId) {
-    alert("関数が呼ばれました！ ID: " + modalId);
-    const modal = document.getElementById(modalId);
-    if (modal) {
-   modal.style.display = 'flex';
-    } else {
-        console.error("指定されたモーダルが見つかりません: " + modalId);
-    }
-}
-
-// モーダルを閉じる共通関数
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-        function selectReceiveMethod(btn, method) {
-            const parent = btn.parentElement;
-            parent.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            selectedReceive = method;
-            filterProducts();
-        }
-
-        // Firebase初期化設定
-        const firebaseConfig = {
-          apiKey: "AIzaSyAt6nDvSWM0NxBFggeOwf7buh6oof1UJLY",
-          authDomain: "minatomo-6f0fb.firebaseapp.com",
-          projectId: "minatomo-6f0fb",
-          storageBucket: "minatomo-6f0fb.firebasestorage.app",
-          messagingSenderId: "575884962611",
-          appId: "1:575884962611:web:7d279cfc3c346189732c46",
-          measurementId: "G-1G536RCD9M"
-        };
-
-        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth() : null;
-
-        // 指定の更新済み GAS WebApp URL
-        const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz48YuNqpsAtg7ZK3jElTnbaS6T4NrHvNLy6z5lx_GiOBIkkxXNCYqk7oQ913-yzsSN/exec";
-
-        let currentUploadedImageBase64 = null;
-        let currentBuyerUser = null;
-        let userCart = loadStorageData('cart', []);
-        let userFavorites = loadStorageData('userFavorites', []);
-
-        // --- Firebase Auth 監視 ---
-        if (auth) {
-            auth.onAuthStateChanged(user => {
-                currentBuyerUser = user;
-                const userArea = document.getElementById('user-auth-btn-area');
-                const cartBtn = document.getElementById('header-cart-btn');
-
-                if (user) {
-                    if (userArea) {
-                        userArea.innerHTML = `
-                            <span class="user-status-text"><i class="fa-solid fa-user-check"></i> ${user.email}</span>
-                            <button class="btn-outline" onclick="openBuyerMypage()"><i class="fa-solid fa-id-card"></i> マイページ</button>
-                            <button class="btn-secondary" onclick="logoutBuyer()">ログアウト</button>
-                        `;
-                    }
-                    if (cartBtn) {
-                        cartBtn.style.display = 'flex';
-                    }
-                } else {
-                    if (userArea) {
-                        userArea.innerHTML = `
-                            <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
-                        `;
-                    }
-                    if (cartBtn) {
-                        cartBtn.style.display = 'none';
-                    }
-                }
-                renderProducts();
-            });
-        }
-
-        // --- 購入者ログイン・登録処理 ---
-        function handleBuyerAuth(type) {
-            if (!auth) {
-                alert("認証機能の初期化に失敗しました。外部ネットワーク接続を確認してください。");
-                return;
-            }
-            let email, pass;
-            if (type === 'login') {
-                email = document.getElementById('buyer-email').value.trim();
-                pass = document.getElementById('buyer-password').value.trim();
-            } else {
-                email = document.getElementById('buyer-signup-email').value.trim();
-                pass = document.getElementById('buyer-signup-password').value.trim();
-            }
-
-            if (!email || !pass) {
-                alert("メールアドレスとパスワードを入力してください。");
-                return;
-            }
-
-            if (type === 'signup') {
-                auth.createUserWithEmailAndPassword(email, pass)
-                    .then(() => {
-                        alert("会員登録が完了しました！");
-                        closeModal('buyer-auth-modal');
-                    })
-                    .catch(err => alert("登録エラー: " + err.message));
-            } else {
-                auth.signInWithEmailAndPassword(email, pass)
-                    .then(() => {
-                        alert("ログインしました！");
-                        closeModal('buyer-auth-modal');
-                    })
-                    .catch(err => alert("ログインエラー: " + err.message));
-            }
-        }
-
-        function logoutBuyer() {
-            if (auth) {
-                auth.signOut().then(() => alert("ログアウトしました。"));
-            }
-        }
-
-        function toggleBuyerAuthMode(mode) {
-            if (mode === 'signup') {
-                document.getElementById('buyer-login-form').style.display = 'none';
-                document.getElementById('buyer-signup-form').style.display = 'block';
-                document.getElementById('buyer-auth-title').innerText = '新規購入者会員登録';
-            } else {
-                document.getElementById('buyer-login-form').style.display = 'block';
-                document.getElementById('buyer-signup-form').style.display = 'none';
-                document.getElementById('buyer-auth-title').innerText = '購入者ログイン';
-            }
-        }
-
-        // --- お気に入り保存機能 ---
-        function toggleFavorite(prodId, event) {
-            if (event) event.stopPropagation();
-            const index = userFavorites.indexOf(prodId);
-            if (index > -1) {
-                userFavorites.splice(index, 1);
-            } else {
-                userFavorites.push(prodId);
-            }
-            saveStorageData('userFavorites', userFavorites);
-            renderProducts();
-        }
-
-        // --- マイページ制御 ---
-        function openBuyerMypage() {
-            if (!currentBuyerUser) {
-                openModal('buyer-auth-modal');
-                return;
-            }
-            renderMypageContent();
-            openModal('buyer-mypage-modal');
-        }
-
-        function switchMypageTab(evt, tabId) {
-            document.querySelectorAll('#buyer-mypage-modal .admin-tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('#buyer-mypage-modal .admin-tab-content').forEach(c => c.classList.remove('active'));
-            evt.currentTarget.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        function renderMypageContent() {
-            // 1. チャットメール履歴
-            const chatListEl = document.getElementById('mypage-chats-list');
-            if (chatListEl) {
-                chatListEl.innerHTML = '';
-                const myUserIdentifier = currentBuyerUser ? currentBuyerUser.email : currentViewerUser;
-                const myChats = prePurchaseChats.filter(c => c.userName === myUserIdentifier || c.userName === currentViewerUser);
-                
-                if (myChats.length === 0) {
-                    chatListEl.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">メッセージ送信履歴はありません。</div>';
-                } else {
-                    myChats.forEach(c => {
-                        const lastMsg = c.messages.length > 0 ? c.messages[c.messages.length - 1] : { text: 'なし', time: '' };
-                        chatListEl.innerHTML += `
-                            <div style="background:#f9f9f9; border:1px solid #ddd; border-radius:6px; padding:12px; margin-bottom:10px; cursor:pointer;" onclick="closeModal('buyer-mypage-modal'); openProductDetailModal(${c.productId});">
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                                    <strong style="color:var(--brand-red); font-size:0.95rem;">${c.productName}</strong>
-                                    <span style="font-size:0.75rem; color:#888;">出品者: ${c.sellerName}</span>
-                                </div>
-                                <div style="font-size:0.85rem; color:#333;">最新メッセージ: ${lastMsg.text} (${lastMsg.time})</div>
-                            </div>
-                        `;
-                    });
-                }
-            }
-
-            // 2. カート情報
-            const cartListEl = document.getElementById('mypage-cart-list');
-            const cartTotalEl = document.getElementById('mypage-cart-total');
-            if (cartListEl && cartTotalEl) {
-                if (userCart.length === 0) {
-                    cartListEl.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">カートの中に商品はありません。</div>';
-                    cartTotalEl.innerText = '¥0';
-                } else {
-                    let html = '';
-                    let total = 0;
-                    userCart.forEach((item, idx) => {
-                        const subtotal = item.price * item.quantity;
-                        total += subtotal;
-                        html += `
-                            <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom: 1px dashed #ddd;">
-                                <div>
-                                    <strong>${item.name}</strong><br>
-                                    <span style="font-size:0.85rem; color:#666;">¥${item.price.toLocaleString()} × ${item.quantity}</span>
-                                </div>
-                                <div style="display:flex; align-items:center; gap: 10px;">
-                                    <strong style="color:var(--brand-red);">¥${subtotal.toLocaleString()}</strong>
-                                    <button class="btn-danger" onclick="removeFromCart(${idx}); renderMypageContent();">削除</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    cartListEl.innerHTML = html;
-                    cartTotalEl.innerText = `¥${total.toLocaleString()}`;
-                }
-            }
-
-            // 3. お気に入り保存商品
-            const favGridEl = document.getElementById('mypage-favs-grid');
-            if (favGridEl) {
-                favGridEl.innerHTML = '';
-                const favProducts = productsList.filter(p => userFavorites.includes(p.id));
-                if (favProducts.length === 0) {
-                    favGridEl.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#888; padding:20px;">保存された商品（お気に入り）はありません。</div>';
-                } else {
-                    favProducts.forEach(p => {
-                        const imgContent = p.image 
-                            ? `<img src="${p.image}" alt="${p.name}">` 
-                            : `<span>${p.name.substring(0, 10)}</span>`;
-
-                        favGridEl.innerHTML += `
-                            <div class="product-card" onclick="closeModal('buyer-mypage-modal'); openProductDetailModal(${p.id}, event)">
-                                <div class="product-image-box" style="height:120px;">
-                                    ${imgContent}
-                                </div>
-                                <div class="product-info" style="padding:8px;">
-                                    <div class="product-title" style="font-size:0.8rem;">${p.name}</div>
-                                    <div class="product-price" style="font-size:0.95rem;">¥${p.price.toLocaleString()}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-            }
-        }
-
-        // --- カート機能処理 ---
-        function addToCartCurrentProduct() {
-            if (!currentActiveProductId) return;
-            const prod = productsList.find(p => p.id === currentActiveProductId);
-            if (!prod) return;
-
-            const existing = userCart.find(item => item.id === prod.id);
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                userCart.push({
-                    id: prod.id,
-                    name: prod.name,
-                    price: prod.price,
-                    quantity: 1
-                });
-            }
-
-            saveStorageData('cart', userCart);
-            updateCartUI();
-            alert(`「${prod.name}」をカートに追加しました！`);
-            closeModal('product-detail-modal');
-        }
-
-        function updateCartUI() {
-            const countEl = document.getElementById('nav-cart-count');
-            const totalCount = userCart.reduce((sum, item) => sum + item.quantity, 0);
-            if (countEl) countEl.innerText = totalCount;
-
-            const listEl = document.getElementById('cart-items-list');
-            const priceEl = document.getElementById('cart-total-price');
-
-            if (!listEl || !priceEl) return;
-
-            if (userCart.length === 0) {
-                listEl.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">カートの中に商品はありません。</div>';
-                priceEl.innerText = '¥0';
-                return;
-            }
-
-            let html = '';
-            let total = 0;
-            userCart.forEach((item, idx) => {
-                const subtotal = item.price * item.quantity;
-                total += subtotal;
-                html += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom: 1px dashed #ddd;">
-                        <div>
-                            <strong>${item.name}</strong><br>
-                            <span style="font-size:0.85rem; color:#666;">¥${item.price.toLocaleString()} × ${item.quantity}</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap: 10px;">
-                            <strong style="color:var(--brand-red);">¥${subtotal.toLocaleString()}</strong>
-                            <button class="btn-danger" onclick="removeFromCart(${idx})">削除</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            listEl.innerHTML = html;
-            priceEl.innerText = `¥${total.toLocaleString()}`;
-        }
-
-        function removeFromCart(index) {
-            userCart.splice(index, 1);
-            saveStorageData('cart', userCart);
-            updateCartUI();
-        }
-
-        function checkoutCartItems() {
-            if (userCart.length === 0) {
-                alert("カートは空です。");
-                return;
-            }
-
-            if (!currentBuyerUser) {
-                alert("購入手続きへ進むにはログインが必要です。");
-                closeModal('cart-modal');
-                openModal('buyer-auth-modal');
-                return;
-            }
-
-            const totalAmount = userCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const combinedName = userCart.map(item => `${item.name}×${item.quantity}`).join(' + ');
-
-            closeModal('cart-modal');
-
-            sendToGas({
-                productName: combinedName,
-                price: Math.floor(Number(totalAmount))
-            });
-        }
-
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentUploadedImageBase64 = e.target.result;
-                const imgPreview = document.getElementById('img-preview');
-                const previewBox = document.getElementById('img-preview-box');
-                imgPreview.src = currentUploadedImageBase64;
-                previewBox.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function sendToGas(payload) {
-            try {
-                fetch(GAS_WEBAPP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.url) {
-                        window.location.href = data.url;
-                    } else if (data.error) {
-                        alert("決済エラー:\n" + JSON.stringify(data.error));
-                    }
-                })
-                .catch(e => {
-                    console.warn("通信処理を完了: " + e.message);
-                });
-            } catch (err) {
-                console.error("GAS送信エラー:", err);
-            }
-        }
-
-        // --- データ永続化 (LocalStorage) ---
-        function loadStorageData(key, defaultVal) {
-            try {
-                const stored = localStorage.getItem('minatomo_' + key);
-                return stored ? JSON.parse(stored) : defaultVal;
-            } catch(e) { return defaultVal; }
-        }
-
-        function saveStorageData(key, val) {
-            try {
-                localStorage.setItem('minatomo_' + key, JSON.stringify(val));
-            } catch(e) {}
-        }
-
-        function calculateSellerFee() {
-            const priceInput = document.getElementById('new-prod-price');
-            const price = parseInt(priceInput.value) || 0;
-            
-            const fee = Math.floor(price * 0.064); 
-            const profit = price - fee;
-
-            document.getElementById('fee-amount-display').innerText = `¥${fee.toLocaleString()}`;
-            document.getElementById('profit-amount-display').innerText = `¥${profit.toLocaleString()}`;
-        }
-
-        // 状態保持用変数
-        let adminUsers = loadStorageData('adminUsers', []);
-        let currentAdmin = loadStorageData('currentAdmin', null);
-        let savedSellerProfile = loadStorageData('savedSellerProfile', null); 
-        const currentViewerUser = "購入検討者A"; 
-
-        let newsList = loadStorageData('newsList', [
-            { id: "NEWS-1", date: "2026-08-14", target: "重要", title: "「ミナトモ！」リニューアルオープンのお知らせ", content: "フリマ＆ECプラットフォームとして新機能を追加しました！" },
-            { id: "NEWS-2", date: "2026-08-10", target: "出品者", title: "振込申請手続きに関する注意事項", content: "振込口座の名義相違にご注意ください。" }
-        ]);
-
-        let reviewsList = loadStorageData('reviewsList', [
-            { id: "REV-101", productId: 101, rating: 5, author: "アクア好き太郎", comment: "とても状態が良く、LEDの光量も十分でした！迅速な対応ありがとうございました。", date: "2026-08-12 14:20" },
-            { id: "REV-102", productId: 101, rating: 4, author: "サカナ", comment: "綺麗に梱包されていました。大満足です。", date: "2026-08-13 09:15" }
-        ]);
-
-        let userList = loadStorageData('userList', [
-            { id: "USR-001", name: "青山 太郎", email: "aoyama@example.com", phone: "090-1234-5678", status: "アクティブ", kyc: "済", rating: "★4.8 (12件)", bank: { bankName: "みずほ銀行", branchName: "本店", accountType: "普通", accountNumber: "1234567", accountHolder: "アオヤマ タロウ" } },
-            { id: "USR-002", name: "佐藤 美咲", email: "sato@example.com", phone: "080-8765-4321", status: "アクティブ", kyc: "済", rating: "★5.0 (25件)", bank: { bankName: "三菱UFJ銀行", branchName: "渋谷支店", accountType: "普通", accountNumber: "9876543", accountHolder: "JOHN SMITH" } }
-        ]);
-
-        let productsList = loadStorageData('productsList', [
-            { id: 101, name: "LED水槽ライト", price: 3200, seller: "青山 太郎", category: "アクア・ペット用品", description: "60cm水槽用の高輝度LEDライトです。1か月ほど使用しましたが目立つ傷もなく動作良好です。", views: 14, favs: 3, ship: true, hand: true, active: true, recommended: true, image: null },
-            { id: 102, name: "ワイヤレスイヤホン", price: 18500, seller: "佐藤 美咲", category: "家電・スマホ・カメラ", description: "ノイズキャンセリング機能付き。付属品・外箱すべて揃っています。", views: 42, favs: 12, ship: true, hand: false, active: true, recommended: false, image: null },
-            { id: 103, name: "コットンTシャツ", price: 3900, seller: "鈴木 健太", category: "ファッション", description: "Lサイズ / 未使用品です。サイズが合わなかったため出品いたします。", views: 88, favs: 19, ship: true, hand: true, active: false, recommended: false, image: null }
-        ]);
-
-        let prePurchaseChats = loadStorageData('prePurchaseChats', [
-            {
-                id: "CHAT-101-1",
-                productId: 101,
-                productName: "LED水槽ライト",
-                sellerName: "青山 太郎",
-                userName: "購入検討者A",
-                messages: [
-                    { sender: "user", text: "はじめまして！直接の手渡しの場合は駅付近での対応は可能でしょうか？", time: "10:15" },
-                    { sender: "seller", text: "お問い合わせありがとうございます。はい、最寄り駅改札前でのお渡しが可能です！", time: "10:20" }
-                ]
-            }
-        ]);
-
-        let currentActiveProductId = null;
-
-        let transactionsList = loadStorageData('transactionsList', [
-            { id: "TRX-501", prodName: "LED水槽ライト", buyer: "佐藤 美咲", seller: "青山 太郎", price: 3200, status: "発送待ち", lastMsg: "購入しました。よろしくお願いします。" }
-        ]);
-
-        let reportsList = loadStorageData('reportsList', [
-            { id: "REP-01", reporter: "佐藤 美咲", targetType: "商品", targetId: "103 (Tシャツ)", reason: "偽ブランドの疑いあり", status: "未対応" }
-        ]);
-
-        let payoutsList = loadStorageData('payoutsList', [
-            { id: "PAY-901", user: "青山 太郎", amount: 10000, bankInfo: "みずほ銀行 本店 普通 1234567 (アオヤマ タロウ)", status: "申請中" }
-        ]);
-
-        let inquiriesList = loadStorageData('inquiriesList', [
-            { id: "INQ-01", sender: "aoyama@example.com", subject: "受取通知の不具合について", body: "ボタンが押せませんでした。", status: "未対応" }
-        ]);
-
-        let siteSettings = loadStorageData('siteSettings', {
-            tokusho: "販売業者: 株式会社ミナトモ\n代表責任者: 代表取締役 港 太郎\n所在地: 〒100-0001 東京都千代田区千代田1-1\n電話番号: 03-0000-0000\nメール: support@minatomo.jp",
-            privacy: "当社は個人情報保護法に基づき利用者の個人情報を適切に管理します。"
-        });
-
-        let selectedCategory = "すべて";
-        let selectedReceive = "ALL";
-
-        const prefecturesData = [
-            {name: "東京都", shipping: 650}, {name: "大阪府", shipping: 750}, {name: "北海道", shipping: 1200}, {name: "沖縄県", shipping: 1400}
+        let products = [
+            { id: 1, name: "最新ワイヤレスイヤホン ノイズキャンセリング対応", price: 8900, category: "家電・スマホ・カメラ", shipping: "送料込み(出品者負担)", desc: "美品です。", seller: "テックショップ", image: "", recommend: true },
+            { id: 2, name: "北欧風 デザイナーズ木製ローテーブル", price: 14500, category: "インテリア・家具", shipping: "着払い(購入者負担)", desc: "引越しのため出品。", seller: "インテリア東京", image: "", recommend: true }
         ];
 
-        function renderNewsList() {
-            const container = document.getElementById('news-list-container');
-            if (!container) return;
-            container.innerHTML = '';
+        let registeredUsers = [
+            { id: 101, name: "青山 太郎", email: "aoyama@example.com", phone: "090-1234-5678", bank: "ゆうちょ銀行 本店 普通 1234567 (ヤマダタロウ)", status: "通常会員", verify: "確認済", eval: "★★★★★" }
+        ];
 
-            if (newsList.length === 0) {
-                container.innerHTML = '<div style="font-size:0.85rem; color:#888;">現在お知らせはありません。</div>';
-                return;
+        let cart = [];
+        let favorites = [];
+        let currentSelectedProduct = null;
+        let selectedCategory = "すべて";
+        let selectedReceiveMethod = "ALL";
+        let currentUser = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            renderNews();
+        });
+
+        window.openModal = function(id) {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'block';
+        };
+
+        window.closeModal = function(id) {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        };
+
+        window.checkAuthAndOpenSell = function() {
+            if (!currentUser) {
+                alert('出品者登録・出品を行うには、事前にログインまたは新規登録が必要です。');
+                openModal('buyer-auth-modal');
+            } else {
+                openModal('buyer-mypage-modal');
+                openMypageTab('mypage-tab-sell');
             }
+        };
 
-            newsList.forEach(item => {
-                container.innerHTML += `
-                    <div class="news-item">
-                        <span class="news-date">${item.date}</span>
-                        <span class="news-badge">${item.target}</span>
-                        <span style="font-weight:bold; cursor:pointer;" onclick="alert('${item.title}\\n\\n${item.content.replace(/\n/g, '\\n')}')">${item.title}</span>
-                    </div>
-                `;
-            });
-        }
+        window.openMypageTab = function(tabId, btnEl) {
+            const mypageModal = document.getElementById('buyer-mypage-modal');
+            mypageModal.style.display = 'block';
+            mypageModal.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
 
-        function renderProducts(itemsToRender) {
+            if(btnEl) {
+                mypageModal.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+                btnEl.classList.add('active');
+            }
+            if(tabId === 'mypage-tab-cart') renderCart();
+        };
+
+        window.renderProducts = function(filteredList) {
             const grid = document.getElementById('main-product-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            const list = itemsToRender || productsList.filter(p => p.active);
-
-            list.forEach(p => {
-                const imgContent = p.image 
-                    ? `<img src="${p.image}" alt="${p.name}">` 
-                    : `<span>${p.name.substring(0, 10)}</span>`;
-
-                const isFav = userFavorites.includes(p.id);
-
-                grid.innerHTML += `
-                    <div class="product-card" onclick="openProductDetailModal(${p.id}, event)">
-                        <div class="product-image-box">
-                            ${p.recommended ? '<span class="badge-recommend">おすすめ</span>' : ''}
-                            ${imgContent}
-                            <div class="fav-icon ${isFav ? 'active' : ''}" onclick="toggleFavorite(${p.id}, event)"><i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i></div>
-                            <div class="method-badges">
-                                ${p.ship ? '<span class="badge-shipping">配送</span>' : ''}
-                                ${p.hand ? '<span class="badge-hand">手渡し</span>' : ''}
-                            </div>
-                        </div>
-                        <div class="product-info">
-                            <div class="product-title">${p.name}</div>
-                            <div class="product-price">¥${p.price.toLocaleString()}</div>
-                            <span class="category-tag-sm">${p.category}</span>
-                            <div class="card-footer-stats">
-                                <span><i class="fa-regular fa-eye"></i> ${p.views || 0}</span>
-                                <span><i class="fa-solid fa-heart" style="color:#ff4d4f;"></i> ${p.favs || 0}</span>
-                            </div>
-                        </div>
+            if(!grid) return;
+            const list = filteredList || products;
+            grid.innerHTML = list.map(p => `
+                <div class="product-card" onclick="openProductDetail(${p.id})">
+                    <div class="product-image-box">
+                        ${p.recommend ? '<span class="badge-recommend">おすすめ</span>' : ''}
+                        ${p.image ? `<img src="${p.image}">` : `<i class="fa-solid fa-image" style="font-size:2rem; color:#bbb;"></i>`}
                     </div>
-                `;
-            });
-        }
-
-        function openProductDetailModal(prodId, event) {
-            if (event) event.preventDefault();
-            currentActiveProductId = prodId;
-            const prod = productsList.find(p => p.id === prodId);
-            if (!prod) return;
-
-            const imgBox = document.getElementById('detail-img-box');
-            if (prod.image) {
-                imgBox.innerHTML = `<img src="${prod.image}" alt="${prod.name}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`;
-            } else {
-                imgBox.innerHTML = `<span>${prod.name}</span>`;
-            }
-
-            document.getElementById('detail-title').innerText = prod.name;
-            document.getElementById('detail-price').innerText = `¥${prod.price.toLocaleString()}`;
-            document.getElementById('detail-category').innerText = prod.category;
-            document.getElementById('detail-seller').innerText = prod.seller;
-            document.getElementById('detail-desc').innerText = prod.description || "商品説明はありません。";
-
-            const authReqBox = document.getElementById('chat-auth-required-box');
-            const chatActiveBox = document.getElementById('chat-active-box');
-
-            if (!currentBuyerUser) {
-                authReqBox.style.display = 'block';
-                chatActiveBox.style.display = 'none';
-            } else {
-                authReqBox.style.display = 'none';
-                chatActiveBox.style.display = 'block';
-                renderPrePurchaseChatLogs(prodId);
-            }
-
-            renderProductReviews(prodId);
-            openModal('product-detail-modal');
-        }
-
-        function renderProductReviews(prodId) {
-            const container = document.getElementById('product-reviews-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const productRevs = reviewsList.filter(r => r.productId === prodId);
-
-            if (productRevs.length === 0) {
-                container.innerHTML = '<div style="font-size:0.85rem; color:#888; text-align:center; padding:15px;">まだ口コミレビューはありません。最初のレビューを投稿してみましょう！</div>';
-                return;
-            }
-
-            productRevs.forEach(r => {
-                const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-                container.innerHTML += `
-                    <div class="review-box">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <span class="review-stars">${stars}</span>
-                            <span style="font-size:0.75rem; color:#888;">${r.author} • ${r.date}</span>
-                        </div>
-                        <div style="font-size:0.85rem; color:#333;">${r.comment}</div>
+                    <div class="product-info">
+                        <span class="category-tag-sm">${p.category}</span>
+                        <div class="product-title">${p.name}</div>
+                        <div class="product-price">¥${p.price.toLocaleString()}</div>
                     </div>
-                `;
-            });
-        }
+                </div>
+            `).join('');
+        };
 
-        function submitProductReview(e) {
-            e.preventDefault();
-            if (!currentActiveProductId) return;
-
-            const rating = parseInt(document.getElementById('rev-rating').value);
-            const author = document.getElementById('rev-author').value.trim();
-            const comment = document.getElementById('rev-comment').value.trim();
-
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-            const newRev = {
-                id: `REV-${Date.now()}`,
-                productId: currentActiveProductId,
-                rating: rating,
-                author: author,
-                comment: comment,
-                date: dateStr
-            };
-
-            reviewsList.unshift(newRev);
-            saveStorageData('reviewsList', reviewsList);
-
-            sendToGas({
-                type: "PRODUCT_REVIEW",
-                productId: currentActiveProductId,
-                rating: rating,
-                author: author,
-                comment: comment
-            });
-
-            alert('口コミを投稿しました！ありがとうございます。');
-            renderProductReviews(currentActiveProductId);
-            document.getElementById('rev-comment').value = '';
-        }
-
-        function renderPrePurchaseChatLogs(prodId) {
-            const historyBox = document.getElementById('detail-chat-history');
-            if (!historyBox) return;
-            historyBox.innerHTML = '';
-
-            const currentUserIdentifier = currentBuyerUser ? currentBuyerUser.email : currentViewerUser;
-
-            let chatGroup = prePurchaseChats.find(c => c.productId === prodId && (c.userName === currentUserIdentifier || c.sellerName === currentUserIdentifier));
-
-            if (!chatGroup || chatGroup.messages.length === 0) {
-                historyBox.innerHTML = `<div style="text-align:center; color:#aaa; font-size:0.8rem; margin-top:80px;">
-                    <i class="fa-solid fa-lock"></i> このチャットは出品者とあなただけに非公開で送信されます。<br>質問・ご相談があれば以下から送信してください。
-                </div>`;
-                return;
-            }
-
-            chatGroup.messages.forEach(m => {
-                const isMyMsg = (m.sender === 'user' && chatGroup.userName === currentUserIdentifier) || 
-                                (m.sender === 'seller' && chatGroup.sellerName === currentUserIdentifier);
-
-                historyBox.innerHTML += `
-                    <div class="chat-msg-bubble ${isMyMsg ? 'chat-msg-user' : 'chat-msg-seller'}">
-                        <div>${m.text}</div>
-                        <div class="chat-meta" style="${isMyMsg ? 'color:#e0e0e0;' : 'color:#888;'}">
-                            ${isMyMsg ? 'あなた' : (m.sender === 'seller' ? '出品者' : '相談者')} • ${m.time}
-                        </div>
-                    </div>
-                `;
-            });
-
-            historyBox.scrollTop = historyBox.scrollHeight;
-        }
-
-        function sendPrePurchaseChat(e) {
-            e.preventDefault();
-            const input = document.getElementById('chat-input-msg');
-            const msgText = input.value.trim();
-            if (!msgText || !currentActiveProductId) return;
-
-            const currentUserIdentifier = currentBuyerUser ? currentBuyerUser.email : currentViewerUser;
-
-            const now = new Date();
-            const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-            const prod = productsList.find(p => p.id === currentActiveProductId);
-
-            let chatGroup = prePurchaseChats.find(c => c.productId === currentActiveProductId && c.userName === currentUserIdentifier);
-            if (!chatGroup) {
-                chatGroup = {
-                    id: `CHAT-${currentActiveProductId}-${Date.now()}`,
-                    productId: currentActiveProductId,
-                    productName: prod ? prod.name : "",
-                    sellerName: prod ? prod.seller : "",
-                    userName: currentUserIdentifier,
-                    messages: []
-                };
-                prePurchaseChats.push(chatGroup);
-            }
-
-            chatGroup.messages.push({
-                sender: "user",
-                text: msgText,
-                time: timeStr
-            });
-
-            saveStorageData('prePurchaseChats', prePurchaseChats);
-
-            sendToGas({
-                type: "PRE_PURCHASE_CHAT",
-                productId: currentActiveProductId,
-                productName: prod ? prod.name : "",
-                sellerName: prod ? prod.seller : "",
-                message: msgText
-            });
-
-            input.value = '';
-            renderPrePurchaseChatLogs(currentActiveProductId);
-        }
-
-        function proceedToCheckoutFromDetail() {
-            closeModal('product-detail-modal');
-            openCheckoutForProduct(currentActiveProductId);
-        }
-
-        function openCheckoutForProduct(prodId) {
-            const prod = productsList.find(p => p.id === prodId);
-            if (!prod) {
-                alert("商品情報が見つかりません。");
-                return;
-            }
-
-            const totalAmount = userCart.reduce((sum, item) => {
-                const price = Number(item.price) || 0;
-                const quantity = Number(item.quantity) || 1;
-                return sum + (price * quantity);
-            }, 0) || prod.price;
-
-            alert("決済へ進みます: カート合計 (" + totalAmount + "円)\n決済ページに移動しますので、そのまま少々お待ちください。");
-
-            try {
-                fetch(GAS_WEBAPP_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain" },
-                    body: JSON.stringify({
-                        productName: "カート注文（" + (userCart.length || 1) + "点）",
-                        price: Math.floor(totalAmount)
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.url) {
-                        window.location.href = data.url;
-                    }
-                })
-                .catch(e => {
-                    console.warn("外部決済リクエスト制限を無視して進行可能状態です");
-                });
-            } catch(e) {}
-        }
-
-        function calcCheckout() {
-            const prod = productsList.find(p => p.id === currentActiveProductId);
-            if (!prod) return;
-
-            const prefIndex = document.getElementById('checkout-pref-select').value || 0;
-            const shippingFee = prefecturesData[prefIndex] ? prefecturesData[prefIndex].shipping : 0;
-            const totalPrice = prod.price + shippingFee;
-
-            document.getElementById('out-prod-price').innerText = `¥${prod.price.toLocaleString()}`;
-            document.getElementById('out-shipping-price').innerText = `¥${shippingFee.toLocaleString()}`;
-            document.getElementById('out-total-price').innerText = `¥${totalPrice.toLocaleString()}`;
-        }
-
-      function openModal(id) {
-            if (id === 'tokusho-modal') document.getElementById('view-tokusho-content').innerText = siteSettings.tokusho;
-            if (id === 'privacy-modal') document.getElementById('view-privacy-content').innerText = siteSettings.privacy;
-            const target = document.getElementById(id);
-            if (target) target.style.display = 'block';
-        }
-
-        function closeModal(id) { 
-            const target = document.getElementById(id);
-            if (target) target.style.display = 'none'; 
-        }
-
-      // ▲ 追加：逆出品（購入リクエスト）の機能制御 ▲
-function openRequestModal() {
-    // 購入者がログインしているか判定
-    if (!currentBuyerUser) {
-        alert("リクエストを投稿するにはログインが必要です。");
-        openModal('buyer-auth-modal'); // 未ログイン時はログインモーダルを開く
-        return;
-    }
-    // ログイン済みなら投稿モーダルを開く
-    openModal('request-post-modal');
-}
-
-function submitBuyerRequest(e) {
-    e.preventDefault();
-
-    // フォームの値を取得
-    const title = document.getElementById('req-title').value;
-    const budget = document.getElementById('req-budget').value;
-    const desc = document.getElementById('req-desc').value;
-
-    console.log("投稿データ:", { title, budget, desc });
-
-    // 画面（buyer-requests-scroll）へカード要素を即時追加する処理
-    const scrollContainer = document.getElementById('buyer-requests-scroll');
-    if (scrollContainer) {
-        const card = document.createElement('div');
-        card.style.cssText = 'min-width: 220px; padding: 16px; background: #fff; border: 1px solid #ddd; border-radius: 8px; flex-shrink: 0; boxShadow: 0 2px 4px rgba(0,0,0,0.05);';
-        card.innerHTML = `
-            <h4 style="margin: 0 0 8px 0; font-size: 16px;">${title}</h4>
-            <p style="margin: 0 0 8px 0; color: #e63946; font-weight: bold;">予算: ¥${Number(budget).toLocaleString()}</p>
-            <p style="margin: 0; font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${desc}</p>
-        `;
-        // 横スクロールの先頭にカードを追加
-        scrollContainer.insertBefore(card, scrollContainer.firstChild);
-    }
- // ▼ モーダル側にもカードを追加する処理 ▼
-    const modalContainer = document.querySelector('#request-list-modal .modal-body') || document.querySelector('#request-list-modal > div');
-    if (modalContainer) {
-        const formattedBudget = Number(budget).toLocaleString();
-        const modalCard = document.createElement('div');
-        modalCard.style.cssText = 'background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);';
-      modalCard.innerHTML = `
-            <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算</div>
-            <div style="color: var(--brand-red); font-weight: bold; font-size: 1rem; margin-bottom: 8px;">¥${formattedBudget}</div>
-            <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${title}</div>
-            <div style="font-size: 0.8rem; color: var(--text-sub); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 12px;">${desc}</div>
-            <button class="btn-outline" style="width: 100%; font-size: 0.85rem;">この商品を提案する</button>
-        `;
-        modalContainer.insertBefore(modalCard, modalContainer.firstChild);
-    }   
-
-    alert("購入リクエストを投稿しました！");
-    document.getElementById('buyer-request-form').reset();
-    closeModal('request-post-modal');
-}
-        // ▲ 追加：逆出品（購入リクエスト）の機能制御 ▲
-
-        function openSellerModal() {
-            if (savedSellerProfile) {
-                document.getElementById('seller-name-input').value = savedSellerProfile.name || '';
-                document.getElementById('seller-email-input').value = savedSellerProfile.email || '';
-                document.getElementById('seller-phone-input').value = savedSellerProfile.phone || '';
-                document.getElementById('bank-name-input').value = savedSellerProfile.bankName || '';
-                document.getElementById('bank-branch-input').value = savedSellerProfile.branchName || '';
-                document.getElementById('bank-type-input').value = savedSellerProfile.accountType || '普通';
-                document.getElementById('bank-number-input').value = savedSellerProfile.accountNumber || '';
-                document.getElementById('bank-holder-input').value = savedSellerProfile.accountHolder || '';
-            }
-            openModal('seller-modal');
-        }
-
-        function selectCategory(btn, catName) {
-            document.querySelectorAll('#category-chips .chip').forEach(c => c.classList.remove('active'));
+        window.selectCategory = function(btn, cat) {
+            btn.parentNode.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
-            selectedCategory = catName;
+            selectedCategory = cat;
             filterProducts();
-        }
+        };
 
-        function clearPriceFilter() {
+        window.selectReceiveMethod = function(btn, method) {
+            btn.parentNode.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedReceiveMethod = method;
+            filterProducts();
+        };
+
+        window.clearPriceFilter = function() {
             document.getElementById('min-price').value = '';
             document.getElementById('max-price').value = '';
             filterProducts();
-        }
+        };
 
-        function filterProducts() {
-            const keywordInput = document.getElementById('search-keyword');
-            const keyword = keywordInput ? keywordInput.value.toLowerCase().trim() : '';
+        window.filterProducts = function() {
+            const keyword = (document.getElementById('search-keyword').value || "").toLowerCase();
+            const minP = parseInt(document.getElementById('min-price').value) || 0;
+            const maxP = parseInt(document.getElementById('max-price').value) || Infinity;
 
-            const minPrice = parseInt(document.getElementById('min-price')?.value, 10);
-            const maxPrice = parseInt(document.getElementById('max-price')?.value, 10);
-
-            const filteredProducts = productsList.filter(product => {
-                if (!product.active) return false;
-
-                const matchesKeyword = !keyword || 
-                                       (product.name && product.name.toLowerCase().includes(keyword)) || 
-                                       (product.description && product.description.toLowerCase().includes(keyword));
-
-                const price = Number(product.price);
-                const matchesMinPrice = isNaN(minPrice) || price >= minPrice;
-                const matchesMaxPrice = isNaN(maxPrice) || price <= maxPrice;
-
-                const matchesCategory = (selectedCategory === "すべて" || product.category === selectedCategory);
-
-                let matchesReceive = true;
-                if (selectedReceive === 'SHIP') matchesReceive = product.ship;
-                if (selectedReceive === 'HAND') matchesReceive = product.hand;
-
-                return matchesKeyword && matchesMinPrice && matchesMaxPrice && matchesCategory && matchesReceive;
+            const filtered = products.filter(p => {
+                const matchCat = (selectedCategory === "すべて" || p.category === selectedCategory);
+                const matchKw = p.name.toLowerCase().includes(keyword) || p.desc.toLowerCase().includes(keyword);
+                const matchPrice = (p.price >= minP && p.price <= maxP);
+                return matchCat && matchKw && matchPrice;
             });
+            renderProducts(filtered);
+        };
 
-            renderProducts(filteredProducts);
-        }
-
-        function toggleAuthMode() {
-            const loginForm = document.getElementById('admin-login-form');
-            const regForm = document.getElementById('admin-register-form');
-            const title = document.getElementById('admin-auth-title');
-            const btn = document.getElementById('toggle-auth-btn');
-
-            if (loginForm.style.display === 'none') {
-                loginForm.style.display = 'block';
-                regForm.style.display = 'none';
-                title.innerHTML = '<i class="fa-solid fa-shield-halved" style="color: #007bff;"></i> 運営者ログイン';
-                btn.innerText = '新規高セキュリティ登録へ';
+        window.addToCartCurrentProduct = function() {
+            if (!currentUser) {
+                alert('カート機能を利用するにはログインが必要です。');
+                openModal('buyer-auth-modal');
+                return;
+            }
+            if(!currentSelectedProduct) return;
+            if(!cart.some(item => item.id === currentSelectedProduct.id)) {
+                cart.push(currentSelectedProduct);
+                updateCartBadge();
+                renderCart();
+                alert('カートに商品を追加しました！');
+                closeModal('product-detail-modal');
             } else {
-                loginForm.style.display = 'none';
-                regForm.style.display = 'block';
-                title.innerHTML = '<i class="fa-solid fa-user-shield" style="color: #ea352d;"></i> 3重ロック 管理者登録';
-                btn.innerText = 'ログインへ戻る';
+                alert('この商品はすでにカートに入っています。');
             }
-        }
+        };
 
-        function handleAdminRegister(e) {
+        window.updateCartBadge = function() {
+            const badge = document.getElementById('header-cart-btn');
+            const count = document.getElementById('nav-cart-count');
+            if(currentUser && cart.length > 0) {
+                badge.style.display = 'flex';
+                count.innerText = cart.length;
+            } else {
+                badge.style.display = 'none';
+            }
+        };
+
+        window.renderCart = function() {
+            const listEl = document.getElementById('cart-items-list');
+            const mypageListEl = document.getElementById('mypage-cart-list');
+            const totalEl = document.getElementById('cart-total-price');
+            const mypageTotalEl = document.getElementById('mypage-cart-total');
+
+            const html = cart.length === 0 ? '<p style="color:#888; text-align:center; padding:20px;">カートに商品は入っていません。</p>' :
+                cart.map((item, idx) => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
+                        <div>
+                            <div style="font-weight:bold; font-size:0.9rem;">${item.name}</div>
+                            <div style="font-size:0.8rem; color:var(--brand-red);">¥${item.price.toLocaleString()}</div>
+                        </div>
+                        <button class="btn-danger" onclick="removeFromCart(${idx})">削除</button>
+                    </div>
+                `).join('');
+
+            if(listEl) listEl.innerHTML = html;
+            if(mypageListEl) mypageListEl.innerHTML = html;
+
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            if(totalEl) totalEl.innerText = `¥${total.toLocaleString()}`;
+            if(mypageTotalEl) mypageTotalEl.innerText = `¥${total.toLocaleString()}`;
+        };
+
+        window.removeFromCart = function(idx) {
+            cart.splice(idx, 1);
+            updateCartBadge();
+            renderCart();
+        };
+
+        window.checkoutCartItems = function() {
+            if(cart.length === 0) { alert('カートが空です。'); return; }
+            closeModal('cart-modal');
+            closeModal('buyer-mypage-modal');
+            openModal('checkout-modal');
+            document.getElementById('selected-prod-display').innerText = `カート内商品 ${cart.length}点まとめ`;
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('out-prod-price').innerText = `¥${total.toLocaleString()}`;
+            document.getElementById('out-total-price').innerText = `¥${total.toLocaleString()}`;
+        };
+
+        window.openProductDetail = function(id) {
+            const p = products.find(item => item.id === id);
+            if(!p) return;
+            currentSelectedProduct = p;
+            document.getElementById('detail-category').innerText = p.category;
+            document.getElementById('detail-title').innerText = p.name;
+            document.getElementById('detail-price').innerText = `¥${p.price.toLocaleString()}`;
+            document.getElementById('detail-seller').innerText = p.seller;
+            document.getElementById('detail-desc').innerText = p.desc;
+            openModal('product-detail-modal');
+        };
+
+        window.proceedToCheckoutFromDetail = function() {
+            if (!currentUser) {
+                alert('購入手続きを進めるにはログインが必要です。');
+                closeModal('product-detail-modal');
+                openModal('buyer-auth-modal');
+                return;
+            }
+            closeModal('product-detail-modal');
+            openModal('checkout-modal');
+            document.getElementById('selected-prod-display').innerText = currentSelectedProduct.name;
+            document.getElementById('out-prod-price').innerText = `¥${currentSelectedProduct.price.toLocaleString()}`;
+            document.getElementById('out-total-price').innerText = `¥${currentSelectedProduct.price.toLocaleString()}`;
+        };
+
+        // 注文確定・Stripe Connect及びGoogle Apps Script連携処理
+        window.submitOrder = function(e) {
             e.preventDefault();
-
-            if (adminUsers.length >= 1) {
-                alert('【エラー】すでに運営者が1名登録されています（上限1名）。追加登録はできません。');
-                return;
-            }
-
-            const email = document.getElementById('reg-email').value.trim();
-            const phone = document.getElementById('reg-phone').value.trim();
-            const pass1 = document.getElementById('reg-pass1').value.trim();
-            const pass2 = document.getElementById('reg-pass2').value.trim();
-            const secQuestion = document.getElementById('reg-sec-question').value;
-            const secAnswer = document.getElementById('reg-sec-answer').value.trim();
-
-            if (pass1.length > 10) {
-                alert('【エラー】第1パスワードは10桁以内で設定してください。');
-                return;
-            }
-            if (pass2.length !== 20) {
-                alert('【エラー】第2パスワードは英数字「20桁ぴったり」で設定してください。');
-                return;
-            }
-
-            const newAdminData = {
-                email: email, phone: phone, pass1: pass1, pass2: pass2, secQuestion: secQuestion, secAnswer: secAnswer
+            
+            const buyerData = {
+                name: document.getElementById('buy-name').value,
+                email: document.getElementById('buy-email').value,
+                phone: document.getElementById('buy-phone').value,
+                address: document.getElementById('buy-address').value
             };
 
-            adminUsers.push(newAdminData);
-            saveStorageData('adminUsers', adminUsers);
+            const totalAmount = cart.length > 0 
+                ? cart.reduce((sum, item) => sum + item.price, 0) 
+                : (currentSelectedProduct ? currentSelectedProduct.price : 0);
 
-            sendToGas({
-                type: "ADMIN_REGISTER",
-                email: email,
-                phone: phone,
-                pass1: pass1,
-                pass2: pass2,
-                secQuestion: secQuestion,
-                secAnswer: secAnswer
-            });
-
-            alert('【管理者登録完了】1人目の運営者アカウントが正常に登録されました！');
-
-            document.getElementById('login-email').value = email;
-            document.getElementById('login-pass1').value = pass1;
-            document.getElementById('login-pass2').value = pass2;
-            document.getElementById('login-sec-ans').value = secAnswer;
-
-            toggleAuthMode();
-        }
-
-        function tryOpenAdmin() {
-            if (currentAdmin) {
-                openModal('admin-modal');
-            } else {
-                openModal('admin-login-modal');
+            // Google Apps Script (GAS) へデータを送信（非同期）
+            if (GAS_WEB_APP_URL && GAS_WEB_APP_URL.includes("script.google.com")) {
+                fetch(GAS_WEB_APP_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        type: "order",
+                        buyer: buyerData,
+                        items: cart.length > 0 ? cart : [currentSelectedProduct],
+                        total: totalAmount,
+                        timestamp: new Date().toISOString()
+                    })
+                }).catch(err => console.log("GAS送信エラー:", err));
             }
-        }
 
-        function handleAdminLogin(e) {
+            alert('注文情報を保存しました。まもなく決済画面（Stripe Connect）へ移動します。');
+            closeModal('checkout-modal');
+            
+            // カートをクリア
+            cart = [];
+            updateCartBadge();
+
+            // Stripe決済画面またはStripe Connect画面へ自動遷移
+            if (STRIPE_CHECKOUT_URL && STRIPE_CHECKOUT_URL.startsWith("http")) {
+                window.location.href = STRIPE_CHECKOUT_URL;
+            }
+        };
+
+        window.handleImageUpload = function(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    document.getElementById('img-preview').src = evt.target.result;
+                    document.getElementById('img-preview-box').style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.submitNewProduct = function(e) {
             e.preventDefault();
+            const name = document.getElementById('new-prod-name').value;
+            const price = parseInt(document.getElementById('new-prod-price').value);
+            const category = document.getElementById('new-prod-category').value;
+            const shipping = document.getElementById('new-prod-shipping').value;
+            const desc = document.getElementById('new-prod-desc').value;
+            const seller = document.getElementById('seller-name-input').value;
+            const previewImg = document.getElementById('img-preview').src;
 
-            if (adminUsers.length === 0) {
-                alert('【エラー】運営者がまだ登録されていません。「新規高セキュリティ登録へ」から管理者登録を行ってください。');
-                return;
-            }
+            const newProd = {
+                id: products.length + 1,
+                name, price, category, shipping, desc, seller,
+                image: previewImg.startsWith('data:') ? previewImg : "",
+                recommend: false
+            };
 
-            const email = document.getElementById('login-email').value.trim();
-            const pass1 = document.getElementById('login-pass1').value.trim();
-            const pass2 = document.getElementById('login-pass2').value.trim();
-            const secAns = document.getElementById('login-sec-ans').value.trim();
+            products.unshift(newProd);
+            filterProducts();
+            closeModal('buyer-mypage-modal');
+            alert('商品を出品しました！');
+        };
 
-            const admin = adminUsers.find(a => a.email === email && a.pass1 === pass1 && a.pass2 === pass2 && a.secAnswer === secAns);
-
-            if (admin) {
-                currentAdmin = admin;
-                saveStorageData('currentAdmin', currentAdmin);
-                alert('認証に成功しました。管理者用ダッシュボードを開きます。');
-                closeModal('admin-login-modal');
-                openModal('admin-modal');
+        window.toggleBuyerAuthMode = function(mode) {
+            if(mode === 'signup') {
+                document.getElementById('buyer-login-form').style.display = 'none';
+                document.getElementById('buyer-signup-form').style.display = 'block';
+                document.getElementById('buyer-auth-title').innerHTML = '<i class="fa-solid fa-user-plus" style="color: var(--brand-red);"></i> 新規会員登録';
             } else {
-                alert('【認証失敗】入力された情報が一致しません。');
+                document.getElementById('buyer-login-form').style.display = 'block';
+                document.getElementById('buyer-signup-form').style.display = 'none';
+                document.getElementById('buyer-auth-title').innerHTML = '<i class="fa-solid fa-user-check" style="color: var(--brand-red);"></i> ログイン / 新規登録';
             }
-        }
+        };
 
-        function logoutAdmin() {
-            currentAdmin = null;
-            saveStorageData('currentAdmin', null);
-            closeModal('admin-modal');
+        window.handleBuyerAuth = function(type) {
+            let email, name, phone;
+            if(type === 'signup') {
+                name = document.getElementById('buyer-signup-name').value;
+                email = document.getElementById('buyer-signup-email').value;
+                phone = document.getElementById('buyer-signup-phone').value;
+                if(!name || !email || !phone) { alert('すべての項目を入力してください。'); return; }
+                
+                registeredUsers.push({
+                    id: registeredUsers.length + 101,
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    bank: "未登録",
+                    status: "通常会員",
+                    verify: "未確認",
+                    eval: "-"
+                });
+            } else {
+                email = document.getElementById('buyer-email').value;
+                name = "一般ユーザー";
+                phone = "090-0000-0000";
+            }
+
+            currentUser = { email, name };
+            closeModal('buyer-auth-modal');
+            
+            document.getElementById('user-auth-btn-area').innerHTML = `
+                <div class="user-status-text" onclick="openModal('buyer-mypage-modal')" style="cursor:pointer;" title="マイページを開く">
+                    <i class="fa-solid fa-user-check"></i> マイページ
+                </div>
+            `;
+            updateCartBadge();
+            alert(type === 'login' ? 'ログインしました！' : '新規会員登録が完了しました！');
+            openModal('buyer-mypage-modal');
+        };
+
+        window.handleLogout = function() {
+            currentUser = null;
+            cart = [];
+            updateCartBadge();
+            closeModal('buyer-mypage-modal');
+            document.getElementById('user-auth-btn-area').innerHTML = `
+                <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
+            `;
             alert('ログアウトしました。');
-        }
+        };
 
-        // 初期化実行
-        window.addEventListener('DOMContentLoaded', () => {
-            renderNewsList();
-            renderProducts();
-            updateCartUI();
-        });
-           // ▼ 追加：チャット画面の制御 ▼
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            if (!message) return;
-       // ▼ 2621行目〜：チャット画面の制御
-function sendChatMessage() {
-    const input = document.getElementById('chat-input');
-    const message = input.value.trim();
-    if (!message) return;
-    // ... 既存のメッセージ送信処理 ...
-}
+        window.handleAdminLogin = function(e) {
+            e.preventDefault();
+            closeModal('admin-login-modal');
+            openModal('admin-dashboard-modal');
+            renderAdminDashboardData();
+        };
 
-// ▼ 提案者が金額を提示する処理（windowに直接登録）
-window.sendPriceOffer = function() {
-    const priceInput = document.getElementById('offer-price-input');
-    if (!priceInput || !priceInput.value) {
-        alert('提示する金額を入力してください。');
-        return;
-    }
+        window.switchAdminTab = function(e, tabId) {
+            const modal = document.getElementById('admin-dashboard-modal');
+            modal.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+            modal.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            e.currentTarget.classList.add('active');
+        };
 
-    const offerPrice = parseInt(priceInput.value, 10);
-    if (isNaN(offerPrice) || offerPrice <= 0) {
-        alert('正しい金額を入力してください。');
-        return;
-    }
+        window.renderAdminDashboardData = function() {
+            const userTbl = document.getElementById('tbl-users');
+            userTbl.innerHTML = registeredUsers.map(u => `
+                <tr>
+                    <td>#${u.id}</td>
+                    <td><strong>${u.name}</strong></td>
+                    <td>${u.email}</td>
+                    <td>${u.phone}</td>
+                    <td>${u.bank}</td>
+                    <td><span class="badge-shipping" style="background:#28a745">${u.status}</span></td>
+                    <td><span class="badge-shipping" style="background:${u.verify==='確認済'?'#007bff':'#ffc107'}">${u.verify}</span></td>
+                    <td>${u.eval}</td>
+                    <td><button class="btn-danger" onclick="alert('アカウント状態を変更します')">管理</button></td>
+                </tr>
+            `).join('');
 
-    const chatBox = document.getElementById('chat-messages-container') 
-                 || document.getElementById('chat-messages') 
-                 || document.getElementById('chat-log')
-                 || document.querySelector('.chat-messages')
-                 || (document.getElementById('chat-input') ? document.getElementById('chat-input').closest('div[style*="flex-direction"]').previousElementSibling : null);
+            const prodTbl = document.getElementById('tbl-admin-products');
+            prodTbl.innerHTML = products.map(p => `
+                <tr>
+                    <td>#${p.id}</td>
+                    <td>${p.image ? `<img src="${p.image}" style="width:40px;height:40px;object-fit:cover;">` : 'なし'}</td>
+                    <td><strong>${p.name}</strong></td>
+                    <td>¥${p.price.toLocaleString()}</td>
+                    <td>${p.category}</td>
+                    <td>${p.seller}</td>
+                    <td><button class="btn-danger" onclick="adminDeleteProduct(${p.id})">削除</button></td>
+                </tr>
+            `).join('');
+        };
 
-    const modal = document.getElementById('private-chat-modal');
-    const titleElement = modal ? modal.querySelector('h2') : null;
-    const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
-
-    const offerHtml = `
-        <div style="background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center;">
-            <div style="font-size: 0.85rem; color: #2e7d32; font-weight: bold;">🤝 条件が提示されました</div>
-            <div style="font-size: 1.1rem; font-weight: bold; margin: 5px 0; color: #1b5e20;">${itemTitle}</div>
-            <div style="font-size: 1.3rem; font-weight: bold; color: #d32f2f;">金額: ¥${offerPrice.toLocaleString()}</div>
-            <button onclick="window.openCheckoutWithOffer('${itemTitle}', ${offerPrice})" style="margin-top: 10px; width: 100%; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                <i class="fa-solid fa-credit-card"></i> この条件（¥${offerPrice.toLocaleString()}）で購入手続きへ進む
-            </button>
-        </div>
-    `;
-
-    if (chatBox) {
-        const msgDiv = document.createElement('div');
-        msgDiv.innerHTML = offerHtml;
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    } else {
-        alert('チャット表示エリアが見つかりませんでした。');
-    }
-
-    priceInput.value = '';
-};
-
-// ▼ 提示された金額で購入手続き（配送先入力モーダル）を開く処理
-window.openCheckoutWithOffer = function(title, price) {
-    const privateModal = document.getElementById('private-chat-modal');
-    if (privateModal) privateModal.style.display = 'none';
-
-    const selectedItemEl = document.getElementById('checkout-item-name');
-    const priceEl = document.getElementById('checkout-item-price');
-    const totalEl = document.getElementById('checkout-total-price');
-
-    if (selectedItemEl) selectedItemEl.innerText = title;
-    if (priceEl) priceEl.innerText = '¥' + price.toLocaleString();
-    if (totalEl) totalEl.innerText = '¥' + price.toLocaleString();
-
-    const checkoutModal = document.getElementById('checkout-modal') || document.getElementById('buy-modal');
-    if (checkoutModal) {
-        checkoutModal.style.display = 'block';
-    } else {
-        alert('購入手続き画面を開けませんでした。');
-    }
-};
-    const selectedItemEl = document.getElementById('checkout-item-name');
-    const priceEl = document.getElementById('checkout-item-price');
-    const totalEl = document.getElementById('checkout-total-price');
-
-    if (selectedItemEl) selectedItemEl.innerText = title;
-    if (priceEl) priceEl.innerText = '¥' + price.toLocaleString();
-    if (totalEl) totalEl.innerText = '¥' + price.toLocaleString();
-
-    const checkoutModal = document.getElementById('checkout-modal') || document.getElementById('buy-modal');
-    if (checkoutModal) {
-        checkoutModal.style.display = 'block';
-    } else {
-        alert('購入手続き画面を開けませんでした。');
-    }
-}
-// ▼ 提案者が金額を提示する処理（Stripe決済リンクを生成してカード表示）
-window.sendPriceOffer = function() {
-    const priceInput = document.getElementById('offer-price-input');
-    if (!priceInput || !priceInput.value) {
-        alert('提示する金額を入力してください。');
-        return;
-    }
-
-    const offerPrice = parseInt(priceInput.value, 10);
-    if (isNaN(offerPrice) || offerPrice <= 0) {
-        alert('正しい金額を入力してください。');
-        return;
-    }
-
-    const chatBox = document.getElementById('chat-messages-container') 
-                 || document.getElementById('chat-messages') 
-                 || document.getElementById('chat-log')
-                 || document.querySelector('.chat-messages')
-                 || (document.getElementById('chat-input') ? document.getElementById('chat-input').closest('div[style*="flex-direction"]').previousElementSibling : null);
-
-    const modal = document.getElementById('private-chat-modal');
-    const titleElement = modal ? modal.querySelector('h2') : null;
-    const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
-
-    // チャット画面にStripe連携用のカードメッセージを追加
-    const offerHtml = `
-        <div style="background: #e8f5e9; border: 2px solid #4caf50; padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center;">
-            <div style="font-size: 0.85rem; color: #2e7d32; font-weight: bold;">🤝 条件が提示されました</div>
-            <div style="font-size: 1.1rem; font-weight: bold; margin: 5px 0; color: #1b5e20;">${itemTitle}</div>
-            <div style="font-size: 1.3rem; font-weight: bold; color: #d32f2f;">金額: ¥${offerPrice.toLocaleString()}</div>
-            <button onclick="window.startStripeCheckout('${itemTitle}', ${offerPrice})" style="margin-top: 10px; width: 100%; background: #4caf50; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                <i class="fa-solid fa-credit-card"></i> この条件（¥${offerPrice.toLocaleString()}）で購入手続き（Stripe）へ進む
-            </button>
-        </div>
-    `;
-
-    if (chatBox) {
-        const msgDiv = document.createElement('div');
-        msgDiv.innerHTML = offerHtml;
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    } else {
-        alert('チャット表示エリアが見つかりませんでした。');
-    }
-
-    priceInput.value = '';
-};
-
-window.startStripeCheckout = async function(title, price) {
-    try {
-        const prefEl = document.getElementById('prefecture-select');
-        const selectedPref = prefEl ? prefEl.value : '';
-        const productName = selectedPref ? `${title} (${selectedPref})` : title;
-
-        // GASでStripeの決済URL（cs_live_...）を作成して取得する
-        const response = await fetch('https://script.google.com/macros/s/AKfycbz48YuNqpsAtg7ZK3jElTnbaS6T4NrHvNLy6z5lx_GiOBIkkxXNCYqk7oQ913-yzsSN/exec', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify({
-                price: price,
-                productName: productName,
-                sellerAccountId: ''
-            })
-        });
-
-        const data = await response.json();
-
-        // 取得したStripeの決済URLへリダイレクト
-        if (data.url) {
-            window.location.href = data.url;
-        } else {
-            alert('決済ページの作成に失敗しました: ' + (data.error || '詳細不明'));
-        }
-    } catch (error) {
-        console.error('決済エラー:', error);
-        alert('通信エラーが発生しました。');
-    }
-};
-// ▼ 提示された金額で購入手続き（配送先入力モーダル）を開く処理
-function openCheckoutWithOffer(title, price) {
-    const privateModal = document.getElementById('private-chat-modal');
-    if (privateModal) privateModal.style.display = 'none';
-
-    const selectedItemEl = document.getElementById('checkout-item-name');
-    const priceEl = document.getElementById('checkout-item-price');
-    const totalEl = document.getElementById('checkout-total-price');
-
-    if (selectedItemEl) selectedItemEl.innerText = title;
-    if (priceEl) priceEl.innerText = '¥' + price.toLocaleString();
-    if (totalEl) totalEl.innerText = '¥' + price.toLocaleString();
-
-    const checkoutModal = document.getElementById('checkout-modal') || document.getElementById('buy-modal');
-    if (checkoutModal) {
-        checkoutModal.style.display = 'block';
-    } else {
-        alert('購入手続き画面を開けませんでした。');
-    }
-}
-// ▼ 2571行目に追加 ▼
-    // マイページ（出品者とのメール）へ最新メッセージを反映
-  // ▼ 2813行目付近から置き換え
-    const chatInput = document.getElementById('chat-input');
-    const chatsList = document.getElementById('mypage-chats-list');
-    
-    if (chatsList) {
-        if (chatsList.innerText.includes('履歴はありません')) {
-            chatsList.innerHTML = '';
-        }
-        const newItem = document.createElement('div');
-        newItem.style.cssText = "padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 8px; background: #f9f9f9; border-radius: 6px;";
-        newItem.innerHTML = `
-            <div style="font-size: 0.75rem; color: #888;">${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-            <div style="font-weight: bold; font-size: 0.9rem; margin: 2px 0;">交渉ルーム（○○の限定フィギュア）</div>
-            <div style="font-size: 0.85rem; color: #444;">最新: ${chatInput && chatInput.value ? chatInput.value : ''}</div>
-        `;
-        chatsList.prepend(newItem);
-    }
-
-
-
-    // ▼ 合意した条件で決済画面（Stripe Connect）へ遷移する処理
-async function proceedToNegotiation() {
-    const chatInput = document.getElementById('chat-input');
-    const modal = document.getElementById('private-chat-modal');
-    // 都道府県の要素と値を取得
-    const prefSelect = document.getElementById('prefecture-select');
-    const selectedPref = prefSelect ? prefSelect.value : '';
-
-    // 未選択の場合は警告を出して処理をストップ（必須にする場合）
-    if (!selectedPref) {
-        alert('都道府県を選択してください。');
-        return;
-    }
-    
-    // 金額の自動判定（入力値から数字を抽出。取得できない場合は既定値）
-    let price = 5500; 
-    if (chatInput && chatInput.value) {
-        const extractedPrice = chatInput.value.replace(/[^0-9]/g, '');
-        if (extractedPrice) price = parseInt(extractedPrice, 10);
-    }
-
-    const titleElement = modal ? modal.querySelector('h2') : null;
-    const itemTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : '合意商品';
-
-    try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbwumBqImy9VszsfB6vE4jSSaroue5Mvk96Fr1hQd1311HRvUuzjvktvDMrZbGFRLAFX/exec', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-                price: price,
-                productName: itemTitle + ' (' + selectedPref + ')', // 商品名に都道府県を結合
-                sellerAccountId: 'acct_1xxxxxxxxx'
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.url) {
-            window.location.href = data.url; // Stripe画面へ自動リダイレクト
-        } else {
-            alert('決済ページの作成に失敗しました。');
-        }
-    } catch (error) {
-        console.error('決済エラー:', error);
-        alert('通信エラーが発生しました。');
-    }
-}
-            const chatMessages = document.getElementById('chat-messages');
-            
-            // 自分のメッセージを画面に疑似的に追加
-　　　　　　　const input = document.getElementById('chat-input') || document.querySelector('.chat-input-box'); // ※実際の入力欄のIDやクラス名に合わせてください
-            const msgDiv = document.createElement('div');
-            msgDiv.style.cssText = "display: flex; gap: 10px; align-items: flex-start; flex-direction: row-reverse; margin-top: 15px;";
-            msgDiv.innerHTML = `
-                <div style="width: 35px; height: 35px; background: var(--brand-red); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 0.75rem; flex-shrink: 0;">あなた</div>
-                <div style="background: #e3f2fd; padding: 10px 15px; border-radius: 15px; border-top-right-radius: 0; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 0.9rem;">
-                   ${input.value}
-                </div>
-            `;
-            
-            chatMessages.appendChild(msgDiv);
-            input.value = ''; // 入力欄を空にする
-            
-            // スクロールを一番下へ移動
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            // ※実際はここでデータベースにメッセージを送信する処理を記述します
-        
-
-        // 交渉成立後、決済モーダルへ進む処理
-        function proceedToNegotiatedCheckout() {
-            closeModal('private-chat-modal'); // チャットを閉じる
-            
-            // ※実際はここで、チャットで合意した金額をStripeに渡す処理を行います
-            alert("合意した金額でStripe決済画面へ移行します。（現在はモックアップとして通常の購入画面を開きます）");
-            
-            openModal('checkout-modal'); // 既存の購入手続きモーダルを開く
-        }
-     // ▲ 追加：チャット画面の制御 ▲
-
-    // ★ ここから追加 ★
-    function checkAuthAndOpenModal(modalId, closeId = null) {
-        if (!currentBuyerUser) {
-            alert("この機能を利用するには購入者としてログインしてください。");
-            if (closeId) closeModal(closeId);
-            openModal('buyer-auth-modal');
-            return;
-        }
-        openModal(modalId);
-    }
-// 運営管理ボタン用
-        function tryOpenAdmin() {
-            openModal('admin-login-modal'); // または対応する管理者のモーダルID
-        }
-
-        // 出品者登録・出品ボタン用
-        function openSellerModal() {
-            openModal('seller-modal'); // または対応する出品のモーダルID
-        }
- 
-        // ▼ ここに先ほどの確実なクリック処理を追加する
-        document.addEventListener("DOMContentLoaded", function() {
-            const adminBtn = document.querySelector("button[onclick*='tryOpenAdmin'], button[onclick*='admin-modal']");
-            if (adminBtn) {
-                adminBtn.addEventListener("click", function() {
-                    openModal('admin-modal');
-                });
+        window.adminDeleteProduct = function(id) {
+            if(confirm('この商品を削除しますか？')) {
+                products = products.filter(p => p.id !== id);
+                renderProducts();
+                renderAdminDashboardData();
+                alert('商品を削除しました。');
             }
+        };
 
-            const sellerBtn = document.querySelector("button[onclick*='openSellerModal']");
-            if (sellerBtn) {
-                sellerBtn.addEventListener("click", function() {
-                    openModal('seller-modal');
-                });
+        window.renderNews = function() {
+            const container = document.getElementById('news-list-container');
+            if(container) {
+                container.innerHTML = `<div class="news-item"><span>2026-06-01</span> <span>ミナトモ！プラットフォームがリニューアルオープンしました！</span></div>`;
             }
-        });
-           // 【最終手段】キャプチャリング段階でクリックを強制奪取してモーダルを開く
-// ▼ クリックを確実に拾ってモーダルを開く処理
-document.addEventListener('click', function(e) {
-    // 運営管理ボタンが押されたとき
-    const adminBtn = e.target.closest("button[onclick*='tryOpenAdmin'], button:has(.fa-gear)");
-    if (adminBtn) {
-        e.stopPropagation();
-        e.preventDefault();
-        tryOpenAdmin();
-        return;
-    }
-    
-    // お問い合わせボタンが押されたとき
-    const inquiryBtn = e.target.closest("button[onclick*='inquiry-modal'], button:has(.fa-headset)");
-    if (inquiryBtn) {
-        e.stopPropagation();
-        e.preventDefault();
-        openModal('inquiry-modal');
-        return;
-    }
-}, true);
+        };
 
-// ▼ ここから追記（購入者ログイン判定・リクエスト投稿制御） ▼
-let isBuyerLoggedIn = false; // 初期状態：未ログイン
-
-function tryOpenRequestModal() {
-    if (isBuyerLoggedIn) {
-        openModal('request-modal'); 
-    } else {
-        alert('リクエストの投稿には購入者ログインが必要です。');
-        openModal('buyer-auth-modal');
-    }
-}
-// ▲ ここまで追記 ▲
-// 未ログイン時にマイページやチャットを開こうとしたら自動でブロックする処理（閉じるボタン除外版）
-document.addEventListener('click', function(e) {
-    // ×ボタンや「閉じる」処理（closeModal）が含まれる要素をクリックした場合は除外する
-if (e.target.closest('[onclick*="closeModal"], .close, .modal-close, .admin-tab-btn, [onclick*="openMypageTab"]')) {
-    return;
-}
-
-    // マイページやチャットを開く要素をクリックしたか判定
-    const target = e.target.closest('[onclick*="buyer-mypage-modal"], [onclick*="buyer-chat-modal"]');
-    
-    if (target && !isBuyerLoggedIn) {
-        e.stopPropagation();
-        e.preventDefault();
-        alert('マイページやメッセージ機能の利用には購入者ログインが必要です。');
-        openModal('buyer-auth-modal');
-    }
-}, true);
-// --- 購入リクエスト送信時にマイページへ自動追加する処理 ---
-document.addEventListener('submit', function(e) {
-    // フォーム送信（またはリクエスト投稿）が行われたとき
-    const form = e.target;
-    
-    // 入力されたタイトルや価格を取得（入力欄を探す）
-    const titleInput = form.querySelector('input[type="text"], textarea');
-    const priceInput = form.querySelector('input[type="number"]');
-    
-    const titleVal = titleInput ? titleInput.value : '購入リクエスト';
-    const priceVal = priceInput ? priceInput.value : '';
-
-    // マイページの送信済みリスト（id="mypage-chats-list"）を取得
-    const chatsList = document.getElementById('mypage-chats-list');
-
-    if (chatsList) {
-        // リストに追加するHTMLを作成
-        const newItem = document.createElement('div');
-        newItem.style.cssText = "padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 8px;";
-        newItem.innerHTML = `
-            <div style="font-size: 0.8rem; color: #888;">${new Date().toLocaleDateString()} 送信済み</div>
-            <div style="font-weight: bold; font-size: 0.95rem;">${titleVal}</div>
-            ${priceVal ? `<div style="font-size: 0.85rem; color: #e60012;">予算: ¥${priceVal}</div>` : ''}
-        `;
-
-        // マイページの先頭に追加
-        chatsList.prepend(newItem);
-    }
-});
-// --- 交渉ルームの送信内容をマイページ（出品者とのメール）に反映する処理 ---
-document.addEventListener('click', function(e) {
-    // 送信ボタン（「送信」テキストが含まれるボタン）が押されたか判定
-    const sendBtn = e.target.closest('button');
-    if (!sendBtn || !sendBtn.innerText.includes('送信')) return;
-
-    // 交渉ルーム内の入力エリア（textarea または input）を探す
-    const modal = sendBtn.closest('.modal, [id*="modal"]');
-    if (!modal) return;
-
-    const inputArea = modal.querySelector('input[type="text"], textarea');
-    if (!inputArea || !inputArea.value.trim()) return;
-
-    const messageText = inputArea.value.trim();
-
-    // モーダルのタイトル（「〇〇の限定フィギュア」など）を取得
-    const titleElement = modal.querySelector('h2, h3, .modal-title');
-    const roomTitle = titleElement ? titleElement.innerText.replace('交渉ルーム', '').trim() : 'お問い合わせ';
-
-    // マイページのメッセージリスト（id="mypage-chats-list"）を取得
-    const chatsList = document.getElementById('mypage-chats-list');
-
-    if (chatsList) {
-        // 初期表示メッセージをクリア
-        if (chatsList.innerText.includes('履歴はありません')) {
-            chatsList.innerHTML = '';
+        window.postAdminNews = function() {
+            const title = document.getElementById('admin-news-title').value;
+            const desc = document.getElementById('admin-news-desc').value;
+            if(!title) { alert('タイトルを入力してください。'); return; }
+            alert('新しいお知らせを配信しました。');
+            document.getElementById('admin-news-title').value = '';
+            document.getElementById('admin-news-desc').value = '';
         }
-
-        // マイページに追加する要素を作成
-        const newItem = document.createElement('div');
-        newItem.style.cssText = "padding: 12px; border-bottom: 1px solid #eee; margin-bottom: 8px; background: #fafafa; border-radius: 6px;";
-        newItem.innerHTML = `
-            <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">
-                ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-            </div>
-            <div style="font-weight: bold; font-size: 0.9rem; color: #333; margin-bottom: 4px;">${roomTitle}</div>
-            <div style="font-size: 0.85rem; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                最新メッセージ: ${messageText}
-            </div>
-        `;
-
-        // リストの最上部に挿入
-        chatsList.prepend(newItem);
-    }
-}, true);
-function switchMyTab(tabId) {
-    // すべてのサブパネルとボタンの選択状態を解除
-    document.querySelectorAll('.sub-panel').forEach(panel => panel.classList.remove('active'));
-    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
-
-    // 選択されたサブパネルとボタンをアクティブ化
-    document.getElementById(tabId)?.classList.add('active');
-    event.currentTarget.classList.add('active');
-}
-
-  // 〜 既存のJavaScript処理 〜
-
-  // ▼ ここに追加します ▼
- function openMypageSellTab() {
-    // 1. 購入者マイページのモーダルを開く
-    if (typeof openModal === 'function') {
-        openModal('buyer-mypage-modal');
-    } else {
-        const modal = document.getElementById('buyer-mypage-modal');
-        if (modal) {
-            modal.classList.add('active');
-            modal.style.display = 'block';
-        }
-    }
-
-    // 2. マイページ内のすべてのタブコンテンツとボタンのアクティブ状態を解除・非表示
-    document.querySelectorAll('#buyer-mypage-modal .admin-tab-content').forEach(el => {
-        el.classList.remove('active');
-        el.style.display = 'none'; // ★明示的に非表示
-    });
-    document.querySelectorAll('#buyer-mypage-modal .admin-tab-btn').forEach(el => {
-        el.classList.remove('active');
-    });
-
-    // 3. 「出品する」タブコンテンツをアクティブ化＆表示
-    const sellTab = document.getElementById('mypage-tab-sell');
-    if (sellTab) {
-        sellTab.classList.add('active');
-        sellTab.style.display = 'block'; // ★明示的に表示
-    }
-
-    // 4. 「出品する」タブボタンをアクティブ化
-    const sellBtn = document.querySelector('.admin-tab-btn[onclick*="mypage-tab-sell"]');
-    if (sellBtn) {
-        sellBtn.classList.add('active');
-    }
-}
-function openMypageTab(tabId, element) {
-    // 1. 全てのタブコンテンツ（.admin-tab-content または .tab-content）を非表示にする
-    const contents = document.querySelectorAll('.admin-tab-content');
-    contents.forEach(content => {
-        content.style.display = 'none';
-        content.classList.remove('active');
-    });
-
-    // 2. 全てのタブボタンの active スタイルを解除する
-    const buttons = document.querySelectorAll('.admin-tab-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    // 3. 押されたタブ（tabId）だけを表示する
-    const targetTab = document.getElementById(tabId);
-    if (targetTab) {
-        targetTab.style.display = 'block';
-        targetTab.classList.add('active');
-    }
-
-    // 4. クリックされたボタンを active にする
-    if (element) {
-        element.classList.add('active');
-    }
-}
-function submitNewProduct(event) {
-    if (event) event.preventDefault();
-    
-    // ★★★★ ここに追加（貼り付け）します！ ★★★★
-    console.log("【デバッグ1】出品ボタンが押されました！");
-// 1. 各入力要素の安全な取得（ここで一度だけ const で宣言する）
-const nameEl = document.getElementById('new-prod-name');
-const priceEl = document.getElementById('new-prod-price');
-const descEl = document.getElementById('new-prod-desc');
-const shippingEl = document.getElementById('new-prod-shipping');
-
-// デバッグ用ログ
-console.log("【デバッグ2】 入力要素の取得:", { nameEl, priceEl, descEl, shippingEl });
-
-// event.preventDefault() がある場合はここに続けます
-// event.preventDefault();
-
-// エラーで途中で止まらないよう安全に値を取り出す
-// 1. 各入力要素の安全な取得
-nameEl = document.getElementById('new-prod-name');
-priceEl = document.getElementById('new-prod-price');
-descEl = document.getElementById('new-prod-desc');
-shippingEl = document.getElementById('new-prod-shipping');
-
-// デバッグ用ログ
-console.log("【デバッグ2】 入力要素の取得:", { nameEl, priceEl, descEl, shippingEl });
-
-// 安全に値を取り出す（ここで一度だけ const で宣言する）
-const name = nameEl ? nameEl.value : '';
-const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
-const desc = descEl ? descEl.value : '';
-const shipping = shippingEl ? shippingEl.value : '配送';
-const category = document.getElementById('new-prod-category')?.value || 'アクア・ペット用品';
-    const imgPreview = document.getElementById('img-preview');
-    const imgSrc = (imgPreview && imgPreview.src) ? imgPreview.src : '';
-
-    // 2. 新規商品データオブジェクトを作成
-    const newProdId = 'prod_' + Date.now();
-    const newProduct = {
-        id: newProdId,
-        name: name,
-        price: price,
-        description: desc,
-        shipping: shipping,
-        category: category,
-        image: imgSrc,
-        seller: '出品者',
-        views: 0,
-        likes: 0
-    };
-
-    // 配列データ（productsList）の先頭に追加
-   if (typeof productsList !== 'undefined') {
-    const newProduct = {
-        id: newProdId,
-        name: name,
-        price: price,
-        description: desc,
-        shipping: shipping,
-        category: category,
-        image: imgSrc,
-        seller: '出品者'
-    };
-    productsList.unshift(newProduct);
-}
-
-    // 3. 画面（おすすめ・登録商品一覧）へHTMLカードを直接生成して追加
-    // ※商品一覧を囲んでいる親要素のIDを指定してください（例: 'product-list' や 'items-container'）
-   const container = document.getElementById('main-product-grid') || document.querySelector('.product-grid');
-
-    if (container) {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.onclick = function(e) { openProductDetailModal(newProdId, e); };
-
-        // 画像の表示切替
-        const imageHtml = imgSrc 
-            ? `<img src="${imgSrc}" alt="${name}" style="width:100%; height:160px; object-fit:cover; border-radius:8px 8px 0 0;">`
-            : `<div style="width:100%; height:160px; background:#e9ecef; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#333;">${name}</div>`;
-
-        // 画像カードのHTML構築（画像のデザインを再現）
-        card.innerHTML = `
-            <div style="position:relative; background:#f0f2f5; border-radius:12px; overflow:hidden;">
-                ${imageHtml}
-                <button style="position:absolute; top:8px; right:8px; background:white; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer;">♡</button>
-                <div style="position:absolute; bottom:8px; left:8px; display:flex; gap:4px;">
-                    <span style="background:#007bff; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:bold;">配送</span>
-                    <span style="background:#28a745; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:bold;">手渡し</span>
-                </div>
-            </div>
-            <div style="padding:10px 4px;">
-                <div style="font-size:0.95rem; color:#333; font-weight:500; margin-bottom:4px;">${name}</div>
-                <div style="color:#e60012; font-weight:bold; font-size:1.1rem; margin-bottom:6px;">¥${price.toLocaleString()}</div>
-                <span style="background:#e8f4ff; color:#007bff; font-size:0.75rem; padding:3px 8px; border-radius:12px; display:inline-block; margin-bottom:6px;">${category}</span>
-                <div style="font-size:0.75rem; color:#888; display:flex; gap:10px;">
-                    <span>👁 0</span>
-                    <span>♥ 0</span>
-                </div>
-            </div>
-        `;
-
-        // 一覧の先頭に追加
-        container.prepend(card);
-    }
-    // 管理画面のテーブルを取得
-const adminTableBody = document.getElementById('tbl-admin-products');
-
-if (adminTableBody) {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>${newProdId}</td>
-        <td>${name}</td>
-       <td>¥${price.toLocaleString()}</td>
-            <td>${sellerName || '出品者'}</td>
-            <td><span style="color:green;">公開中</span></td>
-            <td><input type="checkbox" checked></td>
-            <td><button onclick="this.closest('tr').remove();" style="color:red; border:none; background:none; cursor:pointer;">削除</button></td>
-        `;
-        // 管理テーブルの先頭に行を追加
-        adminTableBody.prepend(row);
-    }
-
-    // ★ 1. 配列データ（productsList）の先頭に新商品を追加
-    if (typeof productsList !== 'undefined') {
-        productsList.unshift({
-            id: newProdId,
-            name: name,
-            price: price,
-            description: desc,
-            shipping: shipping,
-            category: category,
-            image: imgSrc,
-            seller: sellerName || '出品者',
-            views: 0,
-            likes: 0
-        });
-        // LocalStorageに保存して再起動時も残るようにする
-        localStorage.setItem('my_products_list', JSON.stringify(productsList));
-    }
-
-    // ★ 2. 表側（おすすめ・登録商品一覧）にカードを直接生成して追加
-    const mainGrid = document.getElementById('main-product-grid');
-    if (mainGrid) {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.onclick = function(e) { openProductDetailModal(newProdId, e); };
-
-        const imageHtml = imgSrc 
-            ? `<img src="${imgSrc}" alt="${name}" style="width:100%; height:160px; object-fit:cover; border-radius:8px 8px 0 0;">`
-            : `<div style="width:100%; height:160px; background:#e9ecef; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#333;">${name}</div>`;
-
-        card.innerHTML = `
-            <div style="position:relative; background:#f0f2f5; border-radius:12px; overflow:hidden;">
-                ${imageHtml}
-                <button style="position:absolute; top:8px; right:8px; background:white; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer;">♡</button>
-                <div style="position:absolute; bottom:8px; left:8px; display:flex; gap:4px;">
-                    <span style="background:#007bff; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:bold;">配送</span>
-                    <span style="background:#28a745; color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:bold;">手渡し</span>
-                </div>
-            </div>
-            <div style="padding:10px 4px;">
-                <div style="font-size:0.95rem; color:#333; font-weight:500; margin-bottom:4px;">${name}</div>
-                <div style="color:#e60012; font-weight:bold; font-size:1.1rem; margin-bottom:6px;">¥${price.toLocaleString()}</div>
-                <span style="background:#e8f4ff; color:#007bff; font-size:0.75rem; padding:3px 8px; border-radius:12px; display:inline-block; margin-bottom:6px;">${category}</span>
-                <div style="font-size:0.75rem; color:#888; display:flex; gap:10px;">
-                    <span>👁 0</span>
-                    <span>♥ 0</span>
-                </div>
-            </div>
-        `;
-        mainGrid.prepend(card);
-    }
-
- // 画面更新を描画させてからアラートを出す
-setTimeout(() => {
-    alert('商品を出品しました！');
-    const form = document.getElementById('seller-form');
-    if (form) form.reset();
-}, 50);
-}
-// 1. ページ読み込み時に LocalStorage から商品を復元する処理
-// --- 1. ページ読み込み時に商品データを自動表示する処理 ---
-document.addEventListener("DOMContentLoaded", function() {
-    let products = JSON.parse(localStorage.getItem('my_products_list')) || (typeof productsList !== 'undefined' ? productsList : []);
-    
-    const container = document.getElementById('main-product-grid') || document.querySelector('.product-grid');
-    if (container && products.length > 0) {
-        container.innerHTML = ''; 
-        products.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.style.cssText = 'background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1); cursor:pointer; margin-bottom:12px;';
-            card.innerHTML = `
-                <div style="background:#f0f2f5; height:160px; display:flex; align-items:center; justify-content:center; font-weight:bold;">
-                    ${p.image ? `<img src="${p.image}" style="width:100%; height:100%; object-fit:cover;">` : p.name}
-                </div>
-                <div style="padding:10px;">
-                    <div style="font-weight:500; margin-bottom:4px;">${p.name}</div>
-                    <div style="color:#e60012; font-weight:bold;">¥${Number(p.price || 0).toLocaleString()}</div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    }
-});
-
-// --- 2. 出品ボタンが押されたときの処理 ---
-
-
-// --- 3. 運営管理・お問い合わせ・各種ボタンを確実に動かすための共通関数 ---
-window.openModal = function(id) { 
-    const el = document.getElementById(id); 
-    if(el) el.style.display = 'block'; 
-};
-
-window.closeModal = function(id) { 
-    const el = document.getElementById(id); 
-    if(el) el.style.display = 'none'; 
-};
-
-window.tryOpenAdmin = function() {
-    // 実際のHTMLにあるID 'admin-login-modal' を直接指定する
-    const adminEl = document.getElementById('admin-login-modal');
-    
-    if (adminEl) {
-        adminEl.style.display = 'block';
-    } else {
-        alert("管理画面の要素が見つかりません。");
-    }
-};
-
-window.openMypageSellTab = function(tabName, el) { 
-    if(typeof openMypageTab === 'function') {
-        openMypageTab(tabName, el);
-    } else {
-        // 代替タブ切り替え処理
-        document.querySelectorAll('.mypage-tab-content').forEach(c => c.style.display = 'none');
-        const target = document.getElementById(tabName);
-        if(target) target.style.display = 'block';
-    }
-};
-
-window.selectCategory = function(btn, cat) { 
-    document.querySelectorAll('.chip, .category-scroll .chip').forEach(c => c.classList.remove('active')); 
-    if(btn) btn.classList.add('active'); 
-    window.currentCategory = cat;
-    if(typeof renderProducts === 'function') renderProducts();
-};
-window.selectCategory = function(button, categoryName) {
-    // アクティブクラスの切り替えなどの処理
-    document.querySelectorAll('.chip').forEach(btn => btn.classList.remove('active'));
-    if (button) button.classList.add('active');
-    
-    // 必要に応じた絞り込み処理など
-    console.log("選択されたカテゴリ:", categoryName);
-};
-// 商品の絞り込み用関数
-function filterProducts(category) {
-    console.log("カテゴリーで絞り込み:", category);
-    // ここに絞り込みの処理が入ります
-}
-
-// カテゴリー選択用関数
-function selectCategory(category) {
-    console.log("カテゴリー選択:", category);
-    // ここにカテゴリー選択の処理が入ります
-}
-// === 運営管理・お問合せ・出品登録ボタンを強制的に動かす共通処理 ===
-// === 運営管理・お問合せ・出品登録ボタンを確実に動かす共通処理 ===
-document.addEventListener('click', function(e) {
-    const target = e.target.closest('button');
-    if (!target) return;
-    
-    const onclickAttr = target.getAttribute('onclick') || "";
-    const text = target.innerText || target.textContent || "";
-    
-    // 1. 運営管理ボタン
-    if (onclickAttr.includes('tryOpenAdmin') || text.includes('運営管理')) {
-        e.stopPropagation();
-        e.preventDefault();
-        const m = document.getElementById('admin-login-modal') || document.getElementById('admin-dashboard-modal');
-        if (m) m.style.display = 'block';
-        return;
-    }
-    
-    // 2. お問合せボタン
-    if (onclickAttr.includes('inquiry') || text.includes('お問合せ')) {
-        e.stopPropagation();
-        e.preventDefault();
-        const m = document.getElementById('inquiry-modal');
-        if (m) m.style.display = 'block';
-        return;
-    }
-    
-    // 3. 出品ボタン
-    if (onclickAttr.includes('Sell') || target.classList.contains('btn-red-sm') || text.includes('出品')) {
-        e.stopPropagation();
-        e.preventDefault();
-        const m = document.getElementById('seller-modal') || document.getElementById('new-product-modal');
-        if (m) m.style.display = 'block';
-        return;
-    }
-}, true);
-// === ボタンから呼ばれる関数を確実にグローバルに定義する ===
-window.openModal = window.openModal || function(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'block';
-};
-
-window.tryOpenAdmin = window.tryOpenAdmin || function() {
-    const adminModal = document.getElementById('admin-login-modal') || document.getElementById('admin-dashboard-modal');
-    if (adminModal) adminModal.style.display = 'block';
-};
-
-window.openMypageSellTab = window.openMypageSellTab || function() {
-    const sellModal = document.getElementById('seller-modal') || document.getElementById('new-product-modal');
-    if (sellModal) {
-        sellModal.style.display = 'block';
-    } else {
-        alert('出品画面が見つかりません');
-    }
-};
-// === マイページのタブ切り替え関数 ===
-window.openMypageTab = window.openMypageTab || function(tabId, btnElement) {
-    // すべてのタブコンテンツを非表示にする
-    const contents = document.querySelectorAll('.admin-tab-content');
-    contents.forEach(function(content) {
-        content.classList.remove('active');
-        content.style.display = 'none';
-    });
-    
-    // 指定されたタブコンテンツを表示する
-    const targetTab = document.getElementById(tabId);
-    if (targetTab) {
-        targetTab.classList.add('active');
-        targetTab.style.display = 'block';
-    }
-    
-    // すべてのタブボタンのアクティブ状態を外す
-    const buttons = document.querySelectorAll('.admin-tab-btn');
-    buttons.forEach(function(btn) {
-        btn.classList.remove('active');
-    });
-    
-    // 押されたボタンをアクティブにする
-    if (btnElement) {
-        btnElement.classList.add('active');
-    }
-};
-</script>
+    </script>
 </body>
 </html>
