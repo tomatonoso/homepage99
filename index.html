@@ -3478,44 +3478,38 @@ function selectCategory(category) {
     // ここにカテゴリー選択の処理が入ります
 }
 // === 運営管理・お問合せ・出品登録ボタンを強制的に動かす共通処理 ===
+// === 運営管理・お問合せ・出品登録ボタンを確実に動かす共通処理 ===
 document.addEventListener('click', function(e) {
+    const target = e.target.closest('button');
+    if (!target) return;
+    
+    const onclickAttr = target.getAttribute('onclick') || "";
+    const text = target.innerText || target.textContent || "";
+    
     // 1. 運営管理ボタン
-   if (e.target.closest("button") && e.target.closest("button").getAttribute('onclick')?.includes('tryOpenAdmin'))
+    if (onclickAttr.includes('tryOpenAdmin') || text.includes('運営管理')) {
         e.stopPropagation();
         e.preventDefault();
-        if (typeof tryOpenAdmin === 'function') {
-            tryOpenAdmin();
-        } else {
-            const adminModal = document.getElementById('admin-login-modal') || document.getElementById('admin-dashboard-modal');
-            if (adminModal) adminModal.style.display = 'block';
-        }
+        const m = document.getElementById('admin-login-modal') || document.getElementById('admin-dashboard-modal');
+        if (m) m.style.display = 'block';
         return;
     }
     
     // 2. お問合せボタン
-   if (e.target.closest("button") && e.target.closest("button").getAttribute('onclick')?.includes('inquiry')) {
+    if (onclickAttr.includes('inquiry') || text.includes('お問合せ')) {
+        e.stopPropagation();
         e.preventDefault();
-        if (typeof openModal === 'function') {
-            openModal('inquiry-modal');
-        } else {
-            const m = document.getElementById('inquiry-modal');
-            if (m) m.style.display = 'block';
-        }
+        const m = document.getElementById('inquiry-modal');
+        if (m) m.style.display = 'block';
         return;
     }
     
-    // 3. 出品者登録・出品ボタン
-   if (e.target.closest("button") && (e.target.closest("button").getAttribute('onclick')?.includes('Sell') || e.target.closest("button").classList.contains('btn-red-sm'))) {
+    // 3. 出品ボタン
+    if (onclickAttr.includes('Sell') || target.classList.contains('btn-red-sm') || text.includes('出品')) {
         e.stopPropagation();
         e.preventDefault();
-        if (typeof openMypageSellTab === 'function') {
-            openMypageSellTab();
-        } else if (typeof openModal === 'function') {
-            openModal('seller-modal');
-        } else {
-            const m = document.getElementById('seller-modal');
-            if (m) m.style.display = 'block';
-        }
+        const m = document.getElementById('seller-modal') || document.getElementById('new-product-modal');
+        if (m) m.style.display = 'block';
         return;
     }
 }, true);
