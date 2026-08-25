@@ -3212,23 +3212,23 @@ function submitNewProduct(event) {
     
     // ★★★★ ここに追加（貼り付け）します！ ★★★★
     console.log("【デバッグ1】出品ボタンが押されました！");
+// 1. 各入力要素の安全な取得（ここで一度だけ const で宣言する）
+const nameEl = document.getElementById('new-prod-name');
+const priceEl = document.getElementById('new-prod-price');
+const descEl = document.getElementById('new-prod-desc');
+const shippingEl = document.getElementById('new-prod-shipping');
 
-    const nameEl = document.getElementById('new-prod-name');
-    const priceEl = document.getElementById('new-prod-price');
-    console.log("【デバッグ2】入力要素の取得:", { nameEl, priceEl });
-    // ===========================================
+// デバッグ用ログ
+console.log("【デバッグ2】 入力要素の取得:", { nameEl, priceEl, descEl, shippingEl });
 
-    // 1. 入力値の取得 ... (これ以降に既存の処理が続きます)
-    event.preventDefault();
+// event.preventDefault() がある場合はここに続けます
+// event.preventDefault();
 
-    // 1. 入力値の取得
-  // 1. 各入力要素の安全な取得
-// 1. 各入力要素の安全な取得（constを外し、すでに上にある前提で代入に直す）
-// 3227行目付近の該当部分をこのように書き換えます
-nameEl = document.getElementById('new-prod-name');
-priceEl = document.getElementById('new-prod-price');
-descEl = document.getElementById('new-prod-desc');
-shippingEl = document.getElementById('new-prod-shipping');
+// エラーで途中で止まらないよう安全に値を取り出す
+const name = nameEl ? nameEl.value : '';
+const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
+const desc = descEl ? descEl.value : '';
+const shipping = shippingEl ? shippingEl.value : '配送';
 // エラーで途中で止まらないよう安全に値を取り出す
 const name = nameEl ? nameEl.value : '';
 const price = priceEl ? parseInt(priceEl.value, 10) || 0 : 0;
