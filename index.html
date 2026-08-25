@@ -3011,25 +3011,26 @@ async function proceedToNegotiation() {
             }
         });
            // 【最終手段】キャプチャリング段階でクリックを強制奪取してモーダルを開く
+// ▼ クリックを確実に拾ってモーダルを開く処理
 document.addEventListener('click', function(e) {
-    // クリックされた要素、またはその親が「運営管理」ボタンかどうかを判定
+    // 運営管理ボタンが押されたとき
     const adminBtn = e.target.closest("button[onclick*='tryOpenAdmin'], button:has(.fa-gear)");
     if (adminBtn) {
-        e.stopPropagation(); // ほかの邪魔なイベントをすべて止める
-        e.preventDefault();
-        tryOpenAdmin();      // 確実に開く
-        return;
-    }
-
-    const sellerBtn = e.target.closest("button[onclick*='openSellerModal']");
-    if (sellerBtn) {
         e.stopPropagation();
         e.preventDefault();
-        openSellerModal();
+        tryOpenAdmin();
         return;
     }
-// 2658行目：
-    }, true); // 第3引数の true がキモ（イベントの最上流でキャッチする）
+    
+    // お問い合わせボタンが押されたとき
+    const inquiryBtn = e.target.closest("button[onclick*='inquiry-modal'], button:has(.fa-headset)");
+    if (inquiryBtn) {
+        e.stopPropagation();
+        e.preventDefault();
+        openModal('inquiry-modal');
+        return;
+    }
+}, true);
 
 // ▼ ここから追記（購入者ログイン判定・リクエスト投稿制御） ▼
 let isBuyerLoggedIn = false; // 初期状態：未ログイン
