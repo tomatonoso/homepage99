@@ -648,10 +648,11 @@ window.closeModal = function(modalId) {
                 <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
             </div>
 
-            <button class="btn-outline" onclick="openModal('inquiry-modal')"><i class="fa-solid fa-headset"></i> お問合せ</button>
-<button class="btn-outline" onclick="tryOpenAdmin()"><i class="fa-solid fa-gear"></i> 運営管理</button>
-<button class="btn-red-sm" onclick="openMypageSellTab()">出品者登録・出品</button>
-        </div>
+           <button class="btn-outline" onclick="const m = document.getElementById('inquiry-modal'); if(m) m.style.display='block'; else alert('お問合せ画面が見つかりません');"><i class="fa-solid fa-headset"></i> お問合せ</button>
+
+<button class="btn-outline" onclick="const m = document.getElementById('admin-login-modal'); if(m) m.style.display='block'; else alert('管理画面が見つかりません');"><i class="fa-solid fa-gear"></i> 運営管理</button>
+
+<button class="btn-red-sm" onclick="const m = document.getElementById('seller-modal') || document.getElementById('new-product-modal'); if(m) m.style.display='block'; else alert('出品画面が見つかりません');">出品者登録・出品</button>
     </header>
 
     <div class="container">
