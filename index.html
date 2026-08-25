@@ -2945,6 +2945,7 @@ async function proceedToNegotiation() {
             const chatMessages = document.getElementById('chat-messages');
             
             // 自分のメッセージを画面に疑似的に追加
+　　　　　　　const input = document.getElementById('chat-input') || document.querySelector('.chat-input-box'); // ※実際の入力欄のIDやクラス名に合わせてください
             const msgDiv = document.createElement('div');
             msgDiv.style.cssText = "display: flex; gap: 10px; align-items: flex-start; flex-direction: row-reverse; margin-top: 15px;";
             msgDiv.innerHTML = `
