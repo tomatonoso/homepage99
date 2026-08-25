@@ -3532,6 +3532,33 @@ window.openMypageSellTab = window.openMypageSellTab || function() {
         alert('出品画面が見つかりません');
     }
 };
+// === マイページのタブ切り替え関数 ===
+window.openMypageTab = window.openMypageTab || function(tabId, btnElement) {
+    // すべてのタブコンテンツを非表示にする
+    const contents = document.querySelectorAll('.admin-tab-content');
+    contents.forEach(function(content) {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    
+    // 指定されたタブコンテンツを表示する
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.add('active');
+        targetTab.style.display = 'block';
+    }
+    
+    // すべてのタブボタンのアクティブ状態を外す
+    const buttons = document.querySelectorAll('.admin-tab-btn');
+    buttons.forEach(function(btn) {
+        btn.classList.remove('active');
+    });
+    
+    // 押されたボタンをアクティブにする
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
+};
 </script>
 </body>
 </html>
