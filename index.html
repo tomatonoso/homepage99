@@ -3427,13 +3427,14 @@ window.closeModal = function(id) {
     if(el) el.style.display = 'none'; 
 };
 
-window.tryOpenAdmin = function() { 
-    // 管理画面のコンテナやタブを表示する
-    const adminTab = document.getElementById('admin-tab') || document.querySelector('.admin-section') || document.getElementById('admin-modal'); 
-    if(adminTab) {
-        adminTab.style.display = 'block';
+window.tryOpenAdmin = function() {
+    // 実際のHTMLにあるID 'admin-login-modal' を直接指定する
+    const adminEl = document.getElementById('admin-login-modal');
+    
+    if (adminEl) {
+        adminEl.style.display = 'block';
     } else {
-        alert('管理画面エリアが見つかりません。');
+        alert("管理画面の要素が見つかりません。");
     }
 };
 
