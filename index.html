@@ -406,7 +406,7 @@
         <div class="header-user-nav">
             <div id="header-cart-btn" class="header-cart-badge" onclick="openModal('cart-modal')" style="display: none;">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span>カート: <strong id="nav-cart-count">0</strong>점</span>
+                <span>カート: <strong id="nav-cart-count">0</strong>点</span>
             </div>
             <div id="user-auth-btn-area">
                 <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
@@ -834,8 +834,6 @@
     <script>
         // 設定: Google Apps Script (GAS) のデプロイURL
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz48YuNqpsAtg7ZK3jElTnbaS6T4NrHvNLy6z5lx_GiOBIkkxXNCYqk7oQ913-yzsSN/exec";
-        // 設定: Stripe決済リンクまたはStripe ConnectのURL
-        const STRIPE_CHECKOUT_URL = "https://api.stripe.com/v1/checkout/sessions";
 
         let products = [
             { id: 1, name: "最新ワイヤレスイヤホン ノイズキャンセリング対応", price: 8900, category: "家電・スマホ・カメラ", shipping: "送料込み(出品者負担)", desc: "美品です。", seller: "テックショップ", image: "", recommend: true },
@@ -874,7 +872,7 @@
                 openModal('buyer-auth-modal');
             } else {
                 openModal('buyer-mypage-modal');
-                openMypageTab('mypage-tab-sell');
+                window.openMypageTab('mypage-tab-sell');
             }
         };
 
@@ -914,20 +912,20 @@
             btn.parentNode.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
             selectedCategory = cat;
-            filterProducts();
+            window.filterProducts();
         };
 
         window.selectReceiveMethod = function(btn, method) {
             btn.parentNode.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             selectedReceiveMethod = method;
-            filterProducts();
+            window.filterProducts();
         };
 
         window.clearPriceFilter = function() {
             document.getElementById('min-price').value = '';
             document.getElementById('max-price').value = '';
-            filterProducts();
+            window.filterProducts();
         };
 
         window.filterProducts = function() {
@@ -1041,8 +1039,8 @@
             document.getElementById('out-total-price').innerText = `¥${currentSelectedProduct.price.toLocaleString()}`;
         };
 
-        // 注文確定・Stripe Connect及びGoogle Apps Script連携処理
-        window.submitOrder = function(e) {
+        // 注文確定・GAS経由のStripe決済セッション取得＆リダイレクト処理
+        window.submitOrder = async function(e) {
             e.preventDefault();
             
             const buyerData = {
@@ -1056,32 +1054,36 @@
                 ? cart.reduce((sum, item) => sum + item.price, 0) 
                 : (currentSelectedProduct ? currentSelectedProduct.price : 0);
 
-            // Google Apps Script (GAS) へデータを送信（非同期）
+            const productName = cart.length > 0 
+                ? `カート内商品 ${cart.length}点まとめ` 
+                : (currentSelectedProduct ? currentSelectedProduct.name : "商品");
+
             if (GAS_WEB_APP_URL && GAS_WEB_APP_URL.includes("script.google.com")) {
-                fetch(GAS_WEB_APP_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        type: "order",
-                        buyer: buyerData,
-                        items: cart.length > 0 ? cart : [currentSelectedProduct],
-                        total: totalAmount,
-                        timestamp: new Date().toISOString()
-                    })
-                }).catch(err => console.log("GAS送信エラー:", err));
-            }
+                try {
+                    const response = await fetch(GAS_WEB_APP_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify({
+                            productName: productName,
+                            price: totalAmount,
+                            buyer: buyerData,
+                            timestamp: new Date().toISOString()
+                        })
+                    });
 
-            alert('注文情報を保存しました。まもなく決済画面（Stripe Connect）へ移動します。');
-            closeModal('checkout-modal');
-            
-            // カートをクリア
-            cart = [];
-            updateCartBadge();
-
-            // Stripe決済画面またはStripe Connect画面へ自動遷移
-            if (STRIPE_CHECKOUT_URL && STRIPE_CHECKOUT_URL.startsWith("http")) {
-                window.location.href = STRIPE_CHECKOUT_URL;
+                    const resData = await response.json();
+                    
+                    if (resData.url) {
+                        cart = [];
+                        updateCartBadge();
+                        window.location.href = resData.url;
+                    } else {
+                        alert("決済URLの取得に失敗しました: " + (resData.error || "不明なエラー"));
+                    }
+                } catch (err) {
+                    console.log("通信エラー:", err);
+                    alert("決済処理中に通信エラーが発生しました。");
+                }
             }
         };
 
@@ -1115,7 +1117,7 @@
             };
 
             products.unshift(newProd);
-            filterProducts();
+            window.filterProducts();
             closeModal('buyer-mypage-modal');
             alert('商品を出品しました！');
         };
@@ -1248,144 +1250,7 @@
             alert('新しいお知らせを配信しました。');
             document.getElementById('admin-news-title').value = '';
             document.getElementById('admin-news-desc').value = '';
-           }
-// GASのウェブアプリURLとして、上で定義されている変数を使う
-const response = await fetch(GAS_WEB_APP_URL, {
-    method: "POST",
-    headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-    },
-    body: JSON.stringify({
-        productName: productName,
-        price: price,
-        sellerAccountId: sellerAccountId
-    })
-});
-// --- 1. モーダルを開閉する共通関数 ---
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = "flex"; // または "block"
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = "none";
-    }
-}
-
-// --- 2. 各種ボタンから呼び出される専用関数 ---
-
-// ログイン・登録ボタン用
-function checkAuthAndOpenSell() {
-    // 例としてログインモーダルや出品モーダルを開く処理
-    openModal('checkout-modal'); // 必要に応じて適切なモーダルIDに変更してください
-}
-
-// カテゴリボタン用
-function selectCategory(categoryName) {
-    console.log("選択されたカテゴリ:", categoryName);
-    selectedCategory = categoryName;
-    // カテゴリごとの絞り込み処理などがあればここに記述
-}
-
-// 運営管理ボタン用
-function openAdminModal() {
-    openModal('admin-modal'); // 管理画面用モーダルのIDなど
-}
-
-// お問合せボタン用
-function openContactModal() {
-    openModal('contact-modal'); // お問合せ用モーダルのIDなど
-}
-// 注文を確定するボタンが押されたときに動く非同期関数
-async function submitOrder(event) {
-    event.preventDefault(); // フォームのデフォルト送信を防止
-
-    // 画面から商品情報や合計金額を取得
-    const productName = document.getElementById("selected-prod-display").innerText || "商品";
-    const priceText = document.getElementById("out-total-price").innerText;
-    const price = Number(priceText.replace(/[^0-9]/g, "")); // 金額の数字だけを抽出
-
-    // ※ 出品者のStripe ConnectアカウントID（必要に応じて変更してください）
-    const sellerAccountId = "acct_xxxxxxxxxxxx"; 
-
-    try {
-        const response = await fetch(GAS_WEB_APP_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8"
-            },
-            body: JSON.stringify({
-                productName: productName,
-                price: price,
-                sellerAccountId: sellerAccountId
-            })
-        });
-
-        const result = await response.json();
-
-        if (result.url) {
-            // Stripeのチェックアウト決済ページへリダイレクト
-            window.location.href = result.url;
-        } else {
-            alert("エラーが発生しました: " + (result.error || "不明なエラー"));
-        }
-    } catch (err) {
-        alert("通信に失敗しました: " + err.message);
-    }
-}
-window.submitOrder = async function(e) {
-    e.preventDefault();
-    
-    const buyerData = {
-        name: document.getElementById('buy-name').value,
-        email: document.getElementById('buy-email').value,
-        phone: document.getElementById('buy-phone').value,
-        address: document.getElementById('buy-address').value
-    };
-
-    const totalAmount = cart.length > 0 
-        ? cart.reduce((sum, item) => sum + item.price, 0) 
-        : (currentSelectedProduct ? currentSelectedProduct.price : 0);
-
-    const productName = cart.length > 0 
-        ? `カート内商品 ${cart.length}点まとめ` 
-        : (currentSelectedProduct ? currentSelectedProduct.name : "商品");
-
-    if (GAS_WEB_APP_URL && GAS_WEB_APP_URL.includes("script.google.com")) {
-        try {
-            const response = await fetch(GAS_WEB_APP_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({
-                    productName: productName,
-                    price: totalAmount,
-                    buyer: buyerData,
-                    timestamp: new Date().toISOString()
-                })
-            });
-
-            const resData = await response.json();
-            
-            if (resData.url) {
-                // カートをクリア
-                cart = [];
-                updateCartBadge();
-                
-                // Stripeの安全な決済ページへ移動
-                window.location.href = resData.url;
-            } else {
-                alert("決済URLの取得に失敗しました: " + (resData.error || "不明なエラー"));
-            }
-        } catch (err) {
-            console.log("通信エラー:", err);
-            alert("決済処理中に通信エラーが発生しました。");
-        }
-    }
-};
+        };
     </script>
 </body>
 </html>
