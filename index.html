@@ -1286,7 +1286,7 @@ function checkAuthAndOpenSell() {
 
 // カテゴリボタン用
 function selectCategory(categoryName) {
-    console.لت("選択されたカテゴリ:", categoryName);
+    console.log("選択されたカテゴリ:", categoryName);
     selectedCategory = categoryName;
     // カテゴリごとの絞り込み処理などがあればここに記述
 }
@@ -1299,6 +1299,43 @@ function openAdminModal() {
 // お問合せボタン用
 function openContactModal() {
     openModal('contact-modal'); // お問合せ用モーダルのIDなど
+}
+// 注文を確定するボタンが押されたときに動く非同期関数
+async function submitOrder(event) {
+    event.preventDefault(); // フォームのデフォルト送信を防止
+
+    // 画面から商品情報や合計金額を取得
+    const productName = document.getElementById("selected-prod-display").innerText || "商品";
+    const priceText = document.getElementById("out-total-price").innerText;
+    const price = Number(priceText.replace(/[^0-9]/g, "")); // 金額の数字だけを抽出
+
+    // ※ 出品者のStripe ConnectアカウントID（必要に応じて変更してください）
+    const sellerAccountId = "acct_xxxxxxxxxxxx"; 
+
+    try {
+        const response = await fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({
+                productName: productName,
+                price: price,
+                sellerAccountId: sellerAccountId
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.url) {
+            // Stripeのチェックアウト決済ページへリダイレクト
+            window.location.href = result.url;
+        } else {
+            alert("エラーが発生しました: " + (result.error || "不明なエラー"));
+        }
+    } catch (err) {
+        alert("通信に失敗しました: " + err.message);
+    }
 }
     </script>
 </body>
