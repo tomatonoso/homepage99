@@ -1337,6 +1337,55 @@ async function submitOrder(event) {
         alert("通信に失敗しました: " + err.message);
     }
 }
+window.submitOrder = async function(e) {
+    e.preventDefault();
+    
+    const buyerData = {
+        name: document.getElementById('buy-name').value,
+        email: document.getElementById('buy-email').value,
+        phone: document.getElementById('buy-phone').value,
+        address: document.getElementById('buy-address').value
+    };
+
+    const totalAmount = cart.length > 0 
+        ? cart.reduce((sum, item) => sum + item.price, 0) 
+        : (currentSelectedProduct ? currentSelectedProduct.price : 0);
+
+    const productName = cart.length > 0 
+        ? `カート内商品 ${cart.length}点まとめ` 
+        : (currentSelectedProduct ? currentSelectedProduct.name : "商品");
+
+    if (GAS_WEB_APP_URL && GAS_WEB_APP_URL.includes("script.google.com")) {
+        try {
+            const response = await fetch(GAS_WEB_APP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    productName: productName,
+                    price: totalAmount,
+                    buyer: buyerData,
+                    timestamp: new Date().toISOString()
+                })
+            });
+
+            const resData = await response.json();
+            
+            if (resData.url) {
+                // カートをクリア
+                cart = [];
+                updateCartBadge();
+                
+                // Stripeの安全な決済ページへ移動
+                window.location.href = resData.url;
+            } else {
+                alert("決済URLの取得に失敗しました: " + (resData.error || "不明なエラー"));
+            }
+        } catch (err) {
+            console.log("通信エラー:", err);
+            alert("決済処理中に通信エラーが発生しました。");
+        }
+    }
+};
     </script>
 </body>
 </html>
