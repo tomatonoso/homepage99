@@ -1261,6 +1261,45 @@ const response = await fetch(GAS_WEB_APP_URL, {
         sellerAccountId: sellerAccountId
     })
 });
+// --- 1. モーダルを開閉する共通関数 ---
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "flex"; // または "block"
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+// --- 2. 各種ボタンから呼び出される専用関数 ---
+
+// ログイン・登録ボタン用
+function checkAuthAndOpenSell() {
+    // 例としてログインモーダルや出品モーダルを開く処理
+    openModal('checkout-modal'); // 必要に応じて適切なモーダルIDに変更してください
+}
+
+// カテゴリボタン用
+function selectCategory(categoryName) {
+    console.لت("選択されたカテゴリ:", categoryName);
+    selectedCategory = categoryName;
+    // カテゴリごとの絞り込み処理などがあればここに記述
+}
+
+// 運営管理ボタン用
+function openAdminModal() {
+    openModal('admin-modal'); // 管理画面用モーダルのIDなど
+}
+
+// お問合せボタン用
+function openContactModal() {
+    openModal('contact-modal'); // お問合せ用モーダルのIDなど
+}
     </script>
 </body>
 </html>
