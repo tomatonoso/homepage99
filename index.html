@@ -1248,7 +1248,19 @@
             alert('新しいお知らせを配信しました。');
             document.getElementById('admin-news-title').value = '';
             document.getElementById('admin-news-desc').value = '';
-        }
+           }
+// GASのウェブアプリURLとして、上で定義されている変数を使う
+const response = await fetch(GAS_WEB_APP_URL, {
+    method: "POST",
+    headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify({
+        productName: productName,
+        price: price,
+        sellerAccountId: sellerAccountId
+    })
+});
     </script>
 </body>
 </html>
