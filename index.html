@@ -463,12 +463,12 @@
         </div>
         <div class="product-grid" id="main-product-grid" style="margin-bottom: 40px;"></div>
 
-        <!-- 購入リクエスト -->
+    <!-- 購入リクエスト -->
         <div class="section-header">
             <span>購入リクエスト（逆出品一覧）</span>
             <button class="btn-outline" onclick="openModal('request-post-modal')"><i class="fa-solid fa-plus"></i> リクエストを投稿</button>
         </div>
-        <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;">
+        <div id="request-list-container" style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;">
             <div style="min-width: 220px; background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color);">
                 <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥5,000</span></div>
                 <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">〇〇の限定フィギュア探しています</div>
@@ -818,7 +818,29 @@
             </div>
         </div>
     </div>
-
+<!-- MODAL: リクエスト投稿 -->
+    <div id="request-post-modal" class="modal-panel">
+        <div class="modal-content modal-content-sm">
+            <span class="close-modal" onclick="closeModal('request-post-modal')">&times;</span>
+            <h2><i class="fa-solid fa-pen-to-square" style="color: var(--brand-red);"></i> 購入リクエストを投稿</h2>
+            <hr style="margin: 15px 0;">
+            <form onsubmit="submitPurchaseRequest(event)">
+                <div class="form-group">
+                    <label>求めている商品名 *</label>
+                    <input type="text" id="req-title" class="form-control" required placeholder="例: 〇〇の限定フィギュア探しています">
+                </div>
+                <div class="form-group">
+                    <label>希望予算 (円) *</label>
+                    <input type="number" id="req-price" class="form-control" required min="1" placeholder="5000">
+                </div>
+                <div class="form-group">
+                    <label>詳細・要望 *</label>
+                    <textarea id="req-desc" class="form-control" rows="3" required placeholder="例: 箱無しでも構いません。傷が少ないものを希望します。"></textarea>
+                </div>
+                <button type="submit" class="btn-red-sm" style="width: 100%; padding: 12px; margin-top: 10px; font-size: 1rem;">リクエストを投稿する</button>
+            </form>
+        </div>
+    </div>
     <div id="inquiry-modal" class="modal-panel">
         <div class="modal-content modal-content-sm">
             <span class="close-modal" onclick="closeModal('inquiry-modal')">&times;</span>
@@ -1250,6 +1272,42 @@
             alert('新しいお知らせを配信しました。');
             document.getElementById('admin-news-title').value = '';
             document.getElementById('admin-news-desc').value = '';
+        };
+    // 購入リクエストのデータを保持する配列
+        let purchaseRequests = [
+            { title: "〇〇の限定フィギュア探しています", price: 5000, desc: "箱無しでも構いません。傷が少ないものを希望します。" }
+        ];
+
+        // リクエスト投稿処理
+        window.submitPurchaseRequest = function(e) {
+            e.preventDefault();
+            const title = document.getElementById('req-title').value;
+            const price = parseInt(document.getElementById('req-price').value);
+            const desc = document.getElementById('req-desc').value;
+
+            // リクエスト一覧の先頭に追加
+            purchaseRequests.unshift({ title, price, desc });
+            renderPurchaseRequests();
+
+            // フォームをリセットしてモーダルを閉じる
+            document.getElementById('req-title').value = '';
+            document.getElementById('req-price').value = '';
+            document.getElementById('req-desc').value = '';
+            closeModal('request-post-modal');
+            alert('購入リクエストを投稿しました！');
+        };
+
+        // リクエスト一覧を描画する関数
+        window.renderPurchaseRequests = function() {
+            const container = document.getElementById('request-list-container');
+            if(!container) return;
+            container.innerHTML = purchaseRequests.map(req => `
+                <div style="min-width: 220px; background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color);">
+                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥${req.price.toLocaleString()}</span></div>
+                    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-sub);">${req.desc}</div>
+                </div>
+            `).join('');
         };
     </script>
 </body>
