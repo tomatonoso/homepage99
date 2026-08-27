@@ -793,7 +793,10 @@
                     <input type="email" id="login-email" class="form-control" required placeholder="admin@minatomo.jp">
                 </div>
                 <div class="form-group"><label>第1パスワード (10桁以内)</label><input type="password" id="login-pass1" class="form-control" required placeholder="1234567890"></div>
-                <div class="form-group"><label>第2パスワード (英数字20桁)</label><input type="password" id="login-pass2" class="form-control" required placeholder="abcdefghijklmnopqrst"></div>
+               <div class="form-group">
+    <label>第2パスワード (英数字20桁以上)</label>
+    <input type="password" id="login-pass2" class="form-control" required minlength="20" placeholder="20文字以上で入力してください">
+</div>
                 <div class="form-group"><label>セキュリティ質問の回答</label><input type="text" id="login-security" class="form-control" required placeholder="ポチ"></div>
                 <button type="submit" class="btn-red-sm" style="width:100%; padding: 12px; margin-top: 15px; background:#007bff; font-size:1rem; font-weight:bold;">認証してログイン</button>
             </form>
@@ -1696,7 +1699,5 @@
             document.getElementById('out-total-price').innerText = `¥${currentActiveRequest.proposedPrice.toLocaleString()}`;
         };
     </script>
-</body>
-</html>
 </body>
 </html>
