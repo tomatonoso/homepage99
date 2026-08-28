@@ -779,33 +779,33 @@
         </div>
     </div>
 
-    <!-- MODAL: 運営 新規登録（未登録時のみ表示） -->
+    <!-- MODAL: 運営者新規登録モーダル（未登録時に最初に表示） -->
     <div id="admin-signup-modal" class="modal-panel">
         <div class="modal-content modal-content-sm">
             <span class="close-modal" onclick="closeModal('admin-signup-modal')">&times;</span>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h2 style="font-size: 1.25rem;"><i class="fa-solid fa-user-plus" style="color: #28a745;"></i> 運営管理者 新規登録</h2>
+                <h2 style="font-size: 1.25rem;"><i class="fa-solid fa-user-shield" style="color: #28a745;"></i> 運営管理者 新規登録</h2>
             </div>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">運営管理者はシステムに1人のみ登録可能です。初回登録を行ってください。</p>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">プラットフォームの運営管理者は**1人のみ**登録可能です。登録後、このフォームは非表示になり、ログイン画面のみが表示されるようになります。</p>
             <hr style="margin: 10px 0 15px 0;">
             <form onsubmit="handleAdminSignup(event)">
                 <div class="form-group">
-                    <label>管理者メールアドレス</label>
+                    <label>管理者メールアドレス *</label>
                     <input type="email" id="signup-admin-email" class="form-control" required placeholder="admin@minatomo.jp">
                 </div>
                 <div class="form-group">
-                    <label>第1パスワード (10桁以内)</label>
-                    <input type="password" id="signup-admin-pass1" class="form-control" required placeholder="1234567890">
+                    <label>第1パスワード (10桁以内) *</label>
+                    <input type="password" id="signup-admin-pass1" class="form-control" required maxlength="10" placeholder="10桁以内で入力">
                 </div>
                 <div class="form-group">
-                    <label>第2パスワード (英数字20桁以上)</label>
+                    <label>第2パスワード (英数字20桁以上) *</label>
                     <input type="password" id="signup-admin-pass2" class="form-control" required minlength="20" placeholder="20文字以上で入力してください">
                 </div>
                 <div class="form-group">
-                    <label>セキュリティ質問の回答</label>
-                    <input type="text" id="signup-admin-security" class="form-control" required placeholder="ポチ">
+                    <label>セキュリティ質問の回答 (秘密の合言葉) *</label>
+                    <input type="text" id="signup-admin-security" class="form-control" required placeholder="例: 初めて飼ったペットの名前">
                 </div>
-                <button type="submit" class="btn-success" style="width:100%; padding: 12px; margin-top: 15px; font-size:1rem; font-weight:bold;">管理者を登録してログイン</button>
+                <button type="submit" class="btn-success" style="width:100%; padding: 12px; margin-top: 15px; font-size:1rem; font-weight:bold;">運営管理者として登録する</button>
             </form>
         </div>
     </div>
@@ -1028,6 +1028,9 @@
             { id: 101, name: "青山 太郎", email: "aoyama@example.com", phone: "090-1234-5678", bank: "ゆうちょ銀行 本店 普通 1234567 (ヤマダタロウ)", status: "通常会員", verify: "確認済", eval: "★★★★★" }
         ];
 
+        // 運営管理者の登録情報を保持するストレージ（1人のみ維持）
+        let savedAdmin = JSON.parse(localStorage.getItem('minatomo_single_admin')) || null;
+
         let cart = [];
         let currentSelectedProduct = null;
         let currentActiveRequest = null;
@@ -1057,31 +1060,36 @@
             if(el) el.style.display = 'none';
         };
 
-        // 運営管理ボタン押下時の挙動（未登録なら新規登録、登録済ならログイン画面を表示）
+        // 運営管理ボタンを押した時の判定ロジック（1人のみ登録制限を維持）
         window.checkAdminStatusAndOpen = function() {
-            const savedAdmin = localStorage.getItem('minatomo_admin_account');
             if (!savedAdmin) {
-                // 運営管理者がまだ誰も登録されていない場合 -> 新規登録フォームを開く
+                // まだ運営者が登録されていない場合は新規登録モーダルを表示
                 openModal('admin-signup-modal');
             } else {
-                // 既に1人登録されている場合 -> ログイン画面を開く
+                // 既に登録されている場合は通常のログイン画面を表示
                 openModal('admin-login-modal');
             }
         };
 
-        // 運営管理者の新規登録処理（1人のみ登録を許可し、保存後はログイン画面専用にする）
+        // 運営管理者の新規登録処理
         window.handleAdminSignup = function(e) {
             e.preventDefault();
+            if (savedAdmin) {
+                alert('運営管理者はすでに登録されています。複数人の登録はできません。');
+                closeModal('admin-signup-modal');
+                return;
+            }
+
             const email = document.getElementById('signup-admin-email').value;
             const pass1 = document.getElementById('signup-admin-pass1').value;
             const pass2 = document.getElementById('signup-admin-pass2').value;
             const security = document.getElementById('signup-admin-security').value;
 
-            const adminData = { email, pass1, pass2, security };
-            localStorage.setItem('minatomo_admin_account', JSON.stringify(adminData));
+            savedAdmin = { email, pass1, pass2, security };
+            localStorage.setItem('minatomo_single_admin', JSON.stringify(savedAdmin));
 
             closeModal('admin-signup-modal');
-            alert('運営管理者の新規登録が完了しました！続けてログインを行ってください。');
+            alert('運営管理者の新規登録が完了しました！以降はログイン画面からアクセスしてください。');
             openModal('admin-login-modal');
         };
 
@@ -1547,7 +1555,6 @@
             alert('ログアウトしました。');
         };
 
-        // 運営管理者ログイン認証（登録されている管理者情報と照合）
         window.handleAdminLogin = function(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
@@ -1555,22 +1562,19 @@
             const pass2 = document.getElementById('login-pass2').value;
             const security = document.getElementById('login-security').value;
 
-            const savedAdminStr = localStorage.getItem('minatomo_admin_account');
-            if (!savedAdminStr) {
-                alert('管理者がまだ登録されていません。');
+            if (!savedAdmin) {
+                alert('運営管理者が登録されていません。「運営管理」ボタンから先に新規登録を行ってください。');
                 closeModal('admin-login-modal');
                 return;
             }
 
-            const adminData = JSON.parse(savedAdminStr);
-
-            if (adminData.email === email && adminData.pass1 === pass1 && adminData.pass2 === pass2 && adminData.security === security) {
+            if (email === savedAdmin.email && pass1 === savedAdmin.pass1 && pass2 === savedAdmin.pass2 && security === savedAdmin.security) {
                 closeModal('admin-login-modal');
-                document.getElementById('current-admin-email-display').innerText = `管理者: ${email}`;
+                document.getElementById('current-admin-email-display').innerText = `管理者: ${savedAdmin.email}`;
                 openModal('admin-dashboard-modal');
                 renderAdminDashboardData();
             } else {
-                alert('入力された認証情報が正しくありません。');
+                alert('入力された認証情報（メールアドレス、パスワード、またはセキュリティ回答）が正しくありません。');
             }
         };
 
