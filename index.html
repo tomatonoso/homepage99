@@ -728,6 +728,138 @@
             .auction-choice-grid { grid-template-columns: 1fr; }
             .auction-card { min-width: 240px; }
         }
+    /* 通知ボタンのスタイル */
+.notification-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: var(--text-dark);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.notification-btn:hover {
+    background-color: #f1f3f5;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--brand-red);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+/* 通知パネルのスタイル */
+.notification-panel {
+    position: absolute;
+    right: 0;
+    top: 48px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 380px;
+    max-height: 450px;
+    z-index: 1001;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: bold;
+    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-clear-btn {
+    background: transparent;
+    border: none;
+    color: var(--brand-red);
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.notification-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f5;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+    background-color: #f0f7ff;
+}
+
+.notification-icon {
+    font-size: 1.2rem;
+    color: var(--brand-red);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.notification-content {
+    flex: 1;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.notification-title {
+    font-weight: bold;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+}
+
+.notification-message {
+    color: var(--text-sub);
+    font-size: 0.8rem;
+}
+
+.notification-time {
+    color: #aaa;
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+.notification-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 0.9rem;
+}
 
     </style>
 
@@ -775,6 +907,24 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             </div>
             <div id="user-auth-btn-area">
                 <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
+            </div>
+                        <!-- 通知ボタンコンテナ -->
+            <div style="position: relative;">
+                <button class="notification-btn" id="notification-btn" onclick="toggleNotificationPanel()">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notification-badge" id="notification-count" style="display: none;">0</span>
+                </button>
+                
+                <!-- 通知パネル -->
+                <div id="notification-panel" class="notification-panel" style="display: none;">
+                    <div class="notification-header">
+                        <span>通知</span>
+                        <button class="notification-clear-btn" onclick="clearAllNotifications()">すべて削除</button>
+                    </div>
+                    <div class="notification-list" id="notification-list">
+                        <div class="notification-empty">通知はありません</div>
+                    </div>
+                </div>
             </div>
             <button class="btn-red-sm" onclick="checkAuthAndOpenSell()">出品</button>
             
@@ -3104,6 +3254,203 @@ function scrollToSection(sectionId) {
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
+</script>
+<script>
+// ===== 通知システム =====
+let notifications = [];
+
+// 通知パネルの表示/非表示
+function toggleNotificationPanel() {
+    const panel = document.getElementById('notification-panel');
+    panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    
+    // パネルを表示したら未読を既読に
+    if (panel.style.display === 'flex') {
+        markNotificationsAsRead();
+    }
+}
+
+// 通知パネルを閉じる
+function closeNotificationPanel() {
+    document.getElementById('notification-panel').style.display = 'none';
+}
+
+// 通知を追加
+function addNotification(type, title, message, relatedId = null) {
+    const notification = {
+        id: Date.now(),
+        type: type, // 'sale', 'request', 'auction', 'reply', 'system'
+        title: title,
+        message: message,
+        timestamp: new Date(),
+        read: false,
+        relatedId: relatedId
+    };
+    
+    notifications.unshift(notification); // 新しい通知を先頭に追加
+    updateNotificationDisplay();
+    
+    // ブラウザ通知を表示（オプション）
+    if (Notification.permission === 'granted') {
+        new Notification('ミナトモ！', {
+            body: title + ': ' + message,
+            icon: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/bell.svg'
+        });
+    }
+}
+
+// 通知表示の更新
+function updateNotificationDisplay() {
+    const list = document.getElementById('notification-list');
+    const countBadge = document.getElementById('notification-count');
+    
+    if (notifications.length === 0) {
+        list.innerHTML = '<div class="notification-empty">通知はありません</div>';
+        countBadge.style.display = 'none';
+        return;
+    }
+    
+    // 未読件数
+    const unreadCount = notifications.filter(n => !n.read).length;
+    if (unreadCount > 0) {
+        countBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        countBadge.style.display = 'flex';
+    } else {
+        countBadge.style.display = 'none';
+    }
+    
+    // 通知リストを描画
+    list.innerHTML = notifications.map(notif => `
+        <div class="notification-item ${notif.read ? '' : 'unread'}" 
+             onclick="handleNotificationClick('${notif.id}', '${notif.type}', '${notif.relatedId || ''}')">
+            <div class="notification-icon">
+                ${getNotificationIcon(notif.type)}
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${notif.title}</div>
+                <div class="notification-message">${notif.message}</div>
+                <div class="notification-time">${formatTime(notif.timestamp)}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 通知アイコンの取得
+function getNotificationIcon(type) {
+    const icons = {
+        'sale': '<i class="fa-solid fa-shopping-bag"></i>',
+        'request': '<i class="fa-solid fa-hand-holding-heart"></i>',
+        'auction': '<i class="fa-solid fa-gavel"></i>',
+        'reply': '<i class="fa-solid fa-comment"></i>',
+        'system': '<i class="fa-solid fa-bell"></i>'
+    };
+    return icons[type] || icons['system'];
+}
+
+// 時間フォーマット
+function formatTime(date) {
+    const now = new Date();
+    const diff = now - date;
+    
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return '今';
+    if (minutes < 60) return `${minutes}分前`;
+    if (hours < 24) return `${hours}時間前`;
+    if (days < 7) return `${days}日前`;
+    
+    return date.toLocaleDateString('ja-JP');
+}
+
+// 通知をクリック時の処理
+function handleNotificationClick(notificationId, type, relatedId) {
+    markNotificationAsRead(notificationId);
+    
+    // 種類に応じた処理
+    switch(type) {
+        case 'sale':
+            // 出品商品の取引状況を表示
+            openModal('buyer-mypage-modal');
+            openMypageTab('mypage-tab-my-products', null);
+            break;
+        case 'request':
+            // 購入リクエストのメッセージを表示
+            openModal('buyer-mypage-modal');
+            openMypageTab('mypage-tab-chats', null);
+            break;
+        case 'auction':
+            // オークションのメッセージを表示
+            openModal('auction-detail-modal');
+            break;
+        case 'reply':
+            // チャット・返信を表示
+            openModal('buyer-mypage-modal');
+            openMypageTab('mypage-tab-chats', null);
+            break;
+    }
+    
+    closeNotificationPanel();
+}
+
+// 通知を既読にする
+function markNotificationAsRead(notificationId) {
+    const notif = notifications.find(n => n.id == notificationId);
+    if (notif) {
+        notif.read = true;
+        updateNotificationDisplay();
+    }
+}
+
+// すべての通知を既読に
+function markNotificationsAsRead() {
+    notifications.forEach(n => n.read = true);
+    updateNotificationDisplay();
+}
+
+// すべての通知をクリア
+function clearAllNotifications() {
+    if (confirm('すべての通知を削除しますか？')) {
+        notifications = [];
+        updateNotificationDisplay();
+    }
+}
+
+// ページクリック時に通知パネルを閉じる
+document.addEventListener('click', function(event) {
+    const panel = document.getElementById('notification-panel');
+    const btn = document.getElementById('notification-btn');
+    
+    if (!btn.contains(event.target) && !panel.contains(event.target)) {
+        closeNotificationPanel();
+    }
+});
+
+// ブラウザ通知の許可をリクエスト
+if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+}
+
+// ===== テスト用：デモ通知を追加 =====
+// 実際の使用時はこのコードは削除してください
+function addDemoNotifications() {
+    addNotification('sale', '出品商品が購入されました', '「新しいスニーカー」が購入されました！', '123');
+    setTimeout(() => {
+        addNotification('request', '購入リクエストから新しいメッセージ', '「iPhone 13」のリクエストに返信があります', '456');
+    }, 500);
+    setTimeout(() => {
+        addNotification('auction', 'オークションで入札がありました', '「レアカード」の価格が更新されました', '789');
+    }, 1000);
+}
+
+// 初期化
+function initNotificationSystem() {
+    updateNotificationDisplay();
+}
+
+// ページ読み込み時に初期化
+document.addEventListener('DOMContentLoaded', initNotificationSystem);
 </script>
 </body>
 </html>
