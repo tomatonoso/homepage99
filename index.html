@@ -2860,7 +2860,175 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         if (event.key === 'Escape') window.closeHamburgerMenu();
     });
 })();
+
+// ===== 購入リクエスト機能 =====
+// 購入リクエストのコメント送信処理
+function submitRequestComment() {
+    const currentRequestId = document.getElementById('request-detail-modal').getAttribute('data-request-id');
+    const commentInput = document.getElementById('request-comment-input');
+    const commentText = commentInput.value.trim();
+
+    if (!commentText) {
+        alert('コメントを入力してください');
+        return;
+    }
+
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) {
+        alert('ログインしてからコメントしてください');
+        return;
+    }
+
+    const db = firebase.firestore();
+    const timestamp = new Date();
+
+    db.collection('request_comments').add({
+        requestId: currentRequestId,
+        userId: currentUser.uid,
+        userName: currentUser.displayName || 'ユーザー',
+        userEmail: currentUser.email,
+        comment: commentText,
+        timestamp: timestamp
+    }).then(() => {
+        commentInput.value = '';
+        loadRequestComments(currentRequestId);
+        alert('コメントが送信されました');
+    }).catch(error => {
+        console.error('コメント送信エラー:', error);
+        alert('コメント送信に失敗しました');
+    });
+}
+
+// 購入リクエストのコメント読み込み
+function loadRequestComments(requestId) {
+    const db = firebase.firestore();
+    const commentsList = document.getElementById('request-comments-list');
+    
+    db.collection('request_comments')
+        .where('requestId', '==', requestId)
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then(snapshot => {
+            commentsList.innerHTML = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const commentEl = document.createElement('div');
+                commentEl.className = 'auction-comment';
+                const timeStr = data.timestamp.toDate ? data.timestamp.toDate().toLocaleString() : '時刻不明';
+                commentEl.innerHTML = `
+                    <div class="auction-comment-meta">${data.userName} - ${timeStr}</div>
+                    <div>${data.comment}</div>
+                `;
+                commentsList.appendChild(commentEl);
+            });
+        }).catch(error => {
+            console.error('コメント読み込みエラー:', error);
+        });
+}
+
+// 価格提示の送信処理
+function submitPriceOffer() {
+    const currentRequestId = document.getElementById('request-detail-modal').getAttribute('data-request-id');
+    const priceInput = document.getElementById('request-price-offer');
+    const price = priceInput.value.trim();
+
+    if (!price || isNaN(price)) {
+        alert('正しい価格を入力してください');
+        return;
+    }
+
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) {
+        alert('ログインしてから価格提示してください');
+        return;
+    }
+
+    const db = firebase.firestore();
+    const timestamp = new Date();
+
+    db.collection('request_comments').add({
+        requestId: currentRequestId,
+        userId: currentUser.uid,
+        userName: currentUser.displayName || 'ユーザー',
+        userEmail: currentUser.email,
+        comment: `💰 ${price}円で提示します`,
+        isOffer: true,
+        offerPrice: parseInt(price),
+        timestamp: timestamp
+    }).then(() => {
+        priceInput.value = '';
+        loadRequestComments(currentRequestId);
+        alert(price + '円で提示しました');
+    }).catch(error => {
+        console.error('価格提示エラー:', error);
+        alert('価格提示に失敗しました');
+    });
+}
+
+// リクエスト詳細表示時にコメントを読み込む
+function openRequestDetail(requestId) {
+    const db = firebase.firestore();
+    
+    db.collection('purchase_requests').doc(requestId).get().then(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            
+            // モーダルに requestId を設定
+            document.getElementById('request-detail-modal').setAttribute('data-request-id', requestId);
+            
+            // 詳細内容を表示
+            const detailContent = document.getElementById('request-detail-content');
+            detailContent.innerHTML = `
+                <h3>${data.title}</h3>
+                <p><strong>カテゴリー:</strong> ${data.category}</p>
+                <p><strong>予算:</strong> ${data.budget}円</p>
+                <p><strong>説明:</strong> ${data.description}</p>
+                <p><strong>投稿者:</strong> ${data.posterName}</p>
+                <p><strong>投稿日:</strong> ${data.createdAt.toDate().toLocaleString()}</p>
+            `;
+            
+            // コメント読み込み
+            loadRequestComments(requestId);
+            
+            openModal('request-detail-modal');
+        }
+    }).catch(error => {
+        console.error('リクエスト読み込みエラー:', error);
+        alert('リクエストの読み込みに失敗しました');
+    });
+}
 </script>
+    <!-- 購入リクエスト詳細モーダル -->
+    <div id="request-detail-modal" class="modal-panel">
+        <div class="modal-content" style="max-width: 750px;">
+            <span class="close-modal" onclick="closeModal('request-detail-modal')">&times;</span>
+            <h2>購入リクエスト詳細</h2>
+            
+            <div id="request-detail-content" style="margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                <!-- ここにリクエスト詳細が表示される -->
+            </div>
+
+            <!-- 価格提示フォーム -->
+            <div style="background: #fff5f5; border: 1px solid #f1b0b7; border-radius: 8px; padding: 14px; margin: 12px 0;">
+                <h4 style="margin-bottom: 10px;">💰 価格提示</h4>
+                <div style="display: flex; gap: 8px;">
+                    <input type="number" id="request-price-offer" class="form-control" placeholder="提示価格を入力..." style="flex: 1;">
+                    <span style="padding: 8px 12px; align-self: center;">円</span>
+                    <button class="btn-success" onclick="submitPriceOffer()" style="padding: 8px 16px;">提示</button>
+                </div>
+            </div>
+
+            <!-- コメント・返信セクション -->
+            <div class="auction-comments" id="request-comment-section" style="margin-top: 20px;">
+                <h4 style="margin-bottom: 12px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">💬 コメント・返信</h4>
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <input type="text" id="request-comment-input" class="form-control" placeholder="コメントを入力..." style="flex: 1;">
+                    <button class="btn-red-sm" onclick="submitRequestComment()" style="padding: 8px 16px; white-space: nowrap;">送信</button>
+                </div>
+                <div id="request-comments-list" class="auction-comment-list"></div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
