@@ -1089,6 +1089,21 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             <button class="btn-red-sm" onclick="checkAuthAndOpenSell()">出品</button>
             
             <!-- 右上の三本バー（ハンバーガーメニュー） -->
+    <!-- ハンバーガーメニュー（ボタン + ドロップダウンコンテナ） -->
+<div class="hamburger-menu-container" style="margin-left:8px;">
+  <button id="hamburger-btn" class="hamburger-btn" aria-label="メニュー" onclick="toggleHamburgerMenu()">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <!-- 既存のドロップダウン（そのまま残す） -->
+  <div id="hamburger-dropdown" class="hamburger-dropdown" aria-hidden="true">
+    <!-- 既存のメニュー項目 -->
+    <button type="button" onclick="openModal('buyer-auth-modal'); closeHamburgerMenu();">
+        <i class="fa-solid fa-user"></i> ログイン・登録
+    </button>
+    <!-- 以下略（現在のメニュー項目をそのまま） -->
+  </div>
+</div>  
             <div id="hamburger-dropdown" class="hamburger-dropdown">
     <button type="button" onclick="openModal('buyer-auth-modal'); closeHamburgerMenu();">
         <i class="fa-solid fa-user"></i> ログイン・登録
@@ -3809,6 +3824,34 @@ function openPaymentModal(chatId) {
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
     updateChatBadge();
+});
+</script>
+<script>
+function toggleHamburgerMenu() {
+  const dd = document.getElementById('hamburger-dropdown');
+  const btn = document.getElementById('hamburger-btn');
+  if (!dd || !btn) return;
+  const isActive = dd.classList.toggle('active');
+  dd.setAttribute('aria-hidden', (!isActive).toString());
+}
+
+function closeHamburgerMenu() {
+  const dd = document.getElementById('hamburger-dropdown');
+  if (!dd) return;
+  dd.classList.remove('active');
+  dd.setAttribute('aria-hidden', 'true');
+}
+
+// 画面のどこかをクリックしたらメニューを閉じる（メニュー外クリックで閉じる）
+document.addEventListener('click', (e) => {
+  const container = document.querySelector('.hamburger-menu-container');
+  if (!container) return;
+  if (!container.contains(e.target)) closeHamburgerMenu();
+});
+
+// ESC でも閉じる
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeHamburgerMenu();
 });
 </script>
 </body>
