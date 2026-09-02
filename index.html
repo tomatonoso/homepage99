@@ -779,24 +779,27 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             <button class="btn-red-sm" onclick="checkAuthAndOpenSell()">出品</button>
             
             <!-- 右上の三本バー（ハンバーガーメニュー） -->
-            <div class="hamburger-menu-container">
-                <button type="button" id="hamburger-btn" class="hamburger-btn" onclick="toggleHamburgerMenu(event)" aria-label="メニュー" aria-expanded="false">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-                <div id="hamburger-dropdown" class="hamburger-dropdown">
-                    <button type="button" onclick="openModal('buyer-auth-modal'); closeHamburgerMenu();">
-                        <i class="fa-solid fa-user"></i> ログイン・登録
-                    </button>
-                    <button type="button" onclick="openAIStaff(); closeHamburgerMenu();">
-                        <i class="fa-solid fa-robot"></i> AI店員
-                    </button>
-                    <button type="button" onclick="openModal('inquiry-modal'); closeHamburgerMenu();">
-                        <i class="fa-solid fa-headset"></i> お問合せ
-                    </button>
-                    <button type="button" onclick="checkAdminStatusAndOpen(); closeHamburgerMenu();">
-                        <i class="fa-solid fa-gear"></i> 運営者管理
-                    </button>
-                </div>
+            <div id="hamburger-dropdown" class="hamburger-dropdown">
+    <button type="button" onclick="openModal('buyer-auth-modal'); closeHamburgerMenu();">
+        <i class="fa-solid fa-user"></i> ログイン・登録
+    </button>
+    <button type="button" onclick="openAIStaff(); closeHamburgerMenu();">
+        <i class="fa-solid fa-robot"></i> AI店員
+    </button>
+    <button type="button" onclick="openModal('inquiry-modal'); closeHamburgerMenu();">
+        <i class="fa-solid fa-headset"></i> お問合せ
+    </button>
+    <button type="button" onclick="checkAdminStatusAndOpen(); closeHamburgerMenu();">
+        <i class="fa-solid fa-gear"></i> 運営者管理
+    </button>
+    <!-- ここに以下を追加 -->
+    <button type="button" onclick="scrollToSection('job-section'); closeHamburgerMenu();">
+        <i class="fa-solid fa-briefcase"></i> アルバイト
+    </button>
+    <button type="button" onclick="scrollToSection('realestate-section'); closeHamburgerMenu();">
+        <i class="fa-solid fa-building"></i> 不動産
+    </button>
+</div>
             </div>
         </div>
     </header>
@@ -857,6 +860,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         <div id="request-list-container" style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;"></div>
 
         <!-- オークション一覧：購入リクエストの下部に追加 -->
+               <!-- オークション一覧：購入リクエストの下部に追加 -->
         <div class="auction-section">
             <div class="section-header">
                 <span><i class="fa-solid fa-gavel" style="color: var(--brand-red);"></i> オークション</span>
@@ -866,6 +870,29 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             </div>
             <div id="auction-list-container" class="auction-list-container"></div>
         </div>
+
+        <!-- アルバイト一覧セクション -->
+        <div id="job-section" class="auction-section">
+            <div class="section-header">
+                <span><i class="fa-solid fa-briefcase" style="color: var(--brand-red);"></i> アルバイト</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="auction-post-btn" onclick="checkAuthAndOpenJobPost()"><i class="fa-solid fa-plus"></i> 投稿</button>
+                </div>
+            </div>
+            <div id="job-list-container" class="auction-list-container"></div>
+        </div>
+
+        <!-- 不動産一覧セクション -->
+        <div id="realestate-section" class="auction-section">
+            <div class="section-header">
+                <span><i class="fa-solid fa-building" style="color: var(--brand-red);"></i> 不動産</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="auction-post-btn" onclick="checkAuthAndOpenRealestatePost()"><i class="fa-solid fa-plus"></i> 投稿</button>
+                </div>
+            </div>
+            <div id="realestate-list-container" class="auction-list-container"></div>
+        </div>
+    </div>
     </div>
 
     <button class="floating-sell-btn" onclick="checkAuthAndOpenSell()">
@@ -3069,6 +3096,14 @@ function openRequestDetail(requestId) {
             </div>
         </div>
     </div>
-
+<!-- ページ内スクロール関数 -->
+<script>
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+</script>
 </body>
 </html>
