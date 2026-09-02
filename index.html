@@ -728,8 +728,10 @@
             .auction-choice-grid { grid-template-columns: 1fr; }
             .auction-card { min-width: 240px; }
         }
-    /* 通知ボタンのスタイル */
-.notification-btn {
+    /* 現在の通知スタイル（行731-862）を置き換え */
+
+/* チャットボタンのスタイル */
+.chat-btn {
     background: transparent;
     border: none;
     font-size: 1.3rem;
@@ -745,11 +747,11 @@
     transition: background 0.2s;
 }
 
-.notification-btn:hover {
+.chat-btn:hover {
     background-color: #f1f3f5;
 }
 
-.notification-badge {
+.chat-badge {
     position: absolute;
     top: -5px;
     right: -5px;
@@ -765,8 +767,8 @@
     font-weight: bold;
 }
 
-/* 通知パネルのスタイル */
-.notification-panel {
+/* チャットパネル（会話一覧） */
+.chat-panel {
     position: absolute;
     right: 0;
     top: 48px;
@@ -782,7 +784,7 @@
     flex-direction: column;
 }
 
-.notification-header {
+.chat-header {
     padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
     font-weight: bold;
@@ -792,73 +794,231 @@
     align-items: center;
 }
 
-.notification-clear-btn {
+.chat-clear-btn {
     background: transparent;
     border: none;
     color: var(--brand-red);
-    font-size: 0.8rem;
+    font-size: 1.2rem;
     cursor: pointer;
     font-weight: bold;
 }
 
-.notification-list {
+.chat-list {
     flex: 1;
     overflow-y: auto;
 }
 
-.notification-item {
+/* チャット会話カード */
+.chat-conversation {
     padding: 12px 16px;
     border-bottom: 1px solid #f1f3f5;
     cursor: pointer;
     transition: background 0.2s;
     display: flex;
     gap: 10px;
-    align-items: flex-start;
+    align-items: center;
 }
 
-.notification-item:hover {
+.chat-conversation:hover {
     background-color: #f8f9fa;
 }
 
-.notification-item.unread {
+.chat-conversation.unread {
     background-color: #f0f7ff;
 }
 
-.notification-icon {
-    font-size: 1.2rem;
-    color: var(--brand-red);
-    flex-shrink: 0;
-    margin-top: 2px;
-}
-
-.notification-content {
-    flex: 1;
-    font-size: 0.85rem;
-    line-height: 1.4;
-}
-
-.notification-title {
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--brand-red);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
+    flex-shrink: 0;
+}
+
+.chat-conversation-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-username {
+    font-weight: bold;
+    font-size: 0.9rem;
     color: var(--text-dark);
-    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.notification-message {
-    color: var(--text-sub);
+.chat-preview {
     font-size: 0.8rem;
+    color: var(--text-sub);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.notification-time {
-    color: #aaa;
+.chat-time {
     font-size: 0.75rem;
-    margin-top: 4px;
+    color: #aaa;
+    flex-shrink: 0;
 }
 
-.notification-empty {
+.chat-empty {
     padding: 30px 20px;
     text-align: center;
     color: var(--text-sub);
     font-size: 0.9rem;
+}
+
+/* チャット詳細画面 */
+.chat-detail-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2000;
+    overflow-y: auto;
+    padding: 20px 10px;
+}
+
+.chat-detail-content {
+    background: white;
+    border-radius: var(--radius);
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    overflow: hidden;
+}
+
+.chat-detail-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-detail-header h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.chat-detail-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: #f6f7f9;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.message {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.message.own {
+    justify-content: flex-end;
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: white;
+    color: var(--text-dark);
+    word-wrap: break-word;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.message.own .message-bubble {
+    background: var(--brand-red);
+    color: white;
+}
+
+.chat-price-info {
+    background: #fff5f5;
+    border: 1px solid #f1b0b7;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 0.9rem;
+}
+
+.chat-price-info strong {
+    color: var(--brand-red);
+    font-size: 1.2rem;
+}
+
+.chat-payment-btn {
+    background-color: var(--brand-red);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.chat-payment-btn:hover {
+    background-color: var(--brand-red-hover);
+}
+
+.chat-input-area {
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 8px;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.chat-send-btn {
+    background-color: var(--brand-red);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.chat-send-btn:hover {
+    background-color: var(--brand-red-hover);
 }
 
     </style>
@@ -908,24 +1068,24 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             <div id="user-auth-btn-area">
                 <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
             </div>
-                        <!-- 通知ボタンコンテナ -->
-            <div style="position: relative;">
-                <button class="notification-btn" id="notification-btn" onclick="toggleNotificationPanel()">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="notification-badge" id="notification-count" style="display: none;">0</span>
-                </button>
-                
-                <!-- 通知パネル -->
-                <div id="notification-panel" class="notification-panel" style="display: none;">
-                    <div class="notification-header">
-                        <span>通知</span>
-                        <button class="notification-clear-btn" onclick="clearAllNotifications()">すべて削除</button>
-                    </div>
-                    <div class="notification-list" id="notification-list">
-                        <div class="notification-empty">通知はありません</div>
-                    </div>
-                </div>
-            </div>
+                     <!-- チャットボタン -->
+<div style="position: relative;">
+    <button class="chat-btn" id="chat-btn" onclick="toggleChatPanel()">
+        <i class="fa-solid fa-comments"></i>
+        <span class="chat-badge" id="chat-count" style="display: none;">0</span>
+    </button>
+    
+    <!-- チャットパネル（会話一覧） -->
+    <div id="chat-panel" class="chat-panel" style="display: none;">
+        <div class="chat-header">
+            <span>チャット</span>
+            <button class="chat-clear-btn" onclick="clearChatPanel()">✕</button>
+        </div>
+        <div class="chat-list" id="chat-list">
+            <div class="chat-empty">チャットはありません</div>
+        </div>
+    </div>
+</div>
             <button class="btn-red-sm" onclick="checkAuthAndOpenSell()">出品</button>
             
             <!-- 右上の三本バー（ハンバーガーメニュー） -->
@@ -3451,6 +3611,205 @@ function initNotificationSystem() {
 
 // ページ読み込み時に初期化
 document.addEventListener('DOMContentLoaded', initNotificationSystem);
+</script>
+<script>
+// チャットデータの構造例
+let chatConversations = [
+    {
+        id: 'admin-1',
+        type: 'admin', // 'admin' または 'auction'
+        userName: '運営者サポート',
+        lastMessage: 'ご不明な点があればお気軽にお問い合わせください',
+        lastTime: '今日 10:30',
+        unread: true,
+        messages: [
+            { own: false, text: 'ようこそ！ご質問があればお答えします', time: '今日 10:00' },
+            { own: true, text: 'ありがとうございます', time: '今日 10:15' },
+            { own: false, text: 'ご不明な点があればお気軽にお問い合わせください', time: '今日 10:30' }
+        ]
+    },
+    {
+        id: 'auction-2',
+        type: 'auction',
+        userName: '出品者 tanaka',
+        productTitle: 'iPhone 12',
+        lastMessage: 'いかがでしょうか？',
+        lastTime: '昨日 18:45',
+        unread: false,
+        currentPrice: 45000,
+        messages: [
+            { own: false, text: 'こちらのiPhoneまだ売れていますか？', time: '昨日 18:30' },
+            { own: true, text: 'はい、現在利用可能です', time: '昨日 18:35' },
+            { own: false, text: 'いかがでしょうか？', time: '昨日 18:45' }
+        ]
+    }
+];
+
+let currentChatId = null;
+
+function toggleChatPanel() {
+    const panel = document.getElementById('chat-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    renderChatList();
+}
+
+function renderChatList() {
+    const chatList = document.getElementById('chat-list');
+    
+    if (chatConversations.length === 0) {
+        chatList.innerHTML = '<div class="chat-empty">チャットはありません</div>';
+        return;
+    }
+    
+    chatList.innerHTML = chatConversations.map(conv => `
+        <div class="chat-conversation ${conv.unread ? 'unread' : ''}" onclick="openChatDetail('${conv.id}')">
+            <div class="chat-avatar">${conv.userName.charAt(0)}</div>
+            <div class="chat-conversation-info">
+                <div class="chat-username">${conv.userName}</div>
+                <div class="chat-preview">${conv.lastMessage}</div>
+            </div>
+            <div class="chat-time">${conv.lastTime}</div>
+        </div>
+    `).join('');
+}
+
+function openChatDetail(chatId) {
+    currentChatId = chatId;
+    const conv = chatConversations.find(c => c.id === chatId);
+    
+    if (!conv) return;
+    
+    // チャットパネルを閉じる
+    document.getElementById('chat-panel').style.display = 'none';
+    
+    // 詳細画面を表示
+    const modal = document.getElementById('chat-detail-modal') || createChatDetailModal();
+    modal.style.display = 'block';
+    
+    // メッセージを表示
+    renderChatMessages(conv);
+    
+    // 既読にする
+    conv.unread = false;
+    updateChatBadge();
+}
+
+function createChatDetailModal() {
+    const modal = document.createElement('div');
+    modal.id = 'chat-detail-modal';
+    modal.className = 'chat-detail-modal';
+    modal.innerHTML = `
+        <div class="chat-detail-content">
+            <div class="chat-detail-header">
+                <div>
+                    <h3 id="chat-detail-title">チャット</h3>
+                    <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--text-sub); display: none;" id="chat-product-title"></p>
+                </div>
+                <button class="chat-detail-close" onclick="closeChatDetail()">✕</button>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" class="chat-input" placeholder="メッセージを入力...">
+                <button class="chat-send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    return modal;
+}
+
+function renderChatMessages(conv) {
+    const messagesDiv = document.getElementById('chat-messages');
+    const titleDiv = document.getElementById('chat-detail-title');
+    const productTitleDiv = document.getElementById('chat-product-title');
+    
+    titleDiv.textContent = conv.userName;
+    
+    if (conv.type === 'auction' && conv.productTitle) {
+        productTitleDiv.textContent = `商品: ${conv.productTitle}`;
+        productTitleDiv.style.display = 'block';
+    }
+    
+    let html = conv.messages.map(msg => `
+        <div class="message ${msg.own ? 'own' : ''}">
+            <div class="message-bubble">${msg.text}</div>
+        </div>
+    `).join('');
+    
+    // オークション落札者の場合、価格提示エリアを追加
+    if (conv.type === 'auction' && conv.currentPrice) {
+        html += `
+            <div class="chat-price-info">
+                <div style="font-size: 0.8rem; color: var(--text-sub);">現在の価格提示</div>
+                <strong>¥${conv.currentPrice.toLocaleString('ja-JP')}</strong>
+                <button class="chat-payment-btn" onclick="openPaymentModal('${conv.id}')">
+                    支払い手続きへ
+                </button>
+            </div>
+        `;
+    }
+    
+    messagesDiv.innerHTML = html;
+    // 最下部にスクロール
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    
+    if (!text || !currentChatId) return;
+    
+    const conv = chatConversations.find(c => c.id === currentChatId);
+    if (!conv) return;
+    
+    conv.messages.push({
+        own: true,
+        text: text,
+        time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+    });
+    
+    input.value = '';
+    renderChatMessages(conv);
+}
+
+function closeChatDetail() {
+    const modal = document.getElementById('chat-detail-modal');
+    if (modal) modal.style.display = 'none';
+    currentChatId = null;
+}
+
+function clearChatPanel() {
+    document.getElementById('chat-panel').style.display = 'none';
+}
+
+function updateChatBadge() {
+    const unreadCount = chatConversations.filter(c => c.unread).length;
+    const badge = document.getElementById('chat-count');
+    
+    if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// 支払いページへリダイレクト
+function openPaymentModal(chatId) {
+    const conv = chatConversations.find(c => c.id === chatId);
+    if (!conv || conv.type !== 'auction') return;
+    
+    // 既存の決済ページにリダイレクト（または同じページのモーダルを使用）
+    // 例: openModal('payment-modal') と同じ処理
+    alert(`¥${conv.currentPrice.toLocaleString('ja-JP')}の支払い手続きに進みます`);
+    // TODO: 実際の決済モーダルにリダイレクト
+}
+
+// 初期化
+document.addEventListener('DOMContentLoaded', () => {
+    updateChatBadge();
+});
 </script>
 </body>
 </html>
