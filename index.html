@@ -2018,18 +2018,58 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             renderChatMessages();
         };
 
-        window.sendPriceProposal = function() {
-            const inputPrice = document.getElementById('chat-input-price');
-            const price = parseInt(inputPrice.value);
-            if(!price || !currentUser) return;
-            currentActiveRequest.proposedPrice = price;
-            currentActiveRequest.messages.push({ sender: currentUser.name, text: `【販売価格の提案】 ¥${price.toLocaleString()} で販売を提案しました。` });
-            saveToStorage();
-            inputPrice.value = "";
-            renderChatMessages();
-            updateProposalUI();
-            alert(`¥${price.toLocaleString()} の価格を提示しました。`);
-        };
+       window.sendChatMessage = function() {
+    const input = document.getElementById('chat-input-msg');
+    const text = (input && input.value || '').trim();
+
+    if (!text) {
+        alert('メッセージを入力してください。');
+        return;
+    }
+    if (!currentUser) {
+        alert('メッセージを送るにはログインが必要です。ログイン画面を開きます。');
+        openModal('buyer-auth-modal');
+        return;
+    }
+    if (!currentActiveRequest) {
+        alert('チャット対象の購入リクエストが選択されていません。');
+        return;
+    }
+
+    currentActiveRequest.messages.push({ sender: currentUser.name, text: text });
+    saveToStorage();
+    input.value = "";
+    renderChatMessages();
+};
+window.sendPriceProposal = function() {
+    const inputPrice = document.getElementById('chat-input-price');
+    const price = parseInt((inputPrice && inputPrice.value) || '', 10);
+
+    if (isNaN(price) || price <= 0) {
+        alert('有効な金額を入力してください。');
+        return;
+    }
+    if (!currentUser) {
+        alert('価格を提案するにはログインが必要です。ログイン画面を開きます。');
+        openModal('buyer-auth-modal');
+        return;
+    }
+    if (!currentActiveRequest) {
+        alert('チャット対象の購入リクエストが選択されていません。');
+        return;
+    }
+
+    currentActiveRequest.proposedPrice = price;
+    currentActiveRequest.messages.push({
+        sender: currentUser.name,
+        text: `【販売価格の提案】 ¥${price.toLocaleString()} で販売を提案しました。`
+    });
+    saveToStorage();
+    inputPrice.value = "";
+    renderChatMessages();
+    updateProposalUI();
+    alert(`¥${price.toLocaleString()} の価格を提示しました。`);
+};
 
         window.updateProposalUI = function() {
             const banner = document.getElementById('proposal-banner');
