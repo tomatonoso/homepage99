@@ -3695,37 +3695,57 @@ function submitPriceOffer() {
 }
 
 // リクエスト詳細表示時にコメントを読み込む
-function openRequestDetail(requestId) {
+window.openRequestDetail = function(requestId) {
     const db = firebase.firestore();
-    
+
     db.collection('purchase_requests').doc(requestId).get().then(doc => {
         if (doc.exists) {
             const data = doc.data();
-            
+
             // モーダルに requestId を設定
-            document.getElementById('request-detail-modal').setAttribute('data-request-id', requestId);
-            
+            const modal = document.getElementById('request-detail-modal');
+            if (modal) {
+                modal.setAttribute('data-request-id', requestId);
+            }
+
+            // 日時の安全な取得（データが無い場合のエラー防止）
+            let formattedDate = '日時不明';
+            if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+                formattedDate = data.createdAt.toDate().toLocaleString();
+            } else if (data.createdAt) {
+                formattedDate = data.createdAt;
+            }
+
             // 詳細内容を表示
             const detailContent = document.getElementById('request-detail-content');
-            detailContent.innerHTML = `
-                <h3>${data.title}</h3>
-                <p><strong>カテゴリー:</strong> ${data.category}</p>
-                <p><strong>予算:</strong> ${data.budget}円</p>
-                <p><strong>説明:</strong> ${data.description}</p>
-                <p><strong>投稿者:</strong> ${data.posterName}</p>
-                <p><strong>投稿日:</strong> ${data.createdAt.toDate().toLocaleString()}</p>
-            `;
-            
+            if (detailContent) {
+                detailContent.innerHTML = `
+                    <h3>${data.title || 'タイトルなし'}</h3>
+                    <p><strong>カテゴリー:</strong> ${data.category || '-'}</p>
+                    <p><strong>予算:</strong> ${data.budget ? Number(data.budget).toLocaleString() : 0}円</p>
+                    <p><strong>説明:</strong> ${data.description || '-'}</p>
+                    <p><strong>投稿者:</strong> ${data.posterName || '匿名'}</p>
+                    <p><strong>投稿日:</strong> ${formattedDate}</p>
+                `;
+            }
+
             // コメント読み込み
-            loadRequestComments(requestId);
-            
-            openModal('request-detail-modal');
+            if (typeof loadRequestComments === 'function') {
+                loadRequestComments(requestId);
+            }
+
+            // モーダルを表示（確実に画面中央へ表示）
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        } else {
+            alert('指定されたリクエストが存在しません。');
         }
     }).catch(error => {
         console.error('リクエスト読み込みエラー:', error);
         alert('リクエストの読み込みに失敗しました');
     });
-}
+};
 </script>
     <!-- 購入リクエスト詳細モーダル -->
     <div id="request-detail-modal" class="modal-panel">
