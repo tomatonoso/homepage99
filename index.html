@@ -1096,6 +1096,7 @@ let jobs = JSON.parse(localStorage.getItem('minatomo_jobs')) || [
 ];
 
 // 求人一覧を画面に描画する関数
+// 求人一覧を画面に描画する関数（クリックイベント追加版）
 function renderJobs() {
     const container = document.getElementById('job-list-container');
     if (!container) return;
@@ -1106,7 +1107,7 @@ function renderJobs() {
     }
 
     container.innerHTML = jobs.map(job => `
-        <div class="auction-card">
+        <div class="auction-card" onclick="openJobDetail(${job.id})" style="cursor: pointer;">
             <span class="auction-type-badge">${job.category || '求人'}</span>
             <div class="auction-title">${job.title || ''}</div>
             <div class="auction-price">${job.salaryType || ''} ${job.salary ? Number(job.salary).toLocaleString() + '円' : ''}</div>
@@ -4134,6 +4135,26 @@ function openPaymentModal(chatId) {
 document.addEventListener('DOMContentLoaded', () => {
     updateChatBadge();
 });
+// 求人詳細モーダルを開いてデータをセットする関数
+function openJobDetail(id) {
+    // IDが一致する求人データを検索
+    const job = jobs.find(j => j.id === id);
+    if (!job) return;
+
+    // モーダル内の各要素にデータを流し込む
+    document.getElementById('detail-job-title').innerText = job.title || 'タイトルなし';
+    document.getElementById('detail-job-category').innerText = job.category || '-';
+    document.getElementById('detail-job-type').innerText = job.type || '-';
+    document.getElementById('detail-job-salary').innerText = `${job.salaryType || ''} ${job.salary ? Number(job.salary).toLocaleString() + '円' : ''}`;
+    document.getElementById('detail-job-area').innerText = job.area || '-';
+    document.getElementById('detail-job-time').innerText = job.time || '-';
+    document.getElementById('detail-job-access').innerText = job.access || '-';
+
+    // モーダルを表示
+    if (typeof openModal === 'function') {
+        openModal('job-detail-modal');
+    }
+}
 </script>
 <script>
 function toggleHamburgerMenu() {
@@ -4164,5 +4185,21 @@ document.addEventListener('keydown', (e) => {
 });
 
 </script>
+<!-- アルバイト詳細モーダル -->
+<div id="job-detail-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('job-detail-modal')">&times;</span>
+        <h2 id="detail-job-title" style="margin-bottom:15px;"></h2>
+        <div style="line-height: 1.8;">
+            <p><strong>カテゴリ:</strong> <span id="detail-job-category"></span></p>
+            <p><strong>雇用形態:</strong> <span id="detail-job-type"></span></p>
+            <p><strong>給与:</strong> <span id="detail-job-salary"></span></p>
+            <p><strong>勤務地:</strong> <span id="detail-job-area"></span></p>
+            <p><strong>勤務時間:</strong> <span id="detail-job-time"></span></p>
+            <p><strong>アクセス:</strong> <span id="detail-job-access"></span></p>
+        </div>
+        <button onclick="closeModal('job-detail-modal')" style="margin-top:20px; padding:8px 16px; cursor:pointer;">閉じる</button>
+    </div>
+</div>
 </body>
 </html>
