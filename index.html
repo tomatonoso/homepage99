@@ -1526,19 +1526,53 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
                 <p style="text-align: center; margin-top: 15px; font-size: 0.85rem;">アカウントをお持ちでないですか？ <a href="javascript:void(0)" onclick="toggleBuyerAuthMode('signup')" style="color:#007bff;">新規会員登録へ</a></p>
             </div>
             <div id="buyer-signup-form" style="display:none;">
-                <div class="form-group"><label>お名前（氏名）</label><input type="text" id="buyer-signup-name" class="form-control" placeholder="山田 太郎" required></div>
-                <div class="form-group"><label>メールアドレス</label><input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com" required></div>
-                <div class="form-group"><label>電話番号</label><input type="tel" id="buyer-signup-phone" class="form-control" placeholder="090-0000-0000" required></div>
-                <div class="form-group"><label>パスワード (6文字以上)</label><input type="password" id="buyer-signup-password" class="form-control" placeholder="******" required></div>
-                
-                <!-- 追加: 本人と書類が一緒に写っている状態の画像アップロード欄（もともとの新規登録画面内） -->
+                <!-- 追加: 会員種別選択ラジオボタン -->
                 <div class="form-group">
-                    <label>本人確認書類（本人と書類が一緒に写っている写真） *</label>
-                    <div class="image-upload-wrapper" onclick="document.getElementById('buyer-id-image').click();">
-                        <i class="fa-solid id-card" style="font-size: 1.8rem; color: #888;"></i>
-                        <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして本人確認写真を選択</div>
-                        <input type="file" id="buyer-id-image" accept="image/*" onchange="handleBuyerIdImageUpload(event)" required>
-                        <div class="img-preview-container" id="buyer-id-preview-box" style="display:none;"><img id="buyer-id-preview" src=""></div>
+                    <label>会員種別 *</label>
+                    <div style="display: flex; gap: 20px; padding-bottom: 10px; border-bottom: 1px solid #ddd; margin-bottom: 10px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="member-type" value="general" checked onchange="document.getElementById('general-member-fields').style.display='block'; document.getElementById('corporate-member-fields').style.display='none';"> 一般会員
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="member-type" value="corporate" onchange="document.getElementById('general-member-fields').style.display='none'; document.getElementById('corporate-member-fields').style.display='block';"> 会社会員
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 一般会員用フォーム -->
+                <div id="general-member-fields">
+                    <div class="form-group"><label>お名前（氏名）</label><input type="text" id="buyer-signup-name" class="form-control" placeholder="山田 太郎" required></div>
+                    <div class="form-group"><label>メールアドレス</label><input type="email" id="buyer-signup-email" class="form-control" placeholder="user@example.com" required></div>
+                    <div class="form-group"><label>電話番号</label><input type="tel" id="buyer-signup-phone" class="form-control" placeholder="090-0000-0000" required></div>
+                    <div class="form-group"><label>パスワード (6文字以上)</label><input type="password" id="buyer-signup-password" class="form-control" placeholder="******" required></div>
+                    
+                    <div class="form-group">
+                        <label>本人確認書類（本人と書類が一緒に写っている写真） *</label>
+                        <div class="image-upload-wrapper" onclick="document.getElementById('buyer-id-image').click();">
+                            <i class="fa-solid fa-id-card" style="font-size: 1.8rem; color: #888;"></i>
+                            <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして本人確認写真を選択</div>
+                            <input type="file" id="buyer-id-image" accept="image/*" onchange="handleBuyerIdImageUpload(event)" required>
+                            <div class="img-preview-container" id="buyer-id-preview-box" style="display:none;"><img id="buyer-id-preview" src=""></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 会社会員用フォーム（初期状態は非表示） -->
+                <div id="corporate-member-fields" style="display:none;">
+                    <div class="form-group"><label>会社名</label><input type="text" id="corp-signup-name" class="form-control" placeholder="株式会社〇〇" required></div>
+                    <div class="form-group"><label>担当者名</label><input type="text" id="corp-signup-rep" class="form-control" placeholder="山田 太郎" required></div>
+                    <div class="form-group"><label>会社メールアドレス</label><input type="email" id="corp-signup-email" class="form-control" placeholder="info@example.com" required></div>
+                    <div class="form-group"><label>会社電話番号</label><input type="tel" id="corp-signup-phone" class="form-control" placeholder="03-0000-0000" required></div>
+                    <div class="form-group"><label>パスワード (6文字以上)</label><input type="password" id="corp-signup-password" class="form-control" placeholder="******" required></div>
+                    
+                    <div class="form-group">
+                        <label>登記簿謄本等の会社確認書類 *</label>
+                        <div class="image-upload-wrapper" onclick="document.getElementById('corp-id-image').click();">
+                            <i class="fa-solid fa-file-contract" style="font-size: 1.8rem; color: #888;"></i>
+                            <div style="font-size: 0.85rem; margin-top: 5px; color: #555;">クリックして会社確認書類を選択</div>
+                            <input type="file" id="corp-id-image" accept="image/*" onchange="handleCorpIdImageUpload(event)" required>
+                            <div class="img-preview-container" id="corp-id-preview-box" style="display:none;"><img id="corp-id-preview" src=""></div>
+                        </div>
                     </div>
                 </div>
 
