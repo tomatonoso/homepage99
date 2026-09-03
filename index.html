@@ -3752,12 +3752,16 @@ function clearAllNotifications() {
 }
 
 // ページクリック時に通知パネルを閉じる
+// ページクリック時に通知パネルを閉じる
 document.addEventListener('click', function(event) {
     const panel = document.getElementById('notification-panel');
     const btn = document.getElementById('notification-btn');
-    
-    if (!btn.contains(event.target) && !panel.contains(event.target)) {
-        closeNotificationPanel();
+
+    // btn と panel がページ内に存在する場合のみ contains のチェックを行う
+    if (btn && panel) {
+        if (!btn.contains(event.target) && !panel.contains(event.target)) {
+            closeNotificationPanel();
+        }
     }
 });
 
@@ -4053,6 +4057,26 @@ document.addEventListener('keydown', (e) => {
         margin-bottom: 15px;
     }
 }
+// アルバイト投稿モーダルを開く関数
+window.checkAuthAndOpenJobPost = function() {
+    // もしログイン機能があればここでチェック（不要なら削除してOKです）
+    /* 
+    if (!currentUser) {
+        alert('アルバイトを投稿するにはログインが必要です。');
+        return;
+    }
+    */
+    
+    // モーダルを表示する処理（既存のopenModal関数を呼び出し）
+    openModal('job-post-modal');
+};
+
+// 投稿ボタンを押した時の処理
+window.submitJob = function(event) {
+    event.preventDefault(); // 画面の自動リロードを防ぐ
+    alert('アルバイト情報を投稿しました！');
+    closeModal('job-post-modal');
+};
 </script>
 </body>
 </html>
