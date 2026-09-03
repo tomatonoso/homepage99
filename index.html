@@ -4053,26 +4053,41 @@ function renderChatList() {
     `).join('');
 }
 
-function openChatDetail(chatId) {
+// チャット詳細を開く関数
+window.openChatDetail = function(chatId) {
     currentChatId = chatId;
     const conv = chatConversations.find(c => c.id === chatId);
-    
+
     if (!conv) return;
-    
+
     // チャットパネルを閉じる
-    document.getElementById('chat-panel').style.display = 'none';
-    
-    // 詳細画面を表示
+    const chatPanel = document.getElementById('chat-panel');
+    if (chatPanel) {
+        chatPanel.style.display = 'none';
+    }
+
+    // 詳細モーダルを取得・作成して表示
     const modal = document.getElementById('chat-detail-modal') || createChatDetailModal();
-    modal.style.display = 'block';
-    
-    // メッセージを表示
-    renderChatMessages(conv);
-    
+    if (modal) {
+        modal.style.display = 'flex'; // 画面中央に配置
+    }
+
+    // タイトルや商品名の設定（データが存在する場合）
+    const titleElem = document.getElementById('chat-detail-title');
+    if (titleElem && conv.title) {
+        titleElem.innerText = conv.title;
+    }
+
+    // メッセージ配列を安全に抽出して描画
+    const messages = Array.isArray(conv.messages) ? conv.messages : (Array.isArray(conv) ? conv : []);
+    renderChatMessages(messages);
+
     // 既読にする
     conv.unread = false;
-    updateChatBadge();
-}
+    if (typeof updateChatBadge === 'function') {
+        updateChatBadge();
+    }
+};
 
 function createChatDetailModal() {
     const modal = document.createElement('div');
