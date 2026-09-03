@@ -3723,25 +3723,30 @@ function addNotification(type, title, message, relatedId = null) {
 function updateNotificationDisplay() {
     const list = document.getElementById('notification-list');
     const countBadge = document.getElementById('notification-count');
-    
-    if (notifications.length === 0) {
+
+    // 要素が存在しない場合はエラーを防いで処理を終了
+    if (!list) return;
+
+    if (typeof notifications === 'undefined' || !notifications || notifications.length === 0) {
         list.innerHTML = '<div class="notification-empty">通知はありません</div>';
-        countBadge.style.display = 'none';
+        if (countBadge) countBadge.style.display = 'none';
         return;
     }
-    
+
     // 未読件数
     const unreadCount = notifications.filter(n => !n.read).length;
-    if (unreadCount > 0) {
-        countBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-        countBadge.style.display = 'flex';
-    } else {
-        countBadge.style.display = 'none';
+    if (countBadge) {
+        if (unreadCount > 0) {
+            countBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            countBadge.style.display = 'flex';
+        } else {
+            countBadge.style.display = 'none';
+        }
     }
-    
+
     // 通知リストを描画
     list.innerHTML = notifications.map(notif => `
-        <div class="notification-item ${notif.read ? '' : 'unread'}" 
+        <div class="notification-item ${notif.read ? '' : 'unread'}"
              onclick="handleNotificationClick('${notif.id}', '${notif.type}', '${notif.relatedId || ''}')">
             <div class="notification-icon">
                 ${getNotificationIcon(notif.type)}
@@ -3754,7 +3759,6 @@ function updateNotificationDisplay() {
         </div>
     `).join('');
 }
-
 // 通知アイコンの取得
 function getNotificationIcon(type) {
     const icons = {
