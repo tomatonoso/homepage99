@@ -1970,6 +1970,12 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
                     <input type="file" id="job-image-input" class="form-control" accept="image/*" multiple>
                     <small style="color: #666; margin-top: 5px; display: block;">※複数枚のアップロードが可能です。JPEG, PNG形式のみ。</small>
                 </div>
+                <!-- 仕事内容・詳細説明 -->
+        <h3 class="form-section-title">仕事内容・詳細説明</h3>
+        <div class="form-group">
+            <label>詳細説明・仕事内容 <span class="required-badge">必須</span></label>
+            <textarea id="job-description-input" class="form-control" rows="5" required placeholder="詳しい仕事内容や、歓迎スキル、シフトの条件などを入力してください"></textarea>
+        </div>
 
                 <!-- 事業者情報・誓約 -->
                 <h3 class="form-section-title">事業者情報・誓約</h3>
@@ -4243,20 +4249,64 @@ window.closeJobDetail = function() {
 
 </script>
 
+
 <!-- アルバイト詳細モーダル -->
 <div id="job-detail-modal">
     <div class="modal-content">
         <span class="close" onclick="closeJobDetail()">&times;</span>
         <h3 id="detail-job-title" style="margin-bottom:15px; font-size:1.1rem; border-bottom:2px solid #f0f0f0; padding-bottom:8px;"></h3>
-        <div style="line-height: 1.8; font-size: 0.95rem;">
+        <div style="line-height: 1.8; font-size: 0.95rem; max-height: 40vh; overflow-y: auto; padding-right: 5px;">
             <p><strong>カテゴリ:</strong> <span id="detail-job-category"></span></p>
             <p><strong>雇用形態:</strong> <span id="detail-job-type"></span></p>
             <p><strong>給与:</strong> <span id="detail-job-salary" style="color:#e53935; font-weight:bold;"></span></p>
             <p><strong>勤務地:</strong> <span id="detail-job-area"></span></p>
             <p><strong>勤務時間:</strong> <span id="detail-job-time"></span></p>
             <p><strong>アクセス:</strong> <span id="detail-job-access"></span></p>
+            <hr style="border:none; border-top:1px solid #eee; margin:10px 0;">
+            <p><strong>詳細説明・仕事内容:</strong></p>
+            <div id="detail-job-description" style="background:#f9f9f9; padding:10px; border-radius:6px; white-space:pre-wrap; margin-top:5px; color:#444; min-height:50px;"></div>
         </div>
-        <button onclick="closeJobDetail()" style="margin-top:20px; width:100%; padding:10px; background:#666; color:#fff; border:none; border-radius:6px; cursor:pointer;">閉じる</button>
+        <!-- アクションボタンエリア（4262行目の直下に追加） -->
+        <div style="margin-top:20px; display:flex; flex-direction:column; gap:8px;">
+            <button onclick="openApplyModal()" style="width:100%; padding:12px; background:#e53935; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:1rem;">応募する</button>
+            <button onclick="saveJob()" style="width:100%; padding:10px; background:#f5f5f5; color:#333; border:1px solid #ccc; border-radius:6px; font-weight:bold; cursor:pointer;">★ 保存する（キープ）</button>
+            <button onclick="closeJobDetail()" style="width:100%; padding:8px; background:#888; color:#fff; border:none; border-radius:6px; cursor:pointer;">閉じる</button>
+        </div>
+
+        <!-- アクションボタンエリア -->
+        <div style="margin-top:20px; display:flex; flex-direction:column; gap:8px;">
+            <button onclick="openApplyModal()" style="width:100%; padding:12px; background:#e53935; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:1rem;">応募する</button>
+            <button onclick="saveJob()" style="width:100%; padding:10px; background:#f5f5f5; color:#333; border:1px solid #ccc; border-radius:6px; font-weight:bold; cursor:pointer;">★ 保存する（キープ）</button>
+            <button onclick="closeJobDetail()" style="width:100%; padding:8px; background:#888; color:#fff; border:none; border-radius:6px; cursor:pointer;">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<!-- アルバイト応募フォームモーダル -->
+<div id="job-apply-modal" style="display:none; position:fixed; z-index:10001; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background:#fff; margin:5% auto; padding:20px; border-radius:10px; max-width:450px; width:90%; position:relative; max-height:85vh; overflow-y:auto;">
+        <span class="close" onclick="closeApplyModal()" style="position:absolute; right:15px; top:10px; font-size:24px; cursor:pointer; color:#888;">&times;</span>
+        <h3 style="margin-bottom:15px; font-size:1.1rem; border-bottom:2px solid #e53935; padding-bottom:8px;">求人に応募する</h3>
+        
+        <form onsubmit="submitApplication(event)">
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:4px;">お名前 <span style="color:red;">*</span></label>
+                <input type="text" id="apply-name" required placeholder="例：山田 太郎" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:4px;">メールアドレス <span style="color:red;">*</span></label>
+                <input type="email" id="apply-email" required placeholder="例：example@email.com" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:4px;">電話番号 <span style="color:red;">*</span></label>
+                <input type="tel" id="apply-phone" required placeholder="例：090-1234-5678" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:4px;">志望動機・アピールなど</label>
+                <textarea id="apply-message" rows="4" placeholder="勤務可能な曜日・時間帯やご質問などを自由にご記入ください" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;"></textarea>
+            </div>
+            <button type="submit" style="width:100%; padding:12px; background:#e53935; color:#fff; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">送信する</button>
+        </form>
     </div>
 </div>
 </body>
