@@ -4149,44 +4149,59 @@ function renderChatMessages(conv) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
+// メッセージ送信関数（4152行目〜4169行目を置き換え）
 function sendChatMessage() {
     const input = document.getElementById('chat-input');
+    if (!input) return;
+
     const text = input.value.trim();
-    
     if (!text || !currentChatId) return;
-    
+
     const conv = chatConversations.find(c => c.id === currentChatId);
     if (!conv) return;
-    
+
+    // messages 配列が存在しない場合は初期化
+    if (!Array.isArray(conv.messages)) {
+        conv.messages = [];
+    }
+
     conv.messages.push({
         own: true,
         text: text,
         time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
     });
-    
+
     input.value = '';
     renderChatMessages(conv);
 }
 
+// チャット詳細を閉じる関数（4171行目〜4175行目）
 function closeChatDetail() {
     const modal = document.getElementById('chat-detail-modal');
     if (modal) modal.style.display = 'none';
     currentChatId = null;
 }
 
+// パネル非表示関数（4177行目〜4179行目）
 function clearChatPanel() {
-    document.getElementById('chat-panel').style.display = 'none';
+    const panel = document.getElementById('chat-panel');
+    if (panel) panel.style.display = 'none';
 }
 
+// 未読バッジの更新関数（4181行目〜4189行目を置き換え）
 function updateChatBadge() {
+    if (!Array.isArray(chatConversations)) return;
+
     const unreadCount = chatConversations.filter(c => c.unread).length;
     const badge = document.getElementById('chat-count');
-    
-    if (unreadCount > 0) {
-        badge.textContent = unreadCount;
-        badge.style.display = 'flex';
-    } else {
-        badge.style.display = 'none';
+
+    if (badge) {
+        if (unreadCount > 0) {
+            badge.textContent = unreadCount;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 }
 
