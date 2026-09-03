@@ -1020,7 +1020,93 @@
 .chat-send-btn:hover {
     background-color: var(--brand-red-hover);
 }
+/* フォームのセクション見出し */
+.form-section-title {
+    font-size: 1.1em;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+    margin: 30px 0 15px 0;
+}
+.form-section-title:first-of-type {
+    margin-top: 10px;
+}
 
+/* 必須バッジ */
+.required-badge {
+    color: #d32f2f;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* 2カラムレイアウト用 */
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+.half-width {
+    flex: 1;
+    margin-bottom: 0; /* form-groupの下余白を打ち消し */
+}
+
+/* スマホ表示時は1カラムにする */
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    .half-width {
+        margin-bottom: 15px;
+    }
+}
+// アルバイト投稿モーダルを開く関数
+window.checkAuthAndOpenJobPost = function() {
+    // もしログイン機能があればここでチェック（不要なら削除してOKです）
+    /* 
+    if (!currentUser) {
+        alert('アルバイトを投稿するにはログインが必要です。');
+        return;
+    }
+    */
+    
+    // モーダルを表示する処理（既存のopenModal関数を呼び出し）
+    openModal('job-post-modal');
+};
+
+// 投稿ボタンを押した時の処理
+window.submitJob = function(event) {
+    event.preventDefault(); // 画面の自動リロードを防ぐ
+    alert('アルバイト情報を投稿しました！');
+    closeModal('job-post-modal');
+};
+// アルバイト投稿ボタンを押した時の処理
+window.checkAuthAndOpenJobPost = function() {
+    // currentUserが未定義、またはログインしていない場合
+    if (typeof currentUser === 'undefined' || !currentUser) {
+        alert("アルバイトの投稿にはログイン・登録が必要です。");
+        if (typeof openModal === 'function') {
+            openModal('buyer-auth-modal');
+        }
+        return;
+    }
+    // ログイン済みならアルバイト投稿モーダルを開く
+    if (typeof openModal === 'function') {
+        openModal('job-post-modal');
+    }
+};
+
+// アルバイトフォームを送信した時の処理
+window.submitJob = function(event) {
+    event.preventDefault(); // 画面の再読み込みを防ぐ
+    
+    alert("アルバイト情報を投稿しました！");
+    if (typeof closeModal === 'function') {
+        closeModal('job-post-modal');
+    }
+    event.target.reset(); // フォームの入力内容をリセットする
+};
     </style>
 
 
@@ -4016,93 +4102,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeHamburgerMenu();
 });
-/* フォームのセクション見出し */
-.form-section-title {
-    font-size: 1.1em;
-    color: #333;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 8px;
-    margin: 30px 0 15px 0;
-}
-.form-section-title:first-of-type {
-    margin-top: 10px;
-}
 
-/* 必須バッジ */
-.required-badge {
-    color: #d32f2f;
-    font-size: 0.8em;
-    font-weight: bold;
-    margin-left: 5px;
-}
-
-/* 2カラムレイアウト用 */
-.form-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-.half-width {
-    flex: 1;
-    margin-bottom: 0; /* form-groupの下余白を打ち消し */
-}
-
-/* スマホ表示時は1カラムにする */
-@media (max-width: 600px) {
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-    .half-width {
-        margin-bottom: 15px;
-    }
-}
-// アルバイト投稿モーダルを開く関数
-window.checkAuthAndOpenJobPost = function() {
-    // もしログイン機能があればここでチェック（不要なら削除してOKです）
-    /* 
-    if (!currentUser) {
-        alert('アルバイトを投稿するにはログインが必要です。');
-        return;
-    }
-    */
-    
-    // モーダルを表示する処理（既存のopenModal関数を呼び出し）
-    openModal('job-post-modal');
-};
-
-// 投稿ボタンを押した時の処理
-window.submitJob = function(event) {
-    event.preventDefault(); // 画面の自動リロードを防ぐ
-    alert('アルバイト情報を投稿しました！');
-    closeModal('job-post-modal');
-};
-// アルバイト投稿ボタンを押した時の処理
-window.checkAuthAndOpenJobPost = function() {
-    // currentUserが未定義、またはログインしていない場合
-    if (typeof currentUser === 'undefined' || !currentUser) {
-        alert("アルバイトの投稿にはログイン・登録が必要です。");
-        if (typeof openModal === 'function') {
-            openModal('buyer-auth-modal');
-        }
-        return;
-    }
-    // ログイン済みならアルバイト投稿モーダルを開く
-    if (typeof openModal === 'function') {
-        openModal('job-post-modal');
-    }
-};
-
-// アルバイトフォームを送信した時の処理
-window.submitJob = function(event) {
-    event.preventDefault(); // 画面の再読み込みを防ぐ
-    
-    alert("アルバイト情報を投稿しました！");
-    if (typeof closeModal === 'function') {
-        closeModal('job-post-modal');
-    }
-    event.target.reset(); // フォームの入力内容をリセットする
-};
 </script>
 </body>
 </html>
