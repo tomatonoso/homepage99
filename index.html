@@ -1104,25 +1104,37 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     <!-- 以下略（現在のメニュー項目をそのまま） -->
   </div>
 </div>  
-            <div id="hamburger-dropdown" class="hamburger-dropdown">
+           <div id="hamburger-dropdown" class="hamburger-dropdown" aria-hidden="true">
     <button type="button" onclick="openModal('buyer-auth-modal'); closeHamburgerMenu();">
         <i class="fa-solid fa-user"></i> ログイン・登録
     </button>
+
+    <button type="button" onclick="checkAdminStatusAndOpen(); closeHamburgerMenu();">
+        <i class="fa-solid fa-gear"></i> 運営管理
+    </button>
+
     <button type="button" onclick="openAIStaff(); closeHamburgerMenu();">
         <i class="fa-solid fa-robot"></i> AI店員
     </button>
+
+    <button type="button" onclick="openGachaModal(); closeHamburgerMenu();">
+        <i class="fa-solid fa-gift"></i> ガチャガチャ
+    </button>
+
+    <button type="button" onclick="checkAuthAndOpenSell(); closeHamburgerMenu();">
+        <i class="fa-solid fa-tag"></i> 出品商品
+    </button>
+
+    <button type="button" onclick="scrollToSection('request-list-container'); closeHamburgerMenu();">
+        <i class="fa-solid fa-hand-holding-dollar"></i> 購入リクエスト
+    </button>
+
+    <button type="button" onclick="scrollToSection('auction-section'); closeHamburgerMenu();">
+        <i class="fa-solid fa-gavel"></i> オークション
+    </button>
+
     <button type="button" onclick="openModal('inquiry-modal'); closeHamburgerMenu();">
         <i class="fa-solid fa-headset"></i> お問合せ
-    </button>
-    <button type="button" onclick="checkAdminStatusAndOpen(); closeHamburgerMenu();">
-        <i class="fa-solid fa-gear"></i> 運営者管理
-    </button>
-    <!-- ここに以下を追加 -->
-    <button type="button" onclick="scrollToSection('job-section'); closeHamburgerMenu();">
-        <i class="fa-solid fa-briefcase"></i> アルバイト
-    </button>
-    <button type="button" onclick="scrollToSection('realestate-section'); closeHamburgerMenu();">
-        <i class="fa-solid fa-building"></i> 不動産
     </button>
 </div>
             </div>
