@@ -4309,5 +4309,42 @@ window.closeJobDetail = function() {
         </form>
     </div>
 </div>
+<script>
+// 応募モーダルを開く関数（グローバルに定義）
+window.openApplyModal = function() {
+    // 1. 詳細モーダルを非表示にする
+    const detailModal = document.getElementById('job-detail-modal');
+    if (detailModal) {
+        detailModal.style.display = 'none';
+    }
+
+    // 2. 応募モーダルを表示する
+    const applyModal = document.getElementById('job-apply-modal');
+    if (applyModal) {
+        applyModal.style.display = 'block';
+    } else {
+        alert('応募モーダル（#job-apply-modal）が見つかりません。HTMLの配置を確認してください。');
+    }
+};
+
+// 応募モーダルを閉じる関数
+window.closeApplyModal = function() {
+    const applyModal = document.getElementById('job-apply-modal');
+    if (applyModal) {
+        applyModal.style.display = 'none';
+    }
+};
+
+// 応募フォーム送信処理
+window.submitApplication = function(event) {
+    event.preventDefault();
+    const name = document.getElementById('apply-name')?.value || '応募者';
+    alert(`${name} 様\n求人へのご応募を受け付けました！`);
+    closeApplyModal();
+    if (event.target) {
+        event.target.reset();
+    }
+};
+</script>
 </body>
 </html>
