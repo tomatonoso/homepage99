@@ -1061,6 +1061,35 @@
         margin-bottom: 15px;
     }
 }
+/* 詳細モーダルの表示スタイル */
+#job-detail-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+#job-detail-modal .modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 450px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+#job-detail-modal .close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+}
 
     </style>
 <script>
@@ -4183,22 +4212,51 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeHamburgerMenu();
 });
+// 詳細モーダルを開く関数（単体動作版）
+window.openJobDetail = function(id) {
+    const job = jobs.find(j => j.id === id);
+    if (!job) return;
+
+    // データのセット
+    document.getElementById('detail-job-title').innerText = job.title || 'タイトルなし';
+    document.getElementById('detail-job-category').innerText = job.category || '-';
+    document.getElementById('detail-job-type').innerText = job.type || '-';
+    document.getElementById('detail-job-salary').innerText = `${job.salaryType || ''} ${job.salary ? Number(job.salary).toLocaleString() + '円' : ''}`;
+    document.getElementById('detail-job-area').innerText = job.area || '-';
+    document.getElementById('detail-job-time').innerText = job.time || '-';
+    document.getElementById('detail-job-access').innerText = job.access || '-';
+
+    // モーダルを表示
+    const modal = document.getElementById('job-detail-modal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+};
+
+// 詳細モーダルを閉じる関数
+window.closeJobDetail = function() {
+    const modal = document.getElementById('job-detail-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+};
 
 </script>
+
 <!-- アルバイト詳細モーダル -->
-<div id="job-detail-modal" class="modal" style="display:none;">
+<div id="job-detail-modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal('job-detail-modal')">&times;</span>
-        <h2 id="detail-job-title" style="margin-bottom:15px;"></h2>
-        <div style="line-height: 1.8;">
+        <span class="close" onclick="closeJobDetail()">&times;</span>
+        <h3 id="detail-job-title" style="margin-bottom:15px; font-size:1.1rem; border-bottom:2px solid #f0f0f0; padding-bottom:8px;"></h3>
+        <div style="line-height: 1.8; font-size: 0.95rem;">
             <p><strong>カテゴリ:</strong> <span id="detail-job-category"></span></p>
             <p><strong>雇用形態:</strong> <span id="detail-job-type"></span></p>
-            <p><strong>給与:</strong> <span id="detail-job-salary"></span></p>
+            <p><strong>給与:</strong> <span id="detail-job-salary" style="color:#e53935; font-weight:bold;"></span></p>
             <p><strong>勤務地:</strong> <span id="detail-job-area"></span></p>
             <p><strong>勤務時間:</strong> <span id="detail-job-time"></span></p>
             <p><strong>アクセス:</strong> <span id="detail-job-access"></span></p>
         </div>
-        <button onclick="closeModal('job-detail-modal')" style="margin-top:20px; padding:8px 16px; cursor:pointer;">閉じる</button>
+        <button onclick="closeJobDetail()" style="margin-top:20px; width:100%; padding:10px; background:#666; color:#fff; border:none; border-radius:6px; cursor:pointer;">閉じる</button>
     </div>
 </div>
 </body>
