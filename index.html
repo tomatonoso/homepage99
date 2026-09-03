@@ -2067,6 +2067,19 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     </div>
 
     <script>
+    // アルバイト投稿ボタンの処理（エラー回避用）
+window.checkAuthAndOpenJobPost = function() {
+    if (typeof openModal === 'function') {
+        if (typeof currentUser === 'undefined' || !currentUser) {
+            alert("アルバイトの投稿にはログイン・登録が必要です。");
+            openModal('buyer-auth-modal');
+            return;
+        }
+        openModal('job-post-modal');
+    } else {
+        alert("モーダル機能（openModal）が読み込まれていません。");
+    }
+};
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz48YuNqpsAtg7ZK3jElTnbaS6T4NrHvNLy6z5lx_GiOBIkkxXNCYqk7oQ913-yzsSN/exec";
         const defaultProducts = [
             { id: 1, name: "最新ワイヤレスイヤホン ノイズキャンセリング対応", price: 8900, category: "家電・スマホ・カメラ", shipping: "送料込み(出品者負担)", desc: "美品です。", seller: "テックショップ", image: "", recommend: true },
