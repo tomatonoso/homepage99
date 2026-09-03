@@ -1061,27 +1061,10 @@
         margin-bottom: 15px;
     }
 }
-// アルバイト投稿モーダルを開く関数
-window.checkAuthAndOpenJobPost = function() {
-    // もしログイン機能があればここでチェック（不要なら削除してOKです）
-    /* 
-    if (!currentUser) {
-        alert('アルバイトを投稿するにはログインが必要です。');
-        return;
-    }
-    */
-    
-    // モーダルを表示する処理（既存のopenModal関数を呼び出し）
-    openModal('job-post-modal');
-};
 
-// 投稿ボタンを押した時の処理
-window.submitJob = function(event) {
-    event.preventDefault(); // 画面の自動リロードを防ぐ
-    alert('アルバイト情報を投稿しました！');
-    closeModal('job-post-modal');
-};
-// アルバイト投稿ボタンを押した時の処理
+    </style>
+<script>
+// アルバイト投稿モーダルを開く関数
 window.checkAuthAndOpenJobPost = function() {
     // currentUserが未定義、またはログインしていない場合
     if (typeof currentUser === 'undefined' || !currentUser) {
@@ -1112,24 +1095,26 @@ let jobs = JSON.parse(localStorage.getItem('minatomo_jobs')) || [
     }
 ];
 
-// アルバイト一覧を表示する関数
+// 求人一覧を画面に描画する関数
 function renderJobs() {
     const container = document.getElementById('job-list-container');
     if (!container) return;
+
     if (jobs.length === 0) {
-        container.innerHTML = '<p style="color:#888; font-size:0.9rem; padding:10px;">現在募集中の求人はありません。</p>';
+        container.innerHTML = '<p style="color:#888; font-size:0.9rem; padding:10px;">現在掲載中の求人情報はありません。</p>';
         return;
     }
+
     container.innerHTML = jobs.map(job => `
         <div class="auction-card">
             <span class="auction-type-badge">${job.category || '求人'}</span>
-            <div class="auction-title">${job.title}</div>
-            <div class="auction-price">${job.salaryType} ${Number(job.salary).toLocaleString()}円</div>
+            <div class="auction-title">${job.title || ''}</div>
+            <div class="auction-price">${job.salaryType || ''} ${job.salary ? Number(job.salary).toLocaleString() + '円' : ''}</div>
             <div class="auction-desc">
-                <strong>雇用形態:</strong> ${job.type}<br>
-                <strong>勤務地:</strong> ${job.area}<br>
-                <strong>時間:</strong> ${job.time}<br>
-                <strong>アクセス:</strong> ${job.access}
+                <strong>雇用形態:</strong> ${job.type || ''}<br>
+                <strong>勤務地:</strong> ${job.area || ''}<br>
+                <strong>時間:</strong> ${job.time || ''}<br>
+                <strong>アクセス:</strong> ${job.access || ''}
             </div>
         </div>
     `).join('');
@@ -1139,50 +1124,33 @@ function renderJobs() {
 window.submitJob = function(event) {
     event.preventDefault();
 
-    // フォームから値を取得して新しい求人オブジェクトを作成
     const newJob = {
         id: Date.now(),
-        title: document.getElementById('job-title-input').value,
-        category: document.getElementById('job-category-input').value,
-        type: document.getElementById('job-type-input').value,
-        salaryType: document.getElementById('job-salary-type-input').value,
-        salary: document.getElementById('job-salary-input').value,
-        time: document.getElementById('job-time-input').value,
-        area: document.getElementById('job-area-input').value,
-        access: document.getElementById('job-access-input').value
+        title: document.getElementById('job-title-input')?.value || '',
+        category: document.getElementById('job-category-input')?.value || '',
+        type: document.getElementById('job-type-input')?.value || '',
+        salaryType: document.getElementById('job-salary-type-input')?.value || '',
+        salary: document.getElementById('job-salary-input')?.value || '',
+        time: document.getElementById('job-time-input')?.value || '',
+        area: document.getElementById('job-area-input')?.value || '',
+        access: document.getElementById('job-access-input')?.value || ''
     };
 
-    // 配列の先頭に追加して保存
     jobs.unshift(newJob);
     localStorage.setItem('minatomo_jobs', JSON.stringify(jobs));
 
-    // 画面の一覧を更新
     renderJobs();
-
     alert("アルバイト情報を投稿しました！");
+
     if (typeof closeModal === 'function') {
         closeModal('job-post-modal');
     }
     event.target.reset();
 };
-// 求人一覧を画面に描画する関数
-function renderJobs() {
-    const container = document.getElementById('job-list-container');
-    if (!container) return;
 
-    container.innerHTML = jobs.map(job => `
-        <div class="auction-card">
-            <span class="auction-type-badge">${job.type || ''} / ${job.category || ''}</span>
-            <div class="auction-title">${job.title || ''}</div>
-            <div class="auction-price">${job.salaryType || ''} ${Number(job.salary || 0).toLocaleString()}円</div>
-            <div class="auction-desc">
-                📍 勤務地: ${job.area || ''}<br>
-                ⏰ 勤務時間: ${job.time || ''}
-            </div>
-        </div>
-    `).join('');
-}
-    </style>
+// 画面読み込み時に初期描画を実行
+document.addEventListener('DOMContentLoaded', renderJobs);
+</script>
 
 
 <style id="ai-staff-new-styles">
