@@ -4184,10 +4184,17 @@ function openJobDetail(id) {
     document.getElementById('detail-job-area').innerText = job.area || '-';
     document.getElementById('detail-job-time').innerText = job.time || '-';
     document.getElementById('detail-job-access').innerText = job.access || '-';
+    
+    // ★ 詳細説明のセットを追加
+    const descElem = document.getElementById('detail-job-description');
+    if (descElem) {
+        descElem.innerText = job.description || '詳細説明はありません。';
+    }
 
-    // モーダルを表示
-    if (typeof openModal === 'function') {
-        openModal('job-detail-modal');
+    // ★ モーダルを画面中央に表示（flex）
+    const modal = document.getElementById('job-detail-modal');
+    if (modal) {
+        modal.style.display = 'flex';
     }
 }
 </script>
@@ -4251,11 +4258,10 @@ window.closeJobDetail = function() {
 
 
 <!-- アルバイト詳細モーダル -->
-<!-- アルバイト詳細モーダル -->
-<div id="job-detail-modal">
-    <div class="modal-content" style="max-height: 85vh; overflow-y: auto; position: relative;">
-        <span class="close" onclick="closeJobDetail()">&times;</span>
-        <h3 id="detail-job-title" style="margin-bottom:15px; font-size:1.1rem; border-bottom:2px solid #f0f0f0; padding-bottom:8px;"></h3>
+<div id="job-detail-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:10000; align-items:center; justify-content:center;">
+    <div class="modal-content" style="background:#fff; padding:20px; border-radius:10px; max-width:500px; width:90%; max-height:85vh; overflow-y:auto; position:relative; box-sizing:border-box; margin:auto;">
+        <span class="close" onclick="closeJobDetail()" style="position:absolute; right:15px; top:10px; font-size:24px; cursor:pointer; color:#888;">&times;</span>
+        <h3 id="detail-job-title" style="margin-bottom:15px; font-size:1.1rem; border-bottom:2px solid #f0f0f0; padding-bottom:8px; padding-right:25px;"></h3>
         <div style="line-height: 1.8; font-size: 0.95rem;">
             <p><strong>カテゴリ:</strong> <span id="detail-job-category"></span></p>
             <p><strong>雇用形態:</strong> <span id="detail-job-type"></span></p>
@@ -4316,7 +4322,7 @@ window.openApplyModal = function() {
     // 2. 応募モーダルを表示する
     const applyModal = document.getElementById('job-apply-modal');
     if (applyModal) {
-        applyModal.style.display = 'block';
+        applyModal.style.display = 'flex';
     } else {
         alert('応募モーダル（#job-apply-modal）が見つかりません。HTMLの配置を確認してください。');
     }
