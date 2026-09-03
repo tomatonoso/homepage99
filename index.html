@@ -4114,42 +4114,70 @@ function createChatDetailModal() {
 }
 
 function renderChatMessages(conv) {
-    const messagesDiv = document.getElementById('chat-messages');
+    const messagesDiv = document.getElementById('chat-messages') || document.getElementById('request-chat-messages');
     const titleDiv = document.getElementById('chat-detail-title');
     const productTitleDiv = document.getElementById('chat-product-title');
-    
-    titleDiv.textContent = conv.userName;
-    
-    if (conv.type === 'auction' && conv.productTitle) {
-        productTitleDiv.textContent = `商品: ${conv.productTitle}`;
-        productTitleDiv.style.display = 'block';
+
+    // 1. conv が undefined や配列で渡された場合の安全補正
+    if (!conv || typeof conv !== 'object') {
+        conv = { userName: 'チャット', messages: [] };
+    } else if (Array.isArray(conv)) {
+        conv = { userName: 'チャット', messages: conv };
     }
-    
-    let html = conv.messages.map(msg => `
-        <div class="message ${msg.own ? 'own' : ''}">
-            <div class="message-bubble">${msg.text}</div>
-        </div>
-    `).join('');
-    
-    // オークション落札者の場合、価格提示エリアを追加
+
+    // 2. タイトルの安全な表示
+    if (titleDiv) {
+        titleDiv.textContent = conv.userName || conv.posterName || conv.title || 'チャット';
+    }
+
+    // 3. 商品タイトルの表示制御
+    if (productTitleDiv) {
+        if (conv.type === 'auction' && conv.productTitle) {
+            productTitleDiv.textContent = `商品: ${conv.productTitle}`;
+            productTitleDiv.style.display = 'block';
+        } else {
+            productTitleDiv.style.display = 'none';
+        }
+    }
+
+    // 4. メッセージ一覧の生成
+    const messages = Array.isArray(conv.messages) ? conv.messages : (Array.isArray(conv.comments) ? conv.comments : []);
+    let html = '';
+
+    if (messages.length === 0) {
+        html = '<div style="text-align:center; color:#888; padding:15px;">メッセージはまだありません</div>';
+    } else {
+        html = messages.map(msg => {
+            if (!msg) return '';
+            const isOwn = msg.own || msg.isOwn || false;
+            const text = msg.text || msg.message || msg.content || msg.comment || '';
+            return `
+                <div class="message ${isOwn ? 'own' : ''}">
+                    <div class="message-bubble">${text}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 5. オークション価格情報
     if (conv.type === 'auction' && conv.currentPrice) {
+        const priceVal = typeof conv.currentPrice === 'number' ? conv.currentPrice.toLocaleString('ja-JP') : conv.currentPrice;
         html += `
             <div class="chat-price-info">
-                <div style="font-size: 0.8rem; color: var(--text-sub);">現在の価格提示</div>
-                <strong>¥${conv.currentPrice.toLocaleString('ja-JP')}</strong>
-                <button class="chat-payment-btn" onclick="openPaymentModal('${conv.id}')">
-                    支払い手続きへ
-                </button>
+                <div style="font-size: 0.8rem; color: var(--text-sub);">現在の価格</div>
+                <strong>¥${priceVal}</strong>
+                <button class="chat-payment-btn" onclick="openPaymentModal('${conv.id || ''}')">お支払い手続きへ</button>
             </div>
         `;
     }
-    
-    messagesDiv.innerHTML = html;
-    // 最下部にスクロール
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    // 6. 画面へ描画と最下部スクロール
+    if (messagesDiv) {
+        messagesDiv.innerHTML = html;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
 }
 
-// メッセージ送信関数（4152行目〜4169行目を置き換え）
 function sendChatMessage() {
     const input = document.getElementById('chat-input');
     if (!input) return;
@@ -4175,20 +4203,17 @@ function sendChatMessage() {
     renderChatMessages(conv);
 }
 
-// チャット詳細を閉じる関数（4171行目〜4175行目）
 function closeChatDetail() {
     const modal = document.getElementById('chat-detail-modal');
     if (modal) modal.style.display = 'none';
     currentChatId = null;
 }
 
-// パネル非表示関数（4177行目〜4179行目）
 function clearChatPanel() {
     const panel = document.getElementById('chat-panel');
     if (panel) panel.style.display = 'none';
 }
 
-// 未読バッジの更新関数（4181行目〜4189行目を置き換え）
 function updateChatBadge() {
     if (!Array.isArray(chatConversations)) return;
 
