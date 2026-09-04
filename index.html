@@ -1336,7 +1336,7 @@ function contactRealestate(phone, title) {
 }
 
 // --- アルバイト機能の処理 ---
-let jobs = JSON.parse(localStorage.getItem('minatomo_jobs')) || [];
+jobs = window.jobs || JSON.parse(localStorage.getItem('minatomo_jobs')) || [];
 
 window.renderJobs = function() {
     const container = document.getElementById('job-list-container') || document.getElementById('job-container');
