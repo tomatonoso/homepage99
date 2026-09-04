@@ -4695,6 +4695,24 @@ function submitPropertyForm(event) {
     console.log("不動産投稿データ:", propertyData);
     alert("物件の投稿データを出力しました（送信完了テスト）。");
 }
+// 不動産投稿ボタンを押した時の処理
+function checkAuthAndOpenRealestatePost() {
+    // マイページを開いて不動産出品タブを表示する処理
+    const targetBtn = document.querySelector("button[onclick*='mypage-tab-property']");
+    
+    if (targetBtn) {
+        // マイページの不動産出品タブをクリックして切り替え
+        targetBtn.click();
+        
+        // マイページ画面（モーダルやセクション）へスクロール/表示する処理があれば実行
+        const mypageElement = document.getElementById('mypage-tab-property');
+        if (mypageElement) {
+            mypageElement.scrollIntoView({ behavior: 'smooth' });
+        }
+    } else {
+        alert("マイページ内の不動産出品フォームを読み込めませんでした。");
+    }
+}
 </script>
 </body>
 </html>
