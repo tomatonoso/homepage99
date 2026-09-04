@@ -5105,7 +5105,7 @@ function submitPropertyForm(event) {
     alert("物件の投稿データを出力しました（送信完了テスト）。");
 }
 // 1. 不動産データの初期化（保存されたデータを読み込む）
-let realestates = JSON.parse(localStorage.getItem('minatomo_realestates')) || [];
+realestates = JSON.parse(localStorage.getItem('minatomo_realestates')) || [];
 
 // 2. 不動産一覧の描画（画面表示）処理
 function renderRealestates() {
