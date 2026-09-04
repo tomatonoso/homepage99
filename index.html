@@ -5279,5 +5279,151 @@ window.handleAdminLogin = function(event) {
     }
 };
 </script>
+<!-- 外部ライブラリ（QRコード生成 & Firebase） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+// --- Firebase初期化設定 (Firebaseコンソールで取得したご自身のキーに書き換えてください) ---
+const firebaseConfig = {
+    apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
+    authDomain: "yauwo-a9ba1.firebaseapp.com",
+    databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
+    projectId: "yauwo-a9ba1",
+    storageBucket: "yauwo-a9ba1.firebasestorage.app",
+    messagingSenderId: "574142452627",
+    appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
+
+let currentSessionId = '';
+
+// --- PC側: 顔認証QRコード生成 & スマホ認証のリアルタイム監視 ---
+function initPCFaceAuth() {
+    currentSessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
+    
+    // GitHub Pages上の mobile-auth.html へのURLを自動構成
+    const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+    const authUrl = `${baseUrl}/mobile-auth.html?session=${currentSessionId}`;
+
+    // QRコードの描画
+    const qrContainer = document.getElementById("admin-qrcode-area");
+    if (qrContainer) {
+        qrContainer.innerHTML = "";
+        new QRCode(qrContainer, { text: authUrl, width: 180, height: 180 });
+    }
+
+    // Firebaseへ初期セッション状態（待機中: PENDING）を作成
+    db.ref('sessions/' + currentSessionId).set({ status: 'PENDING' });
+
+    // スマホ側でステータスが「APPROVED」に変わるのをリアルタイム監視
+    db.ref('sessions/' + currentSessionId).on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.status === 'APPROVED') {
+            // 顔認証が成功したら入力フォーム（ステップ2）を表示
+            document.getElementById('admin-face-auth-step').style.display = 'none';
+            document.getElementById('admin-form-step').style.display = 'block';
+        }
+    });
+}
+
+// --- 登録済み管理者情報の取得 ---
+function getRegisteredAdmin() {
+    return JSON.parse(localStorage.getItem('minatomo_admin')) || null;
+}
+
+// --- 管理者モーダル起動処理 ---
+window.openAdminModal = function() {
+    const admin = getRegisteredAdmin();
+    const modalTitle = document.getElementById('admin-modal-title');
+    const modalDesc = document.getElementById('admin-modal-desc');
+    const submitBtn = document.getElementById('admin-submit-btn');
+    const adminForm = document.getElementById('admin-form-element');
+
+    // 顔認証QRコード生成 & 監視開始
+    initPCFaceAuth();
+
+    // 画面表示のリセット（ステップ1を表示、ステップ2を隠す）
+    document.getElementById('admin-face-auth-step').style.display = 'block';
+    document.getElementById('admin-form-step').style.display = 'none';
+
+    if (admin) {
+        // 【登録済みの場合】ログインモードへ変更
+        if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-user-shield" style="color: #e63946;"></i> 運営管理者 ログイン';
+        if (modalDesc) modalDesc.textContent = '登録済みの管理者情報でログインしてください。';
+        if (submitBtn) submitBtn.textContent = 'ログインする';
+        if (adminForm) adminForm.onsubmit = handleAdminLogin;
+    } else {
+        // 【未登録の場合】新規登録モード（1人目のみ）
+        if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-user-shield" style="color: #28a745;"></i> 運営管理者 新規登録';
+        if (modalDesc) modalDesc.innerHTML = 'プラットフォームの運営管理者は**1人のみ**登録可能です。';
+        if (submitBtn) submitBtn.textContent = '運営管理者として登録する';
+        if (adminForm) adminForm.onsubmit = handleAdminSignup;
+    }
+
+    const modal = document.getElementById('admin-signup-modal');
+    if (modal) modal.style.display = 'flex';
+};
+
+// --- 【新規登録処理】1人目のみ保存可能 ---
+window.handleAdminSignup = function(event) {
+    event.preventDefault();
+
+    if (getRegisteredAdmin()) {
+        alert("エラー: 運営管理者はすでに登録されています。2人目以降の登録はできません。");
+        return;
+    }
+
+    const adminData = {
+        email: document.getElementById('signup-admin-email').value.trim(),
+        pass1: document.getElementById('signup-admin-pass1').value,
+        pass2: document.getElementById('signup-admin-pass2').value,
+        security: document.getElementById('signup-admin-security').value.trim(),
+        registeredAt: new Date().toLocaleString('ja-JP')
+    };
+
+    localStorage.setItem('minatomo_admin', JSON.stringify(adminData));
+    sessionStorage.setItem('minatomo_admin_logged_in', 'true');
+
+    alert("運営管理者情報の登録が完了しました！\n次回からはこの情報でログインを行います。");
+    closeModal('admin-signup-modal');
+    location.reload();
+};
+
+// --- 【ログイン処理】保存された管理者データとの照合 ---
+window.handleAdminLogin = function(event) {
+    event.preventDefault();
+
+    const admin = getRegisteredAdmin();
+    if (!admin) {
+        alert("エラー: 管理者情報が見つかりません。");
+        return;
+    }
+
+    const inputEmail = document.getElementById('signup-admin-email').value.trim();
+    const inputPass1 = document.getElementById('signup-admin-pass1').value;
+    const inputPass2 = document.getElementById('signup-admin-pass2').value;
+    const inputSecurity = document.getElementById('signup-admin-security').value.trim();
+
+    if (
+        inputEmail === admin.email &&
+        inputPass1 === admin.pass1 &&
+        inputPass2 === admin.pass2 &&
+        inputSecurity === admin.security
+    ) {
+        sessionStorage.setItem('minatomo_admin_logged_in', 'true');
+        alert("認証成功！ 運営管理画面を開きます。");
+        closeModal('admin-signup-modal');
+        location.reload();
+    } else {
+        alert("認証エラー: 入力された情報が登録データと一致しません。");
+    }
+};
+</script>
 </body>
 </html>
