@@ -1289,14 +1289,105 @@ function openRealestateDetail(id) {
                 <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">取扱い会社</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.companyName} (${item.companyPhone})</td></tr>
             </table>
 
-            ${item.comment ? `
+          ${item.comment ? `
                 <div style="margin-bottom:15px;">
                     <h4 style="margin:0 0 5px 0; font-size:0.95rem; color:#444;">物件説明・コメント</h4>
                     <p style="font-size:0.85rem; background:#f9f9f9; padding:10px; border-radius:6px; color:#333; margin:0; line-height:1.5;">${item.comment}</p>
                 </div>
             ` : ''}
 
-            <button onclick="contactRealestate('${item.companyPhone}', '${item.title}')" style="width:100%; padding:12px; background:var(--brand-red, #e6
+            <button onclick="contactRealestate('${item.companyPhone || ''}', '${item.title || ''}')" style="width:100%; padding:12px; background:var(--brand-red, #e63946); color:#fff; border:none; border-radius:8px; font-weight:bold; font-size:1rem; cursor:pointer;">
+                📞 お問合せをする
+            </button>
+        `;
+        modal.style.display = 'flex';
+    }
+}
+
+// 不動産詳細モーダルを閉じる
+function closeRealestateDetail() {
+    const modal = document.getElementById('realestate-detail-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+// 不動産保存切り替え
+function toggleSaveRealestate(id) {
+    const index = savedRealestates.indexOf(id);
+    if (index > -1) {
+        savedRealestates.splice(index, 1);
+        alert("保存を解除しました。");
+    } else {
+        savedRealestates.push(id);
+        alert("物件を保存しました！");
+    }
+    localStorage.setItem('minatomo_saved_realestates', JSON.stringify(savedRealestates));
+    renderRealestates();
+}
+
+// 不動産お問合せ
+function contactRealestate(phone, title) {
+    if (phone) {
+        if (confirm(`「${title}」の取扱い会社へ問い合わせます。\n電話番号: ${phone}\n\n発信しますか？`)) {
+            window.location.href = `tel:${phone}`;
+        }
+    } else {
+        alert(`「${title}」へのお問合せを受け付けました。`);
+    }
+}
+
+// --- アルバイト機能の処理 ---
+let jobs = JSON.parse(localStorage.getItem('minatomo_jobs')) || [];
+
+window.renderJobs = function() {
+    const container = document.getElementById('job-list-container') || document.getElementById('job-container');
+    if (!container) return;
+
+    if (jobs.length === 0) {
+        container.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">投稿されたアルバイト情報はまだありません。</p>';
+        return;
+    }
+
+    container.innerHTML = jobs.map(job => `
+        <div style="border:1px solid #eee; border-radius:8px; padding:12px; margin-bottom:10px; background:#fff;">
+            <h4 style="margin:0 0 6px 0; font-size:1rem;">${job.title || ''}</h4>
+            <div style="color:var(--brand-red, #e63946); font-weight:bold; font-size:0.95rem;">
+                ${job.salaryType || ''} ${job.salary ? Number(job.salary).toLocaleString() + '円' : ''}
+            </div>
+            <div style="font-size:0.8rem; color:#666; margin-top:4px;">
+                📍 ${job.area || 'エリア未指定'} | ⏰ ${job.time || '時間未指定'}
+            </div>
+        </div>
+    `).join('');
+};
+
+window.submitJob = function(event) {
+    event.preventDefault();
+
+    const newJob = {
+        id: Date.now(),
+        title: document.getElementById('job-title-input')?.value || '',
+        category: document.getElementById('job-category-input')?.value || '',
+        type: document.getElementById('job-type-input')?.value || '',
+        salaryType: document.getElementById('job-salary-type-input')?.value || '',
+        salary: document.getElementById('job-salary-input')?.value || '',
+        time: document.getElementById('job-time-input')?.value || '',
+        area: document.getElementById('job-area-input')?.value || '',
+        access: document.getElementById('job-access-input')?.value || ''
+    };
+
+    jobs.unshift(newJob);
+    localStorage.setItem('minatomo_jobs', JSON.stringify(jobs));
+
+    renderJobs();
+    alert("アルバイト情報を投稿しました！");
+
+    if (typeof closeModal === 'function') {
+        closeModal('job-post-modal');
+    }
+    if (event.target && typeof event.target.reset === 'function') {
+        event.target.reset();
+    }
+};
 </script>
 
 <style id="ai-staff-new-styles">
