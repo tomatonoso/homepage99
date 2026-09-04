@@ -4713,6 +4713,76 @@ function submitPropertyForm(event) {
     console.log("不動産投稿データ:", propertyData);
     alert("物件の投稿データを出力しました（送信完了テスト）。");
 }
+// 1. 不動産データの初期化（保存されたデータを読み込む）
+let realestates = JSON.parse(localStorage.getItem('minatomo_realestates')) || [];
+
+// 2. 不動産一覧の描画（画面表示）処理
+function renderRealestates() {
+    const container = document.getElementById('realestate-list-container');
+    if (!container) return;
+
+    if (realestates.length === 0) {
+        container.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">投稿された不動産物件はまだありません。</p>';
+        return;
+    }
+
+    container.innerHTML = realestates.map(item => `
+        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:bold;">${item.type}</span>
+                <span style="font-size:0.85rem; color:#666;">${item.transactionType}</span>
+            </div>
+            <h4 style="margin:0 0 8px 0; font-size:1.1rem; color:#333;">${item.title} ${item.roomNumber ? '(' + item.roomNumber + ')' : ''}</h4>
+            <div style="font-size:1.2rem; font-weight:bold; color:var(--brand-red, #e63946); margin-bottom:10px;">
+                ${Number(item.price).toLocaleString()} 円 ${item.adminFee ? '<span style="font-size:0.85rem; color:#666; font-weight:normal;">(管理費: ' + Number(item.adminFee).toLocaleString() + '円)</span>' : ''}
+            </div>
+            <div style="font-size:0.85rem; color:#555; line-height:1.6;">
+                <div>📍 <strong>所在地:</strong> ${item.address}</div>
+                ${item.access ? `<div>🚶 <strong>交通:</strong> ${item.access}</div>` : ''}
+                <div>📐 <strong>間取り / 面積:</strong> ${item.layout} / ${item.area}㎡ (${item.structure})</div>
+                ${item.companyName ? `<div style="margin-top:6px; color:#777; font-size:0.8rem;">🏢 ${item.companyName} (${item.companyPhone})</div>` : ''}
+            </div>
+            ${item.comment ? `<p style="font-size:0.85rem; background:#f9f9f9; padding:8px; border-radius:4px; margin-top:10px; color:#444;">${item.comment}</p>` : ''}
+        </div>
+    `).join('');
+}
+
+// 3. フォーム送信（投稿）処理の追加
+window.submitPropertyForm = function(event) {
+    event.preventDefault(); // リロードを防止
+
+    // 入力値を取得して新規物件オブジェクトを作成
+    const newProperty = {
+        id: Date.now(),
+        companyName: document.getElementById('p-company-name')?.value || '',
+        companyPhone: document.getElementById('p-company-phone')?.value || '',
+        posterName: document.getElementById('p-poster-name')?.value || '',
+        transactionType: document.getElementById('p-transaction-type')?.value || '',
+        type: document.getElementById('p-type')?.value || '',
+        title: document.getElementById('p-title')?.value || '',
+        roomNumber: document.getElementById('p-room-number')?.value || '',
+        address: document.getElementById('p-address')?.value || '',
+        access: document.getElementById('p-access')?.value || '',
+        price: document.getElementById('p-price')?.value || '',
+        adminFee: document.getElementById('p-admin-fee')?.value || '',
+        layout: document.getElementById('p-layout')?.value || '',
+        area: document.getElementById('p-area')?.value || '',
+        structure: document.getElementById('p-structure')?.value || '',
+        comment: document.getElementById('p-comment')?.value || ''
+    };
+
+    // 配列の先頭に追加
+    realestates.unshift(newProperty);
+
+    // localStorage に保存
+    localStorage.setItem('minatomo_realestates', JSON.stringify(realestates));
+
+    // 画面の一覧表示を再描画
+    renderRealestates();
+
+    alert("不動産物件を投稿しました！");
+    event.target.reset(); // フォームをリセット
+};
 </script>
 </body>
 </html>
