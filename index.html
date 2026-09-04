@@ -1472,6 +1472,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         投稿したアルバイト
         <span id="job-notice-badge" class="notice-badge" style="display: none;">0</span>
     </button>
+    <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-property', this)">不動産出品</button>
 </div>
 
             <div id="mypage-tab-chats" class="admin-tab-content active">
@@ -1558,8 +1559,225 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         <p style="color:#888;">読み込み中...</p>
     </div>
 </div>
-        </div>
+
+<!-- ★ここから追加（1561行目の</div>の直下） -->
+<div id="mypage-tab-property" class="admin-tab-content">
+    <div style="background: #f8d7da; color: #721c24; padding: 12px 15px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; font-size: 0.95rem; border: 1px solid #f5c6cb; text-align: center;">
+        ⚠️ ※一般の方はご利用いただけません（宅地建物取引業者・事業者専用の投稿フォームです）
     </div>
+
+    <h3 style="margin-top:0; border-bottom:2px solid var(--brand-red, #e63946); padding-bottom:10px;">
+        <i class="fa-solid fa-building" style="color:var(--brand-red, #e63946); margin-right:8px;"></i>不動産物件の新規投稿
+    </h3>
+
+    <form id="property-form" onsubmit="submitPropertyForm(event)">
+        
+        <!-- 【1】会社情報・投稿者情報 -->
+        <fieldset style="border:1px solid #ddd; border-radius:6px; padding:15px; margin-bottom:20px; background:#fbfbfb;">
+            <legend style="font-weight:bold; color:var(--brand-red, #e63946); padding:0 5px;">1. 会社情報・担当者情報</legend>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">会社名・屋号 <span style="color:red;">*</span></label>
+                    <input type="text" id="p-company-name" class="form-control" required placeholder="例: 〇〇不動産株式会社" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">会社の電話番号 <span style="color:red;">*</span></label>
+                    <input type="tel" id="p-company-phone" class="form-control" required placeholder="例: 03-1234-5678" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">投稿者氏名（担当者名） <span style="color:red;">*</span></label>
+                    <input type="text" id="p-poster-name" class="form-control" required placeholder="例: 山田 太郎" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">取引態様 <span style="color:red;">*</span></label>
+                    <select id="p-transaction-type" class="form-control" required style="width:100%; padding:8px; margin-top:4px;">
+                        <option value="">選択してください</option>
+                        <option value="貸主">貸主（自主管理）</option>
+                        <option value="売主">売主</option>
+                        <option value="仲介">仲介（媒介）</option>
+                        <option value="代理">代理</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label style="font-size:0.85rem; font-weight:bold;">会社の所在地</label>
+                <input type="text" id="p-company-address" class="form-control" placeholder="例: 東京都新宿区西新宿1-1-1" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+            </div>
+        </fieldset>
+
+        <!-- 【2】物件の基本情報 -->
+        <fieldset style="border:1px solid #ddd; border-radius:6px; padding:15px; margin-bottom:20px;">
+            <legend style="font-weight:bold; color:var(--brand-red, #e63946); padding:0 5px;">2. 物件基本情報</legend>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">物件種別 <span style="color:red;">*</span></label>
+                    <select id="p-type" class="form-control" required style="width:100%; padding:8px; margin-top:4px;">
+                        <option value="">選択してください</option>
+                        <option value="賃貸マンション">賃貸マンション</option>
+                        <option value="賃貸アパート">賃貸アパート</option>
+                        <option value="賃貸一戸建て">賃貸一戸建て</option>
+                        <option value="売買マンション">売買マンション</option>
+                        <option value="売買一戸建て">売買一戸建て</option>
+                        <option value="土地">土地</option>
+                        <option value="店舗・事務所">店舗・事務所</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">物件名 <span style="color:red;">*</span></label>
+                    <input type="text" id="p-title" class="form-control" required placeholder="例: ハイツ東京" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">部屋番号</label>
+                    <input type="text" id="p-room-number" class="form-control" placeholder="例: 201号室" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">所在地 <span style="color:red;">*</span></label>
+                    <input type="text" id="p-address" class="form-control" required placeholder="例: 東京都新宿区..." style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+            </div>
+            <div>
+                <label style="font-size:0.85rem; font-weight:bold;">交通アクセス</label>
+                <input type="text" id="p-access" class="form-control" placeholder="例: JR山手線 新宿駅 徒歩5分" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+            </div>
+        </fieldset>
+
+        <!-- 【3】賃料・費用情報 -->
+        <fieldset style="border:1px solid #ddd; border-radius:6px; padding:15px; margin-bottom:20px;">
+            <legend style="font-weight:bold; color:var(--brand-red, #e63946); padding:0 5px;">3. 賃料・費用</legend>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">賃料 / 価格 (円) <span style="color:red;">*</span></label>
+                    <input type="number" id="p-price" class="form-control" required placeholder="例: 85000" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">管理費・共益費 (円)</label>
+                    <input type="number" id="p-admin-fee" class="form-control" placeholder="例: 5000" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">敷金</label>
+                    <input type="text" id="p-deposit" class="form-control" placeholder="例: 1ヶ月 / なし" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">礼金</label>
+                    <input type="text" id="p-key-money" class="form-control" placeholder="例: 1ヶ月 / なし" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">保証金</label>
+                    <input type="text" id="p-guarantee-money" class="form-control" placeholder="例: なし" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">権利金</label>
+                    <input type="text" id="p-premium-money" class="form-control" placeholder="例: なし" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- 【4】建物詳細・設備・画像 -->
+        <fieldset style="border:1px solid #ddd; border-radius:6px; padding:15px; margin-bottom:20px;">
+            <legend style="font-weight:bold; color:var(--brand-red, #e63946); padding:0 5px;">4. 建物詳細・設備・画像</legend>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">間取り <span style="color:red;">*</span></label>
+                    <input type="text" id="p-layout" class="form-control" required placeholder="例: 1LDK" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">専有面積 (㎡) <span style="color:red;">*</span></label>
+                    <input type="number" step="0.01" id="p-area" class="form-control" required placeholder="例: 35.5" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">建物構造（選択式） <span style="color:red;">*</span></label>
+                    <select id="p-structure" class="form-control" required style="width:100%; padding:8px; margin-top:4px;">
+                        <option value="">選択してください</option>
+                        <option value="RC（鉄筋コンクリート）">RC（鉄筋コンクリート）</option>
+                        <option value="SRC（鉄骨鉄筋コンクリート）">SRC（鉄骨鉄筋コンクリート）</option>
+                        <option value="鉄骨造">鉄骨造</option>
+                        <option value="木造">木造</option>
+                        <option value="軽量鉄骨">軽量鉄骨</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">階数（所在階 / 総階数）</label>
+                    <div style="display:flex; gap:5px; margin-top:4px;">
+                        <input type="text" id="p-floor-current" class="form-control" placeholder="所在階 (例: 3階)" style="width:50%; padding:8px;">
+                        <input type="text" id="p-floor-total" class="form-control" placeholder="総階数 (例: 10階建)" style="width:50%; padding:8px;">
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:bold;">築年月</label>
+                    <input type="month" id="p-built-date" class="form-control" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;">
+                </div>
+            </div>
+
+            <hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;">
+
+            <!-- 設備情報 -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                <div>
+                    <label style="font-size:0.85rem;">水回り</label>
+                    <input type="text" id="p-water" class="form-control" placeholder="バス・トイレ別、温水洗浄便座" style="width:100%; padding:6px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem;">キッチン</label>
+                    <input type="text" id="p-kitchen" class="form-control" placeholder="システムキッチン、IH2口" style="width:100%; padding:6px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem;">セキュリティ</label>
+                    <input type="text" id="p-security" class="form-control" placeholder="オートロック、防犯カメラ" style="width:100%; padding:6px; margin-top:4px; box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem;">冷暖房</label>
+                    <input type="text" id="p-aircon" class="form-control" placeholder="エアコン1台完備" style="width:100%; padding:6px; margin-top:4px; box-sizing:border-box;">
+                </div>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:0.85rem;">その他設備・条件・特徴</label>
+                <input type="text" id="p-conditions" class="form-control" placeholder="宅配ボックス、ペット相談可、角部屋" style="width:100%; padding:6px; margin-top:4px; box-sizing:border-box;">
+            </div>
+
+            <!-- 画像・図面・コメント -->
+            <div style="margin-bottom:12px;">
+                <label style="font-size:0.85rem; font-weight:bold;">間取り図面画像</label>
+                <input type="file" id="p-plan-image" class="form-control" accept="image/*" style="display:block; margin-top:4px;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:0.85rem; font-weight:bold;">物件写真（複数選択可）</label>
+                <input type="file" id="p-photos" class="form-control" accept="image/*" multiple style="display:block; margin-top:4px;">
+            </div>
+            <div>
+                <label style="font-size:0.85rem; font-weight:bold;">物件コメント・詳細説明</label>
+                <textarea id="p-comment" class="form-control" rows="3" placeholder="アピールポイントや周辺環境について記入" style="width:100%; padding:8px; margin-top:4px; box-sizing:border-box;"></textarea>
+            </div>
+        </fieldset>
+
+        <!-- 【5】許認可・資格情報の確認 -->
+        <fieldset style="border:1px solid #ddd; border-radius:6px; padding:15px; margin-bottom:20px; background:#f9f9f9;">
+            <legend style="font-weight:bold; color:var(--brand-red, #e63946); padding:0 5px;">5. 許認可・資格情報</legend>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:0.85rem;">宅地建物取引業 免許証番号</label>
+                <input type="text" id="p-license-no" class="form-control" placeholder="例: 東京都知事 (1) 第123456号" style="width:100%; padding:6px; margin-top:4px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:0.85rem;">宅地建物取引士 氏名・登録番号</label>
+                <input type="text" id="p-agent-info" class="form-control" placeholder="例: 山田太郎 / (東京) 第654321号" style="width:100%; padding:6px; margin-top:4px; box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="font-size:0.85rem; font-weight:bold;">営業許可証 / 免許証の画像提示 (確認用)</label>
+                <input type="file" id="p-license-image" class="form-control" accept="image/*,application/pdf" style="display:block; margin-top:4px;">
+            </div>
+        </fieldset>
+
+        <button type="submit" class="btn-red-sm" style="width:100%; padding:14px; font-size:1.1rem; font-weight:bold; cursor:pointer;">
+            不動産物件を投稿する
+        </button>
+    </form>
+</div>
+<!-- ★ここまで追加 -->
+
+</div>
+</div>
 
 
     <!-- オークション投稿形式選択 -->
@@ -4431,6 +4649,52 @@ window.submitApplication = function(event) {
         event.target.reset();
     }
 };
+function submitPropertyForm(event) {
+    event.preventDefault();
+
+    const propertyData = {
+        company: {
+            name: document.getElementById('p-company-name').value,
+            phone: document.getElementById('p-company-phone').value,
+            posterName: document.getElementById('p-poster-name').value,
+            address: document.getElementById('p-company-address').value,
+            transactionType: document.getElementById('p-transaction-type').value,
+            licenseNo: document.getElementById('p-license-no').value,
+            agentInfo: document.getElementById('p-agent-info').value
+        },
+        type: document.getElementById('p-type').value,
+        title: document.getElementById('p-title').value,
+        roomNumber: document.getElementById('p-room-number').value,
+        address: document.getElementById('p-address').value,
+        access: document.getElementById('p-access').value,
+        price: Number(document.getElementById('p-price').value),
+        adminFee: Number(document.getElementById('p-admin-fee').value) || 0,
+        deposit: document.getElementById('p-deposit').value,
+        keyMoney: document.getElementById('p-key-money').value,
+        guaranteeMoney: document.getElementById('p-guarantee-money').value,
+        premiumMoney: document.getElementById('p-premium-money').value,
+        layout: document.getElementById('p-layout').value,
+        area: Number(document.getElementById('p-area').value),
+        structure: document.getElementById('p-structure').value,
+        floors: {
+            current: document.getElementById('p-floor-current').value,
+            total: document.getElementById('p-floor-total').value
+        },
+        builtDate: document.getElementById('p-built-date').value,
+        facilities: {
+            water: document.getElementById('p-water').value,
+            kitchen: document.getElementById('p-kitchen').value,
+            security: document.getElementById('p-security').value,
+            aircon: document.getElementById('p-aircon').value
+        },
+        conditions: document.getElementById('p-conditions').value,
+        comment: document.getElementById('p-comment').value,
+        createdAt: new Date()
+    };
+
+    console.log("不動産投稿データ:", propertyData);
+    alert("物件の投稿データを出力しました（送信完了テスト）。");
+}
 </script>
 </body>
 </html>
