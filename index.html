@@ -5303,33 +5303,36 @@ const db = firebase.database();
 
 let currentSessionId = '';
 
-// --- PC側: 顔認証QRコード生成 & スマホ認証のリアルタイム監視 ---
+// --- PC側: 顔認証QRコード生成 & 監視 ---
 function initPCFaceAuth() {
-    currentSessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
+    const currentSessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
     
-    // GitHub Pages上の mobile-auth.html へのURLを自動構成
+    // mobile-auth.html へのURLを生成
     const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
     const authUrl = `${baseUrl}/mobile-auth.html?session=${currentSessionId}`;
 
-    // QRコードの描画
+    // ① QRコードを確実に描画（画像APIを使用）
     const qrContainer = document.getElementById("admin-qrcode-area");
     if (qrContainer) {
-        qrContainer.innerHTML = "";
-        new QRCode(qrContainer, { text: authUrl, width: 180, height: 180 });
+        const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(authUrl)}`;
+        qrContainer.innerHTML = `<img src="${qrImgUrl}" alt="QRコード" style="width:180px; height:180px; border:1px solid #ddd; padding:8px; background:#fff; border-radius:8px;">`;
     }
 
-    // Firebaseへ初期セッション状態（待機中: PENDING）を作成
-    db.ref('sessions/' + currentSessionId).set({ status: 'PENDING' });
-
-    // スマホ側でステータスが「APPROVED」に変わるのをリアルタイム監視
-    db.ref('sessions/' + currentSessionId).on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.status === 'APPROVED') {
-            // 顔認証が成功したら入力フォーム（ステップ2）を表示
-            document.getElementById('admin-face-auth-step').style.display = 'none';
-            document.getElementById('admin-form-step').style.display = 'block';
+    // ② Firebaseリアルタイム監視
+    try {
+        if (typeof db !== 'undefined' && db) {
+            db.ref('sessions/' + currentSessionId).set({ status: 'PENDING' });
+            db.ref('sessions/' + currentSessionId).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.status === 'APPROVED') {
+                    document.getElementById('admin-face-auth-step').style.display = 'none';
+                    document.getElementById('admin-form-step').style.display = 'block';
+                }
+            });
         }
-    });
+    } catch (err) {
+        console.error("Firebase通信エラー:", err);
+    }
 }
 
 // --- 登録済み管理者情報の取得 ---
