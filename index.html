@@ -1175,13 +1175,32 @@ window.submitJob = function(event) {
     if (typeof closeModal === 'function') {
         closeModal('job-post-modal');
     }
-    event.target.reset();
+  event.target.reset();
+};
+
+// ★ここに追加（<script> の内側）
+window.checkAuthAndOpenRealestatePost = function() {
+    const targetBtn = document.querySelector("button[onclick*='mypage-tab-property']");
+    if (targetBtn) {
+        targetBtn.click();
+        const mypageElement = document.getElementById('mypage-tab-property');
+        if (mypageElement) {
+            mypageElement.scrollIntoView({ behavior: 'smooth' });
+        }
+    } else {
+        alert("マイページ内の不動産出品フォームを読み込めませんでした。");
+    }
+};
+
+window.submitPropertyForm = function(event) {
+    event.preventDefault();
+    const title = document.getElementById('p-title') ? document.getElementById('p-title').value : '';
+    alert("「" + title + "」の投稿処理を実行しました。");
 };
 
 // 画面読み込み時に初期描画を実行
 document.addEventListener('DOMContentLoaded', renderJobs);
 </script>
-
 
 <style id="ai-staff-new-styles">
 .ai-staff-menu-item{
@@ -4695,24 +4714,6 @@ function submitPropertyForm(event) {
     console.log("不動産投稿データ:", propertyData);
     alert("物件の投稿データを出力しました（送信完了テスト）。");
 }
-// 不動産投稿ボタンを押した時の処理
-window.checkAuthAndOpenRealestatePost = function() {
-    // マイページを開いて不動産出品タブを表示する処理
-    const targetBtn = document.querySelector("button[onclick*='mypage-tab-property']");
-    
-    if (targetBtn) {
-        // マイページの不動産出品タブをクリックして切り替え
-        targetBtn.click();
-        
-        // マイページ画面へスクロール/表示する処理
-        const mypageElement = document.getElementById('mypage-tab-property');
-        if (mypageElement) {
-            mypageElement.scrollIntoView({ behavior: 'smooth' });
-        }
-    } else {
-        alert("マイページ内の不動産出品フォームを読み込めませんでした。");
-    }
-};
 </script>
 </body>
 </html>
