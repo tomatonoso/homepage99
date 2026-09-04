@@ -1336,8 +1336,11 @@ function contactRealestate(phone, title) {
 }
 
 // --- アルバイト機能の処理 ---
+// --- アルバイト機能の処理 ---
 jobs = window.jobs || JSON.parse(localStorage.getItem('minatomo_jobs')) || [];
+let savedJobs = JSON.parse(localStorage.getItem('minatomo_saved_jobs')) || [];
 
+// アルバイト一覧の描画
 window.renderJobs = function() {
     const container = document.getElementById('job-list-container') || document.getElementById('job-container');
     if (!container) return;
@@ -1347,19 +1350,102 @@ window.renderJobs = function() {
         return;
     }
 
-    container.innerHTML = jobs.map(job => `
-        <div style="border:1px solid #eee; border-radius:8px; padding:12px; margin-bottom:10px; background:#fff;">
-            <h4 style="margin:0 0 6px 0; font-size:1rem;">${job.title || ''}</h4>
-            <div style="color:var(--brand-red, #e63946); font-weight:bold; font-size:0.95rem;">
-                ${job.salaryType || ''} ${job.salary ? Number(job.salary).toLocaleString() + '円' : ''}
+    container.innerHTML = jobs.map(job => {
+        const isSaved = savedJobs.includes(job.id);
+        return `
+        <div onclick="openJobDetail(${job.id})" style="border:1px solid #e0e0e0; border-radius:12px; padding:16px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.05); cursor:pointer; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:bold;">${job.type || 'アルバイト'}</span>
+                <span style="font-size:0.85rem; color:#666;">${job.category || ''}</span>
             </div>
-            <div style="font-size:0.8rem; color:#666; margin-top:4px;">
+            <h4 style="margin:0 0 8px 0; font-size:1.1rem; color:#333;">${job.title || ''}</h4>
+            <div style="font-size:1.2rem; font-weight:bold; color:var(--brand-red, #e63946); margin-bottom:10px;">
+                ${job.salaryType || '時給'} ${job.salary ? Number(job.salary).toLocaleString() + '円' : ''}
+            </div>
+            <div style="font-size:0.85rem; color:#555; line-height:1.5; margin-bottom:12px;">
                 📍 ${job.area || 'エリア未指定'} | ⏰ ${job.time || '時間未指定'}
             </div>
+            <div style="display:flex; gap:8px; border-top:1px solid #f0f0f0; padding-top:10px; margin-top:8px;" onclick="event.stopPropagation();">
+                <button onclick="toggleSaveJob(${job.id})" style="flex:1; padding:6px 10px; border:1px solid ${isSaved ? '#e63946' : '#ccc'}; background:${isSaved ? '#fff0f3' : '#fff'}; color:${isSaved ? '#e63946' : '#555'}; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.8rem;">
+                    <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bookmark"></i> ${isSaved ? '保存済み' : '保存'}
+                </button>
+                <button onclick="applyJob(${job.id})" style="flex:2; padding:6px 10px; border:none; background:var(--brand-red, #e63946); color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.8rem;">
+                    応募する
+                </button>
+            </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 };
 
+// アルバイト詳細モーダルを開く
+window.openJobDetail = function(id) {
+    const job = jobs.find(j => j.id === id);
+    if (!job) return;
+    
+    const modal = document.getElementById('job-detail-modal') || document.getElementById('job-modal');
+    const content = document.getElementById('job-detail-content') || document.getElementById('job-modal-content');
+    
+    if (modal && content) {
+        const isSaved = savedJobs.includes(job.id);
+        content.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.8rem; padding:4px 10px; border-radius:4px; font-weight:bold;">${job.type || 'アルバイト'}</span>
+                <button onclick="closeJobDetail()" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <h2 style="margin:0 0 10px 0; font-size:1.3rem;">${job.title || ''}</h2>
+            <div style="font-size:1.4rem; font-weight:bold; color:var(--brand-red, #e63946); margin-bottom:15px;">
+                ${job.salaryType || '時給'} ${job.salary ? Number(job.salary).toLocaleString() + '円' : ''}
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:15px;">
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9; width:30%;">勤務地</th><td style="padding:8px; border-bottom:1px solid #eee;">${job.area || '未指定'}</td></tr>
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">勤務時間</th><td style="padding:8px; border-bottom:1px solid #eee;">${job.time || '未指定'}</td></tr>
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">アクセス</th><td style="padding:8px; border-bottom:1px solid #eee;">${job.access || '未指定'}</td></tr>
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">職種</th><td style="padding:8px; border-bottom:1px solid #eee;">${job.category || '未指定'}</td></tr>
+            </table>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="toggleSaveJob(${job.id})" style="flex:1; padding:12px; border:1px solid ${isSaved ? '#e63946' : '#ccc'}; background:${isSaved ? '#fff0f3' : '#fff'}; color:${isSaved ? '#e63946' : '#555'}; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    ${isSaved ? '保存済み' : '保存する'}
+                </button>
+                <button onclick="applyJob(${job.id})" style="flex:2; padding:12px; background:var(--brand-red, #e63946); color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    Web応募する
+                </button>
+            </div>
+        `;
+        modal.style.display = 'flex';
+    } else {
+        alert(`【${job.title}】\n給与: ${job.salaryType || '時給'} ${job.salary}円\n勤務地: ${job.area || ''}\n時間: ${job.time || ''}`);
+    }
+};
+
+// アルバイト詳細モーダルを閉じる
+window.closeJobDetail = function() {
+    const modal = document.getElementById('job-detail-modal') || document.getElementById('job-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+// アルバイト保存・解除
+window.toggleSaveJob = function(id) {
+    const index = savedJobs.indexOf(id);
+    if (index > -1) {
+        savedJobs.splice(index, 1);
+        alert("保存を解除しました。");
+    } else {
+        savedJobs.push(id);
+        alert("アルバイト情報を保存しました！");
+    }
+    localStorage.setItem('minatomo_saved_jobs', JSON.stringify(savedJobs));
+    renderJobs();
+};
+
+// アルバイト応募
+window.applyJob = function(id) {
+    const job = jobs.find(j => j.id === id);
+    const title = job ? job.title : '';
+    alert(`「${title}」への応募を受け付けました！\n担当者からの連絡をお待ちください。`);
+};
+
+// 新規投稿処理
 window.submitJob = function(event) {
     event.preventDefault();
 
