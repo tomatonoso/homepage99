@@ -1178,31 +1178,125 @@ window.submitJob = function(event) {
   event.target.reset();
 };
 
-// ★ここに追加（<script> の内側）
-window.checkAuthAndOpenRealestatePost = function() {
-    const targetBtn = document.querySelector("button[onclick*='mypage-tab-property']");
-    if (targetBtn) {
-        targetBtn.click();
-        const mypageElement = document.getElementById('mypage-tab-property');
-        if (mypageElement) {
-            mypageElement.scrollIntoView({ behavior: 'smooth' });
-        }
-    } else {
-        alert("マイページ内の不動産出品フォームを読み込めませんでした。");
-    }
-};
+// 1. 不動産データおよび保存済みリストの初期化
+let realestates = JSON.parse(localStorage.getItem('minatomo_realestates')) || [];
+let savedRealestates = JSON.parse(localStorage.getItem('minatomo_saved_realestates')) || [];
 
+// 2. 一覧描画処理（詳細表示・お問合せ・保存ボタン付き）
+function renderRealestates() {
+    const container = document.getElementById('realestate-list-container');
+    if (!container) return;
+
+    if (realestates.length === 0) {
+        container.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">投稿された不動産物件はまだありません。</p>';
+        return;
+    }
+
+    container.innerHTML = realestates.map(item => {
+        const isSaved = savedRealestates.includes(item.id);
+        
+        return `
+        <div onclick="openRealestateDetail(${item.id})" style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; position: relative;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:bold;">${item.type}</span>
+                <span style="font-size:0.85rem; color:#666;">${item.transactionType}</span>
+            </div>
+
+            <h4 style="margin:0 0 8px 0; font-size:1.15rem; color:#333;">${item.title}${item.roomNumber ? '(' + item.roomNumber + ')' : ''}</h4>
+            
+            <div style="font-size:1.3rem; font-weight:bold; color:var(--brand-red, #e63946); margin-bottom:12px;">
+                ${Number(item.price).toLocaleString()} 円
+                ${item.adminFee ? `<span style="font-size:0.85rem; color:#666; font-weight:normal;"> (管理費: ${Number(item.adminFee).toLocaleString()}円)</span>` : ''}
+            </div>
+
+            <div style="font-size:0.85rem; color:#555; line-height:1.6; margin-bottom:12px;">
+                <div>📍 <strong>所在地:</strong> ${item.address}</div>
+                <div>📐 <strong>間取り / 面積:</strong> ${item.layout} /${item.area}㎡ (${item.structure})</div>${item.companyName ? `<div style="color:#777; font-size:0.8rem; margin-top:4px;">🏢 ${item.companyName} (${item.companyPhone})</div>` : ''}
+            </div>
+
+            <div style="display:flex; gap:8px; border-top:1px solid #f0f0f0; padding-top:12px; margin-top:8px;" onclick="event.stopPropagation();">
+                <button onclick="toggleSaveRealestate(${item.id})" style="flex:1; padding:8px 12px; border:1px solid ${isSaved ? '#e63946' : '#ccc'}; background:${isSaved ? '#fff0f3' : '#fff'}; color:${isSaved ? '#e63946' : '#555'}; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:5px;">
+                    <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bookmark"></i>
+                    ${isSaved ? '保存済み' : '保存'}
+                </button>
+
+                <button onclick="contactRealestate('${item.companyPhone}', '${item.title}')" style="flex:2; padding:8px 12px; border:none; background:var(--brand-red, #e63946); color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:5px;">
+                    <i class="fa-solid fa-envelope"></i> お問合せ
+                </button>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+// 3. 投稿処理（保存・再描画を含む）
 window.submitPropertyForm = function(event) {
     event.preventDefault();
-    const title = document.getElementById('p-title') ? document.getElementById('p-title').value : '';
-    alert("「" + title + "」の投稿処理を実行しました。");
+
+    const newProperty = {
+        id: Date.now(),
+        companyName: document.getElementById('p-company-name')?.value || '',
+        companyPhone: document.getElementById('p-company-phone')?.value || '',
+        posterName: document.getElementById('p-poster-name')?.value || '',
+        transactionType: document.getElementById('p-transaction-type')?.value || '',
+        type: document.getElementById('p-type')?.value || '',
+        title: document.getElementById('p-title')?.value || '',
+        roomNumber: document.getElementById('p-room-number')?.value || '',
+        address: document.getElementById('p-address')?.value || '',
+        access: document.getElementById('p-access')?.value || '',
+        price: document.getElementById('p-price')?.value || '',
+        adminFee: document.getElementById('p-admin-fee')?.value || '',
+        layout: document.getElementById('p-layout')?.value || '',
+        area: document.getElementById('p-area')?.value || '',
+        structure: document.getElementById('p-structure')?.value || '',
+        comment: document.getElementById('p-comment')?.value || ''
+    };
+
+    realestates.unshift(newProperty);
+    localStorage.setItem('minatomo_realestates', JSON.stringify(realestates));
+
+    renderRealestates();
+    alert("不動産物件を投稿しました！");
+    event.target.reset();
 };
 
-// 画面読み込み時に初期描画を実行
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof renderJobs === 'function') renderJobs();
-    renderRealestates(); // ★追加
-});
+// 4. 詳細モーダルを表示
+function openRealestateDetail(id) {
+    const item = realestates.find(r => r.id === id);
+    if (!item) return;
+
+    const modal = document.getElementById('realestate-detail-modal');
+    const content = document.getElementById('realestate-detail-content');
+
+    if (modal && content) {
+        content.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.8rem; padding:4px 10px; border-radius:4px; font-weight:bold;">${item.type} (${item.transactionType})</span>
+                <button onclick="closeRealestateDetail()" style="border:none; background:none; font-size:1.5rem; cursor:pointer; color:#888;">&times;</button>
+            </div>
+            
+            <h2 style="margin:0 0 10px 0; font-size:1.3rem;">${item.title}${item.roomNumber ? '(' + item.roomNumber + ')' : ''}</h2>
+            <div style="font-size:1.5rem; font-weight:bold; color:var(--brand-red, #e63946); margin-bottom:15px;">
+                ${Number(item.price).toLocaleString()} 円
+                ${item.adminFee ? `<span style="font-size:0.9rem; color:#666; font-weight:normal;"> (管理費: ${Number(item.adminFee).toLocaleString()}円)</span>` : ''}
+            </div>
+
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:15px;">
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9; width:30%;">所在地</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.address}</td></tr>${item.access ? `<tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">交通</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.access}</td></tr>` : ''}
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">間取り / 面積</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.layout} /${item.area}㎡</td></tr>
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">建物構造</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.structure}</td></tr>
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">取扱い会社</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.companyName} (${item.companyPhone})</td></tr>
+            </table>
+
+            ${item.comment ? `
+                <div style="margin-bottom:15px;">
+                    <h4 style="margin:0 0 5px 0; font-size:0.95rem; color:#444;">物件説明・コメント</h4>
+                    <p style="font-size:0.85rem; background:#f9f9f9; padding:10px; border-radius:6px; color:#333; margin:0; line-height:1.5;">${item.comment}</p>
+                </div>
+            ` : ''}
+
+            <button onclick="contactRealestate('${item.companyPhone}', '${item.title}')" style="width:100%; padding:12px; background:var(--brand-red, #e6
 </script>
 
 <style id="ai-staff-new-styles">
@@ -4787,5 +4881,9 @@ window.submitPropertyForm = function(event) {
     event.target.reset(); // フォームをリセット
 };
 </script>
+<div id="realestate-detail-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center; padding:15px; box-sizing:border-box;">
+    <div id="realestate-detail-content" style="background:#fff; border-radius:12px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; padding:20px; box-sizing:border-box; position:relative;">
+    </div>
+</div>
 </body>
 </html>
