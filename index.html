@@ -1438,13 +1438,97 @@ window.toggleSaveJob = function(id) {
     renderJobs();
 };
 
-// アルバイト応募
+// --- 応募モーダル表示処理 ---
 window.applyJob = function(id) {
     const job = jobs.find(j => j.id === id);
-    const title = job ? job.title : '';
-    alert(`「${title}」への応募を受け付けました！\n担当者からの連絡をお待ちください。`);
+    if (!job) return;
+
+    let applyModal = document.getElementById('job-apply-modal');
+    if (!applyModal) {
+        applyModal = document.createElement('div');
+        applyModal.id = 'job-apply-modal';
+        applyModal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; padding:16px; box-sizing:border-box;';
+        document.body.appendChild(applyModal);
+    }
+
+    applyModal.innerHTML = `
+        <div style="background:#fff; width:100%; max-width:480px; border-radius:12px; padding:20px; box-shadow:0 8px 24px rgba(0,0,0,0.15); max-height:90vh; overflow-y:auto; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                <h3 style="margin:0; font-size:1.15rem; color:#333;">求人に応募する</h3>
+                <button onclick="closeApplyModal()" style="border:none; background:none; font-size:1.5rem; cursor:pointer; color:#888;">&times;</button>
+            </div>
+            
+            <p style="font-size:0.9rem; color:#555; margin-bottom:16px; background:#f9f9f9; padding:10px; border-radius:6px; margin-top:0;">
+                応募先: <strong>${job.title || ''}</strong>
+            </p>
+
+            <form onsubmit="submitJobApplication(event, ${job.id})">
+                <div style="margin-bottom:12px;">
+                    <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:4px; color:#444;">お名前 <span style="color:#e63946;">*</span></label>
+                    <input type="text" id="app-name" required placeholder="山田 太郎" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:0.9rem;">
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:4px; color:#444;">メールアドレス <span style="color:#e63946;">*</span></label>
+                    <input type="email" id="app-email" required placeholder="example@email.com" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:0.9rem;">
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:4px; color:#444;">電話番号 <span style="color:#e63946;">*</span></label>
+                    <input type="tel" id="app-phone" required placeholder="090-1234-5678" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:0.9rem;">
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:0.85rem; font-weight:bold; margin-bottom:4px; color:#444;">自己PR・連絡可能時間帯（任意）</label>
+                    <textarea id="app-message" rows="3" placeholder="志望動機や連絡がつきやすい時間帯などをご記入ください" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:0.9rem; resize:vertical;"></textarea>
+                </div>
+                
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button type="button" onclick="closeApplyModal()" style="flex:1; padding:12px; border:1px solid #ccc; background:#fff; color:#555; border-radius:8px; font-weight:bold; cursor:pointer;">キャンセル</button>
+                    <button type="submit" style="flex:2; padding:12px; background:var(--brand-red, #e63946); color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">送信する</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    applyModal.style.display = 'flex';
 };
 
+// --- 応募モーダルを閉じる ---
+window.closeApplyModal = function() {
+    const applyModal = document.getElementById('job-apply-modal');
+    if (applyModal) applyModal.style.display = 'none';
+};
+
+// --- 応募送信処理 ---
+window.submitJobApplication = function(event, jobId) {
+    event.preventDefault();
+    
+    const name = document.getElementById('app-name')?.value || '';
+    const email = document.getElementById('app-email')?.value || '';
+    const phone = document.getElementById('app-phone')?.value || '';
+    const message = document.getElementById('app-message')?.value || '';
+    
+    const job = jobs.find(j => j.id === jobId);
+    const jobTitle = job ? job.title : '求人';
+
+    const applications = JSON.parse(localStorage.getItem('minatomo_job_applications')) || [];
+    applications.push({
+        id: Date.now(),
+        jobId: jobId,
+        jobTitle: jobTitle,
+        name: name,
+        email: email,
+        phone: phone,
+        message: message,
+        appliedAt: new Date().toLocaleString('ja-JP')
+    });
+    localStorage.setItem('minatomo_job_applications', JSON.stringify(applications));
+
+    alert(`【応募完了】\n「${jobTitle}」への応募を受け付けました！\n入力された連絡先へ担当者よりご連絡いたします。`);
+    
+    closeApplyModal();
+    if (typeof closeJobDetail === 'function') {
+        closeJobDetail();
+    }
+};
 // 新規投稿処理
 window.submitJob = function(event) {
     event.preventDefault();
