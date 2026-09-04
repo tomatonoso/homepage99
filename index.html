@@ -5348,21 +5348,32 @@ window.openAdminModal = function() {
     const submitBtn = document.getElementById('admin-submit-btn');
     const adminForm = document.getElementById('admin-form-element');
 
-    // 顔認証QRコード生成 & 監視開始
-    initPCFaceAuth();
+    // ステップ1（顔認証）を表示、ステップ2を隠す
+    const step1 = document.getElementById('admin-face-auth-step');
+    const step2 = document.getElementById('admin-form-step');
+    if (step1) step1.style.display = 'block';
+    if (step2) step2.style.display = 'none';
 
-    // 画面表示のリセット（ステップ1を表示、ステップ2を隠す）
-    document.getElementById('admin-face-auth-step').style.display = 'block';
-    document.getElementById('admin-form-step').style.display = 'none';
+    // QRコード生成関数を実行
+    if (typeof initPCFaceAuth === 'function') {
+        initPCFaceAuth();
+    } else {
+        // 万が一関数が未定義の場合の直接描画フォールバック
+        const currentSessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+        const authUrl = `${baseUrl}/mobile-auth.html?session=${currentSessionId}`;
+        const qrContainer = document.getElementById("admin-qrcode-area");
+        if (qrContainer) {
+            qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(authUrl)}" alt="QRコード" style="width:180px; height:180px; border:1px solid #ccc; padding:8px; background:#fff; border-radius:8px;">`;
+        }
+    }
 
     if (admin) {
-        // 【登録済みの場合】ログインモードへ変更
         if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-user-shield" style="color: #e63946;"></i> 運営管理者 ログイン';
         if (modalDesc) modalDesc.textContent = '登録済みの管理者情報でログインしてください。';
         if (submitBtn) submitBtn.textContent = 'ログインする';
         if (adminForm) adminForm.onsubmit = handleAdminLogin;
     } else {
-        // 【未登録の場合】新規登録モード（1人目のみ）
         if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-user-shield" style="color: #28a745;"></i> 運営管理者 新規登録';
         if (modalDesc) modalDesc.innerHTML = 'プラットフォームの運営管理者は**1人のみ**登録可能です。';
         if (submitBtn) submitBtn.textContent = '運営管理者として登録する';
@@ -5372,7 +5383,6 @@ window.openAdminModal = function() {
     const modal = document.getElementById('admin-signup-modal');
     if (modal) modal.style.display = 'flex';
 };
-
 // --- 【新規登録処理】1人目のみ保存可能 ---
 window.handleAdminSignup = function(event) {
     event.preventDefault();
