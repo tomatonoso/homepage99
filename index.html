@@ -1199,7 +1199,10 @@ window.submitPropertyForm = function(event) {
 };
 
 // 画面読み込み時に初期描画を実行
-document.addEventListener('DOMContentLoaded', renderJobs);
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof renderJobs === 'function') renderJobs();
+    renderRealestates(); // ★追加
+});
 </script>
 
 <style id="ai-staff-new-styles">
