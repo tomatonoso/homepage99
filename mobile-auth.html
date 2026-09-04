@@ -13,27 +13,29 @@
 <div id="auth-card" style="background: #fff; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
     <div style="font-size: 3rem; margin-bottom: 12px;">👤</div>
     <h3 style="margin: 0 0 8px 0; color: #333;">運営者 顔認証</h3>
-    <p style="font-size: 0.85rem; color: #666; margin-bottom: 24px;">
-        ボタンを押して Face ID などの生体認証を行い、パソコン側のログインを許可してください。
+    <p style="font-size: 0.85rem; color: #666; margin-bottom: 24px; line-height: 1.5;">
+        ボタンを押して Face ID / Touch ID または画面ロック解除を行い、パソコン側の画面を進めてください。
     </p>
 
     <button onclick="performMobileFaceAuth()" style="width: 100%; padding: 14px; background: #e63946; color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer;">
-        顔認証を開始する
+        生体認証を開始する
     </button>
 </div>
 
 <script>
-// PC側と同じFirebase設定を記述
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "xxxx",
-    appId: "xxxx"
+    apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
+    authDomain: "yauwo-a9ba1.firebaseapp.com",
+    databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
+    projectId: "yauwo-a9ba1",
+    storageBucket: "yauwo-a9ba1.firebasestorage.app",
+    messagingSenderId: "574142452627",
+    appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
 };
-firebase.initializeApp(firebaseConfig);
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.database();
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -41,36 +43,50 @@ const sessionId = urlParams.get('session');
 
 async function performMobileFaceAuth() {
     if (!sessionId) {
-        alert("無効なアクセスです。PCのQRコードを読み直し直してください。");
+        alert("エラー: セッション情報が見つかりません。PC画面のQRコードを読み直してください。");
         return;
     }
 
     try {
         if (!window.PublicKeyCredential) {
-            alert("生体認証に対応していません。");
+            alert("お使いのスマートフォンは生体認証に対応していません。");
             return;
         }
 
-        const credential = await navigator.credentials.get({
+        // 事前登録なしで直接Face ID / Touch IDを呼び出す設定
+        const options = {
             publicKey: {
                 challenge: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
-                timeout: 60000,
-                userVerification: "required"
+                rp: { name: "運営者認証" },
+                user: {
+                    id: new Uint8Array([1, 2, 3, 4]),
+                    name: "admin",
+                    displayName: "Admin"
+                },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform", // スマホ端末本体の生体認証を強制
+                    userVerification: "required"
+                },
+                timeout: 60000
             }
-        });
+        };
+
+        const credential = await navigator.credentials.create(options);
 
         if (credential) {
-            // Firebaseのステータスを APPROVED に更新（PC側へリアルタイム通知される）
+            // 生体認証が成功したらFirebaseのステータスを APPROVED に更新
             await db.ref('sessions/' + sessionId).update({ status: 'APPROVED' });
 
             document.getElementById('auth-card').innerHTML = `
                 <div style="font-size: 3.5rem; color: #28a745; margin-bottom: 12px;">✓</div>
                 <h3 style="margin: 0 0 8px 0; color: #333;">認証完了</h3>
-                <p style="font-size: 0.85rem; color: #666;">パソコン側の画面をご確認ください。</p>
+                <p style="font-size: 0.85rem; color: #666; line-height: 1.5;">パソコン側の画面が自動的に切り替わりました。<br>この画面は閉じて構いません。</p>
             `;
         }
     } catch (err) {
-        alert("顔認証に失敗したか、キャンセルされました。");
+        console.error(err);
+        alert("生体認証がキャンセルされたか、失敗しました。");
     }
 }
 </script>
