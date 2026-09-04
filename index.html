@@ -2635,21 +2635,50 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     <!-- 管理者系モーダル群 -->
     <div id="admin-signup-modal" class="modal-panel">
         <div class="modal-content modal-content-sm">
-            <span class="close-modal" onclick="closeModal('admin-signup-modal')">&times;</span>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h2 style="font-size: 1.25rem;"><i class="fa-solid fa-user-shield" style="color: #28a745;"></i> 運営管理者 新規登録</h2>
-            </div>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">プラットフォームの運営管理者は**1人のみ**登録可能です。</p>
-            <hr style="margin: 10px 0 15px 0;">
-            <form onsubmit="handleAdminSignup(event)">
-                <div class="form-group"><label>管理者メールアドレス *</label><input type="email" id="signup-admin-email" class="form-control" required placeholder="admin@minatomo.jp"></div>
-                <div class="form-group"><label>第1パスワード (10桁以内) *</label><input type="password" id="signup-admin-pass1" class="form-control" required maxlength="10" placeholder="10桁以内で入力"></div>
-                <div class="form-group"><label>第2パスワード (英数字20桁以上) *</label><input type="password" id="signup-admin-pass2" class="form-control" required minlength="20" placeholder="20文字以上で入力してください"></div>
-                <div class="form-group"><label>セキュリティ質問の回答 (秘密の合言葉) *</label><input type="text" id="signup-admin-security" class="form-control" required placeholder="例: 初めて飼ったペットの名前"></div>
-                <button type="submit" class="btn-success" style="width:100%; padding: 12px; margin-top: 15px; font-size:1rem; font-weight:bold;">運営管理者として登録する</button>
-            </form>
-        </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <h2 id="admin-modal-title" style="font-size: 1.25rem;"><i class="fa-solid fa-user-shield" style="color: #28a745;"></i> 運営管理者 認証</h2>
+</div>
+<p id="admin-modal-desc" style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">プラットフォームの運営管理者は**1人のみ**登録可能です。</p>
+<hr style="margin: 10px 0 15px 0;">
+
+<!-- ステップ1: スマホ顔認証待機エリア -->
+<div id="admin-face-auth-step" style="text-align: center; padding: 10px 0;">
+    <p style="font-size: 0.85rem; color: #444; font-weight: bold; margin-bottom: 10px;">
+        スマホのカメラで以下のQRコードを読み取り、顔認証を行ってください。
+    </p>
+    <div id="admin-qrcode-area" style="display: flex; justify-content: center; margin: 15px 0;"></div>
+    <div id="admin-auth-status" style="font-size: 0.85rem; color: #555; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; display: inline-block;">
+        <i class="fa-solid fa-spinner fa-spin"></i> スマホからの認証を待機中...
     </div>
+</div>
+
+<!-- ステップ2: 管理者フォーム -->
+<div id="admin-form-step" style="display: none;">
+    <p style="color: #28a745; font-size: 0.85rem; margin-bottom: 12px; background: #e8f5e9; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center;">
+        <i class="fa-solid fa-circle-check"></i> スマホでの顔認証が完了しました
+    </p>
+    <form id="admin-form-element">
+        <div class="form-group">
+            <label>管理者メールアドレス *</label>
+            <input type="email" id="signup-admin-email" class="form-control" required placeholder="admin@minatomo.jp">
+        </div>
+        <div class="form-group">
+            <label>第1パスワード (10桁以内) *</label>
+            <input type="password" id="signup-admin-pass1" class="form-control" required maxlength="10" placeholder="10桁以内で入力">
+        </div>
+        <div class="form-group">
+            <label>第2パスワード (英数字20桁以上) *</label>
+            <input type="password" id="signup-admin-pass2" class="form-control" required minlength="20" placeholder="20文字以上で入力">
+        </div>
+        <div class="form-group">
+            <label>セキュリティ質問の回答 (秘密の合言葉) *</label>
+            <input type="text" id="signup-admin-security" class="form-control" required placeholder="例: 初めて飼ったペットの名前">
+        </div>
+        <button type="submit" id="admin-submit-btn" class="btn-success" style="width:100%; padding: 12px; margin-top: 15px; font-size:1rem; font-weight:bold;">運営管理者として登録する</button>
+    </form>
+</div>
+</div>
+</div>
 
     <div id="admin-login-modal" class="modal-panel">
         <div class="modal-content modal-content-sm">
@@ -5144,6 +5173,110 @@ window.submitPropertyForm = function(event) {
 
     alert("不動産物件を投稿しました！");
     event.target.reset(); // フォームをリセット
+};
+// --- 運営管理者（1人限定登録 & ログイン照合）処理 ---
+
+// 登録済み管理者データの取得
+function getRegisteredAdmin() {
+    return JSON.parse(localStorage.getItem('minatomo_admin')) || null;
+}
+
+// 管理者モーダルを開いたときの表示切り替え（未登録＝新規登録 / 登録済み＝ログイン）
+window.openAdminModal = function() {
+    const admin = getRegisteredAdmin();
+    const modalTitle = document.getElementById('admin-modal-title');
+    const modalDesc = document.getElementById('admin-modal-desc');
+    const submitBtn = document.getElementById('admin-submit-btn');
+    const adminForm = document.getElementById('admin-form-element');
+
+    // スマホ顔認証QRコードの読み込み（関数が存在する場合）
+    if (typeof initPCFaceAuth === 'function') {
+        initPCFaceAuth();
+    }
+
+    // ステップ1（顔認証）を表示し、ステップ2（フォーム）を隠す初期状態リセット
+    document.getElementById('admin-face-auth-step').style.display = 'block';
+    document.getElementById('admin-form-step').style.display = 'none';
+
+    if (admin) {
+        // 【登録済みの場合】ログインモードに切り替え
+        if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-user-shield" style="color: #e63946;"></i> 運営管理者 ログイン';
+        if (modalDesc) modalDesc.textContent = '登録済みの管理者情報でログインしてください。';
+        if (submitBtn) submitBtn.textContent = 'ログインする';
+        if (adminForm) adminForm.onsubmit = handleAdminLogin;
+    } else {
+        // 【未登録の場合】新規登録モード（1人目のみ）
+        if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-user-shield" style="color: #28a745;"></i> 運営管理者 新規登録';
+        if (modalDesc) modalDesc.innerHTML = 'プラットフォームの運営管理者は**1人のみ**登録可能です。';
+        if (submitBtn) submitBtn.textContent = '運営管理者として登録する';
+        if (adminForm) adminForm.onsubmit = handleAdminSignup;
+    }
+
+    // モーダル表示
+    const modal = document.getElementById('admin-signup-modal');
+    if (modal) modal.style.display = 'flex';
+};
+
+// 【新規登録処理】初回1人目のみ実行可能
+window.handleAdminSignup = function(event) {
+    event.preventDefault();
+
+    // 二重登録防止の安全策
+    if (getRegisteredAdmin()) {
+        alert("エラー: 運営管理者はすでに1人登録されています。2人目以降の登録はできません。");
+        return;
+    }
+
+    const adminData = {
+        email: document.getElementById('signup-admin-email').value.trim(),
+        pass1: document.getElementById('signup-admin-pass1').value,
+        pass2: document.getElementById('signup-admin-pass2').value,
+        security: document.getElementById('signup-admin-security').value.trim(),
+        registeredAt: new Date().toLocaleString('ja-JP')
+    };
+
+    // localStorageに管理者情報を自動保存
+    localStorage.setItem('minatomo_admin', JSON.stringify(adminData));
+    
+    // ログイン状態フラグの保持（セッション単位）
+    sessionStorage.setItem('minatomo_admin_logged_in', 'true');
+
+    alert("運営管理者情報の登録が完了しました！\n次回からはこの情報でログインが行われます。");
+    
+    closeModal('admin-signup-modal');
+    location.reload(); // 管理者権限を反映するためリロード
+};
+
+// 【ログイン処理】登録済み情報との照合
+window.handleAdminLogin = function(event) {
+    event.preventDefault();
+
+    const admin = getRegisteredAdmin();
+    if (!admin) {
+        alert("エラー: 管理者情報が見つかりません。");
+        return;
+    }
+
+    const inputEmail = document.getElementById('signup-admin-email').value.trim();
+    const inputPass1 = document.getElementById('signup-admin-pass1').value;
+    const inputPass2 = document.getElementById('signup-admin-pass2').value;
+    const inputSecurity = document.getElementById('signup-admin-security').value.trim();
+
+    // 各入力項目の照合
+    if (
+        inputEmail === admin.email &&
+        inputPass1 === admin.pass1 &&
+        inputPass2 === admin.pass2 &&
+        inputSecurity === admin.security
+    ) {
+        sessionStorage.setItem('minatomo_admin_logged_in', 'true');
+        alert("認証成功！ 運営管理画面を開きます。");
+        
+        closeModal('admin-signup-modal');
+        location.reload();
+    } else {
+        alert("認証エラー: メールアドレス、パスワード、または秘密の合言葉が一致しません。");
+    }
 };
 </script>
 </body>
