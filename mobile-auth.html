@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運営者 顔認証</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body style="font-family: sans-serif; background: #f4f5f7; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; box-sizing: border-box;">
+
+<div id="auth-card" style="background: #fff; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+    <div style="font-size: 3rem; margin-bottom: 12px;">👤</div>
+    <h3 style="margin: 0 0 8px 0; color: #333;">運営者 顔認証</h3>
+    <p style="font-size: 0.85rem; color: #666; margin-bottom: 24px;">
+        ボタンを押して Face ID などの生体認証を行い、パソコン側のログインを許可してください。
+    </p>
+
+    <button onclick="performMobileFaceAuth()" style="width: 100%; padding: 14px; background: #e63946; color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer;">
+        顔認証を開始する
+    </button>
+</div>
+
+<script>
+// PC側と同じFirebase設定を記述
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "xxxx",
+    appId: "xxxx"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const urlParams = new URLSearchParams(window.location.search);
+const sessionId = urlParams.get('session');
+
+async function performMobileFaceAuth() {
+    if (!sessionId) {
+        alert("無効なアクセスです。PCのQRコードを読み直し直してください。");
+        return;
+    }
+
+    try {
+        if (!window.PublicKeyCredential) {
+            alert("生体認証に対応していません。");
+            return;
+        }
+
+        const credential = await navigator.credentials.get({
+            publicKey: {
+                challenge: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
+                timeout: 60000,
+                userVerification: "required"
+            }
+        });
+
+        if (credential) {
+            // Firebaseのステータスを APPROVED に更新（PC側へリアルタイム通知される）
+            await db.ref('sessions/' + sessionId).update({ status: 'APPROVED' });
+
+            document.getElementById('auth-card').innerHTML = `
+                <div style="font-size: 3.5rem; color: #28a745; margin-bottom: 12px;">✓</div>
+                <h3 style="margin: 0 0 8px 0; color: #333;">認証完了</h3>
+                <p style="font-size: 0.85rem; color: #666;">パソコン側の画面をご確認ください。</p>
+            `;
+        }
+    } catch (err) {
+        alert("顔認証に失敗したか、キャンセルされました。");
+    }
+}
+</script>
+</body>
+</html>
