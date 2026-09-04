@@ -4333,7 +4333,11 @@ function initNotificationSystem() {
 }
 
 // ページ読み込み時に初期化
-document.addEventListener('DOMContentLoaded', initNotificationSystem);
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof initNotificationSystem === 'function') initNotificationSystem();
+    if (typeof renderJobs === 'function') renderJobs();
+    if (typeof renderRealestates === 'function') renderRealestates();
+});
 </script>
 <script>
 // チャットデータの構造例
