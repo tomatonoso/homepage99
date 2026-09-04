@@ -4696,7 +4696,7 @@ function submitPropertyForm(event) {
     alert("物件の投稿データを出力しました（送信完了テスト）。");
 }
 // 不動産投稿ボタンを押した時の処理
-function checkAuthAndOpenRealestatePost() {
+window.checkAuthAndOpenRealestatePost = function() {
     // マイページを開いて不動産出品タブを表示する処理
     const targetBtn = document.querySelector("button[onclick*='mypage-tab-property']");
     
@@ -4704,7 +4704,7 @@ function checkAuthAndOpenRealestatePost() {
         // マイページの不動産出品タブをクリックして切り替え
         targetBtn.click();
         
-        // マイページ画面（モーダルやセクション）へスクロール/表示する処理があれば実行
+        // マイページ画面へスクロール/表示する処理
         const mypageElement = document.getElementById('mypage-tab-property');
         if (mypageElement) {
             mypageElement.scrollIntoView({ behavior: 'smooth' });
@@ -4712,7 +4712,7 @@ function checkAuthAndOpenRealestatePost() {
     } else {
         alert("マイページ内の不動産出品フォームを読み込めませんでした。");
     }
-}
+};
 </script>
 </body>
 </html>
