@@ -2063,7 +2063,8 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
 
             <div id="mypage-tab-sell" class="admin-tab-content">
                 <h3><i class="fa-solid fa-store" style="color: var(--brand-red);"></i> 出品者新規登録 & 商品出品</h3>
-                <form id="seller-form" onsubmit="submitNewProduct(event)">
+                <!-- 2066行目を以下のように書き換え -->
+<form id="seller-form" onsubmit="return submitNewProduct(event)">
                     <div class="grid-2" style="margin-top:10px;">
                         <div>
                             <h3 style="font-size: 0.95rem; margin-bottom: 10px; border-bottom:1px solid #ddd; padding-bottom:4px;">1. 出品者情報</h3>
@@ -3487,28 +3488,54 @@ window.checkAuthAndOpenJobPost = function() {
             }
         };
 
-        window.submitNewProduct = function(e) {
-            e.preventDefault();
-            if (!currentUser) { alert('出品するにはログインが必要です。'); openModal('buyer-auth-modal'); return; }
-            const name = document.getElementById('new-prod-name').value;
-            const category = document.getElementById('new-prod-category').value;
-            const price = parseInt(document.getElementById('new-prod-price').value);
-            const shipping = document.getElementById('new-prod-shipping').value;
-            const desc = document.getElementById('new-prod-desc').value;
-            const imgElement = document.getElementById('img-preview');
-            const image = (document.getElementById('img-preview-box').style.display === 'flex') ? imgElement.src : "";
-            const seller = currentUser.name;
+       window.submitNewProduct = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!currentUser) { alert('出品するにはログインが必要です。'); openModal('buyer-auth-modal'); return; }
 
-            const newProduct = { id: Date.now(), name, category, price, shipping, desc, seller, image, recommend: false };
-            products.unshift(newProduct);
-            saveToStorage();
-            renderProducts();
-            document.getElementById('seller-form').reset();
-            document.getElementById('img-preview-box').style.display = 'none';
-            alert('新しい商品を出品しました！');
-            closeModal('buyer-mypage-modal');
-        };
+    const sellerName = document.getElementById('seller-name-input')?.value || currentUser.name || '出品者';
+    const sellerEmail = document.getElementById('seller-email-input')?.value || currentUser.email || '';
+    const sellerPhone = document.getElementById('seller-phone-input')?.value || '';
 
+    const name = document.getElementById('new-prod-name')?.value || '';
+    const category = document.getElementById('new-prod-category')?.value || '';
+    const price = parseInt(document.getElementById('new-prod-price')?.value) || 0;
+    const shipping = document.getElementById('new-prod-shipping')?.value || '';
+    const desc = document.getElementById('new-prod-desc')?.value || '';
+    
+    const imgElement = document.getElementById('img-preview');
+    const image = (document.getElementById('img-preview-box')?.style.display === 'flex') ? imgElement.src : "";
+
+    // 1. 通販サイトローカル配列用データ
+    const newProduct = { id: Date.now(), name, category, price, shipping, desc, seller: sellerName, image, recommend: false };
+    products.unshift(newProduct);
+    saveToStorage();
+    renderProducts();
+
+    // 2. 運営管理画面（admin.html）の Firebase データベースへ送信
+    if (typeof db !== 'undefined' && db.ref) {
+        db.ref('admin_data/products').push().set({
+            id: 'PRD-' + Math.floor(1000 + Math.random() * 9000),
+            seller: sellerName,
+            sellerEmail: sellerEmail,
+            sellerPhone: sellerPhone,
+            title: name,
+            category: category,
+            price: price,
+            shippingFee: shipping,
+            description: desc,
+            verified: false,
+            createdAt: new Date().toLocaleString('ja-JP')
+        });
+    }
+
+    // フォームリセットと通知
+    document.getElementById('seller-form')?.reset();
+    if (document.getElementById('img-preview-box')) {
+        document.getElementById('img-preview-box').style.display = 'none';
+    }
+    alert('新しい商品を出品しました！');
+    closeModal('buyer-mypage-modal');
+};
         window.checkAuthAndOpenSell = function() {
             if (!currentUser) {
                 alert('出品するにはログインが必要です。');
