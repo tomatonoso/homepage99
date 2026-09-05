@@ -1799,9 +1799,9 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     <p>&copy; ミナトモ！ All Rights Reserved.</p>
 
     <!-- ▼▼ ここを追加 ▼▼ -->
-    <p style="font-size: 10px; opacity: 0.4; margin-top: 8px;">
-        <a href="admin.html" style="color: inherit; text-decoration: none;">管理者ログイン</a>
-    </p>
+   <p style="font-size: 10px; opacity: 0.4; margin-top: 8px;">
+    <a onclick="openModal('admin-login-modal')" style="color: inherit; text-decoration: none; cursor: pointer;">管理者ログイン</a>
+</p>
     <!-- ▲▲ ここまで追加 ▲▲ -->
 
 </footer>
@@ -5639,6 +5639,9 @@ async function handleAdminLogin(event) {
         alert("ログイン処理中にエラーが発生しました: " + error.message);
     }
 }
+window.openAdminModal = function() {
+    openModal('admin-login-modal');
+};
 </script>
 </body>
 </html>
