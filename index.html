@@ -5362,20 +5362,22 @@ window.handleAdminLogin = function(event) {
     }
 }; // ← handleAdminLogin をここで正しく閉じる
 
-// モーダル表示関数（QRコード認証を開始）
+// モーダル表示関数（QRコード描画タイミングを調整）
 window.openAdminModal = function() {
-    // 1. QRコード生成と監視処理（5404行目の関数）を実行
-    if (typeof initPCFaceAuth === 'function') {
-        initPCFaceAuth();
-    }
-
-    // 2. QRコードが配置されているモーダルを表示
+    // 1. まずモーダルを表示
     if (typeof openModal === 'function') {
-        openModal('admin-signup-modal'); // QRコードがあるモーダルIDを指定
+        openModal('admin-signup-modal');
     } else {
         const modal = document.getElementById('admin-signup-modal');
         if (modal) modal.style.display = 'flex';
     }
+
+    // 2. モーダルが表示されてから少し遅らせてQRコードを生成
+    setTimeout(function() {
+        if (typeof initPCFaceAuth === 'function') {
+            initPCFaceAuth();
+        }
+    }, 150);
 };
 </script>
 
