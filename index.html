@@ -1742,12 +1742,15 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         </div>
         <div class="product-grid" id="main-product-grid" style="margin-bottom: 40px;"></div>
 
-        <div class="section-header">
-            <span>購入リクエスト（逆出品一覧）</span>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-outline" onclick="checkAuthAndOpenRequestPost()"><i class="fa-solid fa-plus"></i> リクエストを投稿 (逆出品)</button>
-            </div>
-        </div>
+       <div class="section-header">
+    <span>購入リクエスト（逆出品一覧）</span>
+    <div style="display: flex; gap: 10px;">
+        <button id="btn-open-all-requests" class="btn-outline" onclick="event.stopPropagation(); openAllRequestsModal();">
+            <i class="fa-solid fa-list"></i> すべて見る
+        </button>
+        <button class="btn-outline" onclick="checkAuthAndOpenRequestPost()"><i class="fa-solid fa-plus"></i> リクエストを投稿 (逆出品)</button>
+    </div>
+</div>
         <div id="request-list-container" style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;"></div>
 
         
@@ -3406,14 +3409,7 @@ window.checkAuthAndOpenJobPost = function() {
         </div>
     `).join('');
 
-    // 末尾に「すべて見る」ボタンカードを追加
-    html += `
-        <div onclick="openAllRequestsModal()" style="min-width: 130px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #f8f9fa; border: 2px dashed #ccc; border-radius: var(--radius); cursor: pointer; padding: 16px; flex-shrink: 0;">
-            <i class="fa-solid fa-circle-arrow-right" style="font-size: 24px; color: #007bff; margin-bottom: 6px;"></i>
-            <span style="font-weight: bold; font-size: 0.85rem; color: #333;">すべて見る</span>
-            <span style="font-size: 0.75rem; color: #888;">(${purchaseRequests.length}件)</span>
-        </div>
-    `;
+   
 
     container.innerHTML = html;
 };
