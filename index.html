@@ -5572,6 +5572,75 @@ window.openAllRequestsModal = function() {
     const modal = document.getElementById('all-requests-modal');
     if (modal) modal.style.display = 'block';
 };
+// --- モーダル起動処理 ---
+window.openAllRequestsModal = function() {
+    console.log("openAllRequestsModal が実行されました");
+
+    const modal = document.getElementById('all-requests-modal');
+    const container = document.getElementById('all-requests-container');
+
+    if (!modal) {
+        alert('エラー: all-requests-modal 要素が見つかりません。');
+        return;
+    }
+
+    // カード一覧の生成
+    const requests = window.purchaseRequests || [];
+    if (container) {
+        if (requests.length === 0) {
+            container.innerHTML = '<p style="padding: 10px; color: #888;">現在購入リクエストはありません。</p>';
+        } else {
+            container.innerHTML = requests.map(req => `
+                <div style="background-color: #ffffff; border-radius: 8px; padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
+                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: #d9534f; font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
+                    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">${req.desc || ''}</div>
+                    <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}')"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // 表示スタイル適用
+    modal.style.setProperty('display', 'flex', 'important');
+    modal.style.setProperty('position', 'fixed', 'important');
+    modal.style.setProperty('top', '0', 'important');
+    modal.style.setProperty('left', '0', 'important');
+    modal.style.setProperty('width', '100vw', 'important');
+    modal.style.setProperty('height', '100vh', 'important');
+    modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.6)', 'important');
+    modal.style.setProperty('z-index', '999999', 'important');
+    modal.style.setProperty('justify-content', 'center', 'important');
+    modal.style.setProperty('align-items', 'center', 'important');
+
+    const content = modal.querySelector('.modal-content');
+    if (content) {
+        content.style.setProperty('display', 'block', 'important');
+        content.style.setProperty('background-color', '#ffffff', 'important');
+        content.style.setProperty('padding', '24px', 'important');
+        content.style.setProperty('border-radius', '12px', 'important');
+        content.style.setProperty('max-width', '700px', 'important');
+        content.style.setProperty('width', '90%', 'important');
+        content.style.setProperty('max-height', '80vh', 'important');
+        content.style.setProperty('overflow-y', 'auto', 'important');
+        content.style.setProperty('position', 'relative', 'important');
+        content.style.setProperty('z-index', '1000000', 'important');
+    }
+};
+
+// --- 全体クリック監視（ボタンのHTML構造に依存せず強制検知） ---
+document.addEventListener('click', function(e) {
+    const target = e.target.closest('#btn-open-all-requests') || 
+                   (e.target.textContent && e.target.textContent.includes('すべて見る') ? e.target : null);
+
+    if (target) {
+        console.log("「すべて見る」クリックを検知しました");
+        e.preventDefault();
+        if (typeof window.openAllRequestsModal === 'function') {
+            window.openAllRequestsModal();
+        }
+    }
+}, true);
 </script>
 
 <!-- 購入リクエスト全件表示モーダル -->
