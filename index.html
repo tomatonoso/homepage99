@@ -1092,124 +1092,41 @@
     cursor: pointer;
     color: #888;
 }
-/* 全件表示モーダルの幅 */
+/* ===================================================
+   1. モーダル表示制御（勝手に開くのを防ぎ、重なり順を正しく制御）
+   =================================================== */
+.modal, 
+[id*="modal"] {
+    display: none;
+}
+
+/* 全件一覧モーダル（後ろ側） */
+#all-auctions-modal {
+    z-index: 1000 !important;
+}
+
 #all-auctions-modal .modal-content {
     max-width: 1200px !important;
     width: 95% !important;
 }
 
-/* 1. カード全体の枠（高さを自動にして文字や価格の切れを防止） */
-.auction-card {
-    background: #fff !important;
-    border: 1px solid #e0e0e0 !important;
-    border-radius: 10px !important;
-    padding: 10px !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+/* オークション詳細モーダル（最前面・正面中央表示） */
+#auction-detail-modal[style*="display: flex"],
+#auction-detail-modal[style*="display: block"],
+#auction-detail-modal.show,
+#auction-detail-modal.active {
     display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    box-sizing: border-box !important;
-    min-width: 0 !important;
-    overflow: visible !important;
-    height: auto !important;
-    aspect-ratio: auto !important;
-}
-
-/* 2. 画像のみを正方形（1:1）に固定 */
-.auction-card img,
-.auction-card-media img,
-.auction-detail-media img,
-#all-auctions-list img,
-#all-auctions-grid img,
-.img-preview-container img,
-[class*="auction"] img {
-    width: 100% !important;
-    aspect-ratio: 1 / 1 !important;
-    height: auto !important;
-    object-fit: cover !important;
-    border-radius: 8px !important;
-    display: block !important;
-}
-
-.auction-detail-media,
-.auction-card-media,
-.img-preview-container {
-    width: 100% !important;
-    aspect-ratio: 1 / 1 !important;
-    overflow: hidden !important;
-    background-color: #f5f5f5 !important;
-    border-radius: 8px !important;
-}
-
-/* 3. 商品名・価格の折り返し・収まりの調整 */
-.auction-card div[style*="font-weight: bold"],
-.auction-card h3, .auction-card h4 {
-    font-size: 13px !important;
-    line-height: 1.3 !important;
-    margin: 4px 0 !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-    word-break: break-word !important;
-}
-
-/* 4. 画面サイズ（電子機器）ごとの列数自動切り替え */
-@media (max-width: 600px) {
-    /* スマホ：横2列 */
-    #all-auctions-list, #all-auctions-grid, .auction-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-    }
-}
-
-@media (min-width: 601px) and (max-width: 1024px) {
-    /* タブレット：横3列 */
-    #all-auctions-list, #all-auctions-grid, .auction-grid {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 10px !important;
-    }
-}
-
-@media (min-width: 1025px) {
-    /* PC：横5列 */
-    #all-auctions-list, #all-auctions-grid, .auction-grid {
-        display: grid !important;
-        grid-template-columns: repeat(5, 1fr) !important;
-        gap: 12px !important;
-    }
-}
-/* 1. 全件一覧モーダル（後ろ側に配置） */
-#all-auctions-modal {
-    z-index: 1000 !important;
-}
-
-/* 2. 非表示状態を最優先（閉じられなくなる不具合を防止） */
-#auction-detail-modal[style*="display: none"],
-#auction-detail-modal.hidden {
-    display: none !important;
-}
-
-/* 3. オークション詳細モーダル表示時（最前面に正しく配置） */
-#auction-detail-modal {
-    z-index: 99999 !important;
-}
-
-#auction-detail-modal:not([style*="display: none"]) {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
+    z-index: 99999 !important;
     background-color: rgba(0, 0, 0, 0.6) !important;
-    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
-/* 4. オークション詳細モーダルの白枠（赤枠サイズに固定） */
 #auction-detail-modal .modal-content {
     z-index: 100000 !important;
     position: relative !important;
@@ -1222,35 +1139,107 @@
     padding: 24px !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
 }
-/* カード全体の高さをグリッド内で統一 */
+
+/* ===================================================
+   2. オークションカードの縦幅・画像を全件380pxに完全統一
+   =================================================== */
 #all-auctions-list, 
 #all-auctions-grid, 
 .auction-grid {
-    align-items: stretch !important; /* 同じ行のカードの高さを揃える */
+    display: grid !important;
+    gap: 12px !important;
+    align-items: stretch !important;
 }
 
+/* カード自体の枠と高さ */
 .auction-card {
     display: flex !important;
     flex-direction: column !important;
-    height: 100% !important;           /* カードの高さを100%に統一 */
+    height: 380px !important; 
+    background: #fff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 10px !important;
+    padding: 10px !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
+    min-width: 0 !important;
 }
 
-/* 説明文などの文字溢れ・行数による崩れを防止（1行に制限） */
-.auction-card p,
-.auction-card div {
-    word-break: break-word;
+/* 画像の高さを150px正方形固定 */
+.auction-card img,
+.auction-card-media img,
+[class*="auction"] img {
+    width: 100% !important;
+    height: 150px !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+    display: block !important;
+    margin-bottom: 6px !important;
 }
 
-/* 一番下の「クリックして詳細…」リンクの位置を最下部に押し揃える */
-.auction-card > *:last-child,
-.auction-card a[onclick*="openAuctionDetail"],
-.auction-card [onclick*="openAuctionDetail"]:last-child {
-    margin-top: auto !important;     /* 最下部に固定 */
-    padding-top: 8px !important;
-    white-space: nowrap !important;   /* テキストの途中で勝手に改行されるのを防止 */
+/* 商品タイトル（2行固定で崩れ防止） */
+.auction-card h3, 
+.auction-card h4, 
+.auction-card-title,
+.auction-card div[style*="font-weight: bold"] {
+    font-size: 13px !important;
+    font-weight: bold !important;
+    line-height: 1.3 !important;
+    height: 34px !important;
+    overflow: hidden !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    margin: 4px 0 !important;
+    word-break: break-word !important;
+}
+
+/* 価格表示 */
+.auction-card [class*="price"],
+.auction-card-price {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    color: #e53935 !important;
+    margin: 2px 0 !important;
+}
+
+/* 最下部リンク位置の揃え */
+.auction-card a,
+.auction-card [onclick*="openAuctionDetail"] {
+    margin-top: auto !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    padding-top: 4px !important;
+}
+
+/* ===================================================
+   3. 画面サイズ（端末）ごとの列数自動切り替え
+   =================================================== */
+@media (max-width: 600px) {
+    /* スマホ：横2列 */
+    #all-auctions-list, #all-auctions-grid, .auction-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+    /* タブレット：横3列 */
+    #all-auctions-list, #all-auctions-grid, .auction-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 10px !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    /* PC：横5列 */
+    #all-auctions-list, #all-auctions-grid, .auction-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 12px !important;
+    }
 }
 </style>
 <script>
