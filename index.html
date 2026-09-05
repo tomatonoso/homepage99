@@ -6055,12 +6055,15 @@ window.submitAuction = function(e) {
 function handleAdminRegister(event) {
     event.preventDefault(); // 画面の自動リロードを防止
 
-    // 入力値の取得（必要に応じてバリデーションを追加）
+    // 入力値の取得
     const email = document.getElementById('signup-admin-email').value;
+
+    // 登録済みフラグをブラウザに保存
+    localStorage.setItem('isAdminRegistered', 'true');
 
     alert('運営管理者の登録が完了しました。管理画面へ遷移します。');
 
-    // ★ admin.html へ移動
+    // admin.html へ移動
     window.location.href = 'admin.html';
 }
 
@@ -6070,8 +6073,31 @@ function handleAdminLogin(event) {
 
     alert('ログインしました。管理画面へ遷移します。');
 
-    // ★ admin.html へ移動
+    // admin.html へ移動
     window.location.href = 'admin.html';
+}
+
+// 3. 運営管理メニューをクリックした際に表示モーダルを自動判定する関数
+function openAdminMenu() {
+    const isRegistered = localStorage.getItem('isAdminRegistered') === 'true';
+
+    if (isRegistered) {
+        // 登録済みの場合はログイン画面を開く
+        if (typeof openModal === 'function') {
+            openModal('admin-login-modal');
+        } else {
+            const loginModal = document.getElementById('admin-login-modal');
+            if (loginModal) loginModal.style.display = 'flex';
+        }
+    } else {
+        // 未登録の場合は新規登録（顔認証）画面を開く
+        if (typeof openModal === 'function') {
+            openModal('admin-signup-modal');
+        } else {
+            const signupModal = document.getElementById('admin-signup-modal');
+            if (signupModal) signupModal.style.display = 'flex';
+        }
+    }
 }
 </script>
 
