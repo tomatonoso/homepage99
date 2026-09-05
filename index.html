@@ -1750,17 +1750,20 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         </div>
         <div id="request-list-container" style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;"></div>
 
-        <!-- オークション一覧：購入リクエストの下部に追加 -->
+        
                <!-- オークション一覧：購入リクエストの下部に追加 -->
-        <div class="auction-section">
-            <div class="section-header">
-                <span><i class="fa-solid fa-gavel" style="color: var(--brand-red);"></i> オークション</span>
-                <div style="display: flex; gap: 10px;">
-                    <button class="auction-post-btn" onclick="checkAuthAndOpenAuctionPost()"><i class="fa-solid fa-plus"></i> 投稿</button>
-                </div>
-            </div>
-            <div id="auction-list-container" class="auction-list-container"></div>
+       <div class="auction-section">
+    <div class="section-header">
+        <span><i class="fa-solid fa-gavel" style="color: var(--brand-red);"></i> オークション</span>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="openAllAuctionsModal()" style="background-color: #f8f9fa; color: #333; border: 1px solid #ccc; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
+                <i class="fa-solid fa-list"></i> すべて見る
+            </button>
+            <button class="auction-post-btn" onclick="checkAuthAndOpenAuctionPost()"><i class="fa-solid fa-plus"></i> 投稿</button>
         </div>
+    </div>
+    <div id="auction-list-container" class="auction-list-container"></div>
+</div>
 
         <!-- アルバイト一覧セクション -->
         <div id="job-section" class="auction-section">
