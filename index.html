@@ -5662,17 +5662,63 @@ loadRequestsFromStorage();
 if (typeof renderPurchaseRequests === 'function') {
     renderPurchaseRequests();
 }
+// 購入リクエストの並び替え処理
+window.sortPurchaseRequests = function(sortType) {
+    if (!window.purchaseRequests || window.purchaseRequests.length === 0) return;
+
+    switch (sortType) {
+        case 'newest': // 最新順（ID降順）
+            window.purchaseRequests.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+            break;
+        case 'oldest': // 古い順（ID昇順）
+            window.purchaseRequests.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+            break;
+        case 'price-high': // 希望予算が高い順
+            window.purchaseRequests.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+            break;
+        case 'price-low': // 希望予算が安い順
+            window.purchaseRequests.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+            break;
+    }
+
+    // メイン一覧を再描画
+    if (typeof renderPurchaseRequests === 'function') {
+        renderPurchaseRequests();
+    }
+
+    // モーダルが開いている場合はモーダル側も再描画
+    const modal = document.getElementById('all-requests-modal');
+    if (modal && modal.style.display !== 'none' && modal.style.display !== '') {
+        if (typeof openAllRequestsModal === 'function') {
+            openAllRequestsModal();
+        }
+    }
+};
 </script>
 
-<!-- 購入リクエスト全件表示モーダル -->
 <div id="all-requests-modal" class="modal" style="display: none;">
-  <div class="modal-content" style="max-width: 800px; width: 90%;">
-    <span class="close-btn" onclick="closeModal('all-requests-modal')">&times;</span>
-    <h3 style="margin-bottom: 16px;">購入リクエスト（全件）</h3>
-    <div id="all-requests-container" class="all-requests-grid">
-      <!-- 全件カードが挿入されます -->
+    <div class="modal-content" style="max-width: 1200px; width: 95%;">
+        <span class="close-btn" onclick="closeModal('all-requests-modal')">&times;</span>
+        
+        <!-- ヘッダーと並び替えセレクトボックス -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-right: 24px;">
+            <h3 style="margin: 0;">購入リクエスト（全件）</h3>
+            
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="request-sort-select" style="font-size: 0.85rem; color: #555; font-weight: bold;">並び替え:</label>
+                <select id="request-sort-select" onchange="sortPurchaseRequests(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.85rem; background-color: #fff; cursor: pointer;">
+                    <option value="newest">最新順</option>
+                    <option value="oldest">古い順</option>
+                    <option value="price-high">予算が高い順</option>
+                    <option value="price-low">予算が安い順</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="all-requests-container" class="all-requests-grid">
+            <!-- 全件カードが挿入されます -->
+        </div>
     </div>
-  </div>
 </div>
 </body>
 </html>
