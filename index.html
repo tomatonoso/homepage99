@@ -5687,10 +5687,12 @@ function loadAuctionsFromStorage() {
             window.auctions = JSON.parse(saved);
         } catch(e) {
             console.error('オークションデータの読み込みエラー:', e);
+            window.auctions = [];
         }
+    } else {
+        window.auctions = []; // ★データが無い場合も空の配列をセット
     }
 }
-
 // 起動時にオークションデータを復元して画面を描画
 loadAuctionsFromStorage();
 if (typeof renderAuctions === 'function') {
