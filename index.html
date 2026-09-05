@@ -3415,7 +3415,7 @@ window.checkAuthAndOpenJobPost = function() {
     container.innerHTML = html;
 };
 
-// 全件モーダル表示処理
+// 全件モーダル表示処理（完全対応版）
 window.openAllRequestsModal = function() {
     const modal = document.getElementById('all-requests-modal');
     const container = document.getElementById('all-requests-container');
@@ -3425,11 +3425,11 @@ window.openAllRequestsModal = function() {
         return;
     }
 
-    // 1. 全件カードデータの出力
+    // 1. 全件カードデータの挿入
     const requests = window.purchaseRequests || [];
     if (container) {
         if (requests.length === 0) {
-            container.innerHTML = '<p style="padding: 10px; color: #888;">購入リクエストはありません。</p>';
+            container.innerHTML = '<p style="padding: 10px; color: #888;">現在、購入リクエストはありません。</p>';
         } else {
             container.innerHTML = requests.map(req => `
                 <div style="background-color: #ffffff; border-radius: var(--radius, 8px); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
@@ -3442,20 +3442,19 @@ window.openAllRequestsModal = function() {
         }
     }
 
-    // 2. CSSの有無に関わらず画面中央・最前面に強制表示
-    modal.style.display = 'flex';
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.width = '100%';
-    modal.style.height = '100%';
-    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    modal.style.zIndex = '99999';
-    modal.style.justifyContent = 'center';
-    modal.style.alignItems = 'center';
-
+    // 2. 既存の openModal 関数を実行（定義されていれば）
     if (typeof openModal === 'function') {
         try { openModal('all-requests-modal'); } catch(e) {}
+    }
+
+    // 3. クラス追加とインラインスタイルで確実に最前面表示
+    modal.classList.add('active', 'show', 'open');
+    modal.style.cssText = "display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.6) !important; z-index: 999999 !important; justify-content: center !important; align-items: center !important;";
+
+    // モーダル内部枠の表示補正
+    const content = modal.querySelector('.modal-content');
+    if (content) {
+        content.style.cssText = "display: block !important; background: #ffffff !important; padding: 24px !important; border-radius: 12px !important; max-width: 700px !important; width: 90% !important; max-height: 80vh !important; overflow-y: auto !important; position: relative !important; z-index: 1000000 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;";
     }
 };
         window.openRequestChat = function(id) {
