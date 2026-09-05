@@ -3488,7 +3488,7 @@ window.checkAuthAndOpenJobPost = function() {
             }
         };
 
-     window.submitNewProduct = function(e) {
+  window.submitNewProduct = function(e) {
     if (e && e.preventDefault) e.preventDefault();
     
     if (!currentUser) { 
@@ -3497,39 +3497,40 @@ window.checkAuthAndOpenJobPost = function() {
         return false; 
     }
 
-    // 1. フォームの入力項目を取得
+    // 出品者情報の取得
     const sellerName = document.getElementById('seller-name-input')?.value || currentUser.name || '出品者';
     const sellerEmail = document.getElementById('seller-email-input')?.value || currentUser.email || '';
     const sellerPhone = document.getElementById('seller-phone-input')?.value || currentUser.phone || '';
 
-    // ★ 金融機関情報の取得（フォームの要素IDに合わせて指定）★
-    const bankName = document.getElementById('seller-bank-name')?.value || currentUser.bankName || '';
-    const bankBranch = document.getElementById('seller-bank-branch')?.value || currentUser.bankBranch || '';
-    const accountType = document.getElementById('seller-account-type')?.value || currentUser.accountType || '';
-    const accountNumber = document.getElementById('seller-account-number')?.value || currentUser.accountNumber || '';
-    const accountHolder = document.getElementById('seller-account-holder')?.value || currentUser.accountHolder || '';
+    // ★ 銀行口座情報の取得（HTMLのidに一致） ★
+    const bankName = document.getElementById('bank-name-input')?.value?.trim() || '';
+    const bankBranch = document.getElementById('bank-branch-input')?.value?.trim() || '';
+    const accountType = document.getElementById('bank-type-input')?.value?.trim() || '';
+    const accountNumber = document.getElementById('bank-number-input')?.value?.trim() || '';
+    const accountHolder = document.getElementById('bank-holder-input')?.value?.trim() || '';
 
-    const title = document.getElementById('new-prod-name')?.value || '';
+    // 商品情報の取得
+    const name = document.getElementById('new-prod-name')?.value || '';
     const category = document.getElementById('new-prod-category')?.value || '';
     const price = parseInt(document.getElementById('new-prod-price')?.value) || 0;
-    const shippingFee = document.getElementById('new-prod-shipping')?.value || '';
+    const shipping = document.getElementById('new-prod-shipping')?.value || '';
     const desc = document.getElementById('new-prod-desc')?.value || '';
-    
+
     const imgElement = document.getElementById('img-preview');
     const image = (document.getElementById('img-preview-box')?.style.display === 'flex') ? imgElement.src : "";
 
-    if (!title || !price) {
+    if (!name || !price) {
         alert('商品名と価格を入力してください。');
         return false;
     }
 
-    // 2. ローカル配列の更新（通販サイト表示用）
+    // 1. 通販サイトローカル配列用データ
     const newProduct = { 
         id: Date.now(), 
-        name: title, 
+        name: name, 
         category: category, 
         price: price, 
-        shipping: shippingFee, 
+        shipping: shipping, 
         desc: desc, 
         seller: sellerName, 
         image: image, 
@@ -3539,7 +3540,7 @@ window.checkAuthAndOpenJobPost = function() {
     saveToStorage();
     renderProducts();
 
-    // 3. Firebase（admin.html 管理画面用）へ口座情報を含めて送信
+    // 2. 運営管理画面 (admin.html) の Firebase データベースへ送信
     try {
         const firebaseDb = (typeof db !== 'undefined' && db.ref) ? db : (typeof firebase !== 'undefined' ? firebase.database() : null);
         if (firebaseDb) {
@@ -3553,12 +3554,11 @@ window.checkAuthAndOpenJobPost = function() {
                 accountType: accountType,      // 口座種別
                 accountNumber: accountNumber,  // 口座番号
                 accountHolder: accountHolder,  // 口座名義
-                title: title,
+                title: name,
                 category: category,
                 price: price,
-                shippingFee: shippingFee,
+                shippingFee: shipping,
                 description: desc,
-                image: image,
                 verified: false,
                 createdAt: new Date().toLocaleString('ja-JP')
             });
@@ -3567,7 +3567,7 @@ window.checkAuthAndOpenJobPost = function() {
         console.error('Firebase送信エラー:', err);
     }
 
-    // フォームのリセットと完了処理
+    // フォームリセットと通知
     document.getElementById('seller-form')?.reset();
     if (document.getElementById('img-preview-box')) {
         document.getElementById('img-preview-box').style.display = 'none';
