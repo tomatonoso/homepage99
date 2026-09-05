@@ -5697,6 +5697,61 @@ window.sortPurchaseRequests = function(sortType) {
         }
     }
 };
+// --- オークション全件モーダル起動処理（修正版） ---
+window.openAllAuctionsModal = function() {
+    const modal = document.getElementById('all-auctions-modal');
+    const container = document.getElementById('all-auctions-container');
+
+    if (!modal) return;
+
+    // オークションデータの配列を広範囲に探す（購入リクエスト以外を取得）
+    const items = window.auctions || window.auctionList || window.auctionsData || window.auctionItems || [];
+
+    if (container) {
+        container.style.cssText = "display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 12px !important; width: 100% !important;";
+
+        if (items.length === 0) {
+            container.innerHTML = '<p style="padding: 10px; color: #888; grid-column: span 5;">現在開催中のオークションはありません。</p>';
+        } else {
+            container.innerHTML = items.map(item => `
+                <div style="background-color: #ffffff; border-radius: 8px; padding: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">現在価格: <span style="color: #d9534f; font-weight: bold; font-size: 0.95rem;">¥${item.price ? Number(item.price).toLocaleString() : (item.currentPrice ? Number(item.currentPrice).toLocaleString() : 0)}</span></div>
+                        <div style="font-weight: bold; font-size: 0.88rem; margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${item.title || ''}</div>
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">${item.desc || ''}</div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer; margin-top: 8px;" onclick="if(typeof openAuctionDetail === 'function') openAuctionDetail('${item.id}')"><i class="fa-solid fa-gavel"></i> 詳細を見る</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // スタイル適用
+    modal.style.setProperty('display', 'flex', 'important');
+    modal.style.setProperty('position', 'fixed', 'important');
+    modal.style.setProperty('top', '0', 'important');
+    modal.style.setProperty('left', '0', 'important');
+    modal.style.setProperty('width', '100vw', 'important');
+    modal.style.setProperty('height', '100vh', 'important');
+    modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.6)', 'important');
+    modal.style.setProperty('z-index', '999999', 'important');
+    modal.style.setProperty('justify-content', 'center', 'important');
+    modal.style.setProperty('align-items', 'center', 'important');
+
+    const content = modal.querySelector('.modal-content');
+    if (content) {
+        content.style.setProperty('display', 'block', 'important');
+        content.style.setProperty('background-color', '#ffffff', 'important');
+        content.style.setProperty('padding', '24px', 'important');
+        content.style.setProperty('border-radius', '12px', 'important');
+        content.style.setProperty('max-width', '1200px', 'important');
+        content.style.setProperty('width', '95%', 'important');
+        content.style.setProperty('max-height', '85vh', 'important');
+        content.style.setProperty('overflow-y', 'auto', 'important');
+        content.style.setProperty('position', 'relative', 'important');
+        content.style.setProperty('z-index', '1000000', 'important');
+    }
+};
 </script>
 
 <div id="all-requests-modal" class="modal" style="display: none;">
