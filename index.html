@@ -1222,6 +1222,36 @@
     padding: 24px !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
 }
+/* カード全体の高さをグリッド内で統一 */
+#all-auctions-list, 
+#all-auctions-grid, 
+.auction-grid {
+    align-items: stretch !important; /* 同じ行のカードの高さを揃える */
+}
+
+.auction-card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;           /* カードの高さを100%に統一 */
+    box-sizing: border-box !important;
+}
+
+/* 説明文などの文字溢れ・行数による崩れを防止（1行に制限） */
+.auction-card p,
+.auction-card div {
+    word-break: break-word;
+}
+
+/* 一番下の「クリックして詳細…」リンクの位置を最下部に押し揃える */
+.auction-card > *:last-child,
+.auction-card a[onclick*="openAuctionDetail"],
+.auction-card [onclick*="openAuctionDetail"]:last-child {
+    margin-top: auto !important;     /* 最下部に固定 */
+    padding-top: 8px !important;
+    white-space: nowrap !important;   /* テキストの途中で勝手に改行されるのを防止 */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
 </style>
 <script>
 // アルバイト投稿モーダルを開く関数
