@@ -2838,7 +2838,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     <p style="color: #28a745; font-size: 0.85rem; margin-bottom: 12px; background: #e8f5e9; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center;">
         <i class="fa-solid fa-circle-check"></i> スマホでの顔認証が完了しました
     </p>
-    <form id="admin-form-element">
+    <form id="admin-form-element" onsubmit="handleAdminRegister(event)">
         <div class="form-group">
             <label>管理者メールアドレス *</label>
             <input type="email" id="signup-admin-email" class="form-control" required placeholder="admin@minatomo.jp">
@@ -6051,6 +6051,28 @@ window.submitAuction = function(e) {
         closeAuctionPostModal();
     }
 };
+// 1. 運営管理者 新規登録完了時の処理
+function handleAdminRegister(event) {
+    event.preventDefault(); // 画面の自動リロードを防止
+
+    // 入力値の取得（必要に応じてバリデーションを追加）
+    const email = document.getElementById('signup-admin-email').value;
+
+    alert('運営管理者の登録が完了しました。管理画面へ遷移します。');
+
+    // ★ admin.html へ移動
+    window.location.href = 'admin.html';
+}
+
+// 2. 運営管理者 ログイン完了時の処理
+function handleAdminLogin(event) {
+    event.preventDefault(); // 画面の自動リロードを防止
+
+    alert('ログインしました。管理画面へ遷移します。');
+
+    // ★ admin.html へ移動
+    window.location.href = 'admin.html';
+}
 </script>
 
 <div id="all-requests-modal" class="modal" style="display: none;">
