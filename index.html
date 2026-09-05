@@ -3476,17 +3476,46 @@ window.checkAuthAndOpenJobPost = function() {
         };
 
         /* 追加: 本人確認用画像のプレビュー処理 */
-        window.handleBuyerIdImageUpload = function(e) {
-            const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    document.getElementById('buyer-id-preview').src = evt.target.result;
-                    document.getElementById('buyer-id-preview-box').style.display = 'flex';
-                };
-                reader.readAsDataURL(file);
+       window.handleBuyerIdImageUpload = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(evt) {
+        const img = new Image();
+        img.src = evt.target.result;
+        img.onload = function() {
+            // キャンバスによる画像圧縮処理（最大幅600px）
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 600;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
             }
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // 画質0.6の軽量なJPEG文字列に変換
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+
+            // プレビュー表示
+            const previewEl = document.getElementById('buyer-id-preview');
+            const boxEl = document.getElementById('buyer-id-preview-box');
+            if (previewEl) previewEl.src = compressedBase64;
+            if (boxEl) boxEl.style.display = 'flex';
+
+            // Firebase送信用にグローバル変数へ保存
+            window.buyerIdImageData = compressedBase64;
         };
+    };
+};
 
   window.submitNewProduct = function(e) {
     if (e && e.preventDefault) e.preventDefault();
@@ -3990,16 +4019,17 @@ window.sendPriceProposal = function() {
 
         // ★ ここから Firebase 送信処理を追加 ★
         if (typeof db !== 'undefined' && db.ref) {
-            const newUserData = {
-                id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
-                name: name,
-                email: email,
-                phone: phone,
-                kycStatus: '未提出',
-                status: '正常',
-                verified: false,
-                createdAt: new Date().toLocaleString('ja-JP')
-            };
+           const newUserData = {
+            id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
+            name: name,
+            email: email,
+            phone: phone,
+            kycStatus: window.buyerIdImageData ? '審査中' : '未提出',
+            kycImage: window.buyerIdImageData || '',
+            status: '正常',
+            verified: false,
+            createdAt: new Date().toLocaleString('ja-JP')
+        };
             db.ref('admin_data/users').push().set(newUserData);
         }
         // ★ ここまで ★
