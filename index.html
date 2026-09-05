@@ -3381,7 +3381,7 @@ window.checkAuthAndOpenJobPost = function() {
 
     alert('購入リクエストを投稿しました！');
 };
-     window.renderPurchaseRequests = function() {
+   window.renderPurchaseRequests = function() {
     const container = document.getElementById('request-list-container');
     if (!container) return;
 
@@ -3403,7 +3403,7 @@ window.checkAuthAndOpenJobPost = function() {
         </div>
     `).join('');
 
-    // 末尾に「すべて見る」ボタンカードを追加（onclickイベントを確実に設定）
+    // 末尾に「すべて見る」ボタンカードを追加
     html += `
         <div onclick="openAllRequestsModal()" style="min-width: 130px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #f8f9fa; border: 2px dashed #ccc; border-radius: var(--radius); cursor: pointer; padding: 16px; flex-shrink: 0;">
             <i class="fa-solid fa-circle-arrow-right" style="font-size: 24px; color: #007bff; margin-bottom: 6px;"></i>
@@ -3422,55 +3422,71 @@ window.openAllRequestsModal = function() {
 
     if (!modal) return;
 
-    // 1. カード一覧の生成
+    // 1. 全件カードの生成
     const requests = window.purchaseRequests || [];
     if (container) {
         if (requests.length === 0) {
             container.innerHTML = '<p style="padding: 10px; color: #888;">現在購入リクエストはありません。</p>';
         } else {
             container.innerHTML = requests.map(req => `
-                <div style="background-color: #ffffff; border-radius: var(--radius, 8px); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
-                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red, #d9534f); font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
+                <div style="background-color: #ffffff; border-radius: 8px; padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
+                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: #d9534f; font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
                     <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-sub, #666); margin-bottom: 10px;">${req.desc || ''}</div>
-                    <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}'); if(typeof closeModal==='function'){closeModal('all-requests-modal');}"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">${req.desc || ''}</div>
+                    <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}')"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
                 </div>
             `).join('');
         }
     }
 
-    // 2. 最前面への表示補正
-    modal.classList.add('active', 'show', 'open');
-    modal.style.cssText = "display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.6) !important; z-index: 999999 !important; justify-content: center !important; align-items: center !important;";
+    // 2. 最前面への表示スタイルを適用
+    modal.style.setProperty('display', 'flex', 'important');
+    modal.style.setProperty('position', 'fixed', 'important');
+    modal.style.setProperty('top', '0', 'important');
+    modal.style.setProperty('left', '0', 'important');
+    modal.style.setProperty('width', '100vw', 'important');
+    modal.style.setProperty('height', '100vh', 'important');
+    modal.style.setProperty('background-color', 'rgba(0, 0, 0, 0.6)', 'important');
+    modal.style.setProperty('z-index', '999999', 'important');
+    modal.style.setProperty('justify-content', 'center', 'important');
+    modal.style.setProperty('align-items', 'center', 'important');
 
     const content = modal.querySelector('.modal-content');
     if (content) {
-        content.style.cssText = "display: block !important; background: #ffffff !important; padding: 24px !important; border-radius: 12px !important; max-width: 700px !important; width: 90% !important; max-height: 80vh !important; overflow-y: auto !important; position: relative !important; z-index: 1000000 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;";
+        content.style.setProperty('display', 'block', 'important');
+        content.style.setProperty('background-color', '#ffffff', 'important');
+        content.style.setProperty('padding', '24px', 'important');
+        content.style.setProperty('border-radius', '12px', 'important');
+        content.style.setProperty('max-width', '700px', 'important');
+        content.style.setProperty('width', '90%', 'important');
+        content.style.setProperty('max-height', '80vh', 'important');
+        content.style.setProperty('overflow-y', 'auto', 'important');
+        content.style.setProperty('position', 'relative', 'important');
+        content.style.setProperty('z-index', '1000000', 'important');
     }
 };
-        window.openRequestChat = function(id) {
-            const req = purchaseRequests.find(r => String(r.id) === String(id));
-            if(!req) return;
-            currentActiveRequest = req;
-            document.getElementById('chat-req-title').innerText = req.title;
-            document.getElementById('chat-req-budget').innerText = `¥${req.price.toLocaleString()}`;
-            document.getElementById('chat-req-author').innerText = req.author;
-            document.getElementById('chat-req-desc').innerText = req.desc;
-            renderChatMessages();
-            updateProposalUI();
-            openModal('request-chat-modal');
-        };
 
-        window.renderChatMessages = function() {
-            const container = document.getElementById('chat-messages-container');
-            if(!currentActiveRequest) return;
-            container.innerHTML = currentActiveRequest.messages.map(m => `
-                <div style="background: ${m.sender === 'システム' ? '#f1f3f5' : '#e8f4ff'}; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem;">
-                    <strong>${m.sender}:</strong> ${m.text}
-                </div>
-            `).join('');
-            container.scrollTop = container.scrollHeight;
-        };
+// 相談チャットモーダル表示処理
+window.openRequestChat = function(id) {
+    // 全件モーダルが開いていれば隠す
+    const allModal = document.getElementById('all-requests-modal');
+    if (allModal) {
+        allModal.style.setProperty('display', 'none', 'important');
+    }
+
+    const req = purchaseRequests.find(r => String(r.id) === String(id));
+    if (!req) return;
+
+    currentActiveRequest = req;
+    document.getElementById('chat-req-title').innerText = req.title || '';
+    document.getElementById('chat-req-budget').innerText = `¥${req.price ? Number(req.price).toLocaleString() : 0}`;
+    document.getElementById('chat-req-author').innerText = req.author || '';
+    document.getElementById('chat-req-desc').innerText = req.desc || '';
+
+    if (typeof renderChatMessages === 'function') renderChatMessages();
+    if (typeof updateProposalUI === 'function') updateProposalUI();
+    if (typeof openModal === 'function') openModal('request-chat-modal');
+};
 
         window.sendChatMessage = function() {
             const input = document.getElementById('chat-input-msg');
