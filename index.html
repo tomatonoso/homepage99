@@ -425,19 +425,21 @@
         }
         .image-upload-wrapper input[type="file"] { display: none; }
         .img-preview-container {
-            margin-top: 10px;
-            max-height: 150px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-radius: 4px;
-        }
-        .img-preview-container img {
-            max-width: 100%;
-            max-height: 150px;
-            object-fit: contain;
-        }
+    margin-top: 10px;
+    width: 100%;
+    aspect-ratio: 1 / 1; /* 横幅に合わせた正方形（1:1）にする */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.img-preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* スペルミス(obiect -> object)を修正し枠いっぱいに収める */
+}
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.82rem; }
         th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
