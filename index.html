@@ -1756,7 +1756,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     <div class="section-header">
         <span><i class="fa-solid fa-gavel" style="color: var(--brand-red);"></i> オークション</span>
         <div style="display: flex; gap: 10px;">
-            <button onclick="openAllAuctionsModal()" style="background-color: #f8f9fa; color: #333; border: 1px solid #ccc; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
+            <button id="btn-open-all-auctions" onclick="openAllAuctionsModal()" style="background-color: #f8f9fa; color: #333; border: 1px solid #ccc; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
                 <i class="fa-solid fa-list"></i> すべて見る
             </button>
             <button class="auction-post-btn" onclick="checkAuthAndOpenAuctionPost()"><i class="fa-solid fa-plus"></i> 投稿</button>
@@ -5752,6 +5752,18 @@ window.openAllAuctionsModal = function() {
         content.style.setProperty('z-index', '1000000', 'important');
     }
 };
+// オークション用「すべて見る」のクリック優先処理
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('#btn-open-all-auctions');
+    if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        if (typeof window.openAllAuctionsModal === 'function') {
+            window.openAllAuctionsModal();
+        }
+    }
+}, true);
 </script>
 
 <div id="all-requests-modal" class="modal" style="display: none;">
