@@ -1091,21 +1091,18 @@
     color: #888;
 }
 /* 全件表示モーダルの幅を広げる */
+/* ★前回追加した5列表示のCSS（消さずに残す） */
 #all-auctions-modal .modal-content {
     max-width: 1200px !important;
     width: 95% !important;
 }
-
-/* カードを設置するエリアを横5列のグリッドにする */
 #all-auctions-list, #all-auctions-grid {
     display: grid !important;
-    grid-template-columns: repeat(5, 1fr) !important; /* 横5列 */
-    gap: 12px !important; /* カード同士の間隔 */
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 12px !important;
     padding: 10px 0;
     width: 100%;
 }
-
-/* カード自体のレイアウト調整 */
 .auction-card {
     background: #fff;
     border: 1px solid #e0e0e0;
@@ -1116,7 +1113,27 @@
     flex-direction: column;
     justify-content: space-between;
     box-sizing: border-box;
-    min-width: 0; /* テキスト溢れ防止 */
+    min-width: 0;
+}
+
+/* ★今回追加する画像正方形化のCSS（下にそのまま追記） */
+.auction-card img,
+.auction-detail-media img,
+#all-auctions-list img,
+#all-auctions-grid img {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+    display: block !important;
+}
+.auction-detail-media,
+.auction-card-media {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    overflow: hidden !important;
+    background-color: #f5f5f5 !important;
+    border-radius: 8px !important;
 }
 
     </style>
