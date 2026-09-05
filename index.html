@@ -5674,6 +5674,28 @@ loadRequestsFromStorage();
 if (typeof renderPurchaseRequests === 'function') {
     renderPurchaseRequests();
 }
+// オークションをローカルストレージへ保存
+function saveAuctionsToStorage() {
+    localStorage.setItem('auctions', JSON.stringify(window.auctions || []));
+}
+
+// オークションをローカルストレージから読み込み
+function loadAuctionsFromStorage() {
+    const saved = localStorage.getItem('auctions');
+    if (saved) {
+        try {
+            window.auctions = JSON.parse(saved);
+        } catch(e) {
+            console.error('オークションデータの読み込みエラー:', e);
+        }
+    }
+}
+
+// 起動時にオークションデータを復元して画面を描画
+loadAuctionsFromStorage();
+if (typeof renderAuctions === 'function') {
+    renderAuctions();
+}
 // 購入リクエストの並び替え処理
 window.sortPurchaseRequests = function(sortType) {
     if (!window.purchaseRequests || window.purchaseRequests.length === 0) return;
@@ -5821,7 +5843,7 @@ document.getElementById('auction-form')?.addEventListener('submit', function(e) 
         // その他の必要なフィールド（画像等）
     };
 
-    // 2. window.auctions 配列が存在しなければ初期化し、先頭に追加
+  // 2. window.auctions 配列が存在しなければ初期化し、先頭に追加
     if (!window.auctions) window.auctions = [];
     window.auctions.unshift(newAuction);
 
@@ -5833,9 +5855,20 @@ document.getElementById('auction-form')?.addEventListener('submit', function(e) 
         renderAuctions();
     }
 
-    // 5. フォームのリセットとモーダルを閉じる
-    this.reset();
+    // 5. フォームのリセットとモーダルを閉じる（★ここを書き換え）
+    if (e && e.target && typeof e.target.reset === 'function') {
+        e.target.reset();
+    }
     alert('オークションを出品しました！');
+
+    // 投稿フォームのモーダルを非表示にする
+    const postModal = document.getElementById('auction-post-modal'); // 投稿モーダルのID
+    if (postModal) {
+        postModal.style.display = 'none';
+    }
+    if (typeof closeAuctionPostModal === 'function') {
+        closeAuctionPostModal();
+    }
 });
 </script>
 
