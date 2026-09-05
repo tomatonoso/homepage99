@@ -1756,9 +1756,9 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     <div class="section-header">
         <span><i class="fa-solid fa-gavel" style="color: var(--brand-red);"></i> オークション</span>
         <div style="display: flex; gap: 10px;">
-            <button id="btn-open-all-auctions" onclick="openAllAuctionsModal()" style="background-color: #f8f9fa; color: #333; border: 1px solid #ccc; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
-                <i class="fa-solid fa-list"></i> すべて見る
-            </button>
+            <button id="btn-open-all-auctions" onclick="event.stopPropagation(); openAllAuctionsModal(event);" style="background-color: #f8f9fa; color: #333; border: 1px solid #ccc; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
+    <i class="fa-solid fa-list"></i> すべて見る
+</button>
             <button class="auction-post-btn" onclick="checkAuthAndOpenAuctionPost()"><i class="fa-solid fa-plus"></i> 投稿</button>
         </div>
     </div>
@@ -5698,13 +5698,23 @@ window.sortPurchaseRequests = function(sortType) {
     }
 };
 // --- オークション全件モーダル起動処理（修正版） ---
+// --- オークション全件モーダル起動処理 ---
 window.openAllAuctionsModal = function() {
+    // 購入リクエスト用モーダルが開いていれば強制的に閉じる
+    const reqModal = document.getElementById('all-requests-modal');
+    if (reqModal) {
+        reqModal.style.setProperty('display', 'none', 'important');
+    }
+
     const modal = document.getElementById('all-auctions-modal');
     const container = document.getElementById('all-auctions-container');
 
-    if (!modal) return;
+    if (!modal) {
+        alert('エラー: #all-auctions-modal がHTML内に見つかりません。HTML側へ追加してください。');
+        return;
+    }
 
-    // オークションデータの配列を広範囲に探す（購入リクエスト以外を取得）
+    // オークション用データの取得
     const items = window.auctions || window.auctionList || window.auctionsData || window.auctionItems || [];
 
     if (container) {
@@ -5726,7 +5736,7 @@ window.openAllAuctionsModal = function() {
         }
     }
 
-    // スタイル適用
+    // モーダルの表示設定
     modal.style.setProperty('display', 'flex', 'important');
     modal.style.setProperty('position', 'fixed', 'important');
     modal.style.setProperty('top', '0', 'important');
@@ -5787,6 +5797,30 @@ document.addEventListener('click', function(e) {
 
         <div id="all-requests-container" class="all-requests-grid">
             <!-- 全件カードが挿入されます -->
+        </div>
+    </div>
+</div>
+<!-- オークション全件表示モーダル -->
+<div id="all-auctions-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 1200px; width: 95%;">
+        <span class="close-btn" onclick="closeModal('all-auctions-modal')">&times;</span>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-right: 24px;">
+            <h3 style="margin: 0;">開催中のオークション（全件）</h3>
+            
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="auction-sort-select" style="font-size: 0.85rem; color: #555; font-weight: bold;">並び替え:</label>
+                <select id="auction-sort-select" onchange="sortAuctions(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.85rem; background-color: #fff; cursor: pointer;">
+                    <option value="newest">最新順</option>
+                    <option value="oldest">古い順</option>
+                    <option value="price-high">現在価格が高い順</option>
+                    <option value="price-low">現在価格が安い順</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="all-auctions-container" class="all-auctions-grid">
+            <!-- オークションカードが挿入されます -->
         </div>
     </div>
 </div>
