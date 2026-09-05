@@ -3348,18 +3348,60 @@ window.checkAuthAndOpenJobPost = function() {
             alert('購入リクエストを投稿しました！');
         };
 
-        window.renderPurchaseRequests = function() {
-            const container = document.getElementById('request-list-container');
-            if(!container) return;
-            container.innerHTML = purchaseRequests.map(req => `
-                <div style="min-width: 240px; background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.2s;" onclick="openRequestChat(${req.id})" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥${req.price.toLocaleString()}</span></div>
-                    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${req.desc}</div>
-                    <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold;"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
-                </div>
-            `).join('');
-        };
+       window.renderPurchaseRequests = function() {
+    const container = document.getElementById('request-list-container');
+    if (!container) return;
+
+    if (!window.purchaseRequests || purchaseRequests.length === 0) {
+        container.innerHTML = '<p style="font-size: 0.85rem; color: #888; padding: 10px;">現在購入リクエストはありません。</p>';
+        return;
+    }
+
+    // 最大10件を取得
+    const displayItems = purchaseRequests.slice(0, 10);
+
+    // 横スクロール用のカードを生成
+    let html = displayItems.map(req => `
+        <div style="min-width: 240px; background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; flex-shrink: 0;">
+            <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
+            <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
+            <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${req.desc || ''}</div>
+            <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}')"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
+        </div>
+    `).join('');
+
+    // 末尾に「すべて見る」ボタンカードを追加
+    html += `
+        <div style="min-width: 130px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #f8f9fa; border: 2px dashed #ccc; border-radius: var(--radius); cursor: pointer; padding: 16px; flex-shrink: 0;" onclick="openAllRequestsModal()">
+            <i class="fa-solid fa-circle-arrow-right" style="font-size: 24px; color: #007bff; margin-bottom: 6px;"></i>
+            <span style="font-weight: bold; font-size: 0.85rem; color: #333;">すべて見る</span>
+            <span style="font-size: 0.75rem; color: #888;">(${purchaseRequests.length}件)</span>
+        </div>
+    `;
+
+    container.innerHTML = html;
+};
+
+// 全件モーダル表示処理
+window.openAllRequestsModal = function() {
+    const container = document.getElementById('all-requests-container');
+    if (container && window.purchaseRequests) {
+        container.innerHTML = purchaseRequests.map(req => `
+            <div style="background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
+                <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
+                <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
+                <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 10px;">${req.desc || ''}</div>
+                <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}'); closeModal('all-requests-modal');"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
+            </div>
+        `).join('');
+    }
+    if (typeof openModal === 'function') {
+        openModal('all-requests-modal');
+    } else {
+        const modal = document.getElementById('all-requests-modal');
+        if (modal) modal.style.display = 'block';
+    }
+};
 
         window.openRequestChat = function(id) {
             const req = purchaseRequests.find(r => r.id === id);
