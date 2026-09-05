@@ -5657,6 +5657,11 @@ function loadRequestsFromStorage() {
         }
     }
 }
+// 起動時にデータを復元して画面を描画
+loadRequestsFromStorage();
+if (typeof renderPurchaseRequests === 'function') {
+    renderPurchaseRequests();
+}
 </script>
 
 <!-- 購入リクエスト全件表示モーダル -->
