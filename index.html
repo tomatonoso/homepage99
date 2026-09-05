@@ -6058,14 +6058,12 @@ function handleAdminRegister(event) {
     // 入力値の取得（必要に応じてバリデーションを追加）
     const email = document.getElementById('signup-admin-email').value;
 
-    // ★ 追加：登録済みフラグをブラウザに保存
-    localStorage.setItem('isAdminRegistered', 'true');
-
     alert('運営管理者の登録が完了しました。管理画面へ遷移します。');
 
     // ★ admin.html へ移動
     window.location.href = 'admin.html';
 }
+
 // 2. 運営管理者 ログイン完了時の処理
 function handleAdminLogin(event) {
     event.preventDefault(); // 画面の自動リロードを防止
@@ -6075,40 +6073,6 @@ function handleAdminLogin(event) {
     // ★ admin.html へ移動
     window.location.href = 'admin.html';
 }
-// ★ 追加：登録状態に応じてログイン画面か登録画面かを判定して開く関数
-function openAdminMenu() {
-    const isRegistered = localStorage.getItem('isAdminRegistered') === 'true';
-
-    if (isRegistered) {
-        // 登録済みの場合はログイン画面を開く
-        if (typeof openModal === 'function') {
-            openModal('admin-login-modal');
-        } else {
-            const loginModal = document.getElementById('admin-login-modal');
-            if (loginModal) loginModal.style.display = 'flex';
-        }
-    } else {
-        // 未登録の場合は新規登録（顔認証ステップ）画面を開く
-        if (typeof openModal === 'function') {
-            openModal('admin-signup-modal');
-        } else {
-            const signupModal = document.getElementById('admin-signup-modal');
-            if (signupModal) signupModal.style.display = 'flex';
-        }
-    }
-}
-// ページ読み込み時に「運営管理」ボタンを探してイベントを紐付ける
-document.addEventListener('DOMContentLoaded', function() {
-    const allElements = document.querySelectorAll('button, a, div');
-    allElements.forEach(el => {
-        if (el.textContent.trim() === '運営管理' || el.textContent.includes('運営管理')) {
-            el.onclick = function(e) {
-                e.preventDefault();
-                openAdminMenu();
-            };
-        }
-    });
-});
 </script>
 
 <div id="all-requests-modal" class="modal" style="display: none;">
