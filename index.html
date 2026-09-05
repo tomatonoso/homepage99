@@ -5360,9 +5360,9 @@ window.handleAdminLogin = function(event) {
     } else {
         alert("認証エラー: メールアドレス、パスワード、または秘密の合言葉が一致しません。");
     }
-};
+}; // ← handleAdminLogin をここで正しく閉じる
 
-// モーダル表示関数（openAdminModal is not defined の解消）
+// モーダル表示関数
 window.openAdminModal = function() {
     if (typeof openModal === 'function') {
         openModal('admin-login-modal');
@@ -5372,13 +5372,14 @@ window.openAdminModal = function() {
     }
 };
 </script>
-<!-- 外部ライブラリ（QRコード生成 & Firebase） -->
+
+<!-- 外部ライブラリ (QRコード生成 & Firebase) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-// --- Firebase初期化設定 (Firebaseコンソールで取得したご自身のキーに書き換えてください) ---
+// --- Firebase初期化設定 ---
 var firebaseConfig = {
     apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
     authDomain: "yauwo-a9ba1.firebaseapp.com",
@@ -5392,8 +5393,10 @@ var firebaseConfig = {
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-const db = firebase.database();
 
+// const ではなく var を使用（重複宣言エラーの回避）
+var db = firebase.database();
+</script>
 let currentSessionId = '';
 
 // --- PC側: 顔認証QRコード生成 & 監視 ---
