@@ -3525,6 +3525,18 @@ window.checkAuthAndOpenJobPost = function() {
         openModal('buyer-auth-modal'); 
         return false; 
     }
+    // KYC（本人確認）の承認状態チェック
+    const kycStatus = currentUser.kycStatus || '未提出';
+    if (kycStatus !== '承認済み') {
+        if (kycStatus === '審査中') {
+            alert('現在、本人確認（KYC）の審査中です。承認完了まで出品機能はご利用いただけません。');
+        } else if (kycStatus === '再提出') {
+            alert('本人確認書類の再提出が必要です。確認書類を再アップロードしてください。');
+        } else {
+            alert('出品を行うには本人確認（KYC）書類の提出と運営の承認が必要です。');
+        }
+        return false;
+    }
 
     // 出品者情報の取得
     const sellerName = document.getElementById('seller-name-input')?.value || currentUser.name || '出品者';
@@ -4030,8 +4042,21 @@ window.sendPriceProposal = function() {
             verified: false,
             createdAt: new Date().toLocaleString('ja-JP')
         };
-            db.ref('admin_data/users').push().set(newUserData);
-        }
+        // Firebaseへ保存し、同時にリアルタイム監視を開始
+        const newUserRef = db.ref('admin_data/users').push();
+        newUserRef.set(newUserData).then(() => {
+            // カレントユーザーオブジェクトの設定
+            window.currentUser = newUserData;
+            window.currentUser.firebaseKey = newUserRef.key;
+
+            // ★ 管理画面での承認変更をリアルタイム監視 ★
+            newUserRef.on('value', function(snapshot) {
+                const updatedData = snapshot.val();
+                if (updatedData && window.currentUser) {
+                    window.currentUser.kycStatus = updatedData.kycStatus || '未提出';
+                }
+            });
+        });
         // ★ ここまで ★
 
         currentUser = newUser;
@@ -6421,6 +6446,31 @@ if (typeof firebase !== 'undefined') {
             renderProducts();
         }
     });
+}
+// ユーザーがKYC「承認済み」かどうかを判定する関数
+function isKycApproved() {
+    // ログインユーザー情報やFirebaseのデータから判定
+    if (!currentUser) return false;
+    
+    // currentUser.kycStatus または DB上のステータスを参照
+    const status = currentUser.kycStatus;
+    return status === '承認済み';
+}
+
+// 制限機能（出品・投稿）を呼び出す前に実行するチェック処理
+function checkKycPermission(actionName) {
+    if (!isKycApproved()) {
+        const status = currentUser?.kycStatus || '未提出';
+        if (status === '審査中') {
+            alert('現在、本人確認（KYC）の審査中です。承認完了まで' + actionName + 'はご利用いただけません。');
+        } else if (status === '再提出') {
+            alert('本人確認書類の再提出が必要です。書類を再アップロードしてください。');
+        } else {
+            alert(actionName + 'を行うには本人確認（KYC）の提出と承認が必要です。');
+        }
+        return false; // 許可しない
+    }
+    return true; // 許可する
 }
 </script>
 </body>
