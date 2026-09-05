@@ -6318,6 +6318,42 @@ function submitProductToFirebase(seller, sellerEmail, sellerPhone, title, catego
         }
     });
 }
+// Firebaseのデータ変更（削除・追加）を常時監視して通販サイト側に即時反映
+if (typeof firebase !== 'undefined') {
+    const firebaseDb = (typeof db !== 'undefined' && db.ref) ? db : firebase.database();
+    
+    firebaseDb.ref('admin_data/products').on('value', (snapshot) => {
+        const firebaseProducts = snapshot.val();
+        
+        if (firebaseProducts) {
+            // Firebase上のデータを配列に変換
+            const updatedList = Object.keys(firebaseProducts).map(key => {
+                const item = firebaseProducts[key];
+                return {
+                    id: item.id || key,
+                    name: item.title,
+                    category: item.category,
+                    price: item.price,
+                    shipping: item.shippingFee,
+                    desc: item.description,
+                    seller: item.seller,
+                    image: item.image || "",
+                    recommend: false
+                };
+            });
+            
+            // ローカルの products 配列と storage を更新
+            products = updatedList;
+            saveToStorage();
+            renderProducts(); // 画面を再描画
+        } else {
+            // Firebase側が全削除された場合
+            products = [];
+            saveToStorage();
+            renderProducts();
+        }
+    });
+}
 </script>
 </body>
 </html>
