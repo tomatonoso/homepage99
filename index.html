@@ -5332,7 +5332,7 @@ window.handleAdminSignup = function(event) {
 
 // 【ログイン処理】登録済み情報との照合
 window.handleAdminLogin = function(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
     const admin = getRegisteredAdmin();
     if (!admin) {
@@ -5340,10 +5340,10 @@ window.handleAdminLogin = function(event) {
         return;
     }
 
-    const inputEmail = document.getElementById('signup-admin-email').value.trim();
-    const inputPass1 = document.getElementById('signup-admin-pass1').value;
-    const inputPass2 = document.getElementById('signup-admin-pass2').value;
-    const inputSecurity = document.getElementById('signup-admin-security').value.trim();
+    const inputEmail = document.getElementById('signup-admin-email') ? document.getElementById('signup-admin-email').value.trim() : '';
+    const inputPass1 = document.getElementById('signup-admin-pass1') ? document.getElementById('signup-admin-pass1').value : '';
+    const inputPass2 = document.getElementById('signup-admin-pass2') ? document.getElementById('signup-admin-pass2').value : '';
+    const inputSecurity = document.getElementById('signup-admin-security') ? document.getElementById('signup-admin-security').value.trim() : '';
 
     // 各入力項目の照合
     if (
@@ -5354,15 +5354,15 @@ window.handleAdminLogin = function(event) {
     ) {
         sessionStorage.setItem('minatomo_admin_logged_in', 'true');
         alert("認証成功！ 運営管理画面を開きます。");
-        
+
         closeModal('admin-login-modal');
         window.location.href = 'admin.html';
     } else {
         alert("認証エラー: メールアドレス、パスワード、または秘密の合言葉が一致しません。");
     }
-}
+};
 
-// モーダル表示関数を追加（openAdminModal is not defined の解消）
+// モーダル表示関数（openAdminModal is not defined の解消）
 window.openAdminModal = function() {
     if (typeof openModal === 'function') {
         openModal('admin-login-modal');
