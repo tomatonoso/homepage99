@@ -3403,20 +3403,22 @@ window.checkAuthAndOpenJobPost = function() {
         </div>
     `).join('');
 
-    // 末尾に「すべて見る」ボタンカードを追加（onclickイベントを確実に設定）
+ // 末尾に「すべて見る」ボタンカードを追加（window.openAllRequestsModalを直接指定）
     html += `
-        <div onclick="openAllRequestsModal()" style="min-width: 130px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #f8f9fa; border: 2px dashed #ccc; border-radius: var(--radius); cursor: pointer; padding: 16px; flex-shrink: 0;">
+        <div onclick="window.openAllRequestsModal()" style="min-width: 130px; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #f8f9fa; border: 2px dashed #ccc; border-radius: var(--radius); cursor: pointer; padding: 16px; flex-shrink: 0;">
             <i class="fa-solid fa-circle-arrow-right" style="font-size: 24px; color: #007bff; margin-bottom: 6px;"></i>
             <span style="font-weight: bold; font-size: 0.85rem; color: #333;">すべて見る</span>
-            <span style="font-size: 0.75rem; color: #888;">(${purchaseRequests.length}件)</span>
+            <span style="font-size: 0.75rem; color: #888;">(${purchaseRequests ? purchaseRequests.length : 0}件)</span>
         </div>
     `;
 
     container.innerHTML = html;
 };
 
-// 全件モーダル表示処理（完全対応版）
+// 全件モーダル表示処理
 window.openAllRequestsModal = function() {
+    console.log("openAllRequestsModal が実行されました"); // 動作確認ログ
+
     const modal = document.getElementById('all-requests-modal');
     const container = document.getElementById('all-requests-container');
 
@@ -3425,11 +3427,11 @@ window.openAllRequestsModal = function() {
         return;
     }
 
-    // 1. 全件カードデータの挿入
+    // 1. 全件カードデータの生成
     const requests = window.purchaseRequests || [];
     if (container) {
         if (requests.length === 0) {
-            container.innerHTML = '<p style="padding: 10px; color: #888;">現在、購入リクエストはありません。</p>';
+            container.innerHTML = '<p style="padding: 10px; color: #888;">購入リクエストはありません。</p>';
         } else {
             container.innerHTML = requests.map(req => `
                 <div style="background-color: #ffffff; border-radius: var(--radius, 8px); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
@@ -3442,16 +3444,10 @@ window.openAllRequestsModal = function() {
         }
     }
 
-    // 2. 既存の openModal 関数を実行（定義されていれば）
-    if (typeof openModal === 'function') {
-        try { openModal('all-requests-modal'); } catch(e) {}
-    }
-
-    // 3. クラス追加とインラインスタイルで確実に最前面表示
+    // 2. コンソールで成功したスタイル指定を直接適用
     modal.classList.add('active', 'show', 'open');
     modal.style.cssText = "display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.6) !important; z-index: 999999 !important; justify-content: center !important; align-items: center !important;";
 
-    // モーダル内部枠の表示補正
     const content = modal.querySelector('.modal-content');
     if (content) {
         content.style.cssText = "display: block !important; background: #ffffff !important; padding: 24px !important; border-radius: 12px !important; max-width: 700px !important; width: 90% !important; max-height: 80vh !important; overflow-y: auto !important; position: relative !important; z-index: 1000000 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;";
