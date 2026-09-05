@@ -1090,6 +1090,34 @@
     cursor: pointer;
     color: #888;
 }
+/* 全件表示モーダルの幅を広げる */
+#all-auctions-modal .modal-content {
+    max-width: 1200px !important;
+    width: 95% !important;
+}
+
+/* カードを設置するエリアを横5列のグリッドにする */
+#all-auctions-list, #all-auctions-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important; /* 横5列 */
+    gap: 12px !important; /* カード同士の間隔 */
+    padding: 10px 0;
+    width: 100%;
+}
+
+/* カード自体のレイアウト調整 */
+.auction-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    min-width: 0; /* テキスト溢れ防止 */
+}
 
     </style>
 <script>
@@ -4051,57 +4079,85 @@ window.sendPriceProposal = function() {
 
 
         window.openAuctionDetail = function(id) {
-            const auction = auctions.find(a => a.id === id);
-            if (!auction) return;
-            currentAuctionDetailId = id;
-            if (!Array.isArray(auction.comments)) auction.comments = [];
-            if (!Array.isArray(auction.bids)) auction.bids = [];
-            const media = auction.media && auction.mediaType === 'image'
-                ? `<img src="${auction.media}" alt="${escapeAuctionText(auction.title)}">`
-                : auction.media && auction.mediaType === 'video'
-                    ? `<video src="${auction.media}" controls></video>`
-                    : `<div style="color:#aaa;text-align:center;padding:70px 20px;"><i class="fa-solid fa-gavel" style="font-size:4rem;"></i><div style="margin-top:10px;">${auction.type === 'live' ? 'ライブ配信オークション' : '画像・動画なし'}</div></div>`;
-            const comments = auction.comments.length
-                ? auction.comments.map(c => `<div class="auction-comment"><div class="auction-comment-meta">${escapeAuctionText(c.author)} ・ ${escapeAuctionText(c.createdAtText || '')}</div>${escapeAuctionText(c.text)}</div>`).join('')
-                : '<p style="color:#888;font-size:.85rem;">まだコメントはありません。</p>';
-            const topBid = auction.bids.length ? auction.bids[auction.bids.length - 1] : null;
-            document.getElementById('auction-detail-content').innerHTML = `
-                <h2 style="margin-right:35px;"><i class="fa-solid fa-gavel" style="color:var(--brand-red);"></i> ${escapeAuctionText(auction.title)}</h2>
-                <div class="auction-detail-grid" style="margin-top:18px;">
-                    <div>
-                        <div class="auction-detail-media">${media}</div>
-                        <div style="margin-top:10px;font-size:.85rem;color:#777;">投稿者：${escapeAuctionText(auction.author)}</div>
-                    </div>
-                    <div>
-                        <div class="auction-detail-price">
-                            <div style="font-size:.82rem;color:#777;">現在価格</div>
-                            <div style="font-size:1.8rem;font-weight:900;color:var(--brand-red);">¥${Number(auction.currentPrice).toLocaleString()}</div>
-                            <div style="font-size:.78rem;color:#777;">開始価格：¥${Number(auction.startPrice).toLocaleString()} ・ 入札件数：${auction.bids.length}件</div>
-                            ${topBid ? `<div style="font-size:.78rem;color:#777;margin-top:4px;">最高入札者：${escapeAuctionText(topBid.bidder)}</div>` : ''}
-                        </div>
-                        <div style="font-size:.9rem;line-height:1.6;white-space:pre-wrap;">${escapeAuctionText(auction.desc)}</div>
-                        <div style="margin-top:16px;">
-                            ${auction.sold ? '<div style="background:#e8f5e9;color:#1b5e20;padding:10px;border-radius:6px;font-weight:bold;"><i class="fa-solid fa-circle-check"></i> このオークションは落札済みです。</div>' : `<strong>入札する</strong>
-                            <div class="auction-bid-row">
-                                <input type="number" id="auction-bid-input" class="form-control" min="${Number(auction.currentPrice)+1}" placeholder="${Number(auction.currentPrice)+1}円以上">
-                                <button class="btn-red-sm" onclick="placeAuctionBid(${auction.id})"><i class="fa-solid fa-gavel"></i> 入札</button>
-                            </div>
-                            <button class="btn-warning" style="width:100%;padding:10px;margin-top:8px;font-weight:bold;" onclick="buyAuctionNow(${auction.id})"><i class="fa-solid fa-bolt"></i> 現在価格で落札する（即決）</button>
-                            </div>`}
-                        <div class="auction-comments">
-                            <strong><i class="fa-regular fa-comments"></i> コメント</strong>
-                            <div class="auction-comment-list">${comments}</div>
-                            <div class="auction-bid-row">
-                                <input type="text" id="auction-comment-input" class="form-control" maxlength="300" placeholder="商品について質問・コメントを書く">
-                                <button class="btn-outline" onclick="postAuctionComment(${auction.id})">投稿</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            saveAuctions();
-            openModal('auction-detail-modal');
-        };
+    // 1. window.auctions から ID を文字列で比較して検索
+    const list = window.auctions || (typeof auctions !== 'undefined' ? auctions : []);
+    const auction = list.find(a => String(a.id) === String(id));
+    if (!auction) {
+        console.error('対象のオークションが見つかりません ID:', id);
+        return;
+    }
 
+    currentAuctionDetailId = id;
+    if (!Array.isArray(auction.comments)) auction.comments = [];
+    if (!Array.isArray(auction.bids)) auction.bids = [];
+
+    // 2. 価格項目の補正（price / currentPrice / startPrice のいずれでも表示可能にする）
+    const currentPrice = auction.currentPrice ?? auction.price ?? 0;
+    const startPrice = auction.startPrice ?? auction.price ?? 0;
+
+    // メディア領域の生成
+    const media = auction.media && auction.mediaType === 'image'
+        ? `<img src="${auction.media}" alt="${escapeAuctionText(auction.title || '')}">`
+        : auction.media && auction.mediaType === 'video'
+        ? `<video src="${auction.media}" controls></video>`
+        : `<div style="color:#aaa;text-align:center;padding:70px 20px;"><i class="fa-solid fa-gavel" style="font-size:4rem;"></i><div style="margin-top:10px;">${escapeAuctionText(auction.title || '')}</div></div>`;
+
+    // コメント一覧の生成
+    const comments = auction.comments.length
+        ? auction.comments.map(c => `<div class="auction-comment"><div class="auction-comment-meta">${escapeAuctionText(c.author || '匿名')} ・ ${escapeAuctionText(c.createdAtText || '')}</div><div>${escapeAuctionText(c.text || '')}</div></div>`).join('')
+        : '<p style="color:#888;font-size:.85rem;">まだコメントはありません。</p>';
+
+    const topBid = auction.bids.length ? auction.bids[auction.bids.length - 1] : null;
+
+    // 3. HTMLの描画（ID引数をシングルクォートで囲みエラーを防止）
+    const contentEl = document.getElementById('auction-detail-content');
+    if (contentEl) {
+        contentEl.innerHTML = `
+            <h2 style="margin-right:35px;"><i class="fa-solid fa-gavel" style="color:var(--brand-red);"></i> ${escapeAuctionText(auction.title || '無題')}</h2>
+            <div class="auction-detail-grid" style="margin-top:18px;">
+                <div>
+                    <div class="auction-detail-media">${media}</div>
+                    <div style="margin-top:10px;font-size:.85rem;color:#777;">投稿者 : ${escapeAuctionText(auction.author || '匿名')}</div>
+                </div>
+                <div>
+                    <div class="auction-detail-price">
+                        <div style="font-size:.82rem;color:#777;">現在価格</div>
+                        <div style="font-size:1.8rem;font-weight:900;color:var(--brand-red);">¥${Number(currentPrice).toLocaleString()}</div>
+                        <div style="font-size:.78rem;color:#777;">開始価格 : ¥${Number(startPrice).toLocaleString()} ・ 入札件数 : ${auction.bids.length}件</div>
+                        ${topBid ? `<div style="font-size:.78rem;color:#777;margin-top:4px;">最高入札者 : ${escapeAuctionText(topBid.bidder)}</div>` : ''}
+                    </div>
+                    <div style="font-size:.9rem;line-height:1.6;white-space:pre-wrap;">${escapeAuctionText(auction.desc || '')}</div>
+                    <div style="margin-top:16px;">
+                        ${auction.sold ? '<div style="background:#e8f5e9;color:#1b5e20;padding:10px;border-radius:6px;font-weight:bold;"><i class="fa-solid fa-circle-check"></i> 落札済み</div>' : `
+                        <div class="auction-bid-row">
+                            <input type="number" id="auction-bid-input" class="form-control" min="${Number(currentPrice) + 1}" placeholder="${Number(currentPrice) + 1}">
+                            <button class="btn-red-sm" onclick="placeAuctionBid('${auction.id}')"><i class="fa-solid fa-gavel"></i> 入札</button>
+                        </div>
+                        <button class="btn-warning" style="width:100%;padding:10px;margin-top:8px;font-weight:bold;" onclick="buyAuctionNow('${auction.id}')"><i class="fa-solid fa-bolt"></i> 即決購入</button>
+                        `}
+                    </div>
+                    <div class="auction-comments">
+                        <strong><i class="fa-regular fa-comments"></i> コメント</strong>
+                        <div class="auction-comment-list">${comments}</div>
+                        <div class="auction-bid-row">
+                            <input type="text" id="auction-comment-input" class="form-control" maxlength="300" placeholder="商品について質問・コメントを書く">
+                            <button class="btn-outline" onclick="postAuctionComment('${auction.id}')">投稿</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    if (typeof saveAuctions === 'function') saveAuctions();
+    
+    // モーダルを開く
+    if (typeof openModal === 'function') {
+        openModal('auction-detail-modal');
+    } else {
+        const detailModal = document.getElementById('auction-detail-modal');
+        if (detailModal) detailModal.style.display = 'block';
+    }
+};
         window.placeAuctionBid = function(id) {
             const auction = auctions.find(a => a.id === id);
             if (!auction) return;
