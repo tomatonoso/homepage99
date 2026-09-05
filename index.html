@@ -5423,5 +5423,15 @@ function getRegisteredAdmin() {
     return JSON.parse(localStorage.getItem('minatomo_admin')) || null;
 }
 </script>
+<!-- 購入リクエスト全件表示モーダル -->
+<div id="all-requests-modal" class="modal" style="display: none;">
+  <div class="modal-content" style="max-width: 800px; width: 90%;">
+    <span class="close-btn" onclick="closeModal('all-requests-modal')">&times;</span>
+    <h3 style="margin-bottom: 16px;">購入リクエスト（全件）</h3>
+    <div id="all-requests-container" class="all-requests-grid">
+      <!-- 全件カードが挿入されます -->
+    </div>
+  </div>
+</div>
 </body>
 </html>
