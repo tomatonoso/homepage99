@@ -5596,6 +5596,49 @@ window.addEventListener('DOMContentLoaded', () => {
 
     }
 });
+// 運営者ログイン処理
+async function handleAdminLogin(event) {
+    event.preventDefault(); // フォーム送信によるページ再読み込みを防止
+
+    // 入力欄から値を取得（ID: login-email, login-pass1, login-pass2, login-security）
+    const email = document.getElementById('login-email').value;
+    const pass1 = document.getElementById('login-pass1').value;
+    const pass2 = document.getElementById('login-pass2').value;
+    const security = document.getElementById('login-security').value;
+
+    try {
+        if (typeof db !== 'undefined') {
+            // Firebaseから登録済みの管理者アカウント情報を取得
+            const snapshot = await db.ref('admin_data/account').once('value');
+            const adminAccount = snapshot.val();
+
+            if (adminAccount) {
+                // 入力内容と登録内容の全項目照合
+                if (
+                    adminAccount.email === email &&
+                    adminAccount.pass1 === pass1 &&
+                    adminAccount.pass2 === pass2 &&
+                    adminAccount.security === security
+                ) {
+                    alert("認証成功。管理画面へ移動します。");
+                    
+                    // ★ 運営管理画面（admin.html）へ画面遷移 ★
+                    window.location.href = 'admin.html';
+                } else {
+                    alert("ログイン情報（メール・パスワード・合言葉）が一致しません。");
+                }
+            } else {
+                alert("データベース上に管理者アカウントが見つかりません。");
+            }
+        } else {
+            // Firebase未接続時の直接移動処理
+            window.location.href = 'admin.html';
+        }
+    } catch (error) {
+        console.error("ログインエラー:", error);
+        alert("ログイン処理中にエラーが発生しました: " + error.message);
+    }
+}
 </script>
 </body>
 </html>
