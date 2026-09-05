@@ -3586,40 +3586,72 @@ window.sendPriceProposal = function() {
             }
         };
 
-        window.handleBuyerAuth = function(type) {
-            if(type === 'signup') {
-                const name = document.getElementById('buyer-signup-name').value.trim();
-                const email = document.getElementById('buyer-signup-email').value.trim();
-                const phone = document.getElementById('buyer-signup-phone').value.trim();
-                const pass = document.getElementById('buyer-signup-password').value.trim();
-                const idImagePreview = document.getElementById('buyer-id-preview-box');
+       window.handleBuyerAuth = function(type) {
+    // localStorageから登録済みユーザー一覧を取得
+    const getBuyers = function() {
+        return JSON.parse(localStorage.getItem('minatomo_registered_buyers')) || [];
+    };
 
-                if(!name || !email || !phone || !pass) {
-                    alert('すべての必須項目を入力してください。');
-                    return;
-                }
-                if(idImagePreview.style.display !== 'flex') {
-                    alert('本人確認書類（本人と書類が一緒に写っている写真）をアップロードしてください。');
-                    return;
-                }
+    if (type === 'signup') {
+        const name = document.getElementById('buyer-signup-name').value.trim();
+        const email = document.getElementById('buyer-signup-email').value.trim();
+        const phone = document.getElementById('buyer-signup-phone').value.trim();
+        const pass = document.getElementById('buyer-signup-password').value.trim();
+        const idImagePreview = document.getElementById('buyer-id-preview-box');
 
-                currentUser = { name, email, phone };
-                alert('新規登録が完了し、ログインしました！');
-                closeModal('buyer-auth-modal');
-                updateAuthUI();
-            } else {
-                const email = document.getElementById('buyer-email').value.trim();
-                const pass = document.getElementById('buyer-password').value.trim();
-                if(!email || !pass) {
-                    alert('メールアドレスとパスワードを入力してください。');
-                    return;
-                }
-                currentUser = { name: email.split('@')[0], email, phone: "090-0000-0000" };
-                alert('ログインしました！');
-                closeModal('buyer-auth-modal');
-                updateAuthUI();
-            }
-        };
+        if (!name || !email || !phone || !pass) {
+            alert('すべての必須項目を入力してください。');
+            return;
+        }
+
+        if (idImagePreview && idImagePreview.style.display !== 'flex') {
+            alert('本人確認書類（本人と書類が一緒に写っている写真）をアップロードしてください。');
+            return;
+        }
+
+        const buyers = getBuyers();
+
+        // 既に同じメールアドレスが登録されていないかチェック
+        if (buyers.some(buyer => buyer.email === email)) {
+            alert('このメールアドレスは既に登録されています。ログイン画面からログインしてください。');
+            return;
+        }
+
+        // 新規ユーザー情報を保存
+        const newUser = { name: name, email: email, phone: phone, pass: pass };
+        buyers.push(newUser);
+        localStorage.setItem('minatomo_registered_buyers', JSON.stringify(buyers));
+
+        currentUser = newUser;
+        alert('新規登録が完了し、ログインしました！');
+        closeModal('buyer-auth-modal');
+        updateAuthUI();
+
+    } else {
+        const email = document.getElementById('buyer-email').value.trim();
+        const pass = document.getElementById('buyer-password').value.trim();
+
+        if (!email || !pass) {
+            alert('メールアドレスとパスワードを入力してください。');
+            return;
+        }
+
+        const buyers = getBuyers();
+
+        // 登録データからメールアドレスとパスワードが一致するユーザーを検索
+        const matchedBuyer = buyers.find(buyer => buyer.email === email && buyer.pass === pass);
+
+        if (!matchedBuyer) {
+            alert('エラー: 登録されていないメールアドレスか、パスワードが間違っています。');
+            return;
+        }
+
+        currentUser = matchedBuyer;
+        alert('ログインしました！');
+        closeModal('buyer-auth-modal');
+        updateAuthUI();
+    }
+};
 
         window.updateAuthUI = function() {
             const authArea = document.getElementById('user-auth-btn-area');
