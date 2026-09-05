@@ -5832,10 +5832,14 @@ window.sortAuctions = function(sortType) {
         window.openAllAuctionsModal();
     }
 };
-// オークション投稿フォームの送信処理例
-document.getElementById('auction-form')?.addEventListener('submit', function(e) {
-    e.preventDefault();
+// フォーム要素の取得チェック
+const auctionForm = document.getElementById('auction-form');
+console.log('フォーム要素の取得結果:', auctionForm);
 
+if (auctionForm) {
+    auctionForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('投稿イベントが正常に発火しました');
     // 1. 入力値から新しいオークションオブジェクトを作成
     const newAuction = {
         id: Date.now().toString(),
