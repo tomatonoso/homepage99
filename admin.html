@@ -369,6 +369,16 @@
                         const btnClass = isChecked ? 'btn-check-on' : 'btn-check-off';
                         const btnLabel = isChecked ? '確認済' : '未確認';
                         tr += `<td><button onclick="toggleVerifyRow('${key}', ${isChecked})" class="${btnClass}">${btnLabel}</button></td>`;
+                        } else if (field === 'kycStatus') {
+                        const currentStatus = rowData.kycStatus || (rowData.kycImage ? '審査中' : '未提出');
+                        tr += `<td>
+                            <select onchange="updateKycStatus('${key}', this.value)" style="padding:2px 5px; font-size:12px; border-radius:4px;">
+                                <option value="未提出" ${currentStatus === '未提出' ? 'selected' : ''}>未提出</option>
+                                <option value="審査中" ${currentStatus === '審査中' ? 'selected' : ''}>審査中</option>
+                                <option value="承認済み" ${currentStatus === '承認済み' ? 'selected' : ''}>承認済み</option>
+                                <option value="再提出" ${currentStatus === '再提出' ? 'selected' : ''}>再提出</option>
+                            </select>
+                        </td>`;
                       } else if (field === 'kycImageBtn') {
                         if (rowData.kycImage) {
                             // URLリンクとして開く場合
