@@ -5379,8 +5379,8 @@ window.openAdminModal = function() {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-// --- Firebase初期化設定 ---
-var firebaseConfig = {
+// --- Firebase初期化設定（重複宣言を完全に回避する書き方） ---
+window.firebaseConfig = window.firebaseConfig || {
     apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
     authDomain: "yauwo-a9ba1.firebaseapp.com",
     databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
@@ -5391,12 +5391,12 @@ var firebaseConfig = {
 };
 
 if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(window.firebaseConfig);
 }
 
-// const ではなく var を使用（重複宣言エラーの回避）
-var db = firebase.database();
-</script>
+// db の重複宣言も防止
+window.db = window.db || firebase.database();
+
 let currentSessionId = '';
 
 // --- PC側: 顔認証QRコード生成 & 監視 ---
