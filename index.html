@@ -3417,27 +3417,45 @@ window.checkAuthAndOpenJobPost = function() {
 
 // 全件モーダル表示処理
 window.openAllRequestsModal = function() {
+    const modal = document.getElementById('all-requests-modal');
     const container = document.getElementById('all-requests-container');
-    if (container && window.purchaseRequests) {
-        container.innerHTML = purchaseRequests.map(req => `
-            <div style="background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
-                <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
-                <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
-                <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 10px;">${req.desc || ''}</div>
-                <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}'); if(typeof closeModal==='function')closeModal('all-requests-modal');"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
-            </div>
-        `).join('');
+
+    if (!modal) {
+        alert('エラー: all-requests-modal 要素が見つかりません。');
+        return;
     }
 
-    // 既存のモーダル制御ロジックへの対応と表示切り替え
-    if (typeof openModal === 'function') {
-        openModal('all-requests-modal');
+    // 1. 全件カードデータの出力
+    const requests = window.purchaseRequests || [];
+    if (container) {
+        if (requests.length === 0) {
+            container.innerHTML = '<p style="padding: 10px; color: #888;">購入リクエストはありません。</p>';
+        } else {
+            container.innerHTML = requests.map(req => `
+                <div style="background-color: #ffffff; border-radius: var(--radius, 8px); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
+                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red, #d9534f); font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
+                    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-sub, #666); margin-bottom: 10px;">${req.desc || ''}</div>
+                    <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}'); if(typeof closeModal==='function')closeModal('all-requests-modal');"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
+                </div>
+            `).join('');
+        }
     }
-    const modal = document.getElementById('all-requests-modal');
-    if (modal) {
-        modal.style.display = 'block';
-        modal.classList.add('active');
-        modal.classList.add('show');
+
+    // 2. CSSの有無に関わらず画面中央・最前面に強制表示
+    modal.style.display = 'flex';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modal.style.zIndex = '99999';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+
+    if (typeof openModal === 'function') {
+        try { openModal('all-requests-modal'); } catch(e) {}
     }
 };
         window.openRequestChat = function(id) {
