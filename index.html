@@ -5263,8 +5263,8 @@ window.handleAdminSignup = function(event) {
 
     alert("運営管理者情報の登録が完了しました！\n次回からはこの情報でログインが行われます。");
     
-    closeModal('admin-signup-modal');
-    location.reload(); // 管理者権限を反映するためリロード
+  closeModal('admin-signup-modal');
+window.location.href = 'admin.html'; // 運営管理画面へ遷移
 };
 
 // 【ログイン処理】登録済み情報との照合
