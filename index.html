@@ -6149,5 +6149,75 @@ function openAdminMenu() {
         </div>
     </div>
 </div>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+    // admin.html と同じ設定値で初期化
+    const firebaseConfig = {
+        apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
+        authDomain: "yauwo-a9ba1.firebaseapp.com",
+        databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
+        projectId: "yauwo-a9ba1",
+        storageBucket: "yauwo-a9ba1.firebasestorage.app",
+        messagingSenderId: "574142452627",
+        appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+</script>
+<script>
+// Step 2 の関数をここに貼り付けて追加
+function submitBuyRequestToFirebase(title, requesterName, budget) {
+    const newRef = db.ref('admin_data/buy_requests').push();
+    newRef.set({
+        id: 'REQ-' + Math.floor(1000 + Math.random() * 9000),
+        requestTitle: title,
+        requesterName: requesterName,
+        budget: Number(budget) || 0,
+        status: '受付中',
+        verified: false,
+        createdAt: new Date().toLocaleString('ja-JP')
+    }, (error) => {
+        if (!error) {
+            alert('購入リクエストを投稿しました。運営管理画面へリアルタイム共有されました。');
+        } else {
+            alert('送信エラー: ' + error.message);
+        }
+    });
+}
+
+// 送信ボタンが押されたときのイベント処理
+function handleBuyRequestSubmit(event) {
+    if (event) event.preventDefault(); // 画面リロードを防ぐ
+
+    // 入力欄（input）の画面上のIDに合わせて取得
+    const title = document.getElementById('request-title-input').value;
+    const requesterName = document.getElementById('request-user-input').value;
+    const budget = document.getElementById('request-budget-input').value;
+
+    // 定義した関数を実行してFirebaseへ送信
+    submitBuyRequestToFirebase(title, requesterName, budget);
+}
+function submitProductToFirebase(seller, sellerEmail, sellerPhone, title, category, price, shippingFee) {
+    const newRef = db.ref('admin_data/products').push();
+    newRef.set({
+        id: 'PRD-' + Math.floor(1000 + Math.random() * 9000),
+        seller: seller,                 // 出品者名
+        sellerEmail: sellerEmail,       // メールアドレス
+        sellerPhone: sellerPhone,       // 電話番号
+        title: title,                   // 商品名
+        category: category,             // カテゴリー
+        price: Number(price) || 0,      // 販売価格
+        shippingFee: shippingFee,       // 配送料負担
+        verified: false,
+        createdAt: new Date().toLocaleString('ja-JP')
+    }, (error) => {
+        if (!error) {
+            alert('出品が完了しました。');
+        }
+    });
+}
+</script>
 </body>
 </html>
