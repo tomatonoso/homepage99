@@ -5631,17 +5631,28 @@ window.openAllRequestsModal = function() {
     }
 };
 
-// --- 全体クリック監視（ボタンのHTML構造に依存せず強制検知） ---
+// --- 全体クリック監視（リクエスト／オークションを正しく判定して振り分け） ---
 document.addEventListener('click', function(e) {
-    const target = e.target.closest('#btn-open-all-requests') || 
-                   (e.target.textContent && e.target.textContent.includes('すべて見る') ? e.target : null);
-
-    if (target) {
-        console.log("「すべて見る」クリックを検知しました");
+    // 購入リクエストの「すべて見る」ボタンが押された場合
+    const reqTarget = e.target.closest('#btn-open-all-requests');
+    if (reqTarget) {
         e.preventDefault();
+        e.stopPropagation();
         if (typeof window.openAllRequestsModal === 'function') {
             window.openAllRequestsModal();
         }
+        return;
+    }
+
+    // オークションの「すべて見る」ボタンが押された場合
+    const aucTarget = e.target.closest('#btn-open-all-auctions');
+    if (aucTarget) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof window.openAllAuctionsModal === 'function') {
+            window.openAllAuctionsModal();
+        }
+        return;
     }
 }, true);
 // ローカルストレージへ保存
