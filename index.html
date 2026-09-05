@@ -1586,7 +1586,23 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
 .ai-result-title{font-weight:700}.ai-result-price{color:#d32f2f;font-weight:700}
 @media(max-width:600px){.ai-choices{grid-template-columns:1fr}.ai-bubble{max-width:90%}}
 </style>
+<!-- Firebase 共通接続設定 -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
+<script>
+  const firebaseConfig = {
+      apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
+      authDomain: "yauwo-a9ba1.firebaseapp.com",
+      databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
+      projectId: "yauwo-a9ba1",
+      storageBucket: "yauwo-a9ba1.firebasestorage.app",
+      messagingSenderId: "574142452627",
+      appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
 </head>
 <body>
 
