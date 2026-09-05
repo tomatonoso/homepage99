@@ -233,7 +233,7 @@
     let currentReplyItemKey = null;
 
     const tabSchema = {
-        users: { path: 'admin_data/users', headers: ['確認', 'ユーザーID', '氏名/アカウント名', 'メールアドレス', '本人確認(KYC)', 'ステータス', '操作アクション', '登録日時'], fields: ['verified', 'id', 'name', 'email', 'kycStatus', 'statusBadge', 'userActionBtn', 'createdAt'] },
+      users: { path: 'admin_data/users', headers: ['確認', 'ユーザーID', '氏名/アカウント名', 'メールアドレス', '本人確認(KYC)', 'KYC画像', 'ステータス', '操作アクション', '登録日時'], fields: ['verified', 'id', 'name', 'email', 'kycStatus', 'kycImageBtn', 'statusBadge', 'userActionBtn', 'createdAt'] },
        products: { path: 'admin_data/products', headers: ['確認', '商品ID', '出品者名/ショップ名', 'メールアドレス', '電話番号', '金融機関名', '支店名', '口座種別', '口座番号', '口座名義', '商品名', 'カテゴリー', '販売価格 (円)', '配送料の負担', '投稿日時'], fields: ['verified', 'id', 'seller', 'sellerEmail', 'sellerPhone', 'bankName', 'bankBranch', 'accountType', 'accountNumber', 'accountHolder', 'title', 'category', 'price', 'shippingFee', 'createdAt'] },
         buy_requests: { path: 'admin_data/buy_requests', headers: ['確認', 'リクエストID', 'やり取り確認', 'ほしい商品のタイトル', '依頼者(買主)', '希望予算 (円)', 'ステータス', '投稿日時'], fields: ['verified', 'id', 'chatBtn', 'requestTitle', 'requesterName', 'budget', 'status', 'createdAt'] },
         auctions: { path: 'admin_data/auctions', headers: ['確認', 'オークションID', '取引メッセージ確認', '出品アイテム', '出品者', '落札者/最高入札者', '現在価格/落札額 (円)', '取引ステータス', '終了日時'], fields: ['verified', 'id', 'chatBtn', 'itemTitle', 'sellerName', 'winnerName', 'finalPrice', 'status', 'endsAt'] },
