@@ -4042,7 +4042,7 @@ window.sendPriceProposal = function() {
             verified: false,
             createdAt: new Date().toLocaleString('ja-JP')
         };
-        // Firebaseへ保存し、同時にリアルタイム監視を開始
+      // Firebaseへ保存し、同時にリアルタイム監視を開始
         const newUserRef = db.ref('admin_data/users').push();
         newUserRef.set(newUserData).then(() => {
             // カレントユーザーオブジェクトの設定
@@ -4057,6 +4057,8 @@ window.sendPriceProposal = function() {
                 }
             });
         });
+    }
+};
         // ★ ここまで ★
 
         currentUser = newUser;
