@@ -6319,6 +6319,7 @@ function submitProductToFirebase(seller, sellerEmail, sellerPhone, title, catego
     });
 }
 // Firebaseのデータ変更（削除・追加）を常時監視して通販サイト側に即時反映
+// Firebaseのデータ変更（削除・追加）を常時監視して通販サイト側に即時反映
 if (typeof firebase !== 'undefined') {
     const firebaseDb = (typeof db !== 'undefined' && db.ref) ? db : firebase.database();
     
@@ -6329,14 +6330,24 @@ if (typeof firebase !== 'undefined') {
             // Firebase上のデータを配列に変換
             const updatedList = Object.keys(firebaseProducts).map(key => {
                 const item = firebaseProducts[key];
+                
+                // 数値型のIDに変換（すでに数値や数値文字列の場合はそのまま、PRD-xxxx等の場合は数値化）
+                let originalId = item.id;
+                if (typeof originalId === 'string' && originalId.startsWith('PRD-')) {
+                    originalId = parseInt(originalId.replace('PRD-', ''), 10) || Date.now();
+                } else if (typeof originalId === 'string' && !isNaN(originalId)) {
+                    originalId = Number(originalId);
+                }
+
                 return {
-                    id: item.id || key,
-                    name: item.title,
-                    category: item.category,
-                    price: item.price,
-                    shipping: item.shippingFee,
-                    desc: item.description,
-                    seller: item.seller,
+                    id: originalId || Date.now(), // 既存のクリック処理が期待する数値ID
+                    firebaseKey: key,            // Firebase上の削除用キー
+                    name: item.title || item.name || '',
+                    category: item.category || '',
+                    price: Number(item.price) || 0,
+                    shipping: item.shippingFee || item.shipping || '',
+                    desc: item.description || item.desc || '',
+                    seller: item.seller || '',
                     image: item.image || "",
                     recommend: false
                 };
@@ -6347,7 +6358,6 @@ if (typeof firebase !== 'undefined') {
             saveToStorage();
             renderProducts(); // 画面を再描画
         } else {
-            // Firebase側が全削除された場合
             products = [];
             saveToStorage();
             renderProducts();
