@@ -642,10 +642,45 @@
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
+// 購入リクエストを画面に描画する関数
+function renderPurchaseRequests() {
+    // 統合運営管理画面内のテーブル要素を取得
+    const tableBody = document.querySelector('#tab-requests tbody, .requests-table tbody, table tbody');
+    if (!tableBody) return;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        checkAndSeedData(() => { loadDashboardKPI(); });
+    // localStorage からデータを取得（キー名のブレを考慮）
+    const rawData = localStorage.getItem('purchaseRequests') || localStorage.getItem('purchase_requests') || localStorage.getItem('requests');
+    const requests = rawData ? JSON.parse(rawData) : [];
+
+    if (requests.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;">データが存在しません。</td></tr>';
+        return;
+    }
+
+    // 取得したデータをHTMLに変換してセット
+    tableBody.innerHTML = requests.map((item, index) => `
+        <tr>
+            <td><button class="btn-sm" onclick="checkRequest(${index})">確認</button></td>
+            <td>${item.id || index + 1}</td>
+            <td><button class="btn-sm" onclick="openChat('${item.id}')">やり取り</button></td>
+            <td>${escapeHtml(item.title || item.productName || '-')}</td>
+            <td>${escapeHtml(item.user || item.applicant || '-')}</td>
+            <td>${item.budget ? Number(item.budget).toLocaleString() : '0'}円</td>
+            <td><span class="badge">${escapeHtml(item.status || '受付中')}</span></td>
+            <td>${escapeHtml(item.createdAt || '-')}</td>
+            <td><button class="btn-sm btn-danger" onclick="deleteRequest(${index})">削除</button></td>
+        </tr>
+    `).join('');
+}
+
+  // 646〜648行目を以下のように書き換え
+document.addEventListener('DOMContentLoaded', function() {
+    checkAndSeedData(() => { 
+        loadDashboardKPI();
+        renderPurchaseRequests(); // ★ 購入リクエストテーブルを描画
+        // 必要に応じて他のタブ描画関数もここに追加（例: loadUsers(), loadProducts() 等）
     });
+});
     </script>
 </body>
 </html>
