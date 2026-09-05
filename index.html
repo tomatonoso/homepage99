@@ -4056,17 +4056,14 @@ window.sendPriceProposal = function() {
                     window.currentUser.kycStatus = updatedData.kycStatus || '未提出';
                 }
             });
-        });
     }
-};
-        // ★ ここまで ★
 
-        currentUser = newUser;
-        alert('新規登録が完了し、ログインしました！');
-        closeModal('buyer-auth-modal');
-        updateAuthUI();
+    currentUser = newUser;
+    alert('新規登録が完了し、ログインしました！');
+    closeModal('buyer-auth-modal');
+    updateAuthUI();
 
-    } else {
+} else {
         const email = document.getElementById('buyer-email').value.trim();
         const pass = document.getElementById('buyer-password').value.trim();
 
