@@ -369,9 +369,10 @@
                         const btnClass = isChecked ? 'btn-check-on' : 'btn-check-off';
                         const btnLabel = isChecked ? '確認済' : '未確認';
                         tr += `<td><button onclick="toggleVerifyRow('${key}', ${isChecked})" class="${btnClass}">${btnLabel}</button></td>`;
-                        } else if (field === 'kycImageBtn') {
+                      } else if (field === 'kycImageBtn') {
                         if (rowData.kycImage) {
-                            tr += `<td><button onclick="viewKycImage('${escapeHtml(rowData.kycImage)}', '${escapeHtml(rowData.name)}')" style="background:#0d6efd; color:#fff; border:none; padding:3px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🖼️ 画像確認</button></td>`;
+                            // URLリンクとして開く場合
+                            tr += `<td><a href="${escapeHtml(rowData.kycImage)}" target="_blank" style="color:#0d6efd; text-decoration:underline; font-size:12px;">🖼️ 画像を開く</a></td>`;
                         } else {
                             tr += `<td><span style="color:#aaa;">未提出</span></td>`;
                         }
