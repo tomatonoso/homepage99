@@ -1135,10 +1135,29 @@
     aspect-ratio: 1 / 1 !important;
     overflow: hidden !important;
     background-color: #f5f5f5 !important;
-    border-radius: 8px !important;
+   border-radius: 8px !important;
 }
 
-    </style>
+/* 画面サイズが変わっても正方形と枠の形を維持 */
+.auction-card,
+.img-preview-container,
+.auction-card img,
+.img-preview-container img,
+[class*="auction"] img {
+    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
+    box-sizing: border-box !important;
+}
+
+.auction-card {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    word-break: break-word;
+}
+
+</style>
 <script>
 // アルバイト投稿モーダルを開く関数
 window.checkAuthAndOpenJobPost = function() {
