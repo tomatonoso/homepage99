@@ -5358,9 +5358,9 @@ window.handleAdminLogin = function(event) {
         closeModal('admin-login-modal');
         window.location.href = 'admin.html';
     } else {
-        alert("認証エラー: メールアドレス、パスワード、または秘密の合言葉が一致しません。");
+       alert("認証エラー: メールアドレス、パスワード、または秘密の合言葉が一致しません。");
     }
-}; // ← handleAdminLogin をここで正しく閉じる
+};
 
 // モーダル表示関数（QRコード認証を開始）
 window.openAdminModal = function() {
@@ -5385,7 +5385,7 @@ window.openAdminModal = function() {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-// --- Firebase初期化設定（重複宣言を完全に回避する書き方） ---
+// --- Firebase初期化設定 ---
 window.firebaseConfig = window.firebaseConfig || {
     apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
     authDomain: "yauwo-a9ba1.firebaseapp.com",
@@ -5400,7 +5400,6 @@ if (!firebase.apps.length) {
     firebase.initializeApp(window.firebaseConfig);
 }
 
-// db の重複宣言も防止
 window.db = window.db || firebase.database();
 
 let currentSessionId = '';
@@ -5408,12 +5407,10 @@ let currentSessionId = '';
 // --- PC側: 顔認証QRコード生成 & 監視 ---
 function initPCFaceAuth() {
     const currentSessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
-    
-    // mobile-auth.html へのURLを生成
     const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
     const authUrl = `${baseUrl}/mobile-auth.html?session=${currentSessionId}`;
 
-    // ① QRコードを確実に描画（画像APIを使用）
+    // ① QRコードを確実に描画
     const qrContainer = document.getElementById("admin-qrcode-area");
     if (qrContainer) {
         const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(authUrl)}`;
@@ -5427,8 +5424,10 @@ function initPCFaceAuth() {
             db.ref('sessions/' + currentSessionId).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data && data.status === 'APPROVED') {
-                    document.getElementById('admin-face-auth-step').style.display = 'none';
-                    document.getElementById('admin-form-step').style.display = 'block';
+                    const step1 = document.getElementById('admin-face-auth-step');
+                    const step2 = document.getElementById('admin-form-step');
+                    if (step1) step1.style.display = 'none';
+                    if (step2) step2.style.display = 'block';
                 }
             });
         }
@@ -5437,144 +5436,10 @@ function initPCFaceAuth() {
     }
 }
 
-
-// --- 登録済み管理者情報の取得 ---
+// 登録済み管理者情報の取得
 function getRegisteredAdmin() {
     return JSON.parse(localStorage.getItem('minatomo_admin')) || null;
 }
-
-
-
-// --- 【新規登録処理】 ---
-window.handleAdminSignup = function(event) {
-    if (event) event.preventDefault();
-
-    if (getRegisteredAdmin()) {
-        alert("エラー: 運営管理者はすでに登録されています。2人目以降の登録はできません。");
-        return;
-    }
-
-    const adminData = {
-        email: document.getElementById('signup-admin-email') ? document.getElementById('signup-admin-email').value.trim() : '',
-        pass1: document.getElementById('signup-admin-pass1') ? document.getElementById('signup-admin-pass1').value : '',
-        pass2: document.getElementById('signup-admin-pass2') ? document.getElementById('signup-admin-pass2').value : '',
-        security: document.getElementById('signup-admin-security') ? document.getElementById('signup-admin-security').value.trim() : '',
-        registeredAt: new Date().toLocaleString('ja-JP')
-    };
-
-    localStorage.setItem('minatomo_admin', JSON.stringify(adminData));
-    sessionStorage.setItem('minatomo_admin_logged_in', 'true');
-
-    alert("運営管理者情報の登録が完了しました！\n次回からはこの情報でログインを行います。");
-    closeModal('admin-signup-modal');
-    location.reload();
-};
-
-
-
-// --- モーダル非表示処理 ---
-window.closeModal = function(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'none';
-};
-// お問い合わせ送信ボタンが押されたときに動く処理
-function submitContact() {
-    // フォームに入力された値を取得
-    const userFormName = document.getElementById('name-input').value;
-    const userFormEmail = document.getElementById('email-input').value;
-    const userFormMessage = document.getElementById('message-input').value;
-
-    // ★ここに「管理画面へ送るコード」を追加します！
-    db.ref('admin_data/contacts').push({
-        id: 'CNT-' + Math.floor(1000 + Math.random() * 9000),
-        name: userFormName,               // お名前
-        email: userFormEmail,             // メールアドレス
-        messageContent: userFormMessage,  // お問い合わせ内容
-        status: '未対応',
-        verified: false,
-        createdAt: new Date().toLocaleString('ja-JP')
-    });
-
-    alert("お問い合わせを送信しました！");
-}
-// 管理画面で設定した「特定商取引法」「個人情報保護方針」を自動読み込み
-window.addEventListener('DOMContentLoaded', () => {
-    if (typeof db !== 'undefined') {
-        
-        // 特定商取引法の読み込み
-        db.ref('admin_data/settings/tokusho').on('value', (snapshot) => {
-            const data = snapshot.val();
-            const container = document.getElementById('display-tokusho-content');
-            if (data && container) {
-                container.innerHTML = `
-                    <strong>販売業者：</strong> ${data.seller || '-'}<br>
-                    <strong>運営責任者：</strong> ${data.manager || '-'}<br>
-                    <strong>所在地：</strong> ${data.address || '-'}<br>
-                    <strong>電話番号：</strong> ${data.phone || '-'}<br>
-                    <strong>メールアドレス：</strong> ${data.email || '-'}<br>
-                    <strong>販売価格：</strong> ${data.price || '-'}<br>
-                    <strong>必要料金：</strong> ${data.extra_fee || '-'}<br>
-                    <strong>お支払い方法：</strong> ${data.payment || '-'}<br>
-                    <strong>引き渡し時期：</strong> ${data.delivery || '-'}<br>
-                    <strong>返品・キャンセル：</strong> ${data.returns || '-'}
-                `;
-            }
-        });
-
-        // 個人情報保護方針の読み込み
-        db.ref('admin_data/settings/privacy').on('value', (snapshot) => {
-            const data = snapshot.val();
-            const container = document.getElementById('display-privacy-content');
-            if (data && container) {
-                container.innerHTML = data.content || '-';
-            }
-        });
-
-    }
-});
-// 運営者ログイン処理
-async function handleAdminLogin(event) {
-    event.preventDefault(); // フォーム送信によるページ再読み込みを防止
-
-    // 入力欄から値を取得（ID: login-email, login-pass1, login-pass2, login-security）
-    const email = document.getElementById('login-email').value;
-    const pass1 = document.getElementById('login-pass1').value;
-    const pass2 = document.getElementById('login-pass2').value;
-    const security = document.getElementById('login-security').value;
-
-    try {
-        if (typeof db !== 'undefined') {
-            // Firebaseから登録済みの管理者アカウント情報を取得
-            const snapshot = await db.ref('admin_data/account').once('value');
-            const adminAccount = snapshot.val();
-
-            if (adminAccount) {
-                // 入力内容と登録内容の全項目照合
-                if (
-                    adminAccount.email === email &&
-                    adminAccount.pass1 === pass1 &&
-                    adminAccount.pass2 === pass2 &&
-                    adminAccount.security === security
-                ) {
-                    alert("認証成功。管理画面へ移動します。");
-                    
-                    // ★ 運営管理画面（admin.html）へ画面遷移 ★
-                    window.location.href = 'admin.html';
-                } else {
-                    alert("ログイン情報（メール・パスワード・合言葉）が一致しません。");
-                }
-            } else {
-                alert("データベース上に管理者アカウントが見つかりません。");
-            }
-        } else {
-            // Firebase未接続時の直接移動処理
-            window.location.href = 'admin.html';
-        }
-    } catch (error) {
-        console.error("ログインエラー:", error);
-        alert("ログイン処理中にエラーが発生しました: " + error.message);
-    }
-
 </script>
 </body>
 </html>
