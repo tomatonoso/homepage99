@@ -3511,9 +3511,11 @@ window.checkAuthAndOpenJobPost = function() {
     saveToStorage();
     renderProducts();
 
-    // 2. 運営管理画面（admin.html）の Firebase データベースへ送信
-    if (typeof db !== 'undefined' && db.ref) {
-        db.ref('admin_data/products').push().set({
+   // 2. 運営管理画面 (admin.html) の Firebase データベースへ送信
+try {
+    const firebaseDb = (typeof db !== 'undefined' && db.ref) ? db : (typeof firebase !== 'undefined' ? firebase.database() : null);
+    if (firebaseDb) {
+        firebaseDb.ref('admin_data/products').push().set({
             id: 'PRD-' + Math.floor(1000 + Math.random() * 9000),
             seller: sellerName,
             sellerEmail: sellerEmail,
@@ -3525,8 +3527,19 @@ window.checkAuthAndOpenJobPost = function() {
             description: desc,
             verified: false,
             createdAt: new Date().toLocaleString('ja-JP')
+        }, function(error) {
+            if (error) {
+                console.error('Firebase出品送信エラー:', error);
+            } else {
+                console.log('Firebase出品送信成功');
+            }
         });
+    } else {
+        console.error('Firebase Realtime Databaseが初期化されていません。');
     }
+} catch (err) {
+    console.error('Firebase送信時例外エラー:', err);
+}
 
     // フォームリセットと通知
     document.getElementById('seller-form')?.reset();
