@@ -3326,28 +3326,61 @@ window.checkAuthAndOpenJobPost = function() {
             openModal('request-post-modal');
         };
 
-        window.submitNewRequest = function(e) {
-            e.preventDefault();
-            const title = document.getElementById('req-title-input').value;
-            const price = parseInt(document.getElementById('req-price-input').value);
-            const desc = document.getElementById('req-desc-input').value;
-            const newReq = {
-                id: Date.now(),
-                title, price, desc,
-                author: currentUser.name,
-                messages: [{ sender: "システム", text: "購入リクエストが投稿されました。提案者はチャットから価格を提案できます。" }],
-                proposedPrice: null
-            };
-            purchaseRequests.unshift(newReq);
-            saveToStorage();
-            renderPurchaseRequests();
-            closeModal('request-post-modal');
-            document.getElementById('req-title-input').value = "";
-            document.getElementById('req-price-input').value = "";
-            document.getElementById('req-desc-input').value = "";
-            alert('購入リクエストを投稿しました！');
-        };
+       window.submitNewRequest = function(e) {
+    // eが存在する場合のみpreventDefaultを実行（エラー防止）
+    if (e && typeof e.preventDefault === 'function') {
+        e.preventDefault();
+    }
 
+    // 入力値の取得と安全な数値変換
+    const titleEl = document.getElementById('req-title-input');
+    const priceEl = document.getElementById('req-price-input');
+    const descEl = document.getElementById('req-desc-input');
+
+    const title = titleEl ? titleEl.value.trim() : '';
+    const price = priceEl ? (parseInt(priceEl.value, 10) || 0) : 0;
+    const desc = descEl ? descEl.value.trim() : '';
+
+    if (!title) {
+        alert('タイトルを入力してください。');
+        return;
+    }
+
+    // ユーザー名の安全な取得（currentUserが未定義でもエラーにしない）
+    const authorName = (typeof currentUser !== 'undefined' && currentUser && currentUser.name) 
+                       ? currentUser.name 
+                       : 'ゲスト';
+
+    const newReq = {
+        id: Date.now(),
+        title: title,
+        price: price,
+        desc: desc,
+        author: authorName,
+        messages: [{ sender: "システム", text: "購入リクエストが投稿されました。提案者はチャットから価格を提案できます。" }],
+        proposedPrice: null
+    };
+
+    // 配列の安全な初期化と先頭追加
+    if (!window.purchaseRequests) {
+        window.purchaseRequests = [];
+    }
+    // グローバル配列とローカル変数の両方を同期
+    window.purchaseRequests.unshift(newReq);
+    purchaseRequests = window.purchaseRequests;
+
+    // 保存・再描画・モーダル削除
+    if (typeof saveToStorage === 'function') saveToStorage();
+    if (typeof renderPurchaseRequests === 'function') renderPurchaseRequests();
+    if (typeof closeModal === 'function') closeModal('request-post-modal');
+
+    // フォームのクリア
+    if (titleEl) titleEl.value = "";
+    if (priceEl) priceEl.value = "";
+    if (descEl) descEl.value = "";
+
+    alert('購入リクエストを投稿しました！');
+};
        window.renderPurchaseRequests = function() {
     const container = document.getElementById('request-list-container');
     if (!container) return;
