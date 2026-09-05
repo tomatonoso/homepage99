@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>統合運営管理システム</title>
+    <!-- FontAwesome & Firebase SDK -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        body { background: #f4f6f8; margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .admin-card { max-width: 100%; margin: 0 auto; padding: 20px; background: #ffffff; border: 2px solid #e63946; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
+        .admin-header h2 { margin: 0; color: #1d3557; font-size: 1.3rem; }
+        
+        /* タブデザイン */
+        .tab-scroll-container { display: flex; gap: 4px; border-bottom: 2px solid #ced4da; margin-bottom: 15px; overflow-x: auto; padding-bottom: 2px; }
+        .sheet-tab { padding: 8px 14px; background: #e9ecef; border: 1px solid #ced4da; border-bottom: none; border-radius: 6px 6px 0 0; cursor: pointer; font-weight: bold; font-size: 0.8rem; color: #495057; white-space: nowrap; }
+        .sheet-tab.active { background: #ffffff; border-color: #e63946 #ced4da #ffffff #ced4da; border-top: 3px solid #e63946; color: #1d3557; }
+        
+        /* テーブルデザイン */
+        #admin-sheet-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; white-space: nowrap; }
+        #admin-sheet-table th { border: 1px solid #d3d3d3; padding: 8px 10px; font-weight: 600; color: #333; background-color: #f1f3f4; }
+        #admin-sheet-table td { border: 1px solid #e0e0e0; padding: 6px 10px; color: #222; vertical-align: middle; }
+        #admin-sheet-table tr:nth-child(even) { background-color: #f9fbfd; }
+        #admin-sheet-table tr:hover { background-color: #e8f4fe; }
+
+        /* KPIカード */
+        .kpi-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .kpi-card .title { font-size: 12px; color: #666; font-weight: bold; margin-bottom: 5px; }
+        .kpi-card .value { font-size: 22px; color: #1d3557; font-weight: bold; }
+
+        /* ボタン・バッジ類 */
+        .btn-check-on { background: #198754; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .btn-check-off { background: #6c757d; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .form-row { display: flex; flex-direction: column; gap: 4px; }
+        .form-row label { font-weight: bold; font-size: 12px; color: #333; }
+        .edit-input, .edit-textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
+        .btn-save { background: #2a9d8f; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-save:hover { background: #218377; }
+
+        .btn-chat-open, .btn-reply-open { background: #2a9d8f; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; }
+        .btn-reply-open { background: #e76f51; }
+
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .status-badge.unreplied, .status-badge.banned, .status-badge.pending, .status-badge.hold { background: #f8d7da; color: #842029; }
+        .status-badge.replied, .status-badge.active, .status-badge.approved, .status-badge.resolved, .status-badge.refunded { background: #d1e7dd; color: #0f5132; }
+        .status-badge.warning { background: #fff3cd; color: #664d03; }
+
+        /* モーダル表示 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-box { background: #fff; width: 650px; max-width: 90%; height: 680px; max-height: 90vh; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .modal-header { padding: 15px 20px; background: #1d3557; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+        .modal-close-btn { background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; }
+
+        .chat-bubble { max-width: 85%; padding: 8px 12px; border-radius: 8px; font-size: 12px; line-height: 1.4; }
+        .chat-bubble.buyer, .chat-bubble.user { align-self: flex-start; background: #ffffff; border: 1px solid #ced4da; color: #212529; }
+        .chat-bubble.seller, .chat-bubble.admin { align-self: flex-end; background: #d1e7dd; border: 1px solid #badbcc; color: #0f5132; }
+        .chat-bubble .meta { font-size: 10px; color: #888; margin-bottom: 3px; display: flex; justify-content: space-between; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- Firebase 初期化設定 -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
+            authDomain: "yauwo-a9ba1.firebaseapp.com",
+            databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
+            projectId: "yauwo-a9ba1",
+            storageBucket: "yauwo-a9ba1.firebasestorage.app",
+            messagingSenderId: "574142452627",
+            appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+
+    <div class="admin-card">
+        <div class="admin-header">
+            <h2><i class="fa-solid fa-sliders" style="color: #e63946; margin-right: 8px;"></i> 統合運営管理スプレッドシート</h2>
+            <span style="font-size: 12px; color: #666;"><i class="fa-solid fa-shield-halved"></i> 管理者専用モード</span>
+        </div>
+
+        <!-- 15のタブ切替バー -->
+        <div class="tab-scroll-container">
+            <button class="sheet-tab active" onclick="switchAdminTab('dashboard', this)">📊 1. ダッシュボード</button>
+            <button class="sheet-tab" onclick="switchAdminTab('users', this)">👥 2. ユーザー管理</button>
+            <button class="sheet-tab" onclick="switchAdminTab('products', this)">📦 3. 出品商品</button>
+            <button class="sheet-tab" onclick="switchAdminTab('buy_requests', this)">🙋 4. 購入リクエスト</button>
+            <button class="sheet-tab" onclick="switchAdminTab('auctions', this)">🔨 5. オークション取引</button>
+            <button class="sheet-tab" onclick="switchAdminTab('real_estate', this)">🏠 6. 不動産物件</button>
+            <button class="sheet-tab" onclick="switchAdminTab('withdrawals', this)">💰 7. 売上・振込申請</button>
+            <button class="sheet-tab" onclick="switchAdminTab('reports', this)">🚨 8. 通報・監視</button>
+            <button class="sheet-tab" onclick="switchAdminTab('news', this)">📢 9. お知らせ配信</button>
+            <button class="sheet-tab" onclick="switchAdminTab('faqs', this)">❓ 10. FAQ管理</button>
+            <button class="sheet-tab" onclick="switchAdminTab('tokusho', this)">⚖️ 11. 特定商取引法</button>
+            <button class="sheet-tab" onclick="switchAdminTab('privacy', this)">🔒 12. 個人情報保護方針</button>
+            <button class="sheet-tab" onclick="switchAdminTab('contacts', this)">📧 13. お問い合わせ</button>
+            <button class="sheet-tab" onclick="switchAdminTab('logs', this)">📜 14. 操作ログ</button>
+            <button class="sheet-tab" onclick="switchAdminTab('refunds', this)" style="background: #e76f51; color: #fff;">💳 15. 返金・決済管理</button>
+        </div>
+
+        <!-- 1. ダッシュボードエリア -->
+        <div id="dashboard-container" style="display: block;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="kpi-card"><div class="title">総ユーザー数</div><div class="value" id="kpi-users">-</div></div>
+                <div class="kpi-card"><div class="title">出品中アイテム</div><div class="value" id="kpi-products">-</div></div>
+                <div class="kpi-card"><div class="title">流通総額 (GMV)</div><div class="value" id="kpi-gmv">-</div></div>
+                <div class="kpi-card"><div class="title">保留中・要対応決済</div><div class="value" style="color:#e76f51;" id="kpi-refunds">-</div></div>
+                <div class="kpi-card"><div class="title">未対応のお問い合わせ</div><div class="value" style="color:#e63946;" id="kpi-contacts">-</div></div>
+                <div class="kpi-card"><div class="title">未対応の通報</div><div class="value" style="color:#e63946;" id="kpi-reports">-</div></div>
+            </div>
+            <div style="padding: 15px; background: #fafafa; border: 1px solid #ddd; border-radius: 6px;">
+                <h4 style="margin-top:0; color:#1d3557;"><i class="fa-solid fa-bell"></i> システム運用アナウンス</h4>
+                <p style="font-size: 13px; color: #555; margin:0;">トラブル発生中の取引は「15. 返金・決済管理」から売上確定の一時保留や返金手続きを実行してください。</p>
+            </div>
+        </div>
+
+        <!-- 汎用スプレッドシート表示エリア -->
+        <div id="table-container" style="display: none; max-height: 550px; overflow-y: auto; overflow-x: auto; border: 1px solid #ccc; background: #fafafa; border-radius: 4px;">
+            <table id="admin-sheet-table">
+                <thead id="sheet-thead" style="position: sticky; top: 0; background: #f1f3f4; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></thead>
+                <tbody id="sheet-tbody" style="background: #fff;"></tbody>
+            </table>
+        </div>
+
+        <!-- フォームコンテナ (お知らせ & FAQ用) -->
+        <div id="form-table-container" style="display: none;">
+            <div id="news-form-box" style="display: none; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px;">
+                <h4 style="margin-top:0; color:#1d3557;"><i class="fa-solid fa-bullhorn"></i> 新規お知らせの配信・投稿</h4>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <input type="text" id="news-title-input" placeholder="タイトルを入力..." class="edit-input">
+                    <textarea id="news-content-input" placeholder="お知らせ本文を入力..." class="edit-textarea" rows="3"></textarea>
+                    <div style="text-align:right;">
+                        <button onclick="submitNewNews()" class="btn-save"><i class="fa-solid fa-paper-plane"></i> お知らせを配信保存</button>
+                    </div>
+                </div>
+            </div>
+            <div id="faq-form-box" style="display: none; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px;">
+                <h4 style="margin-top:0; color:#1d3557;"><i class="fa-solid fa-circle-question"></i> 新規FAQ（よくある質問）の登録</h4>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <input type="text" id="faq-question-input" placeholder="質問 (Q) を入力..." class="edit-input">
+                    <textarea id="faq-answer-input" placeholder="回答 (A) を入力..." class="edit-textarea" rows="3"></textarea>
+                    <div style="text-align:right;">
+                        <button onclick="submitNewFaq()" class="btn-save"><i class="fa-solid fa-plus"></i> FAQを追加保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 特定商取引法 編集エリア -->
+        <div id="tokusho-editor-container" style="display: none; padding: 20px; background: #fafafa; border: 1px solid #ccc; border-radius: 6px;">
+            <h3 style="margin-top: 0; color: #1d3557; border-bottom: 2px solid #2a9d8f; padding-bottom: 8px;">
+                <i class="fa-solid fa-scale-balanced"></i> 特定商取引法に基づく表記 編集
+            </h3>
+            <form id="tokusho-form" onsubmit="saveTokusho(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="form-row"><label>販売事業者名 / 屋号</label><input type="text" id="tokusho_seller" class="edit-input" required></div>
+                <div class="form-row"><label>運営責任者</label><input type="text" id="tokusho_manager" class="edit-input" required></div>
+                <div class="form-row"><label>所在地</label><input type="text" id="tokusho_address" class="edit-input" required></div>
+                <div class="form-row"><label>電話番号</label><input type="text" id="tokusho_phone" class="edit-input" required></div>
+                <div class="form-row"><label>メールアドレス</label><input type="email" id="tokusho_email" class="edit-input" required></div>
+                <div class="form-row"><label>販売価格</label><textarea id="tokusho_price" class="edit-textarea" rows="2"></textarea></div>
+                <div class="form-row"><label>商品代金以外の必要料金</label><textarea id="tokusho_extra_fee" class="edit-textarea" rows="2"></textarea></div>
+                <div class="form-row"><label>お支払い方法</label><textarea id="tokusho_payment" class="edit-textarea" rows="2"></textarea></div>
+                <div class="form-row"><label>商品の引き渡し時期</label><textarea id="tokusho_delivery" class="edit-textarea" rows="2"></textarea></div>
+                <div class="form-row"><label>返品・交換・キャンセルについて</label><textarea id="tokusho_returns" class="edit-textarea" rows="3"></textarea></div>
+                <div style="text-align: right; margin-top: 15px;">
+                    <button type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> 特定商取引法表記を保存・更新</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 個人情報保護方針 編集エリア -->
+        <div id="privacy-editor-container" style="display: none; padding: 20px; background: #fafafa; border: 1px solid #ccc; border-radius: 6px;">
+            <h3 style="margin-top: 0; color: #1d3557; border-bottom: 2px solid #2a9d8f; padding-bottom: 8px;">
+                <i class="fa-solid fa-user-shield"></i> 個人情報保護方針（プライバシーポリシー）編集
+            </h3>
+            <form id="privacy-form" onsubmit="savePrivacy(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 6px;">ポリシー本文 (HTML利用可能)</label>
+                    <textarea id="privacy_content" class="edit-textarea" style="height: 350px; font-family: monospace; font-size: 13px; line-height: 1.5;"></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 15px;">
+                    <button type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> 個人情報保護方針を保存・更新</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- お問い合わせ 返信モーダル -->
+    <div id="reply-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 1rem; font-weight: bold;"><i class="fa-solid fa-reply"></i> お問い合わせ内容確認＆返信</h3>
+                <button onclick="closeReplyModal()" class="modal-close-btn">✕</button>
+            </div>
+            <div id="reply-target-info" style="padding: 12px 20px; background: #e9ecef; font-size: 12px; border-bottom: 1px solid #ddd; line-height: 1.6;"></div>
+            <div id="reply-history-list" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 10px;"></div>
+            <div style="padding: 15px; background: #fff; border-top: 1px solid #ddd; display: flex; flex-direction: column; gap: 8px;">
+                <textarea id="reply-input-message" style="width: 100%; height: 70px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; box-sizing: border-box;" placeholder="返信内容をご入力ください..."></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; color: #666;">※送信するとステータスが「返信済み」に変更されます。</span>
+                    <button onclick="sendReplySubmit()" style="background: #2a9d8f; color: #fff; border: none; padding: 8px 18px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">
+                        <i class="fa-solid fa-paper-plane"></i> 返信を送信する
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- チャットログ閲覧モーダル -->
+    <div id="chat-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="chat-modal-title" style="margin: 0; font-size: 1rem; font-weight: bold;"><i class="fa-regular fa-comments"></i> チャット履歴ログ</h3>
+                <button onclick="closeChatModal()" class="modal-close-btn">✕</button>
+            </div>
+            <div id="chat-target-info" style="padding: 10px 15px; background: #e9ecef; font-size: 12px; border-bottom: 1px solid #ddd;"></div>
+            <div id="chat-message-list" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 10px;"></div>
+            <div style="padding: 12px 15px; background: #fff; border-top: 1px solid #ddd; text-align: right;">
+                <button onclick="closeChatModal()" style="background: #6c757d; color: #fff; border: none; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 12px;">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 制御ロジック -->
+    <script>
+    let currentAdminTab = 'dashboard';
+    let activeChatRef = null;
+    let activeReplyRef = null;
+    let currentReplyItemKey = null;
+
+    const tabSchema = {
+        users: { path: 'admin_data/users', headers: ['確認', 'ユーザーID', '氏名/アカウント名', 'メールアドレス', '本人確認(KYC)', 'ステータス', '操作アクション', '登録日時'], fields: ['verified', 'id', 'name', 'email', 'kycStatus', 'statusBadge', 'userActionBtn', 'createdAt'] },
+        products: { path: 'admin_data/products', headers: ['確認', '商品ID', '出品者名/ショップ名', 'メールアドレス', '電話番号', '商品名', 'カテゴリー', '販売価格 (円)', '配送料の負担', '投稿日時'], fields: ['verified', 'id', 'seller', 'sellerEmail', 'sellerPhone', 'title', 'category', 'price', 'shippingFee', 'createdAt'] },
+        buy_requests: { path: 'admin_data/buy_requests', headers: ['確認', 'リクエストID', 'やり取り確認', 'ほしい商品のタイトル', '依頼者(買主)', '希望予算 (円)', 'ステータス', '投稿日時'], fields: ['verified', 'id', 'chatBtn', 'requestTitle', 'requesterName', 'budget', 'status', 'createdAt'] },
+        auctions: { path: 'admin_data/auctions', headers: ['確認', 'オークションID', '取引メッセージ確認', '出品アイテム', '出品者', '落札者/最高入札者', '現在価格/落札額 (円)', '取引ステータス', '終了日時'], fields: ['verified', 'id', 'chatBtn', 'itemTitle', 'sellerName', 'winnerName', 'finalPrice', 'status', 'endsAt'] },
+        real_estate: { path: 'admin_data/real_estate', headers: ['確認', '物件ID', '会社名・屋号', '担当者名', '物件種別', '物件名', '所在地', '賃料/価格(円)', '投稿日時'], fields: ['verified', 'id', 'companyName', 'staffName', 'propertyType', 'propertyName', 'location', 'rentPrice', 'createdAt'] },
+        withdrawals: { path: 'admin_data/withdrawals', headers: ['確認', '申請ID', '申請者ID/名前', '振込先銀行/口座', '申請金額 (円)', 'ステータス', '処理アクション', '申請日時'], fields: ['verified', 'id', 'userName', 'bankDetails', 'amount', 'statusBadge', 'withdrawActionBtn', 'createdAt'] },
+        reports: { path: 'admin_data/reports', headers: ['確認', '通報ID', '通報者', '対象コンテンツ/ユーザー', '通報理由・詳細', 'ステータス', '対応アクション', '発生日時'], fields: ['verified', 'id', 'reporterName', 'targetInfo', 'reason', 'statusBadge', 'reportActionBtn', 'createdAt'] },
+        news: { path: 'admin_data/news', headers: ['確認', 'お知らせID', 'タイトル', '配信本文', '投稿者', '投稿日時'], fields: ['verified', 'id', 'title', 'content', 'author', 'createdAt'] },
+        faqs: { path: 'admin_data/faqs', headers: ['確認', 'FAQ-ID', '質問 (Q)', '回答 (A)', '更新日時'], fields: ['verified', 'id', 'question', 'answer', 'createdAt'] },
+        contacts: { path: 'admin_data/contacts', headers: ['確認', '問合せID', '返信・履歴', 'お名前', 'メールアドレス', 'お問い合わせ内容', 'ステータス', '受付日時'], fields: ['verified', 'id', 'replyBtn', 'name', 'email', 'messageContent', 'statusBadge', 'createdAt'] },
+        refunds: { path: 'admin_data/refunds', headers: ['確認', '取引ID', '購入者', '出品者', '対象商品・取引名', '決済金額 (円)', '決済ステータス', '返金・保留操作', '取引日時'], fields: ['verified', 'id', 'buyerName', 'sellerName', 'itemTitle', 'amount', 'statusBadge', 'refundActionBtn', 'createdAt'] },
+        logs: { path: 'admin_data/logs', headers: ['ログID', '操作内容', '対象・詳細', '実行者', '実行日時'], fields: ['id', 'action', 'detail', 'operator', 'createdAt'] }
+    };
+
+    function addAuditLog(action, detail) {
+        const logRef = db.ref('admin_data/logs').push();
+        logRef.set({
+            id: 'LOG-' + Math.floor(1000 + Math.random() * 9000),
+            action: action,
+            detail: detail,
+            operator: '管理者 (Admin)',
+            createdAt: new Date().toLocaleString('ja-JP')
+        });
+    }
+
+    function checkAndSeedData(callback) {
+        db.ref('admin_data/users').once('value', (snap) => {
+            if (!snap.exists()) {
+                db.ref('admin_data/users').push().set({ id: 'USR-101', verified: true, name: '山田 太郎', email: 'yamada@example.com', kycStatus: '承認済み', status: '正常', createdAt: new Date().toLocaleString('ja-JP') });
+            }
+        });
+        db.ref('admin_data/refunds').once('value', (snap) => {
+            if (!snap.exists()) {
+                db.ref('admin_data/refunds').push().set({ id: 'PAY-7001', verified: false, buyerName: '佐藤 花子', sellerName: '山田 太郎', itemTitle: '一眼レフカメラレンズ', amount: 48000, status: '売上保留中', createdAt: new Date().toLocaleString('ja-JP') });
+                db.ref('admin_data/refunds').push().set({ id: 'PAY-7002', verified: true, buyerName: '鈴木 一郎', sellerName: '高橋 健太', itemTitle: 'ヴィンテージ時計', amount: 120000, status: '通常決済完了', createdAt: new Date().toLocaleString('ja-JP') });
+            }
+        });
+        if (callback) callback();
+    }
+
+    window.switchAdminTab = function(tabKey, element) {
+        currentAdminTab = tabKey;
+        document.querySelectorAll('.sheet-tab').forEach(btn => btn.classList.remove('active'));
+        if (element) element.classList.add('active');
+
+        document.getElementById('dashboard-container').style.display = 'none';
+        document.getElementById('table-container').style.display = 'none';
+        document.getElementById('form-table-container').style.display = 'none';
+        document.getElementById('tokusho-editor-container').style.display = 'none';
+        document.getElementById('privacy-editor-container').style.display = 'none';
+        document.getElementById('news-form-box').style.display = 'none';
+        document.getElementById('faq-form-box').style.display = 'none';
+
+        if (tabKey === 'dashboard') {
+            document.getElementById('dashboard-container').style.display = 'block';
+            loadDashboardKPI();
+        } else if (tabKey === 'tokusho') {
+            document.getElementById('tokusho-editor-container').style.display = 'block';
+            loadTokushoData();
+        } else if (tabKey === 'privacy') {
+            document.getElementById('privacy-editor-container').style.display = 'block';
+            loadPrivacyData();
+        } else {
+            document.getElementById('table-container').style.display = 'block';
+            if (tabKey === 'news') {
+                document.getElementById('form-table-container').style.display = 'block';
+                document.getElementById('news-form-box').style.display = 'block';
+            } else if (tabKey === 'faqs') {
+                document.getElementById('form-table-container').style.display = 'block';
+                document.getElementById('faq-form-box').style.display = 'block';
+            }
+            renderSheetHeader();
+            listenToFirebaseRealtime();
+        }
+    };
+
+    function loadDashboardKPI() {
+        db.ref('admin_data').once('value', (snap) => {
+            const data = snap.val() || {};
+            document.getElementById('kpi-users').innerText = Object.keys(data.users || {}).length + ' 名';
+            document.getElementById('kpi-products').innerText = Object.keys(data.products || {}).length + ' 件';
+            
+            let gmv = 0;
+            Object.values(data.products || {}).forEach(p => gmv += (Number(p.price) || 0));
+            document.getElementById('kpi-gmv').innerText = '¥ ' + gmv.toLocaleString();
+
+            let pendingRefunds = Object.values(data.refunds || {}).filter(r => r.status === '売上保留中').length;
+            document.getElementById('kpi-refunds').innerText = pendingRefunds + ' 件';
+
+            let unrepliedContacts = Object.values(data.contacts || {}).filter(c => c.status !== '返信済み').length;
+            document.getElementById('kpi-contacts').innerText = unrepliedContacts + ' 件';
+
+            let pendingReports = Object.values(data.reports || {}).filter(r => r.status !== '対応完了').length;
+            document.getElementById('kpi-reports').innerText = pendingReports + ' 件';
+        });
+    }
+
+    function renderSheetHeader() {
+        const thead = document.getElementById('sheet-thead');
+        const schema = tabSchema[currentAdminTab];
+        if (!thead || !schema) return;
+
+        let html = '<tr>';
+        schema.headers.forEach(h => { html += `<th>${h}</th>`; });
+        if (currentAdminTab !== 'logs') html += '<th style="width:70px; text-align:center;">削除</th>';
+        html += '</tr>';
+        thead.innerHTML = html;
+    }
+
+    function listenToFirebaseRealtime() {
+        const tbody = document.getElementById('sheet-tbody');
+        if (!tbody) return;
+
+        const schema = tabSchema[currentAdminTab];
+        if (!schema) return;
+        
+        db.ref(schema.path).off();
+        db.ref(schema.path).on('value', (snapshot) => {
+            const data = snapshot.val();
+            tbody.innerHTML = '';
+
+            if (!data) {
+                tbody.innerHTML = `<tr><td colspan="${schema.headers.length + 1}" style="text-align:center; color:#888; padding:20px;">データが存在しません。</td></tr>`;
+                return;
+            }
+
+            Object.keys(data).forEach(key => {
+                const rowData = data[key];
+                let tr = '<tr>';
+                
+                schema.fields.forEach(field => {
+                    if (field === 'verified') {
+                        const isChecked = !!rowData.verified;
+                        const btnClass = isChecked ? 'btn-check-on' : 'btn-check-off';
+                        const btnLabel = isChecked ? '確認済' : '未確認';
+                        tr += `<td><button onclick="toggleVerifyRow('${key}', ${isChecked})" class="${btnClass}">${btnLabel}</button></td>`;
+                    } else if (field === 'statusBadge') {
+                        const status = rowData.status || '正常';
+                        let badgeClass = 'active';
+                        if (['BAN', '未対応', '申請中'].includes(status)) badgeClass = 'pending';
+                        if (['売上保留中'].includes(status)) badgeClass = 'hold';
+                        if (['返金完了'].includes(status)) badgeClass = 'refunded';
+                        if (['警告済'].includes(status)) badgeClass = 'warning';
+                        if (['返信済み', '振込完了', '対応完了', '通常決済完了'].includes(status)) badgeClass = 'resolved';
+                        tr += `<td><span class="status-badge ${badgeClass}">${status}</span></td>`;
+                    } else if (field === 'refundActionBtn') {
+                        tr += `<td>
+                            <button onclick="processRefund('${key}', '${escapeHtml(rowData.buyerName)}')" style="background:#dc3545; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px; font-weight:bold;">💸 返金実行</button>
+                            <button onclick="togglePaymentHold('${key}', '${rowData.status}')" style="background:#ffc107; color:#333; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px; margin-left:4px;">${rowData.status === '売上保留中' ? '解除' : '保留'}</button>
+                        </td>`;
+                    } else if (field === 'userActionBtn') {
+                        tr += `<td>
+                            <button onclick="changeUserStatus('${key}', '警告済')" style="background:#ffc107; color:#333; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:10px;">警告</button>
+                            <button onclick="changeUserStatus('${key}', 'BAN')" style="background:#dc3545; color:#fff; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:10px;">BAN</button>
+                            <button onclick="changeUserStatus('${key}', '正常')" style="background:#198754; color:#fff; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:10px;">解除</button>
+                        </td>`;
+                    } else if (field === 'withdrawActionBtn') {
+                        tr += `<td><button onclick="completeWithdrawal('${key}')" style="background:#198754; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px;">振込完了処理</button></td>`;
+                    } else if (field === 'reportActionBtn') {
+                        tr += `<td><button onclick="resolveReport('${key}')" style="background:#0d6efd; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px;">対応完了にする</button></td>`;
+                    } else if (field === 'chatBtn') {
+                        const title = rowData.requestTitle || rowData.itemTitle || '取引';
+                        tr += `<td><button onclick="openChatModal('${currentAdminTab}', '${key}', '${escapeHtml(title)}')" class="btn-chat-open"><i class="fa-regular fa-comments"></i> 💬 ログ確認</button></td>`;
+                    } else if (field === 'replyBtn') {
+                        tr += `<td><button onclick="openReplyModal('${key}', '${escapeHtml(rowData.name)}', '${escapeHtml(rowData.email)}', '${escapeHtml(rowData.messageContent)}', '${rowData.createdAt}')" class="btn-reply-open"><i class="fa-solid fa-reply"></i> ✉️ 返信・履歴</button></td>`;
+                    } else {
+                        const val = rowData[field] !== undefined && rowData[field] !== '' ? rowData[field] : '-';
+                        tr += `<td>${typeof val === 'number' ? val.toLocaleString() : val}</td>`;
+                    }
+                });
+
+                if (currentAdminTab !== 'logs') {
+                    tr += `<td style="text-align:center;"><button onclick="deleteAdminRow('${key}')" style="background:#dc3545; color:#fff; border:none; border-radius:3px; padding:3px 8px; cursor:pointer; font-size:11px;">削除</button></td>`;
+                }
+                tr += '</tr>';
+
+                tbody.insertAdjacentHTML('beforeend', tr);
+            });
+        });
+    }
+
+    // 各種アクション処理
+    window.processRefund = function(key, buyerName) {
+        if (confirm(`本当に買主 (${buyerName}) へ全額返金処理を実行しますか？\n※この操作は取り消せません。`)) {
+            db.ref(`admin_data/refunds/${key}`).update({ status: '返金完了', verified: true }, (err) => {
+                if (!err) {
+                    addAuditLog('返金処理実行', `取引Key: ${key}, 返金先買主: ${buyerName}`);
+                    alert('返金処理が完了しました。');
+                }
+            });
+        }
+    };
+
+    window.togglePaymentHold = function(key, currentStatus) {
+        const newStatus = currentStatus === '売上保留中' ? '通常決済完了' : '売上保留中';
+        db.ref(`admin_data/refunds/${key}`).update({ status: newStatus }, (err) => {
+            if (!err) addAuditLog('決済保留トグル', `取引Key: ${key} -> ${newStatus}`);
+        });
+    };
+
+    window.changeUserStatus = function(key, newStatus) {
+        db.ref(`admin_data/users/${key}`).update({ status: newStatus }, (err) => {
+            if (!err) addAuditLog('ユーザー受託ステータス変更', `ユーザーKey: ${key} -> ${newStatus}`);
+        });
+    };
+
+    window.completeWithdrawal = function(key) {
+        db.ref(`admin_data/withdrawals/${key}`).update({ status: '振込完了', verified: true }, (err) => {
+            if (!err) addAuditLog('振込完了処理', `申請Key: ${key}`);
+        });
+    };
+
+    window.resolveReport = function(key) {
+        db.ref(`admin_data/reports/${key}`).update({ status: '対応完了', verified: true }, (err) => {
+            if (!err) addAuditLog('通報対応完了', `通報Key: ${key}`);
+        });
+    };
+
+    window.submitNewNews = function() {
+        const title = document.getElementById('news-title-input').value.trim();
+        const content = document.getElementById('news-content-input').value.trim();
+        if (!title || !content) return alert('タイトルと本文を入力してください。');
+
+        db.ref('admin_data/news').push().set({
+            id: 'NWS-' + Math.floor(100 + Math.random() * 900),
+            verified: true, title: title, content: content, author: '運営事務局', createdAt: new Date().toLocaleString('ja-JP')
+        }, (err) => {
+            if (!err) {
+                document.getElementById('news-title-input').value = '';
+                document.getElementById('news-content-input').value = '';
+                addAuditLog('お知らせ配信', `タイトル: ${title}`);
+                alert('お知らせを配信・追加しました。');
+            }
+        });
+    };
+
+    window.submitNewFaq = function() {
+        const q = document.getElementById('faq-question-input').value.trim();
+        const a = document.getElementById('faq-answer-input').value.trim();
+        if (!q || !a) return alert('質問と回答を入力してください。');
+
+        db.ref('admin_data/faqs').push().set({
+            id: 'FAQ-' + Math.floor(100 + Math.random() * 900),
+            verified: true, question: q, answer: a, createdAt: new Date().toLocaleString('ja-JP')
+        }, (err) => {
+            if (!err) {
+                document.getElementById('faq-question-input').value = '';
+                document.getElementById('faq-answer-input').value = '';
+                addAuditLog('FAQ項目追加', `質問: ${q}`);
+                alert('FAQを追加登録しました。');
+            }
+        });
+    };
+
+    window.openReplyModal = function(key, name, email, message, createdAt) {
+        currentReplyItemKey = key;
+        document.getElementById('reply-target-info').innerHTML = `<strong>お名前:</strong> ${name} 様 &nbsp;|&nbsp; <strong>メール:</strong> ${email}<br><strong>内容:</strong> ${message}`;
+        document.getElementById('reply-modal').style.display = 'flex';
+
+        if (activeReplyRef) activeReplyRef.off();
+        activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
+        activeReplyRef.on('value', (snapshot) => {
+            const historyData = snapshot.val();
+            const historyList = document.getElementById('reply-history-list');
+            historyList.innerHTML = '';
+            if (!historyData) {
+                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">履歴はありません。</div>';
+                return;
+            }
+            Object.keys(historyData).forEach(msgKey => {
+                const item = historyData[msgKey];
+                historyList.insertAdjacentHTML('beforeend', `
+                    <div class="chat-bubble ${item.role === 'admin' ? 'admin' : 'user'}">
+                        <div class="meta"><strong>${escapeHtml(item.senderName)}</strong><span>${item.timestamp}</span></div>
+                        <div>${escapeHtml(item.message).replace(/\n/g, '<br>')}</div>
+                    </div>
+                `);
+            });
+            historyList.scrollTop = historyList.scrollHeight;
+        });
+    };
+
+    window.closeReplyModal = function() {
+        document.getElementById('reply-modal').style.display = 'none';
+        if (activeReplyRef) { activeReplyRef.off(); activeReplyRef = null; }
+        currentReplyItemKey = null;
+    };
+
+    window.sendReplySubmit = function() {
+        const msgInput = document.getElementById('reply-input-message');
+        const msgText = msgInput.value.trim();
+        if (!msgText || !currentReplyItemKey) return alert('メッセージを入力してください。');
+
+        db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
+            senderName: 'サポート事務局', role: 'admin', message: msgText, timestamp: new Date().toLocaleString('ja-JP')
+        });
+        db.ref(`admin_data/contacts/${currentReplyItemKey}`).update({ status: '返信済み', verified: true });
+        addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
+        msgInput.value = '';
+        alert('返信を送信しました。');
+    };
+
+    function loadTokushoData() {
+        db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('tokusho_seller').value = data.seller || '株式会社サンプル';
+            document.getElementById('tokusho_manager').value = data.manager || '山田 太郎';
+            document.getElementById('tokusho_address').value = data.address || '東京都渋谷区道玄坂1-2-3';
+            document.getElementById('tokusho_phone').value = data.phone || '03-1234-5678';
+            document.getElementById('tokusho_email').value = data.email || 'support@example.com';
+            document.getElementById('tokusho_price').value = data.price || '各商品ページに記載';
+            document.getElementById('tokusho_extra_fee').value = data.extra_fee || '配送料等';
+            document.getElementById('tokusho_payment').value = data.payment || 'クレジットカード決済等';
+            document.getElementById('tokusho_delivery').value = data.delivery || 'ご注文後2〜3日以内';
+            document.getElementById('tokusho_returns').value = data.returns || '到着後7日以内対応';
+        });
+    }
+
+    window.saveTokusho = function(event) {
+        event.preventDefault();
+        db.ref('admin_data/settings/tokusho').set({
+            seller: document.getElementById('tokusho_seller').value,
+            manager: document.getElementById('tokusho_manager').value,
+            address: document.getElementById('tokusho_address').value,
+            phone: document.getElementById('tokusho_phone').value,
+            email: document.getElementById('tokusho_email').value,
+            price: document.getElementById('tokusho_price').value,
+            extra_fee: document.getElementById('tokusho_extra_fee').value,
+            payment: document.getElementById('tokusho_payment').value,
+            delivery: document.getElementById('tokusho_delivery').value,
+            returns: document.getElementById('tokusho_returns').value,
+            updatedAt: new Date().toLocaleString('ja-JP')
+        }, (err) => {
+            if (!err) {
+                addAuditLog('特定商取引法更新', '特定商取引法表記の本文を更新');
+                alert('特定商取引法表記を更新保存しました！');
+            }
+        });
+    };
+
+    function loadPrivacyData() {
+        db.ref('admin_data/settings/privacy').once('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('privacy_content').value = data.content || '<h2>個人情報保護方針</h2><p>当サービスは規約に基づき適切に保護を行います。</p>';
+        });
+    }
+
+    window.savePrivacy = function(event) {
+        event.preventDefault();
+        db.ref('admin_data/settings/privacy').set({
+            content: document.getElementById('privacy_content').value,
+            updatedAt: new Date().toLocaleString('ja-JP')
+        }, (err) => {
+            if (!err) {
+                addAuditLog('プライバシーポリシー更新', '個人情報保護方針の本文を更新');
+                alert('個人情報保護方針を更新保存しました！');
+            }
+        });
+    };
+
+    window.openChatModal = function(category, itemKey, title) {
+        document.getElementById('chat-modal-title').innerText = `💬 チャットログ監視: ${title}`;
+        document.getElementById('chat-target-info').innerHTML = `<strong>カテゴリー:</strong> ${category} | <strong>キー:</strong> ${itemKey}`;
+        document.getElementById('chat-modal').style.display = 'flex';
+
+        if (activeChatRef) activeChatRef.off();
+        activeChatRef = db.ref(`admin_data/chats/${category}/${itemKey}`);
+        activeChatRef.on('value', (snapshot) => {
+            const chatData = snapshot.val();
+            const msgList = document.getElementById('chat-message-list');
+            msgList.innerHTML = '';
+            if (!chatData) {
+                msgList.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">やり取り履歴はありません。</div>';
+                return;
+            }
+            Object.keys(chatData).forEach(msgKey => {
+                const msg = chatData[msgKey];
+                msgList.insertAdjacentHTML('beforeend', `
+                    <div class="chat-bubble ${msg.userRole === 'buyer' ? 'buyer' : 'seller'}">
+                        <div class="meta"><strong>${escapeHtml(msg.senderName || 'ユーザー')}</strong><span>${msg.timestamp || ''}</span></div>
+                        <div>${escapeHtml(msg.message || '')}</div>
+                    </div>
+                `);
+            });
+            msgList.scrollTop = msgList.scrollHeight;
+        });
+    };
+
+    window.closeChatModal = function() {
+        document.getElementById('chat-modal').style.display = 'none';
+        if (activeChatRef) { activeChatRef.off(); activeChatRef = null; }
+    };
+
+    window.toggleVerifyRow = function(key, currentStatus) {
+        db.ref(tabSchema[currentAdminTab].path + '/' + key).update({ verified: !currentStatus });
+    };
+
+    window.deleteAdminRow = function(key) {
+        if (confirm("このデータを削除しますか？")) {
+            db.ref(tabSchema[currentAdminTab].path + '/' + key).remove((err) => {
+                if (!err) addAuditLog('データ削除', `タブ: ${currentAdminTab}, キー: ${key}`);
+            });
+        }
+    };
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAndSeedData(() => { loadDashboardKPI(); });
+    });
+    </script>
+</body>
+</html>
