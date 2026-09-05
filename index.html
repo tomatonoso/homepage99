@@ -3370,7 +3370,7 @@ window.checkAuthAndOpenJobPost = function() {
     purchaseRequests = window.purchaseRequests;
 
     // 保存・再描画・モーダル削除
-    if (typeof saveToStorage === 'function') saveToStorage();
+   if (typeof saveRequestsToStorage === 'function') saveRequestsToStorage();
     if (typeof renderPurchaseRequests === 'function') renderPurchaseRequests();
     if (typeof closeModal === 'function') closeModal('request-post-modal');
 
@@ -5641,6 +5641,22 @@ document.addEventListener('click', function(e) {
         }
     }
 }, true);
+// ローカルストレージへ保存
+function saveRequestsToStorage() {
+    localStorage.setItem('purchaseRequests', JSON.stringify(window.purchaseRequests || []));
+}
+
+// ローカルストレージから読み込み
+function loadRequestsFromStorage() {
+    const saved = localStorage.getItem('purchaseRequests');
+    if (saved) {
+        try {
+            window.purchaseRequests = JSON.parse(saved);
+        } catch(e) {
+            console.error('データの読み込みエラー:', e);
+        }
+    }
+}
 </script>
 
 <!-- 購入リクエスト全件表示モーダル -->
