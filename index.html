@@ -5808,6 +5808,35 @@ window.sortAuctions = function(sortType) {
         window.openAllAuctionsModal();
     }
 };
+// オークション投稿フォームの送信処理例
+document.getElementById('auction-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // 1. 入力値から新しいオークションオブジェクトを作成
+    const newAuction = {
+        id: Date.now().toString(),
+        title: document.getElementById('auction-title-input')?.value || '',
+        price: document.getElementById('auction-price-input')?.value || 0,
+        desc: document.getElementById('auction-desc-input')?.value || '',
+        // その他の必要なフィールド（画像等）
+    };
+
+    // 2. window.auctions 配列が存在しなければ初期化し、先頭に追加
+    if (!window.auctions) window.auctions = [];
+    window.auctions.unshift(newAuction);
+
+    // 3. ローカルストレージを使用している場合は保存
+    localStorage.setItem('auctions', JSON.stringify(window.auctions));
+
+    // 4. メイン画面・一覧の再描画処理を呼び出し
+    if (typeof renderAuctions === 'function') {
+        renderAuctions();
+    }
+
+    // 5. フォームのリセットとモーダルを閉じる
+    this.reset();
+    alert('オークションを出品しました！');
+});
 </script>
 
 <div id="all-requests-modal" class="modal" style="display: none;">
