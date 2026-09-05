@@ -1791,13 +1791,20 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     </button>
 
     <footer>
-        <div class="footer-links">
-            <a onclick="openModal('tokusho-modal')">特定商取引法に基づく表記</a> | 
-            <a onclick="openModal('privacy-modal')">個人情報保護方針</a> | 
-            <a onclick="openModal('inquiry-modal')">お問い合わせ</a>
-        </div>
-        <p>&copy; ミナトモ！ All Rights Reserved.</p>
-    </footer>
+    <div class="footer-links">
+        <a onclick="openModal('tokusho-modal')">特定商取引法に基づく表記</a> |
+        <a onclick="openModal('privacy-modal')">個人情報保護方針</a> |
+        <a onclick="openModal('inquiry-modal')">お問い合わせ</a>
+    </div>
+    <p>&copy; ミナトモ！ All Rights Reserved.</p>
+
+    <!-- ▼▼ ここを追加 ▼▼ -->
+    <p style="font-size: 10px; opacity: 0.4; margin-top: 8px;">
+        <a href="admin.html" style="color: inherit; text-decoration: none;">管理者ログイン</a>
+    </p>
+    <!-- ▲▲ ここまで追加 ▲▲ -->
+
+</footer>
 
     <!-- ガチャガチャモーダル -->
     <div id="gacha-modal" class="modal-panel">
@@ -2776,23 +2783,25 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         </div>
     </div>
 
-    <div id="tokusho-modal" class="modal-panel">
-        <div class="modal-content modal-content-sm">
-            <span class="close-modal" onclick="closeModal('tokusho-modal')">&times;</span>
-            <h2>特定商取引法に基づく表記</h2>
-            <hr style="margin: 15px 0;">
-            <p style="font-size: 0.88rem; line-height: 1.6; color: #555;"><strong>販売業者:</strong> ミナトモ！運営事務局<br><strong>運営責任者:</strong> 運営代表者<br><strong>所在地:</strong> 〒000-0000 東京都〇〇区...<br><strong>連絡先:</strong> support@minatomo.jp<br><strong>販売価格:</strong> 各商品ページに記載<br><strong>支払方法:</strong> クレジットカード決済等</p>
-        </div>
+   <div id="tokusho-modal" class="modal-panel">
+    <div class="modal-content modal-content-sm">
+        <span class="close-modal" onclick="closeModal('tokusho-modal')">&times;</span>
+        <h2>特定商取引法に基づく表記</h2>
+        <hr style="margin: 15px 0;">
+        <!-- 2791行目を下のように書き換え -->
+        <div id="display-tokusho-content" style="font-size: 0.88rem; line-height: 1.6; color: #555;">読み込み中...</div>
     </div>
+</div>
 
-    <div id="privacy-modal" class="modal-panel">
-        <div class="modal-content modal-content-sm">
-            <span class="close-modal" onclick="closeModal('privacy-modal')">&times;</span>
-            <h2>個人情報保護方針</h2>
-            <hr style="margin: 15px 0;">
-            <p style="font-size: 0.88rem; line-height: 1.6; color: #555;">ミナトモ！運営事務局（以下、「当方」といいます。）は、本ウェブサイト上で提供するサービスにおける、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシーを定めます。</p>
-        </div>
+<div id="privacy-modal" class="modal-panel">
+    <div class="modal-content modal-content-sm">
+        <span class="close-modal" onclick="closeModal('privacy-modal')">&times;</span>
+        <h2>個人情報保護方針</h2>
+        <hr style="margin: 15px 0;">
+        <!-- 2800行目を下のように書き換え -->
+        <div id="display-privacy-content" style="font-size: 0.88rem; line-height: 1.6; color: #555;">読み込み中...</div>
     </div>
+</div>
 
     <script>
     // アルバイト投稿ボタンの処理（エラー回避用）
@@ -3198,6 +3207,36 @@ window.checkAuthAndOpenJobPost = function() {
             };
             const totalAmount = cart.length > 0 ? cart.reduce((sum, item) => sum + item.price, 0) : (currentSelectedProduct ? currentSelectedProduct.price : (currentActiveRequest ? currentActiveRequest.proposedPrice : 0));
             const productName = cart.length > 0 ? `カート内商品 ${cart.length}点まとめ` : (currentSelectedProduct ? currentSelectedProduct.name : (currentActiveRequest ? currentActiveRequest.title : "リクエスト商品"));
+            function submitOrder(event) {
+    // ※フォーム送信のデフォルト動作を防止する場合
+    // event.preventDefault(); 
+
+    // 1. 画像のHTMLのIDから入力内容を取得
+    const buyerName = document.getElementById('buy-name').value;
+    const buyerEmail = document.getElementById('buy-email').value;
+    const buyerPhone = document.getElementById('buy-phone').value;
+    const buyerAddress = document.getElementById('buy-address').value;
+    
+    // 合計金額（￥やカンマを除去して数値化）
+    const priceText = document.getElementById('out-total-price').innerText;
+    const price = Number(priceText.replace(/[^0-9]/g, '')) || 0;
+
+    // 2. ★管理画面（Firebase）へデータを送信★
+    db.ref('admin_data/refunds').push({
+        id: 'PAY-' + Math.floor(100000 + Math.random() * 900000),
+        buyerName: buyerName,
+        buyerEmail: buyerEmail,
+        buyerPhone: buyerPhone,
+        buyerAddress: buyerAddress,
+        itemTitle: '注文アイテム', // カートの商品名やタイトルがあれば指定
+        amount: price,
+        status: '通常決済完了',
+        verified: true,
+        createdAt: new Date().toLocaleString('ja-JP')
+    });
+
+    // --- ここから下に既存のGAS連携や決済画面への遷移コードを記述 ---
+}
 
             if (GAS_WEB_APP_URL && GAS_WEB_APP_URL.includes("script.google.com")) {
                 try {
@@ -5502,6 +5541,61 @@ window.closeModal = function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.style.display = 'none';
 };
+// お問い合わせ送信ボタンが押されたときに動く処理
+function submitContact() {
+    // フォームに入力された値を取得
+    const userFormName = document.getElementById('name-input').value;
+    const userFormEmail = document.getElementById('email-input').value;
+    const userFormMessage = document.getElementById('message-input').value;
+
+    // ★ここに「管理画面へ送るコード」を追加します！
+    db.ref('admin_data/contacts').push({
+        id: 'CNT-' + Math.floor(1000 + Math.random() * 9000),
+        name: userFormName,               // お名前
+        email: userFormEmail,             // メールアドレス
+        messageContent: userFormMessage,  // お問い合わせ内容
+        status: '未対応',
+        verified: false,
+        createdAt: new Date().toLocaleString('ja-JP')
+    });
+
+    alert("お問い合わせを送信しました！");
+}
+// 管理画面で設定した「特定商取引法」「個人情報保護方針」を自動読み込み
+window.addEventListener('DOMContentLoaded', () => {
+    if (typeof db !== 'undefined') {
+        
+        // 特定商取引法の読み込み
+        db.ref('admin_data/settings/tokusho').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('display-tokusho-content');
+            if (data && container) {
+                container.innerHTML = `
+                    <strong>販売業者：</strong> ${data.seller || '-'}<br>
+                    <strong>運営責任者：</strong> ${data.manager || '-'}<br>
+                    <strong>所在地：</strong> ${data.address || '-'}<br>
+                    <strong>電話番号：</strong> ${data.phone || '-'}<br>
+                    <strong>メールアドレス：</strong> ${data.email || '-'}<br>
+                    <strong>販売価格：</strong> ${data.price || '-'}<br>
+                    <strong>必要料金：</strong> ${data.extra_fee || '-'}<br>
+                    <strong>お支払い方法：</strong> ${data.payment || '-'}<br>
+                    <strong>引き渡し時期：</strong> ${data.delivery || '-'}<br>
+                    <strong>返品・キャンセル：</strong> ${data.returns || '-'}
+                `;
+            }
+        });
+
+        // 個人情報保護方針の読み込み
+        db.ref('admin_data/settings/privacy').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('display-privacy-content');
+            if (data && container) {
+                container.innerHTML = data.content || '-';
+            }
+        });
+
+    }
+});
 </script>
 </body>
 </html>
