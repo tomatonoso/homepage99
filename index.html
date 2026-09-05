@@ -5369,7 +5369,7 @@ window.handleAdminLogin = function(event) {
 
 <script>
 // --- Firebase初期化設定 (Firebaseコンソールで取得したご自身のキーに書き換えてください) ---
-const firebaseConfig = {
+var firebaseConfig = {
     apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
     authDomain: "yauwo-a9ba1.firebaseapp.com",
     databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
@@ -5506,35 +5506,7 @@ window.handleAdminSignup = function(event) {
     location.reload();
 };
 
-// --- 【ログイン処理】 ---
-window.handleAdminLogin = function(event) {
-    if (event) event.preventDefault();
 
-    const admin = getRegisteredAdmin();
-    if (!admin) {
-        alert("エラー: 管理者情報が見つかりません。");
-        return;
-    }
-
-    const inputEmail = document.getElementById('signup-admin-email') ? document.getElementById('signup-admin-email').value.trim() : '';
-    const inputPass1 = document.getElementById('signup-admin-pass1') ? document.getElementById('signup-admin-pass1').value : '';
-    const inputPass2 = document.getElementById('signup-admin-pass2') ? document.getElementById('signup-admin-pass2').value : '';
-    const inputSecurity = document.getElementById('signup-admin-security') ? document.getElementById('signup-admin-security').value.trim() : '';
-
-    if (
-        inputEmail === admin.email &&
-        inputPass1 === admin.pass1 &&
-        inputPass2 === admin.pass2 &&
-        inputSecurity === admin.security
-    ) {
-        sessionStorage.setItem('minatomo_admin_logged_in', 'true');
-        alert("認証成功！ 運営管理画面を開きます。");
-        closeModal('admin-signup-modal');
-        location.reload();
-    } else {
-        alert("認証エラー: 入力された情報が登録データと一致しません。");
-    }
-};
 
 // --- モーダル非表示処理 ---
 window.closeModal = function(modalId) {
