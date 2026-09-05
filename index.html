@@ -1181,6 +1181,26 @@
         gap: 12px !important;
     }
 }
+/* 重なり順の調整：詳細モーダルを全件一覧モーダルより正面（最前面）に表示 */
+#all-auctions-modal {
+    z-index: 1000 !important;
+}
+
+#auction-detail-modal {
+    z-index: 2000 !important; /* 全件一覧より大きい数値で手前に表示 */
+}
+
+/* 詳細モーダルのサイズ調整（赤枠の大きさに統一） */
+#auction-detail-modal .modal-content {
+    max-width: 800px !important;    /* 赤枠相当の横幅 */
+    width: 90% !important;
+    max-height: 85vh !important;    /* 画面縦幅の85%に抑える */
+    overflow-y: auto !important;     /* 縦長になった場合はモーダル内スクロール */
+    margin: auto !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+}
 </style>
 <script>
 // アルバイト投稿モーダルを開く関数
