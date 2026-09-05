@@ -3947,6 +3947,22 @@ window.sendPriceProposal = function() {
         buyers.push(newUser);
         localStorage.setItem('minatomo_registered_buyers', JSON.stringify(buyers));
 
+        // ★ ここから Firebase 送信処理を追加 ★
+        if (typeof db !== 'undefined' && db.ref) {
+            const newUserData = {
+                id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
+                name: name,
+                email: email,
+                phone: phone,
+                kycStatus: '未提出',
+                status: '正常',
+                verified: false,
+                createdAt: new Date().toLocaleString('ja-JP')
+            };
+            db.ref('admin_data/users').push().set(newUserData);
+        }
+        // ★ ここまで ★
+
         currentUser = newUser;
         alert('新規登録が完了し、ログインしました！');
         closeModal('buyer-auth-modal');
