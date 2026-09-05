@@ -5239,32 +5239,45 @@ function getRegisteredAdmin() {
 
 // 【新規登録処理】初回1人目のみ実行可能
 window.handleAdminSignup = function(event) {
-    event.preventDefault();
+    // eventが存在する場合のみ標準動作をキャンセル
+    if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+    }
 
-    // 二重登録防止の安全策
+    // 二重登録防止のチェック
     if (getRegisteredAdmin()) {
-        alert("エラー: 運営管理者はすでに1人登録されています。2人目以降の登録はできません。");
+        alert("エラー: 運営管理者はすでに1人登録されています。");
+        return;
+    }
+
+    const emailEl = document.getElementById('signup-admin-email');
+    const pass1El = document.getElementById('signup-admin-pass1');
+    const pass2El = document.getElementById('signup-admin-pass2');
+    const secEl = document.getElementById('signup-admin-security');
+
+    if (!emailEl || !pass1El || !pass2El || !secEl) {
+        alert("エラー: 入力フォームが見つかりません。HTMLのidを確認してください。");
         return;
     }
 
     const adminData = {
-        email: document.getElementById('signup-admin-email').value.trim(),
-        pass1: document.getElementById('signup-admin-pass1').value,
-        pass2: document.getElementById('signup-admin-pass2').value,
-        security: document.getElementById('signup-admin-security').value.trim(),
+        email: emailEl.value.trim(),
+        pass1: pass1El.value,
+        pass2: pass2El.value,
+        security: secEl.value.trim(),
         registeredAt: new Date().toLocaleString('ja-JP')
     };
 
-    // localStorageに管理者情報を自動保存
     localStorage.setItem('minatomo_admin', JSON.stringify(adminData));
-    
-    // ログイン状態フラグの保持（セッション単位）
     sessionStorage.setItem('minatomo_admin_logged_in', 'true');
 
-    alert("運営管理者情報の登録が完了しました！\n次回からはこの情報でログインが行われます。");
-    
-  closeModal('admin-signup-modal');
-window.location.href = 'admin.html'; // 運営管理画面へ遷移
+    alert("運営管理者情報の登録が完了しました！\n運営管理画面を開きます。");
+
+    if (typeof closeModal === 'function') {
+        closeModal('admin-signup-modal');
+    }
+
+    window.location.href = 'admin.html';
 };
 
 // 【ログイン処理】登録済み情報との照合
