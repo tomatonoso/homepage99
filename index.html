@@ -5355,10 +5355,20 @@ window.handleAdminLogin = function(event) {
         sessionStorage.setItem('minatomo_admin_logged_in', 'true');
         alert("認証成功！ 運営管理画面を開きます。");
         
-        closeModal('admin-signup-modal');
-        location.reload();
+        closeModal('admin-login-modal');
+        window.location.href = 'admin.html';
     } else {
         alert("認証エラー: メールアドレス、パスワード、または秘密の合言葉が一致しません。");
+    }
+}
+
+// モーダル表示関数を追加（openAdminModal is not defined の解消）
+window.openAdminModal = function() {
+    if (typeof openModal === 'function') {
+        openModal('admin-login-modal');
+    } else {
+        const modal = document.getElementById('admin-login-modal');
+        if (modal) modal.style.display = 'flex';
     }
 };
 </script>
