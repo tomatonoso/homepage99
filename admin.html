@@ -369,6 +369,12 @@
                         const btnClass = isChecked ? 'btn-check-on' : 'btn-check-off';
                         const btnLabel = isChecked ? '確認済' : '未確認';
                         tr += `<td><button onclick="toggleVerifyRow('${key}', ${isChecked})" class="${btnClass}">${btnLabel}</button></td>`;
+                        } else if (field === 'kycImageBtn') {
+                        if (rowData.kycImage) {
+                            tr += `<td><button onclick="viewKycImage('${escapeHtml(rowData.kycImage)}', '${escapeHtml(rowData.name)}')" style="background:#0d6efd; color:#fff; border:none; padding:3px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🖼️ 画像確認</button></td>`;
+                        } else {
+                            tr += `<td><span style="color:#aaa;">未提出</span></td>`;
+                        }
                     } else if (field === 'statusBadge') {
                         const status = rowData.status || '正常';
                         let badgeClass = 'active';
@@ -681,6 +687,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // 必要に応じて他のタブ描画関数もここに追加（例: loadUsers(), loadProducts() 等）
     });
 });
+window.viewKycImage = function(imageUrl, userName) {
+        const win = window.open("", "_blank", "width=600,height=600");
+        win.document.write(`
+            <html>
+                <head><title>KYC確認 - ${userName}様</title></head>
+                <body style="margin:0; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#222; color:#fff; font-family:sans-serif; height:100vh;">
+                    <h3 style="margin-bottom:10px;">${userName} 様の本人確認書類</h3>
+                    <img src="${imageUrl}" style="max-width:90%; max-height:80vh; border-radius:8px; border:2px solid #fff; object-fit:contain;" />
+                </body>
+            </html>
+        `);
+    };
     </script>
 </body>
 </html>
