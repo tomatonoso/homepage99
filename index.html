@@ -5832,7 +5832,7 @@ window.sortAuctions = function(sortType) {
         window.openAllAuctionsModal();
     }
 };
-// フォーム要素の取得チェック
+// 投稿フォーム要素の取得と送信処理
 const auctionForm = document.getElementById('auction-form');
 console.log('フォーム要素の取得結果:', auctionForm);
 
@@ -5840,42 +5840,43 @@ if (auctionForm) {
     auctionForm.addEventListener('submit', function(e) {
         e.preventDefault();
         console.log('投稿イベントが正常に発火しました');
-    // 1. 入力値から新しいオークションオブジェクトを作成
-    const newAuction = {
-        id: Date.now().toString(),
-        title: document.getElementById('auction-title-input')?.value || '',
-        price: document.getElementById('auction-price-input')?.value || 0,
-        desc: document.getElementById('auction-desc-input')?.value || '',
-        // その他の必要なフィールド（画像等）
-    };
 
-  // 2. window.auctions 配列が存在しなければ初期化し、先頭に追加
-    if (!window.auctions) window.auctions = [];
-    window.auctions.unshift(newAuction);
+        // 1. 入力値から新しいオークションオブジェクトを作成
+        const newAuction = {
+            id: Date.now().toString(),
+            title: document.getElementById('auction-title-input')?.value || '',
+            price: document.getElementById('auction-price-input')?.value || 0,
+            desc: document.getElementById('auction-desc-input')?.value || ''
+        };
 
-    // 3. ローカルストレージを使用している場合は保存
-    localStorage.setItem('auctions', JSON.stringify(window.auctions));
+        // 2. window.auctions 配列が存在しなければ初期化し、先頭に追加
+        if (!window.auctions) window.auctions = [];
+        window.auctions.unshift(newAuction);
 
-    // 4. メイン画面・一覧の再描画処理を呼び出し
-    if (typeof renderAuctions === 'function') {
-        renderAuctions();
-    }
+        // 3. ローカルストレージへ保存
+        localStorage.setItem('auctions', JSON.stringify(window.auctions));
 
-    // 5. フォームのリセットとモーダルを閉じる（★ここを書き換え）
-    if (e && e.target && typeof e.target.reset === 'function') {
-        e.target.reset();
-    }
-    alert('オークションを出品しました！');
+        // 4. メイン画面・一覧の再描画処理を呼び出し
+        if (typeof renderAuctions === 'function') {
+            renderAuctions();
+        }
 
-    // 投稿フォームのモーダルを非表示にする
-    const postModal = document.getElementById('auction-post-modal'); // 投稿モーダルのID
-    if (postModal) {
-        postModal.style.display = 'none';
-    }
-    if (typeof closeAuctionPostModal === 'function') {
-        closeAuctionPostModal();
-    }
-});
+        // 5. フォームのリセットとモーダルを閉じる
+        if (e && e.target && typeof e.target.reset === 'function') {
+            e.target.reset();
+        }
+        alert('オークションを出品しました！');
+
+        // 投稿フォームのモーダルを非表示にする
+        const postModal = document.getElementById('auction-post-modal');
+        if (postModal) {
+            postModal.style.display = 'none';
+        }
+        if (typeof closeAuctionPostModal === 'function') {
+            closeAuctionPostModal();
+        }
+    });
+}
 </script>
 
 <div id="all-requests-modal" class="modal" style="display: none;">
