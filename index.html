@@ -2110,6 +2110,50 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
                     </div>
                 </form>
             </div>
+function submitNewProduct(event) {
+    if (event) event.preventDefault(); // フォーム送信時のページリロードを防止
+
+    // 画像コード内の各 input / select 要素から値を取得
+    const sellerName = document.getElementById('seller-name-input')?.value || '';
+    const sellerEmail = document.getElementById('seller-email-input')?.value || '';
+    const sellerPhone = document.getElementById('seller-phone-input')?.value || '';
+    
+    const productName = document.getElementById('new-prod-name')?.value || '';
+    const category = document.getElementById('new-prod-category')?.value || '';
+    const price = document.getElementById('new-prod-price')?.value || 0;
+    const shipping = document.getElementById('new-prod-shipping')?.value || '';
+    const description = document.getElementById('new-prod-desc')?.value || '';
+
+    if (!productName || !price) {
+        alert('商品名と価格を入力してください。');
+        return;
+    }
+
+    // admin.html 側のスキーマに合わせてオブジェクトを作成
+    const newProductData = {
+        id: 'PRD-' + Math.floor(1000 + Math.random() * 9000),
+        seller: sellerName,
+        sellerEmail: sellerEmail,
+        sellerPhone: sellerPhone,
+        title: productName,
+        category: category,
+        price: Number(price) || 0,
+        shippingFee: shipping,
+        description: description,
+        verified: false,
+        createdAt: new Date().toLocaleString('ja-JP')
+    };
+
+    // Firebase database の admin_data/products へリアルタイム保存
+    db.ref('admin_data/products').push().set(newProductData, (error) => {
+        if (!error) {
+            alert('出品が完了しました！運営管理スプレッドシート（3. 出品商品）へ即時反映されます。');
+            document.getElementById('seller-form')?.reset(); // フォームのリセット
+        } else {
+            alert('送信エラーが発生しました: ' + error.message);
+        }
+    });
+}
 <div id="mypage-tab-posted-jobs" class="admin-tab-content">
     <h3>あなたが投稿したアルバイト一覧</h3>
     <div id="posted-jobs-container" style="margin-top:10px;">
