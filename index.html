@@ -3441,7 +3441,7 @@ window.openAllRequestsModal = function() {
     }
 };
         window.openRequestChat = function(id) {
-            const req = purchaseRequests.find(r => r.id === id);
+            const req = purchaseRequests.find(r => String(r.id) === String(id));
             if(!req) return;
             currentActiveRequest = req;
             document.getElementById('chat-req-title').innerText = req.title;
