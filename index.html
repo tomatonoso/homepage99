@@ -1744,11 +1744,13 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
 
        <div class="section-header">
     <span>購入リクエスト（逆出品一覧）</span>
-    <div style="display: flex; gap: 10px;">
-        <button id="btn-open-all-requests" class="btn-outline" onclick="event.stopPropagation(); openAllRequestsModal();">
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <button id="btn-open-all-requests" onclick="event.stopPropagation(); openAllRequestsModal();" style="background-color: #f8f9fa; color: #333333; border: 1px solid #cccccc; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-list"></i> すべて見る
         </button>
-        <button class="btn-outline" onclick="checkAuthAndOpenRequestPost()"><i class="fa-solid fa-plus"></i> 投稿 </button>
+        <button onclick="checkAuthAndOpenRequestPost()" style="background-color: #e53935; color: #ffffff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-plus"></i> 投稿
+        </button>
     </div>
 </div>
         <div id="request-list-container" style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;"></div>
