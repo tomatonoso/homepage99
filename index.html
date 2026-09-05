@@ -3516,49 +3516,14 @@ window.checkAuthAndOpenJobPost = function() {
         };
     };
 };
-// KYC（本人確認）権限チェック関数
-function checkKycPermission(actionName) {
-    if (!currentUser) {
-        alert(actionName + 'するにはログインが必要です。');
-        openModal('buyer-auth-modal');
-        return false;
-    }
-
-    const status = currentUser.kycStatus || '未提出';
-    if (status !== '承認済み') {
-        if (status === '審査中') {
-            alert('現在、本人確認（KYC）の審査中です。承認完了まで' + actionName + 'はご利用いただけません。');
-        } else if (status === '再提出') {
-            alert('本人確認書類の再提出が必要です。確認書類を再アップロードしてください。');
-        } else {
-            alert(actionName + 'を行うには本人確認（KYC）の提出と運営の承認が必要です。');
-        }
-        return false;
-    }
-    return true;
-}
-
-// ★ ここに「監視用の関数」を追加します ★
-function watchUserKycStatus(userId) {
-    if (!userId || typeof db === 'undefined' || !db.ref) return;
-    
-    db.ref('admin_data/users/' + userId).on('value', function(snapshot) {
-        const data = snapshot.val();
-        if (data && currentUser) {
-            currentUser.kycStatus = data.kycStatus || '未提出';
-        }
-    });
-}
-
-window.submitNewProduct = function(e) {
-    // ...
 
   window.submitNewProduct = function(e) {
     if (e && e.preventDefault) e.preventDefault();
-
-    // ★ ログインチェック ＆ KYC承認チェックを実行
-    if (!checkKycPermission('出品')) {
-        return false;
+    
+    if (!currentUser) { 
+        alert('出品するにはログインが必要です。'); 
+        openModal('buyer-auth-modal'); 
+        return false; 
     }
 
     // 出品者情報の取得
@@ -4066,7 +4031,6 @@ window.sendPriceProposal = function() {
             createdAt: new Date().toLocaleString('ja-JP')
         };
             db.ref('admin_data/users').push().set(newUserData);
-            watchUserKycStatus(email);
         }
         // ★ ここまで ★
 
@@ -4095,7 +4059,6 @@ window.sendPriceProposal = function() {
         }
 
         currentUser = matchedBuyer;
-        watchUserKycStatus(matchedBuyer.email);
         alert('ログインしました！');
         closeModal('buyer-auth-modal');
         updateAuthUI();
@@ -6462,4 +6425,4 @@ if (typeof firebase !== 'undefined') {
 </script>
 </body>
 </html>
-</html>
+
