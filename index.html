@@ -5240,7 +5240,6 @@ function renderChatList() {
         </div>
     `).join('');
 }
-// Firebase Realtime Database からチャットデータをリアルタイム取得する処理
 function initFirebaseChatSync() {
     if (typeof db === 'undefined' && typeof firebase !== 'undefined') {
         window.db = firebase.database();
@@ -5254,11 +5253,13 @@ function initFirebaseChatSync() {
         const targetConv = chatConversations.find(c => c.id === 'admin-1');
         if (!targetConv) return;
 
+        // Firebaseのmessagesオブジェクトを配列に変換
         if (data.messages) {
-            const msgList = Object.values(data.messages);
-            targetConv.messages = msgList;
+            targetConv.messages = Array.isArray(data.messages) 
+                ? data.messages 
+                : Object.values(data.messages);
 
-            const lastMsg = msgList[msgList.length - 1];
+            const lastMsg = targetConv.messages[targetConv.messages.length - 1];
             if (lastMsg) {
                 targetConv.lastMessage = lastMsg.text;
                 targetConv.lastTime = lastMsg.time;
@@ -5269,7 +5270,7 @@ function initFirebaseChatSync() {
             targetConv.unread = data.unread;
         }
 
-       // 一覧・バッジ・開いているチャット詳細をすべて更新
+        // 描画更新
         if (typeof renderChatList === 'function') renderChatList();
         if (typeof updateChatBadge === 'function') updateChatBadge();
         if (typeof renderChatMessages === 'function' && typeof currentChatId !== 'undefined' && currentChatId === 'admin-1') {
