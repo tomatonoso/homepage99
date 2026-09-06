@@ -6634,6 +6634,48 @@ function submitInquiry() {
         alert('データベース接続エラーが発生しました。');
     }
 }
+// 4. チャット画面のリアルタイム受信＆自動同期設定
+if (typeof db !== 'undefined') {
+    db.ref('chats/admin-1/messages').on('value', function(snapshot) {
+        const messagesDiv = document.querySelector('.chat-messages');
+        if (!messagesDiv) return;
+
+        const data = snapshot.val();
+        messagesDiv.innerHTML = '';
+
+        if (!data) {
+            messagesDiv.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">メッセージはまだありません</div>';
+            return;
+        }
+
+        Object.keys(data).forEach(function(key) {
+            const msg = data[key];
+            // ユーザー自身のメッセージ（own === true）か判定
+            const isOwn = msg.own === true;
+
+            const bubbleHtml = `
+                <div style="display:flex; justify-content:${isOwn ? 'flex-end' : 'flex-start'}; margin: 8px 12px;">
+                    <div style="max-width:75%; padding:10px 14px; border-radius:15px; font-size:14px; line-height:1.4; 
+                                background:${isOwn ? '#e63946' : '#f1f3f4'}; 
+                                color:${isOwn ? '#ffffff' : '#333333'};">
+                        <div>${escapeHtml(msg.text || msg.message || '')}</div>
+                        <div style="font-size:10px; opacity:0.7; text-align:right; margin-top:4px;">${escapeHtml(msg.time || msg.timestamp || '')}</div>
+                    </div>
+                </div>
+            `;
+            messagesDiv.insertAdjacentHTML('beforeend', bubbleHtml);
+        });
+
+        // 最下部へ自動スクロール
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+}
+
+// エスケープ処理関数（安全のため追加）
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 </script>
 </body>
 </html>
