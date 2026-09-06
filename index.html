@@ -6895,14 +6895,18 @@ function openTalkRoom(roomId, partnerName, isAdmin = false) {
     loadRoomMessages(roomId, isAdmin);
 }
 
-// ユーザーのトーク一覧をFirebaseからロード
+// Firebaseからトークルーム一覧を取得（エラー対策版）
 function loadTalkRoomList() {
     const userId = getMyUserId();
     const container = document.getElementById('dynamic-room-items');
+
+    // 要素が存在しない場合は処理をスキップ（エラー回避）
+    if (!container) return;
+
     container.innerHTML = '';
 
-    // ユーザー個人のトーク一覧ノードを監視
     firebase.database().ref(`user_chats/user_rooms/${userId}`).on('value', (snapshot) => {
+        if (!container) return;
         container.innerHTML = '';
         const rooms = snapshot.val();
 
