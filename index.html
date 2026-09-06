@@ -6870,13 +6870,19 @@ function toggleChatPanelDisplay() {
     }
 }
 
-// 画面切り替え：トーク一覧を表示
+// 画面切り替え：トーク一覧を表示（nullチェック追加）
 function showRoomList() {
-    document.getElementById('chat-view-list').style.display = 'flex';
-    document.getElementById('chat-view-room').style.display = 'none';
-    if (roomListener) roomListener.off();
-}
+    const listView = document.getElementById('chat-view-list');
+    const roomView = document.getElementById('chat-view-room');
 
+    if (listView) listView.style.display = 'flex';
+    if (roomView) roomView.style.display = 'none';
+
+    if (roomListener) {
+        roomListener.off();
+        roomListener = null;
+    }
+}
 // 画面切り替え：個別トーク画面を開く
 function openTalkRoom(roomId, partnerName, isAdmin = false) {
     currentActiveRoomId = roomId;
