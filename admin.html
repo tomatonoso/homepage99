@@ -58,6 +58,37 @@
         .chat-bubble.buyer, .chat-bubble.user { align-self: flex-start; background: #ffffff; border: 1px solid #ced4da; color: #212529; }
         .chat-bubble.seller, .chat-bubble.admin { align-self: flex-end; background: #d1e7dd; border: 1px solid #badbcc; color: #0f5132; }
         .chat-bubble .meta { font-size: 10px; color: #888; margin-bottom: 3px; display: flex; justify-content: space-between; gap: 10px; }
+        /* 管理画面側のチャット吹き出しスタイル補正 */
+#reply-history-list .chat-bubble {
+    margin-bottom: 12px !important;
+    padding: 10px 14px !important;
+    border-radius: 12px !important;
+    max-width: 80% !important;
+    display: inline-block !important;
+    word-break: break-all !important;
+}
+
+/* ユーザー側のメッセージ（左寄せ・文字色を濃いグレーに強制指定） */
+#reply-history-list .chat-bubble.user {
+    background-color: #f1f3f4 !important;
+    color: #333333 !important;
+    float: left !important;
+    clear: both !important;
+}
+
+#reply-history-list .chat-bubble.user .meta,
+#reply-history-list .chat-bubble.user .message-text {
+    color: #333333 !important;
+    display: block !important;
+}
+
+/* 管理者側のメッセージ（右寄せ・緑背景） */
+#reply-history-list .chat-bubble.admin {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+    float: right !important;
+    clear: both !important;
+}
     </style>
 </head>
 <body>
