@@ -5296,6 +5296,7 @@ function initFirebaseChatSync() {
     }
     if (typeof db === 'undefined') return;
 
+    // chats/admin-1 全体を監視して messages と直下データ（unread等）の両方を取得
     db.ref('chats/admin-1').on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
@@ -5303,30 +5304,36 @@ function initFirebaseChatSync() {
         const targetConv = chatConversations.find(c => c.id === 'admin-1');
         if (!targetConv) return;
 
-        // Firebaseのmessagesオブジェクトを配列に変換
-        if (data.messages) {
-            targetConv.messages = Array.isArray(data.messages) 
+        // Firebaseの messages オブジェクトまたは直下メッセージを配列に変換
+        let msgArray = [];
+        if (data.messages && typeof data.messages === 'object') {
+            msgArray = Array.isArray(data.messages) 
                 ? data.messages 
                 : Object.values(data.messages);
-
-            const lastMsg = targetConv.messages[targetConv.messages.length - 1];
-            if (lastMsg) {
-                targetConv.lastMessage = lastMsg.text;
-                targetConv.lastTime = lastMsg.time;
-            }
         }
 
+        targetConv.messages = msgArray;
+
+        // 最終メッセージの更新
+        const lastMsg = targetConv.messages[targetConv.messages.length - 1];
+        if (lastMsg) {
+            targetConv.lastMessage = lastMsg.text || lastMsg.message || '';
+            targetConv.lastTime = lastMsg.time || '';
+        }
+
+        // 未読数の更新
         if (data.unread !== undefined) {
             targetConv.unread = data.unread;
         }
 
-        // 描画更新
-        if (typeof renderChatList === 'function') renderChatList();
-        if (typeof updateChatBadge === 'function') updateChatBadge();
-       if (typeof renderChatMessages === 'function' && typeof currentChatId !== 'undefined' && currentChatId === 'admin-1') {
-    const adminConv = chatConversations.find(c => c.id === 'admin-1');
-    if (adminConv) renderChatMessages(adminConv);
-}
+        // チャット画面が開いている場合の再描画処理
+        if (typeof renderChatMessages === 'function') {
+            renderChatMessages('admin-1');
+        } else if (typeof renderMessages === 'function') {
+            renderMessages();
+        } else if (typeof updateChatUI === 'function') {
+            updateChatUI();
+        }
     });
 }
 
