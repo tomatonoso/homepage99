@@ -6740,6 +6740,50 @@ function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 送信処理の設定関数
+    function attachChatEvents() {
+        // 赤い送信ボタンを判定（svgやimgが含まれるボタン要素）
+        const sendBtn = document.querySelector('.chat-detail-modal button') 
+                     || document.querySelector('#chat-modal button')
+                     || document.querySelector('.chat-panel button');
+        
+        const inputEl = document.getElementById('chat-input-msg') 
+                     || document.querySelector('.chat-detail-modal input')
+                     || document.querySelector('#chat-modal input');
+
+        if (sendBtn) {
+            // ボタンのクリックイベントを上書き設定
+            sendBtn.onclick = function(e) {
+                e.preventDefault();
+                if (typeof window.sendChatMessage === 'function') {
+                    window.sendChatMessage();
+                }
+            };
+        }
+
+        if (inputEl) {
+            // Enterキーでの送信を設定
+            inputEl.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (typeof window.sendChatMessage === 'function') {
+                        window.sendChatMessage();
+                    }
+                }
+            };
+        }
+    }
+
+    // 初回実行およびチャットモーダルが開いた際にも再適用
+    attachChatEvents();
+
+    // 画面変更に対応するための監視（モーダルが開いたとき対策）
+    const observer = new MutationObserver(attachChatEvents);
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
 </body>
 </html>
 
