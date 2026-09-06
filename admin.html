@@ -565,12 +565,11 @@ window.openReplyModal = function(key, name, email, message) {
                 const item = historyData[msgKey];
                 if (typeof item !== 'object' || item === null) return;
 
-                // 送信者の厳密な判定: 
-                // own === false (ユーザー画面から見て相手=管理者) または role === 'admin' または isAdmin === true
+                // 管理者（サポート事務局）送信分の判定基準
+                // ユーザーが送信した own: true に惑わされないよう、管理者の明確な識別子のみをチェック
                 const isAdmin = (item.role === 'admin') || 
                                 (item.isAdmin === true) || 
-                                (item.senderName === 'サポート事務局') ||
-                                (item.own === false);
+                                (item.senderName === 'サポート事務局');
 
                 const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
                 const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
@@ -578,10 +577,9 @@ window.openReplyModal = function(key, name, email, message) {
                 const textColor = '#333333';
                 const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
                 
-                // 本文テキストの抽出 (text / message / content 互換)
                 const msgText = item.text || item.message || item.content || '';
 
-                if (!msgText) return; // 空白メッセージはスキップ
+                if (!msgText) return;
 
                 const bubbleHtml = `
                     <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
@@ -598,7 +596,6 @@ window.openReplyModal = function(key, name, email, message) {
             historyList.scrollTop = historyList.scrollHeight;
         });
     };
-
     window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
