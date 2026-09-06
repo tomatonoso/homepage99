@@ -3801,14 +3801,69 @@ window.openRequestChat = function(id) {
     if (typeof openModal === 'function') openModal('request-chat-modal');
 };
 
-       window.sendChatMessage = function() {
-    const input = document.getElementById('chat-input-msg') || document.querySelector('.chat-detail-modal input, .chat-panel input');
+     window.sendChatMessage = function() {
+    const input = document.getElementById('chat-input-msg') 
+               || document.querySelector('.chat-detail-modal input') 
+               || document.querySelector('.chat-panel input')
+               || document.querySelector('#chat-modal input');
+               
     const text = (input && input.value || '').trim();
 
     if (!text) {
         alert('メッセージを入力してください。');
         return;
     }
+
+    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // 1. ローカル配列 (chatConversations) の更新
+    if (typeof chatConversations !== 'undefined') {
+        const targetConv = chatConversations.find(c => c.id === 'admin-1');
+        if (targetConv) {
+            if (!targetConv.messages) targetConv.messages = [];
+            targetConv.messages.push({ own: true, text: text, time: nowTime });
+            targetConv.lastMessage = text;
+            targetConv.lastTime = nowTime;
+        }
+    }
+
+    // 送信後に入力欄をクリア
+    if (input) input.value = '';
+
+    // 2. Firebase への保存・同期
+    if (typeof db !== 'undefined') {
+        // A. ユーザー側チャットノード (chats/admin-1/messages) へ保存
+        db.ref('chats/admin-1/messages').push({
+            own: true,
+            text: text,
+            time: nowTime
+        });
+
+        db.ref('chats/admin-1').update({
+            lastMessage: text,
+            lastTime: nowTime
+        });
+
+        // B. 管理画面側のデータパス (admin_data/contact_replies) へ同時送信
+        db.ref('admin_data/inquiries').limitToLast(1).once('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const latestKey = Object.keys(data)[0];
+                db.ref(`admin_data/contact_replies/${latestKey}`).push({
+                    senderName: 'ユーザー',
+                    role: 'user',
+                    message: text,
+                    timestamp: new Date().toLocaleString('ja-JP')
+                });
+            }
+        });
+    }
+
+    // 画面の再描画
+    if (typeof renderChatMessages === 'function') {
+        renderChatMessages('admin-1');
+    }
+};
 
     const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
