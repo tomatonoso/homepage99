@@ -439,8 +439,10 @@
                     } else if (field === 'chatBtn') {
                         const title = rowData.requestTitle || rowData.itemTitle || '取引';
                         tr += `<td><button onclick="openChatModal('${currentAdminTab}', '${key}', '${escapeHtml(title)}')" class="btn-chat-open"><i class="fa-regular fa-comments"></i> 💬 ログ確認</button></td>`;
-                    } else if (field === 'replyBtn') {
-                        tr += `<td><button onclick="openReplyModal('${key}', '${escapeHtml(rowData.name)}', '${escapeHtml(rowData.email)}', '${escapeHtml(rowData.messageContent)}', '${rowData.createdAt}')" class="btn-reply-open"><i class="fa-solid fa-reply"></i> ✉️ 返信・履歴</button></td>`;
+                   } else if (field === 'replyBtn') {
+    const name = rowData.userName || rowData.name || '名前なし';
+    const msg = rowData.message || rowData.messageContent || '';
+    tr += `<td><button onclick="openReplyModal('${key}', '${escapeHtml(name)}', '${escapeHtml(rowData.email || '')}', '${escapeHtml(msg)}')" style="background:#0d6efd; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px;">返信</button></td>`;
                     } else {
                         const val = rowData[field] !== undefined && rowData[field] !== '' ? rowData[field] : '-';
                         tr += `<td>${typeof val === 'number' ? val.toLocaleString() : val}</td>`;
