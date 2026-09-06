@@ -765,6 +765,46 @@
             body: JSON.stringify(payload)
         }).catch(err => console.error('スプレッドシート送信エラー:', err));
     }
+    // 問い合わせ詳細（返信モーダル）を開く処理を書き換え・リアルタイム監視を追加
+const originalOpenReplyModal = window.openReplyModal;
+window.openReplyModal = function(key) {
+    if (typeof originalOpenReplyModal === 'function') {
+        originalOpenReplyModal(key);
+    } else {
+        window.currentReplyItemKey = key;
+        const modal = document.getElementById('reply-modal');
+        if (modal) modal.style.display = 'block';
+    }
+
+    if (typeof db !== 'undefined' && key) {
+        db.ref(`admin_data/contact_replies/${key}`).off();
+
+        db.ref(`admin_data/contact_replies/${key}`).on('value', (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('reply-messages-list') || document.querySelector('.reply-history-list');
+            if (!container) return;
+
+            container.innerHTML = '';
+            if (data) {
+                Object.values(data).forEach(msg => {
+                    const isUser = msg.role === 'user';
+                    const msgHtml = `
+                        <div style="margin: 8px 0; text-align: ${isUser ? 'left' : 'right'};">
+                            <div style="font-size: 11px; color: #666; margin-bottom: 2px;">
+                                ${msg.senderName || (isUser ? 'ユーザー' : 'サポート事務局')} ${msg.timestamp || ''}
+                            </div>
+                            <div style="display: inline-block; padding: 8px 12px; border-radius: 8px; background: ${isUser ? '#e9ecef' : '#d4edda'}; max-width: 80%; text-align: left;">
+                                ${msg.message}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += msgHtml;
+                });
+                container.scrollTop = container.scrollHeight;
+            }
+        });
+    }
+};
     </script>
 </body>
 </html>
