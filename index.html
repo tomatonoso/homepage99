@@ -1243,6 +1243,15 @@
 }
 </style>
 <script>
+// ユーザー固有IDの取得・生成関数
+function getOrCreateUserId() {
+    let uId = localStorage.getItem('user_chat_id');
+    if (!uId) {
+        uId = 'USER-' + Date.now();
+        localStorage.setItem('user_chat_id', uId);
+    }
+    return uId;
+}
 // アルバイト投稿モーダルを開く関数
 window.checkAuthAndOpenJobPost = function() {
     // currentUserが未定義、またはログインしていない場合
@@ -3847,8 +3856,7 @@ window.openRequestChat = function(id) {
             }
 
             // 3850行目：keyが取れない場合は受信側と同じ 'INQ-5001' をデフォルトにする
-const targetKey = key || window.currentReplyItemKey || 'INQ-5001';
-
+const targetKey = key || window.currentReplyItemKey || getOrCreateUserId();
 // 1. 返信データを追加
 db.ref(`admin_data/contact_replies/${targetKey}`).push({
     senderName: 'わたし',
@@ -6657,7 +6665,8 @@ function submitInquiry() {
 }
 // 4. チャット画面のリアルタイム受信＆自動同期設定（デバッグ版）
 if (typeof db !== 'undefined') {
-    const targetInquiryId = window.currentReplyItemKey || 'INQ-5001';
+    // 監視対象も getOrCreateUserId() に変更
+const targetInquiryId = window.currentReplyItemKey || getOrCreateUserId();
     
     console.log("【DEBUG】監視対象パス:", `admin_data/contact_replies/${targetInquiryId}`);
 
