@@ -1243,7 +1243,6 @@
 }
 </style>
 <script>
-// ユーザー固有IDの取得・生成関数
 function getOrCreateUserId() {
     let uId = localStorage.getItem('user_chat_id');
     if (!uId) {
@@ -6673,12 +6672,11 @@ const targetInquiryId = window.currentReplyItemKey || getOrCreateUserId();
     db.ref(`admin_data/contact_replies/${targetInquiryId}`).on('value', function(snapshot) {
         console.log("【DEBUG】Firebaseから取得した生データ:", snapshot.val());
 
-     // 6667行目〜6671行目を書き換え
+    // 6676行目付近の整理
 const messagesDiv = document.querySelector('.chat-messages') || document.getElementById('chat-messages');
 
-// モーダルが開いていない（要素が存在しない）場合は静かに処理をスキップ（errorログを出さない）
 if (!messagesDiv) {
-    return;
+    return; // モーダルが閉じている場合は処理をスキップ
 }
         if (!messagesDiv) {
             console.error("【DEBUG ERROR】表示先要素 '.chat-messages' が見つかりません。");
@@ -6697,8 +6695,8 @@ if (!messagesDiv) {
        Object.keys(data).forEach(function(key) {
     const msg = data[key];
     
-    // 【修正】自身（ユーザー）のメッセージか、運営（管理）のメッセージかを判定
-    const isOwn = msg.own === true || msg.role === 'user' || msg.senderName === 'わたし';
+  // 6700行目の修正後
+const isOwn = msg.own === true || msg.role === 'user' || msg.senderName === 'わたし' || msg.senderName === 'ユーザー';
 
     // 自分の場合は「右寄せ＆赤背景」、運営の場合は「左寄せ＆白/灰色背景」
     const alignStyle = isOwn ? 'flex-end' : 'flex-start';
