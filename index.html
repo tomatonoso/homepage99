@@ -6654,62 +6654,64 @@ function submitInquiry() {
         alert('データベース接続エラーが発生しました。');
     }
 }
-// 4. チャット画面のリアルタイム受信＆自動同期設定
+// 4. チャット画面のリアルタイム受信＆自動同期設定（デバッグ版）
 if (typeof db !== 'undefined') {
-   // currentReplyItemKey または ユーザーの問い合わせID を参照するように変更
-// 6660行目〜の修正コード
-const targetInquiryId = window.currentReplyItemKey || 'INQ-5001'; 
+    const targetInquiryId = window.currentReplyItemKey || 'INQ-5001';
+    
+    console.log("【DEBUG】監視対象パス:", `admin_data/contact_replies/${targetInquiryId}`);
 
-db.ref(`admin_data/contact_replies/${targetInquiryId}`).on('value', function(snapshot) {
-    const messagesDiv = document.querySelector('.chat-messages');
-    if (!messagesDiv) return;
+    db.ref(`admin_data/contact_replies/${targetInquiryId}`).on('value', function(snapshot) {
+        console.log("【DEBUG】Firebaseから取得した生データ:", snapshot.val());
 
-    const data = snapshot.val();
-    messagesDiv.innerHTML = '';
+        const messagesDiv = document.querySelector('.chat-messages');
+        if (!messagesDiv) {
+            console.error("【DEBUG ERROR】表示先要素 '.chat-messages' が見つかりません。");
+            return;
+        }
 
-    if (!data) {
-        messagesDiv.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">メッセージはありません</div>';
-        return;
+        const data = snapshot.val();
+        messagesDiv.innerHTML = '';
+
+        if (!data) {
+            console.warn("【DEBUG WARN】データが空（null）です。パスが間違っているか、メッセージが保存されていません。");
+            messagesDiv.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">メッセージはありません</div>';
+            return;
+        }
+
+        Object.keys(data).forEach(function(key) {
+            const msg = data[key];
+            console.log("【DEBUG】メッセージ1件処理中:", msg);
+
+            const isOwn = msg.own === true || msg.role === 'user';
+            const alignStyle = isOwn ? 'flex-end' : 'flex-start';
+            const bgColor = isOwn ? '#e63946' : '#f1f3f4';
+            const textColor = isOwn ? '#ffffff' : '#333333';
+            const senderLabel = msg.senderName || (isOwn ? 'わたし' : 'サポート事務局');
+
+            const bubbleHtml = `
+                <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:10px;">
+                    <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
+                    <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; color:${textColor};">
+                        <div>${escapeHtml(msg.text || msg.message || '')}</div>
+                    </div>
+                </div>
+            `;
+
+            messagesDiv.insertAdjacentHTML('beforeend', bubbleHtml);
+        });
+
+      // 各メッセージの追加処理が終わった後、最下部へ自動スクロール（.on('value') の中に入れる）
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+    } else {
+        console.error("【DEBUG ERROR】db (Firebase) が定義されていません。");
     }
 
-    Object.keys(data).forEach(function(key) {
-        const msg = data[key];
-        
-        // 【修正箇所】自分が送信したメッセージか運営か判定
-        const isOwn = msg.own === true || msg.role === 'user';
-        const isAdmin = msg.role === 'admin' || msg.senderName === 'サポート事務局';
-
-        // 配置位置と背景色の決定
-        const alignStyle = isOwn ? 'flex-end' : 'flex-start';
-        const bgColor = isOwn ? '#e63946' : '#f1f3f4';
-        const textColor = isOwn ? '#ffffff' : '#333333';
-        const senderLabel = msg.senderName || (isOwn ? 'わたし' : 'サポート事務局');
-
-        const bubbleHtml = `
-            <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:10px;">
-                <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
-                <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; color:${textColor};">
-                    <div>${escapeHtml(msg.text || msg.message || '')}</div>
-                </div>
-            </div>
-        `;
-
-        messagesDiv.insertAdjacentHTML('beforeend', bubbleHtml);
-    });
-
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-});
-
-        // 最下部へ自動スクロール
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    });
-}
-
-// エスケープ処理関数（安全のため追加）
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
+    // エスケープ処理関数（安全のため追加）
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 </script>
 </body>
 </html>
