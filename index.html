@@ -6634,32 +6634,42 @@ function submitInquiry() {
         alert('データベース接続エラーが発生しました。');
     }
 }
-// ユーザー側チャットのリアルタイム受信設定
-(function setupUserChatListener() {
-    if (typeof db === 'undefined') return;
+// ユーザー側チャットのリアルタイム受信処理
+function initUserChatListener() {
+    const chatContainer = document.getElementById('chat-messages-container'); // メッセージを表示する要素のIDを指定
+    if (!chatContainer) return;
 
-    // chats/admin-1/messages をリアルタイム監視
     db.ref('chats/admin-1/messages').on('value', (snapshot) => {
-        const messages = snapshot.val();
-        if (!messages) return;
+        const data = snapshot.val();
+        chatContainer.innerHTML = ''; // 画面をクリア
 
-        // メッセージ配列を整形
-        const msgList = Object.values(messages);
-
-        // ローカル変数(chatConversations)のメッセージを更新
-        if (typeof chatConversations !== 'undefined') {
-            const conv = chatConversations.find(c => c.id === 'admin-1');
-            if (conv) {
-                conv.messages = msgList;
-            }
+        if (!data) {
+            chatContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはまだありません</div>';
+            return;
         }
 
-        // チャット画面が開いている場合は描画更新
-        if (typeof renderChatMessages === 'function') {
-            renderChatMessages('admin-1');
-        }
+        Object.keys(data).forEach(key => {
+            const msg = data[key];
+            const isOwn = msg.own === true; // 自分(ユーザー)の送信か
+
+            const msgHTML = `
+                <div class="message-bubble ${isOwn ? 'own-message' : 'admin-message'}">
+                    <div class="message-text">${escapeHtml(msg.text || '')}</div>
+                    <div class="message-time">${escapeHtml(msg.time || '')}</div>
+                </div>
+            `;
+            chatContainer.insertAdjacentHTML('beforeend', msgHTML);
+        });
+
+        // 最新のメッセージまで自動スクロール
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     });
-})();
+}
+
+// チャット画面を開いた際、またはページ読み込み時に実行
+document.addEventListener('DOMContentLoaded', () => {
+    initUserChatListener();
+});
 </script>
 </body>
 </html>
