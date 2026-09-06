@@ -3837,21 +3837,24 @@ window.openRequestChat = function(id) {
             lastTime: nowTime
         });
 
-        // B. 管理画面側のデータパス (admin_data/contact_replies) へ同時送信
+       // B. 管理画面側のデータパス (admin_data/contact_replies) へ同時送信
         db.ref('admin_data/inquiries').limitToLast(1).once('value', (snapshot) => {
             const inqData = snapshot.val();
-            let key = window.currentReplyItemKey;
-            if (!key && inqData) {
+            let key = null;
+            
+            if (inqData) {
                 key = Object.keys(inqData)[0];
             }
-            if (key) {
-                db.ref(`admin_data/contact_replies/${key}`).push({
-                    senderName: 'ユーザー',
-                    role: 'user',
-                    message: text,
-                    timestamp: new Date().toLocaleString('ja-JP')
-                });
-            }
+            
+            // keyが取得できなくてもフォールバック用パスに保存して確実にデータを届ける
+            const targetKey = key || 'general';
+
+            db.ref(`admin_data/contact_replies/${targetKey}`).push({
+                senderName: 'ユーザー',
+                role: 'user',
+                message: text,
+                timestamp: new Date().toLocaleString('ja-JP')
+            });
         });
     }
 
