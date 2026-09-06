@@ -6565,8 +6565,10 @@ function submitInquiry() {
         return;
     }
 
-    // Firebase (admin_data/inquiries) へデータ保存
     if (typeof db !== 'undefined') {
+        const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        // 1. Firebase (admin_data/inquiries) へお問い合わせを保存
         db.ref('admin_data/inquiries').push().set({
             id: 'INQ-' + Math.floor(1000 + Math.random() * 9000),
             userName: name,
@@ -6576,6 +6578,19 @@ function submitInquiry() {
             status: '未対応',
             createdAt: new Date().toLocaleString('ja-JP')
         }).then(() => {
+            // 2. 表側チャット (chats/admin-1/messages) にもユーザー自身の送信として追加
+            db.ref('chats/admin-1/messages').push({
+                own: true,
+                text: message,
+                time: nowTime
+            });
+
+            // 3. チャットの最終メッセージ状態を更新
+            db.ref('chats/admin-1').update({
+                lastMessage: message,
+                lastTime: nowTime
+            });
+
             alert('お問い合わせを送信しました。');
             if (nameEl) nameEl.value = '';
             if (emailEl) emailEl.value = '';
