@@ -58,37 +58,36 @@
         .chat-bubble.buyer, .chat-bubble.user { align-self: flex-start; background: #ffffff; border: 1px solid #ced4da; color: #212529; }
         .chat-bubble.seller, .chat-bubble.admin { align-self: flex-end; background: #d1e7dd; border: 1px solid #badbcc; color: #0f5132; }
         .chat-bubble .meta { font-size: 10px; color: #888; margin-bottom: 3px; display: flex; justify-content: space-between; gap: 10px; }
+
         /* 管理画面側のチャット吹き出しスタイル補正 */
-#reply-history-list .chat-bubble {
-    margin-bottom: 12px !important;
-    padding: 10px 14px !important;
-    border-radius: 12px !important;
-    max-width: 80% !important;
-    display: inline-block !important;
-    word-break: break-all !important;
-}
+        #reply-history-list .chat-bubble {
+            margin-bottom: 12px !important;
+            padding: 10px 14px !important;
+            border-radius: 12px !important;
+            max-width: 80% !important;
+            display: inline-block !important;
+            word-break: break-all !important;
+        }
 
-/* ユーザー側のメッセージ（左寄せ・文字色を濃いグレーに強制指定） */
-#reply-history-list .chat-bubble.user {
-    background-color: #f1f3f4 !important;
-    color: #333333 !important;
-    float: left !important;
-    clear: both !important;
-}
+        #reply-history-list .chat-bubble.user {
+            background-color: #f1f3f4 !important;
+            color: #333333 !important;
+            float: left !important;
+            clear: both !important;
+        }
 
-#reply-history-list .chat-bubble.user .meta,
-#reply-history-list .chat-bubble.user .message-text {
-    color: #333333 !important;
-    display: block !important;
-}
+        #reply-history-list .chat-bubble.user .meta,
+        #reply-history-list .chat-bubble.user .message-text {
+            color: #333333 !important;
+            display: block !important;
+        }
 
-/* 管理者側のメッセージ（右寄せ・緑背景） */
-#reply-history-list .chat-bubble.admin {
-    background-color: #d1e7dd !important;
-    color: #0f5132 !important;
-    float: right !important;
-    clear: both !important;
-}
+        #reply-history-list .chat-bubble.admin {
+            background-color: #d1e7dd !important;
+            color: #0f5132 !important;
+            float: right !important;
+            clear: both !important;
+        }
     </style>
 </head>
 <body>
@@ -561,112 +560,120 @@
         });
     };
 
-  window.openReplyModal = function(key, name, email, message) {
-    currentReplyItemKey = key;
+    window.openReplyModal = function(key, name, email, message) {
+        currentReplyItemKey = key;
 
-    const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
-    const displayEmail = (email && email !== 'undefined') ? email : '未設定';
-    const displayMsg = (message && message !== 'undefined') ? message : '';
+        const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
+        const displayEmail = (email && email !== 'undefined') ? email : '未設定';
+        const displayMsg = (message && message !== 'undefined') ? message : '';
 
-    const infoEl = document.getElementById('reply-target-info');
-    if (infoEl) {
-        infoEl.innerHTML = `<strong>お名前:</strong> ${displayName} 様 &nbsp;&nbsp; <strong>メール:</strong> ${displayEmail}<br><strong>内容:</strong> ${displayMsg}`;
-    }
-
-    const modal = document.getElementById('reply-modal');
-    if (modal) modal.style.display = 'flex';
-
-    if (activeReplyRef) activeReplyRef.off();
-
-    // 問い合わせのやり取り履歴をリアルタイム取得
-    activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
-    activeReplyRef.on('value', function(snapshot) {
-        const historyData = snapshot.val();
-        const historyList = document.getElementById('reply-history-list');
-        if (!historyList) return;
-
-        historyList.innerHTML = '';
-        if (!historyData) {
-            historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
-            return;
+        const infoEl = document.getElementById('reply-target-info');
+        if (infoEl) {
+            infoEl.innerHTML = `<strong>お名前:</strong> ${displayName} 様 &nbsp;&nbsp; <strong>メール:</strong> ${displayEmail}<br><strong>内容:</strong> ${displayMsg}`;
         }
 
-        Object.keys(historyData).forEach(function(msgKey) {
-            const item = historyData[msgKey];
-            const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局';
-            
-            const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
-            const bgColor = isAdmin ? '#d1e7dd' : '#f1f3f4';
-            const textColor = '#333333';
-            const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
-            const msgText = item.text || item.message || '';
+        const modal = document.getElementById('reply-modal');
+        if (modal) modal.style.display = 'flex';
 
-            const bubbleHtml = `
-                <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
-                    <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
-                    <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; color:${textColor}; text-align:left; word-break:break-all;">
-                        <div style="color:${textColor}; font-size:14px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+        if (activeReplyRef) activeReplyRef.off();
+
+        // 問い合わせのやり取り履歴をリアルタイム取得
+        activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
+        activeReplyRef.on('value', function(snapshot) {
+            const historyData = snapshot.val();
+            const historyList = document.getElementById('reply-history-list');
+            if (!historyList) return;
+
+            historyList.innerHTML = '';
+            if (!historyData) {
+                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
+                return;
+            }
+
+            Object.keys(historyData).forEach(function(msgKey) {
+                const item = historyData[msgKey];
+                const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局';
+                
+                const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
+                const bgColor = isAdmin ? '#d1e7dd' : '#f1f3f4';
+                const textColor = '#333333';
+                const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
+                const msgText = item.text || item.message || '';
+
+                const bubbleHtml = `
+                    <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
+                        <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
+                        <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; color:${textColor}; text-align:left; word-break:break-all;">
+                            <div style="color:${textColor}; font-size:14px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
 
-            historyList.insertAdjacentHTML('beforeend', bubbleHtml);
+                historyList.insertAdjacentHTML('beforeend', bubbleHtml);
+            });
+
+            historyList.scrollTop = historyList.scrollHeight;
         });
-window.sendReplySubmit = function() {
-    const msgInput = document.getElementById('reply-input-message');
-    const msgText = msgInput ? msgInput.value.trim() : '';
-    if (!msgText) return alert('メッセージを入力してください。');
-    if (!currentReplyItemKey || currentReplyItemKey === 'undefined') {
-        return alert('送信対象の問い合わせが選択されていません。');
-    }
+    };
 
-    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    window.closeReplyModal = function() {
+        document.getElementById('reply-modal').style.display = 'none';
+        if (activeReplyRef) { activeReplyRef.off(); activeReplyRef = null; }
+    };
 
-    // お問い合わせデータから送信対象ユーザーのIDを取得して送信
-    db.ref(`admin_data/inquiries/${currentReplyItemKey}`).once('value', (snapshot) => {
-        const inqData = snapshot.val() || {};
-        // ユーザーIDが存在すればそのパスへ、無ければ問い合わせKeyのパスへ書き込む
-        const targetChatPath = `admin_data/contact_replies/${currentReplyItemKey}`;
-
-        // 1. ユーザー側チャット画面へメッセージを追加
-        db.ref(`${targetChatPath}/messages`).push({
-            own: false,
-            role: 'admin',
-            senderName: 'サポート事務局',
-            text: msgText,
-            message: msgText,
-            time: nowTime,
-            timestamp: new Date().toLocaleString('ja-JP')
-        });
-
-        db.ref(targetChatPath).update({
-            unread: true,
-            lastMessage: msgText,
-            lastTime: nowTime
-        });
-
-        // 2. 管理画面側の問い合わせ返信履歴に保存
-        db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
-            senderName: 'サポート事務局',
-            role: 'admin',
-            message: msgText,
-            text: msgText,
-            timestamp: new Date().toLocaleString('ja-JP')
-        });
-
-        db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
-            status: '返信済み',
-            verified: true
-        });
-
-        if (typeof addAuditLog === 'function') {
-            addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
+    window.sendReplySubmit = function() {
+        const msgInput = document.getElementById('reply-input-message');
+        const msgText = msgInput ? msgInput.value.trim() : '';
+        if (!msgText) return alert('メッセージを入力してください。');
+        if (!currentReplyItemKey || currentReplyItemKey === 'undefined') {
+            return alert('送信対象の問い合わせが選択されていません。');
         }
 
-        msgInput.value = '';
-        alert('返信を送信しました。');
-    });
-};
+        const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        // お問い合わせデータから送信対象ユーザーのIDを取得して送信
+        db.ref(`admin_data/inquiries/${currentReplyItemKey}`).once('value', (snapshot) => {
+            const targetChatPath = `admin_data/contact_replies/${currentReplyItemKey}`;
+
+            // 1. ユーザー側チャット画面へメッセージを追加
+            db.ref(`${targetChatPath}/messages`).push({
+                own: false,
+                role: 'admin',
+                senderName: 'サポート事務局',
+                text: msgText,
+                message: msgText,
+                time: nowTime,
+                timestamp: new Date().toLocaleString('ja-JP')
+            });
+
+            db.ref(targetChatPath).update({
+                unread: true,
+                lastMessage: msgText,
+                lastTime: nowTime
+            });
+
+            // 2. 管理画面側の問い合わせ返信履歴に保存
+            db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
+                senderName: 'サポート事務局',
+                role: 'admin',
+                message: msgText,
+                text: msgText,
+                timestamp: new Date().toLocaleString('ja-JP')
+            });
+
+            db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
+                status: '返信済み',
+                verified: true
+            });
+
+            if (typeof addAuditLog === 'function') {
+                addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
+            }
+
+            msgInput.value = '';
+            alert('返信を送信しました。');
+        });
+    };
 
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
