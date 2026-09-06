@@ -6663,7 +6663,7 @@ if (typeof db !== 'undefined') {
     db.ref(`admin_data/contact_replies/${targetInquiryId}`).on('value', function(snapshot) {
         console.log("【DEBUG】Firebaseから取得した生データ:", snapshot.val());
 
-        const messagesDiv = document.querySelector('.chat-messages');
+      const messagesDiv = document.getElementById('chat-history');
         if (!messagesDiv) {
             console.error("【DEBUG ERROR】表示先要素 '.chat-messages' が見つかりません。");
             return;
