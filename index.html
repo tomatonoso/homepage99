@@ -3838,24 +3838,22 @@ window.openRequestChat = function(id) {
                 message: text,
                 time: nowTime,
                 timestamp: new Date().toLocaleString('ja-JP')
-            });
+    });
 
-            // 親ステータスの更新
-            db.ref(`admin_data/inquiries/${targetKey}`).update({
-                status: '未返信',
-                verified: false,
-                lastMessage: text,
-                updatedAt: new Date().toLocaleString('ja-JP')
-            });
-        });
-    
+    // 親ステータスの更新
+    db.ref(`admin_data/inquiries/${targetKey}`).update({
+        status: '未返信',
+        verified: false,
+        lastMessage: text,
+        updatedAt: new Date().toLocaleString('ja-JP')
+    });
 
     if (input) input.value = '';
-};
 
     // 3. UIの再描画
     if (typeof renderChatMessages === 'function') renderChatMessages('admin-1');
     if (typeof renderChatList === 'function') renderChatList();
+};
 
 window.sendPriceProposal = function() {
     const inputPrice = document.getElementById('chat-input-price');
