@@ -58,36 +58,6 @@
         .chat-bubble.buyer, .chat-bubble.user { align-self: flex-start; background: #ffffff; border: 1px solid #ced4da; color: #212529; }
         .chat-bubble.seller, .chat-bubble.admin { align-self: flex-end; background: #d1e7dd; border: 1px solid #badbcc; color: #0f5132; }
         .chat-bubble .meta { font-size: 10px; color: #888; margin-bottom: 3px; display: flex; justify-content: space-between; gap: 10px; }
-
-        /* 管理画面側のチャット吹き出しスタイル補正 */
-        #reply-history-list .chat-bubble {
-            margin-bottom: 12px !important;
-            padding: 10px 14px !important;
-            border-radius: 12px !important;
-            max-width: 80% !important;
-            display: inline-block !important;
-            word-break: break-all !important;
-        }
-
-        #reply-history-list .chat-bubble.user {
-            background-color: #f1f3f4 !important;
-            color: #333333 !important;
-            float: left !important;
-            clear: both !important;
-        }
-
-        #reply-history-list .chat-bubble.user .meta,
-        #reply-history-list .chat-bubble.user .message-text {
-            color: #333333 !important;
-            display: block !important;
-        }
-
-        #reply-history-list .chat-bubble.admin {
-            background-color: #d1e7dd !important;
-            color: #0f5132 !important;
-            float: right !important;
-            clear: both !important;
-        }
     </style>
 </head>
 <body>
@@ -577,34 +547,41 @@
 
         if (activeReplyRef) activeReplyRef.off();
 
-        // 問い合わせのやり取り履歴をリアルタイム取得
+        // 問い合わせメッセージ配下のデータ構造に対応（直下または/messages以下を監視）
         activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
         activeReplyRef.on('value', function(snapshot) {
-            const historyData = snapshot.val();
+            const rawData = snapshot.val();
             const historyList = document.getElementById('reply-history-list');
             if (!historyList) return;
 
             historyList.innerHTML = '';
-            if (!historyData) {
+            if (!rawData) {
                 historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
                 return;
             }
 
+            // `messages` プロパティが存在する場合はその配下を参照し、なければ直下を参照
+            const historyData = rawData.messages ? rawData.messages : rawData;
+
             Object.keys(historyData).forEach(function(msgKey) {
                 const item = historyData[msgKey];
-                const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局';
+                // オブジェクトでないデータ（metadata等）は除外
+                if (typeof item !== 'object' || item === null) return;
+
+                const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局' || item.own === false;
                 
                 const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
-                const bgColor = isAdmin ? '#d1e7dd' : '#f1f3f4';
+                const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
+                const borderColor = isAdmin ? '#badbcc' : '#ced4da';
                 const textColor = '#333333';
-                const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
+                const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
                 const msgText = item.text || item.message || '';
 
                 const bubbleHtml = `
                     <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
                         <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
-                        <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; color:${textColor}; text-align:left; word-break:break-all;">
-                            <div style="color:${textColor}; font-size:14px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+                        <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; text-align:left; word-break:break-all; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="color:${textColor}; font-size:13px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
                         </div>
                     </div>
                 `;
@@ -631,12 +608,11 @@
 
         const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        // お問い合わせデータから送信対象ユーザーのIDを取得して送信
         db.ref(`admin_data/inquiries/${currentReplyItemKey}`).once('value', (snapshot) => {
             const targetChatPath = `admin_data/contact_replies/${currentReplyItemKey}`;
 
-            // 1. ユーザー側チャット画面へメッセージを追加
-            db.ref(`${targetChatPath}/messages`).push({
+            // ユーザー側のチャット描画と管理画面側の双方に対応した構造で保存
+            const newMsgObj = {
                 own: false,
                 role: 'admin',
                 senderName: 'サポート事務局',
@@ -644,21 +620,15 @@
                 message: msgText,
                 time: nowTime,
                 timestamp: new Date().toLocaleString('ja-JP')
-            });
+            };
+
+            // /messages 直下にメッセージデータを出力
+            db.ref(`${targetChatPath}/messages`).push(newMsgObj);
 
             db.ref(targetChatPath).update({
                 unread: true,
                 lastMessage: msgText,
                 lastTime: nowTime
-            });
-
-            // 2. 管理画面側の問い合わせ返信履歴に保存
-            db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
-                senderName: 'サポート事務局',
-                role: 'admin',
-                message: msgText,
-                text: msgText,
-                timestamp: new Date().toLocaleString('ja-JP')
             });
 
             db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
@@ -753,7 +723,7 @@
                 msgList.insertAdjacentHTML('beforeend', `
                     <div class="chat-bubble ${msg.userRole === 'buyer' ? 'buyer' : 'seller'}">
                         <div class="meta"><strong>${escapeHtml(msg.senderName || 'ユーザー')}</strong><span>${msg.timestamp || ''}</span></div>
-                        <div>${escapeHtml(msg.message || '')}</div>
+                        <div>${escapeHtml(msg.message || msg.text || '')}</div>
                     </div>
                 `);
             });
