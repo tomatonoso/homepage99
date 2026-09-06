@@ -562,15 +562,23 @@ window.openReplyModal = function(key, name, email, message) {
         }
 
         Object.keys(historyData).forEach(msgKey => {
-            const item = historyData[msgKey];
-            historyList.insertAdjacentHTML('beforeend', `
-                <div class="chat-bubble ${item.role === 'admin' ? 'admin' : 'user'}">
-                    <div class="meta"><strong>${escapeHtml(item.senderName || 'サポート事務局')}</strong><span>${item.timestamp || ''}</span></div>
-                    // 569行目の修正後
-<div>${escapeHtml(item.text || item.message || '').replace(/\n/g, '<br>')}</div>
-                </div>
-            `);
-        });
+    const item = historyData[msgKey];
+    
+    // 管理者（自分）のメッセージか、ユーザーからのメッセージかを判定
+    const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局';
+
+    // 管理者は右寄せ（admin）、ユーザーは左寄せ（user）
+    const bubbleClass = isAdmin ? 'admin' : 'user';
+    const senderName = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
+    const msgText = item.text || item.message || '';
+
+    historyList.insertAdjacentHTML('beforeend', `
+        <div class="chat-bubble ${bubbleClass}">
+            <div class="meta"><strong>${escapeHtml(senderName)}</strong></div>
+            <div>${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+        </div>
+    `);
+});
         historyList.scrollTop = historyList.scrollHeight;
     });
 };
