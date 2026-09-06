@@ -621,7 +621,7 @@ window.openReplyModal = function(key, name, email, message) {
         historyList.scrollTop = historyList.scrollHeight;
     }
 
-    window.sendReplySubmit = function() {
+  window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
         if (!msgText) return alert('メッセージを入力してください。');
@@ -639,19 +639,21 @@ window.openReplyModal = function(key, name, email, message) {
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        // ユーザーアプリが監視している chats/admin-1 配下へ書き込み
-        const targetPath = (currentReplyItemKey && currentReplyItemKey !== 'undefined') 
-            ? `chats/${currentReplyItemKey}/messages` 
-            : 'chats/admin-1/messages';
+        // ユーザーアプリおよび管理者モーダルの監視階層（chats/admin-1 直下）へ直接push
+        const targetRef = db.ref('chats/admin-1');
 
-        db.ref('chats/admin-1/messages').push(newMsgObj, function(err) {
+        targetRef.push(newMsgObj, function(err) {
             if (err) {
-                db.ref('chats/admin-1').push(newMsgObj);
+                alert('送信エラーが発生しました: ' + err.message);
+                return;
             }
 
-            // バックアップ記録
-            if (currentReplyItemKey) {
-                db.ref(`admin_data/contact_replies/${currentReplyItemKey}/messages`).push(newMsgObj);
+            // 万一 /messages 階層側で受信している画面用のフォールバック送信
+            db.ref('chats/admin-1/messages').push(newMsgObj);
+
+            // 問い合わせ管理用のステータス更新・履歴保存
+            if (currentReplyItemKey && currentReplyItemKey !== 'undefined') {
+                db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push(newMsgObj);
                 db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
                     status: '返信済み',
                     verified: true
@@ -659,9 +661,10 @@ window.openReplyModal = function(key, name, email, message) {
             }
 
             if (typeof addAuditLog === 'function') {
-                addAuditLog('問い合わせ返信', `メッセージ送信完了`);
+                addAuditLog('問い合わせ返信', `メッセージ送信: ${msgText}`);
             }
 
+            // 入力欄のクリア
             msgInput.value = '';
         });
     };
