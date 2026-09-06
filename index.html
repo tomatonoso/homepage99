@@ -3837,11 +3837,11 @@ window.openRequestChat = function(id) {
                 text: text,
                 message: text,
                 time: nowTime,
-                timestamp: new Date().toLocaleString('ja-JP')
+               timestamp: new Date().toLocaleString('ja-JP')
     });
 
-   // 親ステータスの更新
-    db.ref(`admin_data/inquiries/${targetKey}`).update({
+    // 親ステータスの更新
+    db.ref('admin_data/inquiries/' + targetKey).update({
         status: '未返信',
         verified: false,
         lastMessage: text,
