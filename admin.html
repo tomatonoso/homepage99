@@ -566,7 +566,8 @@ window.openReplyModal = function(key, name, email, message) {
             historyList.insertAdjacentHTML('beforeend', `
                 <div class="chat-bubble ${item.role === 'admin' ? 'admin' : 'user'}">
                     <div class="meta"><strong>${escapeHtml(item.senderName || 'サポート事務局')}</strong><span>${item.timestamp || ''}</span></div>
-                    <div>${escapeHtml(item.message || '').replace(/\n/g, '<br>')}</div>
+                    // 569行目の修正後
+<div>${escapeHtml(item.text || item.message || '').replace(/\n/g, '<br>')}</div>
                 </div>
             `);
         });
@@ -588,7 +589,7 @@ window.sendReplySubmit = function() {
     db.ref(`admin_data/inquiries/${currentReplyItemKey}`).once('value', (snapshot) => {
         const inqData = snapshot.val() || {};
         // ユーザーIDが存在すればそのパスへ、無ければ問い合わせKeyのパスへ書き込む
-        const targetChatPath = inqData.userId ? `chats/${inqData.userId}` : `chats/${currentReplyItemKey}`;
+        const targetChatPath = `admin_data/contact_replies/${currentReplyItemKey}`;
 
         // 1. ユーザー側チャット画面へメッセージを追加
         db.ref(`${targetChatPath}/messages`).push({
