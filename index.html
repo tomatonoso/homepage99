@@ -1785,33 +1785,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         <span class="chat-badge" id="chat-count" style="display: none;">0</span>
     </button>
     
-    <!-- チャットパネル（会話一覧・LINE風メッセージ表示） -->
-<div id="chat-panel" class="chat-panel" style="display: none; width: 320px; background: #7494c0; border-radius: 8px; overflow: hidden; position: absolute; top: 40px; right: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000;">
-    <!-- ヘッダー -->
-    <div class="chat-header" style="background: #2c3e50; color: #fff; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: bold; font-size: 13px;"><i class="fa-solid fa-headset"></i> 運営サポート</span>
-        <button class="chat-clear-btn" onclick="toggleChatPanelDisplay()" style="background: none; border: none; color: #fff; cursor: pointer; font-size: 14px;">✕</button>
-    </div>
-
-    <!-- ユーザー情報入力エリア -->
-    <div style="background: #fff; padding: 8px; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 4px;">
-        <input type="text" id="header-chat-user-name" placeholder="お名前（ニックネーム可）" style="padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 4px;">
-        <input type="email" id="header-chat-user-email" placeholder="メールアドレス（任意）" style="padding: 5px; font-size: 11px; border: 1px solid #ccc; border-radius: 4px;">
-    </div>
-
-    <!-- メッセージ表示エリア -->
-    <div id="header-chat-list" style="height: 280px; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
-        <div style="text-align: center; color: #fff; font-size: 10px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 10px; align-self: center;">
-            運営事務局と直接チャットができます。
-        </div>
-    </div>
-
-    <!-- メッセージ入力エリア -->
-    <div style="background: #fff; padding: 8px; display: flex; gap: 6px; border-top: 1px solid #ddd;">
-        <textarea id="header-chat-input" placeholder="メッセージを入力..." style="flex: 1; height: 36px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; resize: none; box-sizing: border-box;"></textarea>
-        <button type="button" onclick="sendHeaderChatMessage()" style="background: #2a9d8f; color: #fff; border: none; padding: 0 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">送信</button>
-    </div>
-</div>
+   
 </div>
             <button class="btn-red-sm" onclick="checkAuthAndOpenSell()">出品</button>
             
@@ -4564,6 +4538,42 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
             renderAuctions();
             openAuctionDetail(id);
         };
+        // 4540行目: }; のすぐ下に追加
+
+function startAuctionChat(partnerUserId, partnerName, itemTitle) {
+    const myId = getMyUserId();
+    const myName = (typeof currentUser !== 'undefined' && currentUser && currentUser.name) 
+                   ? currentUser.name 
+                   : (localStorage.getItem('user_inquiry_name') || 'ユーザー');
+    
+    // 2人の中で一意のルームIDを自動生成 (例: ROOM-USER123-USER456)
+    const roomId = 'ROOM-' + [myId, partnerUserId].sort().join('-');
+    const nowTime = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+    // 自分のトーク一覧に相手を追加
+    firebase.database().ref(`user_chats/user_rooms/${myId}/${roomId}`).set({
+        partnerId: partnerUserId,
+        partnerName: partnerName + (itemTitle ? ` (${itemTitle})` : ''),
+        lastMessage: '取引が開始されました',
+        updatedAt: nowTime
+    });
+
+    // 相手のトーク一覧に自分を追加
+    firebase.database().ref(`user_chats/user_rooms/${partnerUserId}/${roomId}`).set({
+        partnerId: myId,
+        partnerName: myName + (itemTitle ? ` (${itemTitle})` : ''),
+        lastMessage: '取引が開始されました',
+        updatedAt: nowTime
+    });
+
+    // チャットパネルを開いてそのトーク画面へ直接遷移
+    if (typeof openChatFromHeader === 'function') {
+        openChatFromHeader();
+    }
+    if (typeof openTalkRoom === 'function') {
+        openTalkRoom(roomId, partnerName + (itemTitle ? ` (${itemTitle})` : ''), false);
+    }
+}
 
         function escapeAuctionText(value) {
             return String(value ?? '').replace(/[&<>"']/g, function(ch) {
@@ -6836,6 +6846,174 @@ function sendHeaderChatMessage() {
     });
 
     inputEl.value = '';
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+let currentActiveRoomId = null;
+let currentActiveRoomIsAdmin = false;
+let roomListener = null;
+
+// ヘッダーボタンでチャットパネル開閉
+function openChatFromHeader() {
+    toggleChatPanelDisplay();
+    showRoomList(); // 常に一覧画面から開く
+    loadTalkRoomList(); // トーク一覧を読み込み
+}
+
+function toggleChatPanelDisplay() {
+    const panel = document.getElementById('chat-panel');
+    if (panel) {
+        panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+    }
+}
+
+// 画面切り替え：トーク一覧を表示
+function showRoomList() {
+    document.getElementById('chat-view-list').style.display = 'flex';
+    document.getElementById('chat-view-room').style.display = 'none';
+    if (roomListener) roomListener.off();
+}
+
+// 画面切り替え：個別トーク画面を開く
+function openTalkRoom(roomId, partnerName, isAdmin = false) {
+    currentActiveRoomId = roomId;
+    currentActiveRoomIsAdmin = isAdmin;
+
+    document.getElementById('current-room-title').innerText = partnerName;
+    document.getElementById('chat-view-list').style.display = 'none';
+    document.getElementById('chat-view-room').style.display = 'flex';
+
+    loadRoomMessages(roomId, isAdmin);
+}
+
+// ユーザーのトーク一覧をFirebaseからロード
+function loadTalkRoomList() {
+    const userId = getMyUserId();
+    const container = document.getElementById('dynamic-room-items');
+    container.innerHTML = '';
+
+    // ユーザー個人のトーク一覧ノードを監視
+    firebase.database().ref(`user_chats/user_rooms/${userId}`).on('value', (snapshot) => {
+        container.innerHTML = '';
+        const rooms = snapshot.val();
+
+        if (rooms) {
+            Object.keys(rooms).forEach(roomId => {
+                const room = rooms[roomId];
+                const html = `
+                    <div onclick="openTalkRoom('${roomId}', '${escapeHtml(room.partnerName)}', false)" style="display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #4a90e2; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 12px; font-weight: bold;">
+                            ${escapeHtml(room.partnerName).charAt(0)}
+                        </div>
+                        <div style="flex: 1; overflow: hidden;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-weight: bold; font-size: 13px; color: #333;">${escapeHtml(room.partnerName)}</div>
+                                <div style="font-size: 9px; color: #aaa;">${room.updatedAt || ''}</div>
+                            </div>
+                            <div style="font-size: 11px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">${escapeHtml(room.lastMessage || '')}</div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+    });
+}
+
+// メッセージ表示処理
+function loadRoomMessages(roomId, isAdmin) {
+    const body = document.getElementById('talk-messages-body');
+    body.innerHTML = '';
+
+    if (roomListener) roomListener.off();
+
+    // 運営サポートの場合（既存データノード参照）
+    if (isAdmin) {
+        let inquiryKey = localStorage.getItem('user_inquiry_key') || ('INQ-' + Date.now());
+        localStorage.setItem('user_inquiry_key', inquiryKey);
+
+        roomListener = firebase.database().ref(`admin_data/contact_replies/${inquiryKey}`);
+    } else {
+        // オークション・ユーザー同士の場合
+        roomListener = firebase.database().ref(`user_chats/room_messages/${roomId}`);
+    }
+
+    roomListener.on('value', (snapshot) => {
+        body.innerHTML = '';
+        const data = snapshot.val();
+        const myId = getMyUserId();
+
+        if (data) {
+            Object.keys(data).forEach(key => {
+                const msg = data[key];
+                const isMe = isAdmin ? (msg.role === 'user') : (msg.senderId === myId);
+
+                const msgRow = document.createElement('div');
+                msgRow.style.cssText = `display: flex; flex-direction: column; max-width: 80%; ${isMe ? 'align-self: flex-end; align-items: flex-end;' : 'align-self: flex-start; align-items: flex-start;'}`;
+
+                const bubbleColor = isMe ? '#85e249' : '#ffffff';
+                const textColor = isMe ? '#000' : '#333';
+                const senderName = isMe ? '自分' : (msg.senderName || '相手');
+
+                msgRow.innerHTML = `
+                    <div style="font-size: 9px; color: #fff; margin-bottom: 2px;">${escapeHtml(senderName)}</div>
+                    <div style="background: ${bubbleColor}; color: ${textColor}; padding: 6px 10px; border-radius: 10px; font-size: 12px; line-height: 1.4; word-break: break-all;">
+                        ${escapeHtml(msg.text || msg.message || '').replace(/\n/g, '<br>')}
+                    </div>
+                    <div style="font-size: 8px; color: rgba(255,255,255,0.8); margin-top: 2px;">${msg.time || ''}</div>
+                `;
+                body.appendChild(msgRow);
+            });
+            body.scrollTop = body.scrollHeight;
+        }
+    });
+}
+
+// メッセージ送信処理
+function sendActiveRoomMessage() {
+    const inputEl = document.getElementById('talk-message-input');
+    const textVal = inputEl.value.trim();
+    if (!textVal) return;
+
+    const myId = getMyUserId();
+    const myName = localStorage.getItem('user_inquiry_name') || 'ユーザー';
+    const nowTime = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
+    if (currentActiveRoomIsAdmin) {
+        // 運営サポートへ送信
+        let inquiryKey = localStorage.getItem('user_inquiry_key');
+        firebase.database().ref(`admin_data/inquiries/${inquiryKey}`).set({
+            id: inquiryKey, userName: myName, email: '未設定', message: textVal, status: '未対応', createdAt: new Date().toLocaleString('ja-JP')
+        });
+        firebase.database().ref(`admin_data/contact_replies/${inquiryKey}`).push({
+            role: 'user', senderName: myName, text: textVal, time: nowTime, timestamp: Date.now()
+        });
+    } else {
+        // ユーザー同士・オークション相手へ送信
+        firebase.database().ref(`user_chats/room_messages/${currentActiveRoomId}`).push({
+            senderId: myId, senderName: myName, text: textVal, time: nowTime, timestamp: Date.now()
+        });
+
+        // 自分のトーク一覧の最終メッセージ更新
+        firebase.database().ref(`user_chats/user_rooms/${myId}/${currentActiveRoomId}`).update({
+            lastMessage: textVal, updatedAt: nowTime
+        });
+    }
+
+    inputEl.value = '';
+}
+
+// ログインユーザーIDの取得（保持されていない場合は自動発行）
+function getMyUserId() {
+    let uid = localStorage.getItem('app_user_id');
+    if (!uid) {
+        uid = 'USER-' + Date.now();
+        localStorage.setItem('app_user_id', uid);
+    }
+    return uid;
 }
 
 function escapeHtml(str) {
