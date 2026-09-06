@@ -1781,10 +1781,13 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
                      <!-- チャットボタン -->
 <!-- チャットボタン & パネル -->
 <div style="position: relative;">
-    <button class="chat-btn" id="chat-btn" onclick="openChatFromHeader()">
-        <i class="fa-solid fa-comments"></i>
-        <span class="chat-badge" id="chat-count" style="display: none;">0</span>
-    </button>
+   <button class="chat-btn" id="chat-btn" onclick="openChatFromHeader()" style="background: none; border: none; padding: 0; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center;">
+    <!-- コネクトロゴ画像 -->
+    <img src="chat-icon.png" alt="コネクト" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover;">
+    
+    <!-- 通知バッジ（右上配置） -->
+    <span class="chat-badge" id="chat-count" style="display: none; position: absolute; top: -4px; right: -4px; background: #e63946; color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; line-height: 18px; text-align: center; border: 2px solid #fff;">0</span>
+</button>
 
     <!-- チャットパネル（LINE風トーク一覧 ＆ メッセージ表示） -->
     <div id="chat-panel" class="chat-panel" style="display: none; width: 340px; height: 480px; background: #fff; border-radius: 10px; overflow: hidden; position: absolute; top: 40px; right: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.25); z-index: 1000; font-family: sans-serif;">
