@@ -5269,8 +5269,12 @@ function initFirebaseChatSync() {
             targetConv.unread = data.unread;
         }
 
+       // 一覧・バッジ・開いているチャット詳細をすべて更新
         if (typeof renderChatList === 'function') renderChatList();
         if (typeof updateChatBadge === 'function') updateChatBadge();
+        if (typeof renderChatMessages === 'function' && typeof currentChatId !== 'undefined' && currentChatId === 'admin-1') {
+            renderChatMessages('admin-1');
+        }
     });
 }
 
