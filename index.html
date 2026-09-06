@@ -6656,7 +6656,9 @@ function submitInquiry() {
 }
 // 4. チャット画面のリアルタイム受信＆自動同期設定
 if (typeof db !== 'undefined') {
-    db.ref('chats/admin-1/messages').on('value', function(snapshot) {
+   // currentReplyItemKey または ユーザーの問い合わせID を参照するように変更
+const targetInquiryId = window.currentReplyItemKey || 'INQ-5001'; // 問い合わせIDまたは固定キー
+db.ref(`admin_data/contact_replies/${targetInquiryId}`).on('value', function(snapshot) {
         const messagesDiv = document.querySelector('.chat-messages');
         if (!messagesDiv) return;
 
