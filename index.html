@@ -6678,27 +6678,29 @@ if (typeof db !== 'undefined') {
             return;
         }
 
-        Object.keys(data).forEach(function(key) {
-            const msg = data[key];
-            console.log("【DEBUG】メッセージ1件処理中:", msg);
+       Object.keys(data).forEach(function(key) {
+    const msg = data[key];
+    
+    // 【修正】自身（ユーザー）のメッセージか、運営（管理）のメッセージかを判定
+    const isOwn = msg.own === true || msg.role === 'user' || msg.senderName === 'わたし';
 
-            const isOwn = msg.own === true || msg.role === 'user';
-            const alignStyle = isOwn ? 'flex-end' : 'flex-start';
-            const bgColor = isOwn ? '#e63946' : '#f1f3f4';
-            const textColor = isOwn ? '#ffffff' : '#333333';
-            const senderLabel = msg.senderName || (isOwn ? 'わたし' : 'サポート事務局');
+    // 自分の場合は「右寄せ＆赤背景」、運営の場合は「左寄せ＆白/灰色背景」
+    const alignStyle = isOwn ? 'flex-end' : 'flex-start';
+    const bgColor = isOwn ? '#e63946' : '#f1f3f4';
+    const textColor = isOwn ? '#ffffff' : '#333333';
+    const senderLabel = isOwn ? 'わたし' : (msg.senderName || 'サポート事務局');
 
-            const bubbleHtml = `
-                <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:10px;">
-                    <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
-                    <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; color:${textColor};">
-                        <div>${escapeHtml(msg.text || msg.message || '')}</div>
-                    </div>
-                </div>
-            `;
+    const bubbleHtml = `
+        <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px;">
+            <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
+            <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; color:${textColor}; text-align:left;">
+                <div>${escapeHtml(msg.text || msg.message || '')}</div>
+            </div>
+        </div>
+    `;
 
-            messagesDiv.insertAdjacentHTML('beforeend', bubbleHtml);
-        });
+    messagesDiv.insertAdjacentHTML('beforeend', bubbleHtml);
+});
 
       // 各メッセージの追加処理が終わった後、最下部へ自動スクロール（.on('value') の中に入れる）
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
