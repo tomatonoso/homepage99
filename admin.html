@@ -587,7 +587,7 @@ window.sendReplySubmit = function() {
 
     const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // 1. ユーザー側画面 (chats/admin-1/messages) に即座に届ける (両方のキーを付与)
+    // 1. ユーザー側画面 (chats/admin-1/messages) に即座に届ける
     db.ref('chats/admin-1/messages').push({
         own: false,
         role: 'admin',
@@ -623,6 +623,14 @@ window.sendReplySubmit = function() {
     }
 
     msgInput.value = '';
+
+    // ★ 3. 返信モーダル内のメッセージリストを即座に再描画する処理を追加
+    if (typeof loadReplyMessages === 'function') {
+        loadReplyMessages(currentReplyItemKey);
+    } else if (typeof renderReplyModal === 'function') {
+        renderReplyModal(currentReplyItemKey);
+    }
+
     alert('返信を送信しました。');
 };
     function loadTokushoData() {
