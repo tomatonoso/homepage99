@@ -3655,7 +3655,7 @@ window.submitNewProduct = function(e) {
                        ? currentUser.name 
                        : 'ゲスト';
 
-    const newReq = {
+   const newReq = {
         id: Date.now(),
         title: title,
         price: price,
@@ -3669,26 +3669,36 @@ window.submitNewProduct = function(e) {
     if (!window.purchaseRequests) {
         window.purchaseRequests = [];
     }
-    // グローバル配列とローカル変数の両方を同期
     window.purchaseRequests.unshift(newReq);
     purchaseRequests = window.purchaseRequests;
 
-    // 保存・再描画・モーダル削除
-   if (typeof saveRequestsToStorage === 'function') saveRequestsToStorage();
+    // ローカル保存・再描画・モーダル非表示
+    if (typeof saveRequestsToStorage === 'function') saveRequestsToStorage();
     if (typeof renderPurchaseRequests === 'function') renderPurchaseRequests();
     if (typeof closeModal === 'function') closeModal('request-post-modal');
 
-    // フォームのクリア
+    // ★ 運営管理画面（Firebase）への直接送信処理
+    if (typeof db !== 'undefined') {
+        db.ref('admin_data/buy_requests').push().set({
+            id: 'REQ-' + Math.floor(1000 + Math.random() * 9000),
+            verified: false,
+            requestTitle: title,
+            requesterName: authorName || '匿名ユーザー',
+            budget: Number(price) || 0,
+            status: '受付中',
+            createdAt: new Date().toLocaleString('ja-JP')
+        }).then(() => {
+            console.log("Firebase送信完了");
+        }).catch((err) => {
+            console.error("Firebase送信エラー:", err);
+        });
+    }
+
+    // ★ フォームのクリア処理（送信後に実行）
     if (titleEl) titleEl.value = "";
     if (priceEl) priceEl.value = "";
     if (descEl) descEl.value = "";
-　　// ★ 運営管理画面へのリアルタイム送信処理
-        if (typeof sendPurchaseRequestToAdmin === 'function') {
-            sendPurchaseRequestToAdmin({
-                productTitle: titleEl ? titleEl.value : '',
-                price: priceEl ? priceEl.value : ''
-            });
-        }
+
     alert('購入リクエストを投稿しました！');
 };
    window.renderPurchaseRequests = function() {
