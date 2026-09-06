@@ -1779,13 +1779,64 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
                 <button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>
             </div>
                      <!-- チャットボタン -->
+<!-- チャットボタン & パネル -->
 <div style="position: relative;">
     <button class="chat-btn" id="chat-btn" onclick="openChatFromHeader()">
         <i class="fa-solid fa-comments"></i>
         <span class="chat-badge" id="chat-count" style="display: none;">0</span>
     </button>
-    
-   
+
+    <!-- チャットパネル（LINE風トーク一覧 ＆ メッセージ表示） -->
+    <div id="chat-panel" class="chat-panel" style="display: none; width: 340px; height: 480px; background: #fff; border-radius: 10px; overflow: hidden; position: absolute; top: 40px; right: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.25); z-index: 1000; font-family: sans-serif;">
+
+        <!-- ================= 画面A：トーク一覧画面 ================= -->
+        <div id="chat-view-list" style="display: flex; flex-direction: column; height: 100%;">
+            <!-- ヘッダー -->
+            <div style="background: #2c3e50; color: #fff; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; font-size: 15px;">トーク</span>
+                <button onclick="toggleChatPanelDisplay()" style="background:none; border:none; color:#fff; cursor:pointer; font-size:16px;">✕</button>
+            </div>
+
+            <!-- トークルーム一覧リスト -->
+            <div id="talk-room-list" style="flex: 1; overflow-y: auto; background: #ffffff;">
+                <!-- 1. 運営サポート（固定表示） -->
+                <div onclick="openTalkRoom('ADMIN_SUPPORT', '運営サポート事務局', true)" style="display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; background: #fdfdfd;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #e63946; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 12px;">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div style="flex: 1; overflow: hidden;">
+                        <div style="font-weight: bold; font-size: 13px; color: #333;">運営サポート</div>
+                        <div style="font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">運営への相談・お問い合わせ</div>
+                    </div>
+                </div>
+
+                <!-- 2. 追加したユーザー・オークション相手の動的トークリスト -->
+                <div id="dynamic-room-items"></div>
+            </div>
+        </div>
+
+        <!-- ================= 画面B：個別会話画面 ================= -->
+        <div id="chat-view-room" style="display: none; flex-direction: column; height: 100%; background: #7494c0;">
+            <!-- ヘッダー（戻るボタン付き） -->
+            <div style="background: #2c3e50; color: #fff; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+                <button onclick="showRoomList()" style="background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span id="current-room-title" style="font-weight: bold; font-size: 14px; flex: 1;">トーク相手</span>
+                <button onclick="toggleChatPanelDisplay()" style="background:none; border:none; color:#fff; cursor:pointer; font-size:16px;">✕</button>
+            </div>
+
+            <!-- メッセージ表示エリア -->
+            <div id="talk-messages-body" style="flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+
+            <!-- 入力エリア -->
+            <div style="background: #fff; padding: 8px; display: flex; gap: 6px; border-top: 1px solid #ddd;">
+                <textarea id="talk-message-input" placeholder="メッセージを入力..." style="flex: 1; height: 36px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; resize: none; box-sizing: border-box;"></textarea>
+                <button type="button" onclick="sendActiveRoomMessage()" style="background: #2a9d8f; color: #fff; border: none; padding: 0 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">送信</button>
+            </div>
+        </div>
+
+    </div>
 </div>
             <button class="btn-red-sm" onclick="checkAuthAndOpenSell()">出品</button>
             
