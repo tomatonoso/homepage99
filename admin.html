@@ -531,8 +531,8 @@
     };
 
 // モーダルを開いて Firebase からリアルタイム取得
-    window.openReplyModal = function(key, name, email, message) {
-        currentReplyItemKey = key;
+   window.openReplyModal = function(key, name, email, message) {
+        currentReplyItemKey = key || 'INQ-5001';
 
         const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
         const displayEmail = (email && email !== 'undefined') ? email : '未設定';
@@ -551,8 +551,8 @@
         const historyList = document.getElementById('reply-history-list');
         if (!historyList) return;
 
-        // chats/admin-1/messages を監視
-        activeReplyRef = db.ref('chats/admin-1/messages');
+        // 問い合わせごとの返信ノードを監視
+        activeReplyRef = db.ref(`admin_data/contact_replies/${currentReplyItemKey}`);
 
         activeReplyRef.on('value', function(snapshot) {
             historyList.innerHTML = '';
@@ -563,21 +563,14 @@
                 return;
             }
 
-            // 配列またはPush IDオブジェクトに対応
-            const messageKeys = Object.keys(rawData);
-            if (messageKeys.length === 0) {
-                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
-                return;
-            }
-
-            messageKeys.forEach(function(msgKey) {
+            Object.keys(rawData).forEach(function(msgKey) {
                 const item = rawData[msgKey];
                 if (typeof item !== 'object' || item === null) return;
 
                 const msgText = item.text || item.message || item.content || '';
                 if (!msgText) return;
 
-                // 送信者判定：role==='admin' または isAdmin===true または senderName==='サポート事務局' のみ管理者
+                // 送信者判定
                 const isAdmin = (item.role === 'admin') || 
                                 (item.isAdmin === true) || 
                                 (item.senderName === 'サポート事務局');
@@ -603,13 +596,13 @@
         });
     };
 
-    // 管理者からの返信送信処理
     window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
         if (!msgText) return alert('メッセージを入力してください。');
 
         const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const targetKey = currentReplyItemKey || 'INQ-5001';
 
         const newMsgObj = {
             own: false,
@@ -622,29 +615,23 @@
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        // 既存データを消さないよう push() を使用してメッセージを追加
-        db.ref('chats/admin-1/messages').push(newMsgObj, function(err) {
+        // 1. admin_data/contact_replies に追加
+        db.ref(`admin_data/contact_replies/${targetKey}`).push(newMsgObj, function(err) {
             if (err) {
-                alert('送信エラーが発生しました: ' + err.message);
+                alert('送信エラー: ' + err.message);
                 return;
             }
 
-            // メッセージ親ノードの最終メッセージ情報のみ更新（messages配下は破壊しない）
-            db.ref('chats/admin-1').update({
+            // 2. ユーザーアプリ受取用の chats/admin-1/messages にも同期追記
+            db.ref('chats/admin-1/messages').push(newMsgObj);
+
+            // 3. お問い合わせ親ノードの更新
+            db.ref(`admin_data/inquiries/${targetKey}`).update({
+                status: '返信済み',
+                verified: true,
                 lastMessage: msgText,
-                lastTime: nowTime
+                updatedAt: new Date().toLocaleString('ja-JP')
             });
-
-            if (currentReplyItemKey && currentReplyItemKey !== 'undefined') {
-                db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
-                    status: '返信済み',
-                    verified: true
-                });
-            }
-
-            if (typeof addAuditLog === 'function') {
-                addAuditLog('問い合わせ返信', `メッセージ送信: ${msgText}`);
-            }
 
             msgInput.value = '';
         });
