@@ -569,16 +569,17 @@
                 const msgText = item.text || item.message || item.content || '';
                 if (!msgText) return;
 
-                // 送信者判定
-                const isAdmin = (item.role === 'admin') || 
-                                (item.isAdmin === true) || 
-                                (item.senderName === 'サポート事務局');
+              // 送信者判定（管理者からのメッセージかどうか）
+        const isAdmin = (item.role === 'admin') || 
+                        (item.isAdmin === true) || 
+                        (item.senderName === 'サポート事務局');
 
-                const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
-                const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
-                const borderColor = isAdmin ? '#badbcc' : '#ced4da';
-                const textColor = '#333333';
-                const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
+        // 管理画面のUI配置設定（管理者は右側、ユーザーは左側）
+        const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
+        const bgColor = isAdmin ? '#d1e7dd' : '#f1f3f4';
+        const borderColor = isAdmin ? '#badbcc' : '#ced4da';
+        const textColor = '#333333';
+        const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
 
                 const bubbleHtml = `
                     <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
