@@ -3829,17 +3829,25 @@ window.openRequestChat = function(id) {
                 targetKey = Object.keys(inqData)[0] || targetKey;
             }
 
-            // お問い合わせ返信ノードへ追記保存
-            db.ref('admin_data/contact_replies/' + targetKey).push({
+          // お問い合わせ返信ノードへ追記保存（選択キーおよび INQ-5001 両方へ確実に届ける）
+            const replyMsgObj = {
                 own: true,
                 role: 'user',
+                isAdmin: false,
                 senderName: 'わたし',
                 text: text,
                 message: text,
                 time: nowTime,
                 timestamp: new Date().toLocaleString('ja-JP')
-            });
+            };
 
+            // 1. 動的取得したキーへ保存
+            db.ref('admin_data/contact_replies/' + targetKey).push(replyMsgObj);
+
+            // 2. INQ-5001 にも確実に同期保存
+            if (targetKey !== 'INQ-5001') {
+                db.ref('admin_data/contact_replies/INQ-5001').push(replyMsgObj);
+            }
             // 親ステータスの更新
             db.ref('admin_data/inquiries/' + targetKey).update({
                 status: '未返信',
