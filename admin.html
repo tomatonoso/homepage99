@@ -530,8 +530,7 @@
         });
     };
 
-// モーダルを開いて Firebase からリアルタイム取得
-   window.openReplyModal = function(key, name, email, message) {
+    window.openReplyModal = function(key, name, email, message) {
         currentReplyItemKey = key || 'INQ-5001';
 
         const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
@@ -596,6 +595,12 @@
         });
     };
 
+    window.closeReplyModal = function() {
+        const modal = document.getElementById('reply-modal');
+        if (modal) modal.style.display = 'none';
+        if (activeReplyRef) { activeReplyRef.off(); activeReplyRef = null; }
+    };
+
     window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
@@ -615,17 +620,14 @@
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        // 1. admin_data/contact_replies に追加
+        // admin_data/contact_replies にのみ追加保存（chats/admin-1/messages への重複更新を除去）
         db.ref(`admin_data/contact_replies/${targetKey}`).push(newMsgObj, function(err) {
             if (err) {
                 alert('送信エラー: ' + err.message);
                 return;
             }
 
-            // 2. ユーザーアプリ受取用の chats/admin-1/messages にも同期追記
-            db.ref('chats/admin-1/messages').push(newMsgObj);
-
-            // 3. お問い合わせ親ノードの更新
+            // お問い合わせ親ノードのステータス更新
             db.ref(`admin_data/inquiries/${targetKey}`).update({
                 status: '返信済み',
                 verified: true,
@@ -636,6 +638,7 @@
             msgInput.value = '';
         });
     };
+
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
             const data = snapshot.val() || {};
