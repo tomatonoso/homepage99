@@ -546,40 +546,39 @@ window.openReplyModal = function(key, name, email, message) {
     const modal = document.getElementById('reply-modal');
     if (modal) modal.style.display = 'flex';
 
-    if (activeReplyRef) activeReplyRef.off();
+   if (activeReplyRef) activeReplyRef.off();
 
     // 問い合わせのやり取り履歴をリアルタイム取得
     activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
-    activeReplyRef.on('value', (snapshot) => {
+    activeReplyRef.on('value', function(snapshot) {
         const historyData = snapshot.val();
         const historyList = document.getElementById('reply-history-list');
         if (!historyList) return;
-        
+
         historyList.innerHTML = '';
         if (!historyData) {
-            historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">履歴はありません。</div>';
+            historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
             return;
         }
 
-       Object.keys(historyData).forEach(msgKey => {
-    const item = historyData[msgKey];
-    
-    // 管理者（自分）かユーザーかの判定
-    const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局';
-    const bubbleClass = isAdmin ? 'admin' : 'user';
-    const senderName = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
-    const msgText = item.text || item.message || '';
+        Object.keys(historyData).forEach(function(msgKey) {
+            const item = historyData[msgKey];
+            const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局';
+            const bubbleClass = isAdmin ? 'admin' : 'user';
+            const senderName = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
+            const msgText = item.text || item.message || '';
 
-   historyList.insertAdjacentHTML('beforeend', `
-    <div class="chat-bubble ${bubbleClass}">
-        <div class="meta"><strong>${escapeHtml(senderName)}</strong></div>
-        <div class="message-text">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
-    </div>
-`);
+            historyList.insertAdjacentHTML('beforeend', `
+                <div class="chat-bubble ${bubbleClass}">
+                    <div class="meta"><strong>${escapeHtml(senderName)}</strong></div>
+                    <div class="message-text">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+                </div>
+            `);
+        });
+
         historyList.scrollTop = historyList.scrollHeight;
-   });
+    });
 };
-
 window.sendReplySubmit = function() {
     const msgInput = document.getElementById('reply-input-message');
     const msgText = msgInput ? msgInput.value.trim() : '';
