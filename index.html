@@ -3848,7 +3848,7 @@ window.openRequestChat = function(id) {
                 updatedAt: new Date().toLocaleString('ja-JP')
             });
         });
-    }
+    
 
     if (input) input.value = '';
 };
@@ -3856,7 +3856,7 @@ window.openRequestChat = function(id) {
     // 3. UIの再描画
     if (typeof renderChatMessages === 'function') renderChatMessages('admin-1');
     if (typeof renderChatList === 'function') renderChatList();
-};
+
 window.sendPriceProposal = function() {
     const inputPrice = document.getElementById('chat-input-price');
     const price = parseInt((inputPrice && inputPrice.value) || '', 10);
