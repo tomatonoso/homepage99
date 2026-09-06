@@ -3809,7 +3809,7 @@ window.openRequestChat = function(id) {
     if (typeof openModal === 'function') openModal('request-chat-modal');
 };
 
-       window.sendChatMessage = function() {
+      window.sendChatMessage = function() {
     const input = document.getElementById('chat-input-msg') || document.querySelector('.chat-detail-modal input, .chat-panel input');
     const text = (input && input.value || '').trim();
 
@@ -3831,54 +3831,51 @@ window.openRequestChat = function(id) {
         }
     }
 
-    // 2. Firebase への保存・同期
-    if (typeof db !== 'undefined') {
-        // A. ユーザー側チャットノード (chats/admin-1/messages) へ保存
-        db.ref('chats/admin-1/messages').push({
-            own: true,
-            text: text,
-            time: nowTime
-        });
-
-        db.ref('chats/admin-1').update({
-            lastMessage: text,
-            lastTime: nowTime
-        });
-
-      // B. 管理画面側のデータパス (admin_data/contact_replies) へ同時送信
-        db.ref('admin_data/inquiries').limitToLast(1).once('value', (snapshot) => {
+    // 2. Firebase への保存
+    if (typeof db !== 'undefined' && db) {
+        // 対象の問い合わせキー（key）を取得して書き込み
+        db.ref('admin_data/inquiries').limitToLast(1).once('value', function(snapshot) {
             const inqData = snapshot.val();
-            let key = null;
+            let targetKey = 'INQ-5001'; // デフォルト
 
             if (inqData) {
-                key = Object.keys(inqData)[0];
+                targetKey = Object.keys(inqData)[0] || targetKey;
             }
 
-            // 3850行目：keyが取れない場合は受信側と同じ 'INQ-5001' をデフォルトにする
-const targetKey = key || window.currentReplyItemKey || getOrCreateUserId();
-// 1. 返信データを追加
-db.ref(`admin_data/contact_replies/${targetKey}`).push({
-    senderName: 'わたし',
-    role: 'user',
-    own: true,             // ユーザー自身のメッセージ判定用
-    message: text,
-    text: text,
-    timestamp: new Date().toLocaleString('ja-JP')
-});
+            // A. お問い合わせ返信ノードへ追記（管理画面がモーダルで参照する場所）
+            db.ref(`admin_data/contact_replies/${targetKey}`).push({
+                own: true,
+                role: 'user',
+                senderName: 'わたし',
+                text: text,
+                message: text,
+                time: nowTime,
+                timestamp: new Date().toLocaleString('ja-JP')
+            });
 
-            // 2. お問い合わせ親データのステータス・最終更新日・未読フラグを更新（管理画面側のリアルタイム反映用）
-            if (key) {
-                db.ref(`admin_data/inquiries/${key}`).update({
-                    status: '未返信',
-                    verified: false,
-                    lastMessage: text,
-                    updatedAt: new Date().toLocaleString('ja-JP')
-                });
-            }
+            // B. 互換性のために chats/admin-1/messages にも追記
+            db.ref('chats/admin-1/messages').push({
+                own: true,
+                role: 'user',
+                senderName: 'わたし',
+                text: text,
+                message: text,
+                time: nowTime,
+                timestamp: new Date().toLocaleString('ja-JP')
+            });
+
+            // C. お問い合わせ親データのステータス更新
+            db.ref(`admin_data/inquiries/${targetKey}`).update({
+                status: '未返信',
+                verified: false,
+                lastMessage: text,
+                updatedAt: new Date().toLocaleString('ja-JP')
+            });
         });
     }
 
-    input.value = '';
+    if (input) input.value = '';
+};
 
     // 3. UIの再描画
     if (typeof renderChatMessages === 'function') renderChatMessages('admin-1');
