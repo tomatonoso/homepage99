@@ -530,7 +530,7 @@
         });
     };
 
-    window.openReplyModal = function(key, name, email, message) {
+  window.openReplyModal = function(key, name, email, message) {
         currentReplyItemKey = key;
 
         const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
@@ -547,7 +547,6 @@
 
         if (activeReplyRef) activeReplyRef.off();
 
-        // 問い合わせメッセージ配下のデータ構造に対応（直下または/messages以下を監視）
         activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
         activeReplyRef.on('value', function(snapshot) {
             const rawData = snapshot.val();
@@ -560,22 +559,25 @@
                 return;
             }
 
-            // `messages` プロパティが存在する場合はその配下を参照し、なければ直下を参照
             const historyData = rawData.messages ? rawData.messages : rawData;
 
             Object.keys(historyData).forEach(function(msgKey) {
                 const item = historyData[msgKey];
-                // オブジェクトでないデータ（metadata等）は除外
                 if (typeof item !== 'object' || item === null) return;
 
-                const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局' || item.own === false;
-                
+                // 管理者（サポート事務局）からのメッセージ判定を厳密化
+                const isAdmin = (item.role === 'admin') || 
+                                (item.senderName === 'サポート事務局') || 
+                                (item.isAdmin === true);
+
                 const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
                 const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
                 const borderColor = isAdmin ? '#badbcc' : '#ced4da';
                 const textColor = '#333333';
                 const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
-                const msgText = item.text || item.message || '';
+                
+                // メッセージ本文の取得（text、message、bodyなど表記ゆれに対応）
+                const msgText = item.text || item.message || item.body || '';
 
                 const bubbleHtml = `
                     <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
