@@ -3837,24 +3837,36 @@ window.openRequestChat = function(id) {
             lastTime: nowTime
         });
 
-       // B. 管理画面側のデータパス (admin_data/contact_replies) へ同時送信
+      // B. 管理画面側のデータパス (admin_data/contact_replies) へ同時送信
         db.ref('admin_data/inquiries').limitToLast(1).once('value', (snapshot) => {
             const inqData = snapshot.val();
             let key = null;
-            
+
             if (inqData) {
                 key = Object.keys(inqData)[0];
             }
-            
+
             // keyが取得できなくてもフォールバック用パスに保存して確実にデータを届ける
             const targetKey = key || 'general';
 
+            // 1. 返信データを追加
             db.ref(`admin_data/contact_replies/${targetKey}`).push({
                 senderName: 'ユーザー',
                 role: 'user',
                 message: text,
+                text: text,
                 timestamp: new Date().toLocaleString('ja-JP')
             });
+
+            // 2. お問い合わせ親データのステータス・最終更新日・未読フラグを更新（管理画面側のリアルタイム反映用）
+            if (key) {
+                db.ref(`admin_data/inquiries/${key}`).update({
+                    status: '未返信',
+                    verified: false,
+                    lastMessage: text,
+                    updatedAt: new Date().toLocaleString('ja-JP')
+                });
+            }
         });
     }
 
