@@ -97,7 +97,7 @@
             <button class="sheet-tab" onclick="switchAdminTab('faqs', this)">❓ 10. FAQ管理</button>
             <button class="sheet-tab" onclick="switchAdminTab('tokusho', this)">⚖️ 11. 特定商取引法</button>
             <button class="sheet-tab" onclick="switchAdminTab('privacy', this)">🔒 12. 個人情報保護方針</button>
-            <button class="sheet-tab" onclick="switchAdminTab('contacts', this)">📧 13. お問い合わせ</button>
+            <button class="sheet-tab" onclick="switchAdminTab('inquiries', this)">📧 13. お問い合わせ</button>
             <button class="sheet-tab" onclick="switchAdminTab('logs', this)">📜 14. 操作ログ</button>
             <button class="sheet-tab" onclick="switchAdminTab('refunds', this)" style="background: #e76f51; color: #fff;">💳 15. 返金・決済管理</button>
         </div>
@@ -233,8 +233,8 @@
     let currentReplyItemKey = null;
 
     const tabSchema = {
-      users: { path: 'admin_data/users', headers: ['確認', 'ユーザーID', '氏名/アカウント名', 'メールアドレス', '本人確認(KYC)', 'KYC画像', 'ステータス', '操作アクション', '登録日時'], fields: ['verified', 'id', 'name', 'email', 'kycStatus', 'kycImageBtn', 'statusBadge', 'userActionBtn', 'createdAt'] },
-       products: { path: 'admin_data/products', headers: ['確認', '商品ID', '出品者名/ショップ名', 'メールアドレス', '電話番号', '金融機関名', '支店名', '口座種別', '口座番号', '口座名義', '商品名', 'カテゴリー', '販売価格 (円)', '配送料の負担', '投稿日時'], fields: ['verified', 'id', 'seller', 'sellerEmail', 'sellerPhone', 'bankName', 'bankBranch', 'accountType', 'accountNumber', 'accountHolder', 'title', 'category', 'price', 'shippingFee', 'createdAt'] },
+        users: { path: 'admin_data/users', headers: ['確認', 'ユーザーID', '氏名/アカウント名', 'メールアドレス', '本人確認(KYC)', 'KYC画像', 'ステータス', '操作アクション', '登録日時'], fields: ['verified', 'id', 'name', 'email', 'kycStatus', 'kycImageBtn', 'statusBadge', 'userActionBtn', 'createdAt'] },
+        products: { path: 'admin_data/products', headers: ['確認', '商品ID', '出品者名/ショップ名', 'メールアドレス', '電話番号', '金融機関名', '支店名', '口座種別', '口座番号', '口座名義', '商品名', 'カテゴリー', '販売価格 (円)', '配送料の負担', '投稿日時'], fields: ['verified', 'id', 'seller', 'sellerEmail', 'sellerPhone', 'bankName', 'bankBranch', 'accountType', 'accountNumber', 'accountHolder', 'title', 'category', 'price', 'shippingFee', 'createdAt'] },
         buy_requests: { path: 'admin_data/buy_requests', headers: ['確認', 'リクエストID', 'やり取り確認', 'ほしい商品のタイトル', '依頼者(買主)', '希望予算 (円)', 'ステータス', '投稿日時'], fields: ['verified', 'id', 'chatBtn', 'requestTitle', 'requesterName', 'budget', 'status', 'createdAt'] },
         auctions: { path: 'admin_data/auctions', headers: ['確認', 'オークションID', '取引メッセージ確認', '出品アイテム', '出品者', '落札者/最高入札者', '現在価格/落札額 (円)', '取引ステータス', '終了日時'], fields: ['verified', 'id', 'chatBtn', 'itemTitle', 'sellerName', 'winnerName', 'finalPrice', 'status', 'endsAt'] },
         real_estate: { path: 'admin_data/real_estate', headers: ['確認', '物件ID', '会社名・屋号', '担当者名', '物件種別', '物件名', '所在地', '賃料/価格(円)', '投稿日時'], fields: ['verified', 'id', 'companyName', 'staffName', 'propertyType', 'propertyName', 'location', 'rentPrice', 'createdAt'] },
@@ -242,7 +242,7 @@
         reports: { path: 'admin_data/reports', headers: ['確認', '通報ID', '通報者', '対象コンテンツ/ユーザー', '通報理由・詳細', 'ステータス', '対応アクション', '発生日時'], fields: ['verified', 'id', 'reporterName', 'targetInfo', 'reason', 'statusBadge', 'reportActionBtn', 'createdAt'] },
         news: { path: 'admin_data/news', headers: ['確認', 'お知らせID', 'タイトル', '配信本文', '投稿者', '投稿日時'], fields: ['verified', 'id', 'title', 'content', 'author', 'createdAt'] },
         faqs: { path: 'admin_data/faqs', headers: ['確認', 'FAQ-ID', '質問 (Q)', '回答 (A)', '更新日時'], fields: ['verified', 'id', 'question', 'answer', 'createdAt'] },
-       inquiries: { path: 'admin_data/inquiries', headers: ['確認', '問合せID', '返信・履歴', 'お名前', 'メールアドレス', 'お問い合わせ内容', 'ステータス', '受付日時'], fields: ['verified', 'id', 'replyBtn', 'userName', 'email', 'message', 'statusBadge', 'createdAt'] },
+        inquiries: { path: 'admin_data/inquiries', headers: ['確認', '問合せID', '返信・履歴', 'お名前', 'メールアドレス', 'お問い合わせ内容', 'ステータス', '受付日時'], fields: ['verified', 'id', 'replyBtn', 'userName', 'email', 'message', 'statusBadge', 'createdAt'] },
         refunds: { path: 'admin_data/refunds', headers: ['確認', '取引ID', '購入者', '出品者', '対象商品・取引名', '決済金額 (円)', '決済ステータス', '返金・保留操作', '取引日時'], fields: ['verified', 'id', 'buyerName', 'sellerName', 'itemTitle', 'amount', 'statusBadge', 'refundActionBtn', 'createdAt'] },
         logs: { path: 'admin_data/logs', headers: ['ログID', '操作内容', '対象・詳細', '実行者', '実行日時'], fields: ['id', 'action', 'detail', 'operator', 'createdAt'] }
     };
@@ -258,47 +258,46 @@
         });
     }
 
-   function checkAndSeedData(callback) {
-    db.ref('admin_data/users').once('value', (snap) => {
-        if (!snap.exists()) {
-            db.ref('admin_data/users').push().set({ id: 'USR-101', verified: true, name: '山田 太郎', email: 'yamada@example.com', kycStatus: '承認済み', status: '正常', createdAt: new Date().toLocaleString('ja-JP') });
-        }
-    });
-    db.ref('admin_data/refunds').once('value', (snap) => {
-        if (!snap.exists()) {
-            db.ref('admin_data/refunds').push().set({ id: 'PAY-7001', verified: false, buyerName: '佐藤 花子', sellerName: '山田 太郎', itemTitle: '一眼レフカメラレンズ', amount: 48000, status: '売上保留中', createdAt: new Date().toLocaleString('ja-JP') });
-            db.ref('admin_data/refunds').push().set({ id: 'PAY-7002', verified: true, buyerName: '鈴木 一郎', sellerName: '高橋 健太', itemTitle: 'ヴィンテージ時計', amount: 120000, status: '通常決済完了', createdAt: new Date().toLocaleString('ja-JP') });
-        }
-    });
-    // ★ 購入リクエストの初期データ作成を追加
-    db.ref('admin_data/buy_requests').once('value', (snap) => {
-        if (!snap.exists()) {
-            db.ref('admin_data/buy_requests').push().set({
-                id: 'REQ-3001',
-                verified: false,
-                requestTitle: 'MacBook Pro M2 16インチ',
-                requesterName: '佐藤 花子',
-                budget: 180000,
-                status: '受付中',
-                createdAt: new Date().toLocaleString('ja-JP')
-            });
-        }
-    // お問い合わせの初期データ作成
-    db.ref('admin_data/inquiries').once('value', (snap) => {
-        if (!snap.exists()) {
-            db.ref('admin_data/inquiries').push().set({
-                id: 'INQ-5001',
-                userName: 'テスト 太郎',
-                email: 'test@example.com',
-                message: 'サービスの利用方法について確認したいです。',
-                status: '未対応',
-                createdAt: new Date().toLocaleString('ja-JP')
-            });
-        }
-    });
-    });
-    if (callback) callback();
-}
+    function checkAndSeedData(callback) {
+        db.ref('admin_data/users').once('value', (snap) => {
+            if (!snap.exists()) {
+                db.ref('admin_data/users').push().set({ id: 'USR-101', verified: true, name: '山田 太郎', email: 'yamada@example.com', kycStatus: '承認済み', status: '正常', createdAt: new Date().toLocaleString('ja-JP') });
+            }
+        });
+        db.ref('admin_data/refunds').once('value', (snap) => {
+            if (!snap.exists()) {
+                db.ref('admin_data/refunds').push().set({ id: 'PAY-7001', verified: false, buyerName: '佐藤 花子', sellerName: '山田 太郎', itemTitle: '一眼レフカメラレンズ', amount: 48000, status: '売上保留中', createdAt: new Date().toLocaleString('ja-JP') });
+                db.ref('admin_data/refunds').push().set({ id: 'PAY-7002', verified: true, buyerName: '鈴木 一郎', sellerName: '高橋 健太', itemTitle: 'ヴィンテージ時計', amount: 120000, status: '通常決済完了', createdAt: new Date().toLocaleString('ja-JP') });
+            }
+        });
+        db.ref('admin_data/buy_requests').once('value', (snap) => {
+            if (!snap.exists()) {
+                db.ref('admin_data/buy_requests').push().set({
+                    id: 'REQ-3001',
+                    verified: false,
+                    requestTitle: 'MacBook Pro M2 16インチ',
+                    requesterName: '佐藤 花子',
+                    budget: 180000,
+                    status: '受付中',
+                    createdAt: new Date().toLocaleString('ja-JP')
+                });
+            }
+        });
+        db.ref('admin_data/inquiries').once('value', (snap) => {
+            if (!snap.exists()) {
+                db.ref('admin_data/inquiries').push().set({
+                    id: 'INQ-5001',
+                    userName: 'テスト 太郎',
+                    email: 'test@example.com',
+                    message: 'サービスの利用方法について確認したいです。',
+                    status: '未対応',
+                    createdAt: new Date().toLocaleString('ja-JP')
+                });
+            }
+        });
+        if (callback) callback();
+    }
+
     window.switchAdminTab = function(tabKey, element) {
         currentAdminTab = tabKey;
         document.querySelectorAll('.sheet-tab').forEach(btn => btn.classList.remove('active'));
@@ -348,7 +347,7 @@
             let pendingRefunds = Object.values(data.refunds || {}).filter(r => r.status === '売上保留中').length;
             document.getElementById('kpi-refunds').innerText = pendingRefunds + ' 件';
 
-            let unrepliedContacts = Object.values(data.contacts || {}).filter(c => c.status !== '返信済み').length;
+            let unrepliedContacts = Object.values(data.inquiries || {}).filter(c => c.status !== '返信済み').length;
             document.getElementById('kpi-contacts').innerText = unrepliedContacts + ' 件';
 
             let pendingReports = Object.values(data.reports || {}).filter(r => r.status !== '対応完了').length;
@@ -395,7 +394,7 @@
                         const btnClass = isChecked ? 'btn-check-on' : 'btn-check-off';
                         const btnLabel = isChecked ? '確認済' : '未確認';
                         tr += `<td><button onclick="toggleVerifyRow('${key}', ${isChecked})" class="${btnClass}">${btnLabel}</button></td>`;
-                        } else if (field === 'kycStatus') {
+                    } else if (field === 'kycStatus') {
                         const currentStatus = rowData.kycStatus || (rowData.kycImage ? '審査中' : '未提出');
                         tr += `<td>
                             <select onchange="updateKycStatus('${key}', this.value)" style="padding:2px 5px; font-size:12px; border-radius:4px;">
@@ -405,9 +404,8 @@
                                 <option value="再提出" ${currentStatus === '再提出' ? 'selected' : ''}>再提出</option>
                             </select>
                         </td>`;
-                      } else if (field === 'kycImageBtn') {
+                    } else if (field === 'kycImageBtn') {
                         if (rowData.kycImage) {
-                            // URLリンクとして開く場合
                             tr += `<td><a href="${escapeHtml(rowData.kycImage)}" target="_blank" style="color:#0d6efd; text-decoration:underline; font-size:12px;">🖼️ 画像を開く</a></td>`;
                         } else {
                             tr += `<td><span style="color:#aaa;">未提出</span></td>`;
@@ -439,10 +437,10 @@
                     } else if (field === 'chatBtn') {
                         const title = rowData.requestTitle || rowData.itemTitle || '取引';
                         tr += `<td><button onclick="openChatModal('${currentAdminTab}', '${key}', '${escapeHtml(title)}')" class="btn-chat-open"><i class="fa-regular fa-comments"></i> 💬 ログ確認</button></td>`;
-                   } else if (field === 'replyBtn') {
-    const name = rowData.userName || rowData.name || '名前なし';
-    const msg = rowData.message || rowData.messageContent || '';
-    tr += `<td><button onclick="openReplyModal('${key}', '${escapeHtml(name)}', '${escapeHtml(rowData.email || '')}', '${escapeHtml(msg)}')" style="background:#0d6efd; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px;">返信</button></td>`;
+                    } else if (field === 'replyBtn') {
+                        const name = rowData.userName || rowData.name || '名前なし';
+                        const msg = rowData.message || rowData.messageContent || '';
+                        tr += `<td><button onclick="openReplyModal('${key}', '${escapeHtml(name)}', '${escapeHtml(rowData.email || '')}', '${escapeHtml(msg)}')" style="background:#0d6efd; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px;">返信</button></td>`;
                     } else {
                         const val = rowData[field] !== undefined && rowData[field] !== '' ? rowData[field] : '-';
                         tr += `<td>${typeof val === 'number' ? val.toLocaleString() : val}</td>`;
@@ -532,7 +530,7 @@
         });
     };
 
-    window.openReplyModal = function(key, name, email, message, createdAt) {
+    window.openReplyModal = function(key, name, email, message) {
         currentReplyItemKey = key;
         document.getElementById('reply-target-info').innerHTML = `<strong>お名前:</strong> ${name} 様 &nbsp;|&nbsp; <strong>メール:</strong> ${email}<br><strong>内容:</strong> ${message}`;
         document.getElementById('reply-modal').style.display = 'flex';
@@ -574,7 +572,7 @@
         db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
             senderName: 'サポート事務局', role: 'admin', message: msgText, timestamp: new Date().toLocaleString('ja-JP')
         });
-        db.ref(`admin_data/contacts/${currentReplyItemKey}`).update({ status: '返信済み', verified: true });
+        db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({ status: '返信済み', verified: true });
         addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
         msgInput.value = '';
         alert('返信を送信しました。');
@@ -687,13 +685,15 @@
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
-// ページの初期化処理
-document.addEventListener('DOMContentLoaded', function() {
-    checkAndSeedData(() => { 
-        loadDashboardKPI();
+
+    // ページの初期化処理
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAndSeedData(() => { 
+            loadDashboardKPI();
+        });
     });
-});
-window.viewKycImage = function(imageUrl, userName) {
+
+    window.viewKycImage = function(imageUrl, userName) {
         const win = window.open("", "_blank", "width=600,height=600");
         win.document.write(`
             <html>
@@ -705,51 +705,45 @@ window.viewKycImage = function(imageUrl, userName) {
             </html>
         `);
     };
-// KYCステータス更新処理
-window.updateKycStatus = function(key, newStatus) {
-    if (!key) return;
-    
-    // 1. Firebase Realtime Database のステータスを更新
-    db.ref(`admin_data/users/${key}`).update({
-        kycStatus: newStatus
-    }, (err) => {
-        if (err) {
-            alert('ステータス更新に失敗しました: ' + err.message);
-            return;
-        }
+
+    // KYCステータス更新処理
+    window.updateKycStatus = function(key, newStatus) {
+        if (!key) return;
         
-        // ログ記録
-        if (typeof addAuditLog === 'function') {
-            addAuditLog('KYCステータス変更', `ユーザーKey: ${key} -> ${newStatus}`);
-        }
-        alert(`KYCステータスを「${newStatus}」に変更しました。`);
-    });
+        db.ref(`admin_data/users/${key}`).update({
+            kycStatus: newStatus
+        }, (err) => {
+            if (err) {
+                alert('ステータス更新に失敗しました: ' + err.message);
+                return;
+            }
+            if (typeof addAuditLog === 'function') {
+                addAuditLog('KYCステータス変更', `ユーザーKey: ${key} -> ${newStatus}`);
+            }
+            alert(`KYCステータスを「${newStatus}」に変更しました。`);
+        });
 
-    // 2. スプレッドシート（Google Apps Script）へ更新情報を送信する場合
-    sendKycStatusToSpreadsheet(key, newStatus);
-};
-
-// スプレッドシート（GAS）送信関数
-function sendKycStatusToSpreadsheet(userKey, kycStatus) {
-    // ★ご自身のGoogle Apps Script (GAS) Web App URLを設定してください
-    const gasUrl = 'https://script.google.com/macros/s/YOUR_GAS_SCRIPT_ID/exec';
-    
-    if (gasUrl.includes('YOUR_GAS_SCRIPT_ID')) return; // URL未設定時はスキップ
-
-    const payload = {
-        action: 'updateKycStatus',
-        userKey: userKey,
-        kycStatus: kycStatus,
-        updatedAt: new Date().toLocaleString('ja-JP')
+        sendKycStatusToSpreadsheet(key, newStatus);
     };
 
-    fetch(gasUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    }).catch(err => console.error('スプレッドシート送信エラー:', err));
-}
+    function sendKycStatusToSpreadsheet(userKey, kycStatus) {
+        const gasUrl = 'https://script.google.com/macros/s/YOUR_GAS_SCRIPT_ID/exec';
+        if (gasUrl.includes('YOUR_GAS_SCRIPT_ID')) return;
+
+        const payload = {
+            action: 'updateKycStatus',
+            userKey: userKey,
+            kycStatus: kycStatus,
+            updatedAt: new Date().toLocaleString('ja-JP')
+        };
+
+        fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).catch(err => console.error('スプレッドシート送信エラー:', err));
+    }
     </script>
 </body>
 </html>
