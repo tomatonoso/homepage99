@@ -530,23 +530,22 @@
         });
     };
 
-   // お問い合わせ返信モーダルを開く関数
-window.openReplyModal = function(key, name, email, message) {
+  window.openReplyModal = function(key, name, email, message) {
     currentReplyItemKey = key;
-    
+
     const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
     const displayEmail = (email && email !== 'undefined') ? email : '未設定';
     const displayMsg = (message && message !== 'undefined') ? message : '';
 
     const infoEl = document.getElementById('reply-target-info');
     if (infoEl) {
-        infoEl.innerHTML = `<strong>お名前:</strong> ${displayName} 様 &nbsp;|&nbsp; <strong>メール:</strong> ${displayEmail}<br><strong>内容:</strong> ${displayMsg}`;
+        infoEl.innerHTML = `<strong>お名前:</strong> ${displayName} 様 &nbsp;&nbsp; <strong>メール:</strong> ${displayEmail}<br><strong>内容:</strong> ${displayMsg}`;
     }
-    
+
     const modal = document.getElementById('reply-modal');
     if (modal) modal.style.display = 'flex';
 
-   if (activeReplyRef) activeReplyRef.off();
+    if (activeReplyRef) activeReplyRef.off();
 
     // 問い合わせのやり取り履歴をリアルタイム取得
     activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
@@ -568,12 +567,13 @@ window.openReplyModal = function(key, name, email, message) {
             const senderName = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
             const msgText = item.text || item.message || '';
 
-            historyList.insertAdjacentHTML('beforeend', `
-                <div class="chat-bubble ${bubbleClass}">
-                    <div class="meta"><strong>${escapeHtml(senderName)}</strong></div>
-                    <div class="message-text">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
-                </div>
-            `);
+            const bubbleHtml = '' +
+                '<div class="chat-bubble ' + bubbleClass + '">' +
+                    '<div class="meta"><strong>' + escapeHtml(senderName) + '</strong></div>' +
+                    '<div class="message-text">' + escapeHtml(msgText).replace(/\n/g, '<br>') + '</div>' +
+                '</div>';
+
+            historyList.insertAdjacentHTML('beforeend', bubbleHtml);
         });
 
         historyList.scrollTop = historyList.scrollHeight;
