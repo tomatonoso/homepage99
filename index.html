@@ -6634,42 +6634,56 @@ function submitInquiry() {
         alert('データベース接続エラーが発生しました。');
     }
 }
-// ユーザー側チャットのリアルタイム受信処理
-function initUserChatListener() {
-    const chatContainer = document.getElementById('chat-messages-container'); // メッセージを表示する要素のIDを指定
-    if (!chatContainer) return;
+// ユーザー側チャット画面のリアルタイム描画関数
+function renderChatMessages(chatId) {
+    const messagesDiv = document.getElementById('chat-messages-container') 
+                      || document.querySelector('.chat-detail-modal .messages') 
+                      || document.querySelector('#chat-modal .chat-body');
 
-    db.ref('chats/admin-1/messages').on('value', (snapshot) => {
-        const data = snapshot.val();
-        chatContainer.innerHTML = ''; // 画面をクリア
+    if (!messagesDiv) return;
 
-        if (!data) {
-            chatContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはまだありません</div>';
-            return;
-        }
+    const targetChatId = chatId || (typeof currentChatId !== 'undefined' ? currentChatId : 'admin-1');
 
-        Object.keys(data).forEach(key => {
-            const msg = data[key];
-            const isOwn = msg.own === true; // 自分(ユーザー)の送信か
+    // Firebaseのメッセージ変更をリアルタイム監視 (.on)
+    if (typeof db !== 'undefined') {
+        db.ref(`chats/${targetChatId}/messages`).on('value', (snapshot) => {
+            const data = snapshot.val();
+            messagesDiv.innerHTML = '';
 
-            const msgHTML = `
-                <div class="message-bubble ${isOwn ? 'own-message' : 'admin-message'}">
-                    <div class="message-text">${escapeHtml(msg.text || '')}</div>
-                    <div class="message-time">${escapeHtml(msg.time || '')}</div>
-                </div>
-            `;
-            chatContainer.insertAdjacentHTML('beforeend', msgHTML);
+            if (!data) {
+                messagesDiv.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">メッセージはまだありません</div>';
+                return;
+            }
+
+            // Firebaseのオブジェクトを配列に変換して描画
+            Object.keys(data).forEach(key => {
+                const msg = data[key];
+                const isOwn = msg.own === true;
+
+                const bubbleHtml = `
+                    <div style="display:flex; justify-content:${isOwn ? 'flex-end' : 'flex-start'}; margin-bottom:10px;">
+                        <div style="max-width:75%; padding:8px 12px; border-radius:12px; font-size:13px; line-height:1.4; 
+                                    background:${isOwn ? '#e63946' : '#f1f3f4'}; 
+                                    color:${isOwn ? '#ffffff' : '#333333'};">
+                            <div>${escapeHtml(msg.text || msg.message || '')}</div>
+                            <div style="font-size:10px; opacity:0.7; text-align:right; margin-top:3px;">${escapeHtml(msg.time || '')}</div>
+                        </div>
+                    </div>
+                `;
+                messagesDiv.insertAdjacentHTML('beforeend', bubbleHtml);
+            });
+
+            // 最下部へ自動スクロール
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
-
-        // 最新のメッセージまで自動スクロール
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    });
+    }
 }
 
-// チャット画面を開いた際、またはページ読み込み時に実行
-document.addEventListener('DOMContentLoaded', () => {
-    initUserChatListener();
-});
+// エスケープ関数（未定義の場合用）
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 </script>
 </body>
 </html>
