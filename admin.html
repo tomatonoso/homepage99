@@ -539,7 +539,7 @@
 
         const infoEl = document.getElementById('reply-target-info');
         if (infoEl) {
-            infoEl.innerHTML = `<strong>お名前:</strong> ${displayName} 様 &nbsp;&nbsp; <strong>メール:</strong> ${displayEmail}<br><strong>内容:</strong> ${displayMsg}`;
+            infoEl.innerHTML = `<strong>お名前:</strong> ${escapeHtml(displayName)} 様 &nbsp;&nbsp; <strong>メール:</strong> ${escapeHtml(displayEmail)}`;
         }
 
         const modal = document.getElementById('reply-modal');
@@ -550,49 +550,67 @@
         const historyList = document.getElementById('reply-history-list');
         if (!historyList) return;
 
-        // 問い合わせごとの返信ノードを監視
-        activeReplyRef = db.ref(`admin_data/contact_replies/${currentReplyItemKey}`);
-
-        activeReplyRef.on('value', function(snapshot) {
-            historyList.innerHTML = '';
-            const rawData = snapshot.val();
-
-            if (!rawData) {
-                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
-                return;
+        // 1. 親ノード情報から「最初のお問い合わせ本文」を取得して描画する関数
+        db.ref(`admin_data/inquiries/${currentReplyItemKey}`).once('value', function(inqSnap) {
+            const inqData = inqSnap.val();
+            let initialMsg = displayMsg;
+            if (inqData && (inqData.message || inqData.messageContent)) {
+                initialMsg = inqData.message || inqData.messageContent;
             }
 
-            Object.keys(rawData).forEach(function(msgKey) {
-                const item = rawData[msgKey];
-                if (typeof item !== 'object' || item === null) return;
+            // 2. 返信ログの監視を開始
+            activeReplyRef = db.ref(`admin_data/contact_replies/${currentReplyItemKey}`);
+            activeReplyRef.on('value', function(snapshot) {
+                historyList.innerHTML = '';
+                const rawData = snapshot.val();
 
-                const msgText = item.text || item.message || item.content || '';
-                if (!msgText) return;
-
-              // 送信者判定（管理者からのメッセージかどうか）
-        const isAdmin = (item.role === 'admin') || 
-                        (item.isAdmin === true) || 
-                        (item.senderName === 'サポート事務局');
-
-        // 管理画面のUI配置設定（管理者は右側、ユーザーは左側）
-        const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
-        const bgColor = isAdmin ? '#d1e7dd' : '#f1f3f4';
-        const borderColor = isAdmin ? '#badbcc' : '#ced4da';
-        const textColor = '#333333';
-        const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
-
-                const bubbleHtml = `
-                    <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
-                        <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
-                        <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; text-align:left; word-break:break-all; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                            <div style="color:${textColor}; font-size:13px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+                // 親ノードのメッセージがあれば先頭にユーザーの発言として表示
+                if (initialMsg) {
+                    const firstBubbleHtml = `
+                        <div style="display:flex; flex-direction:column; align-items:flex-start; margin-bottom:12px; width:100%;">
+                            <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(displayName)}</div>
+                            <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:#f1f3f4; border:1px solid #ced4da; color:#333333; text-align:left; word-break:break-all; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                <div style="color:#333333; font-size:13px; line-height:1.4;">${escapeHtml(initialMsg).replace(/\n/g, '<br>')}</div>
+                            </div>
                         </div>
-                    </div>
-                `;
-                historyList.insertAdjacentHTML('beforeend', bubbleHtml);
-            });
+                    `;
+                    historyList.insertAdjacentHTML('beforeend', firstBubbleHtml);
+                }
 
-            historyList.scrollTop = historyList.scrollHeight;
+                if (rawData) {
+                    Object.keys(rawData).forEach(function(msgKey) {
+                        const item = rawData[msgKey];
+                        if (typeof item !== 'object' || item === null) return;
+
+                        const msgText = item.text || item.message || item.content || '';
+                        if (!msgText) return;
+
+                        // 送信者判定（管理者からのメッセージかどうか）
+                        const isAdmin = (item.role === 'admin') || 
+                                        (item.isAdmin === true) || 
+                                        (item.senderName === 'サポート事務局');
+
+                        // 管理画面のUI配置設定（管理者は右側・緑色、ユーザーは左側・グレー）
+                        const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
+                        const bgColor = isAdmin ? '#d1e7dd' : '#f1f3f4';
+                        const borderColor = isAdmin ? '#badbcc' : '#ced4da';
+                        const textColor = '#333333';
+                        const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
+
+                        const bubbleHtml = `
+                            <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
+                                <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
+                                <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; text-align:left; word-break:break-all; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                    <div style="color:${textColor}; font-size:13px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+                                </div>
+                            </div>
+                        `;
+                        historyList.insertAdjacentHTML('beforeend', bubbleHtml);
+                    });
+                }
+
+                historyList.scrollTop = historyList.scrollHeight;
+            });
         });
     };
 
@@ -602,43 +620,43 @@
         if (activeReplyRef) { activeReplyRef.off(); activeReplyRef = null; }
     };
 
-  window.sendReplySubmit = function() {
-    const msgInput = document.getElementById('reply-input-message');
-    const msgText = msgInput ? msgInput.value.trim() : '';
-    if (!msgText) return alert('メッセージを入力してください。');
+    window.sendReplySubmit = function() {
+        const msgInput = document.getElementById('reply-input-message');
+        const msgText = msgInput ? msgInput.value.trim() : '';
+        if (!msgText) return alert('メッセージを入力してください。');
 
-    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const targetKey = currentReplyItemKey || 'INQ-5001';
+        const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const targetKey = currentReplyItemKey || 'INQ-5001';
 
-    const newMsgObj = {
-        own: false,
-        role: 'admin',
-        isAdmin: true,
-        senderName: 'サポート事務局',
-        text: msgText,
-        message: msgText,
-        time: nowTime,
-        timestamp: new Date().toLocaleString('ja-JP')
+        const newMsgObj = {
+            own: false,
+            role: 'admin',
+            isAdmin: true,
+            senderName: 'サポート事務局',
+            text: msgText,
+            message: msgText,
+            time: nowTime,
+            timestamp: new Date().toLocaleString('ja-JP')
+        };
+
+        // 1. 現在選択されている問い合わせキーに保存
+        db.ref(`admin_data/contact_replies/${targetKey}`).push(newMsgObj);
+
+        // 2. ユーザーアプリ側が直接監視している 'INQ-5001' にも同時に保存
+        if (targetKey !== 'INQ-5001') {
+            db.ref('admin_data/contact_replies/INQ-5001').push(newMsgObj);
+        }
+
+        // お問い合わせ親ノードのステータス更新
+        db.ref(`admin_data/inquiries/${targetKey}`).update({
+            status: '返信済み',
+            verified: true,
+            lastMessage: msgText,
+            updatedAt: new Date().toLocaleString('ja-JP')
+        });
+
+        msgInput.value = '';
     };
-
-    // 1. 現在選択されている問い合わせキーに保存
-    db.ref(`admin_data/contact_replies/${targetKey}`).push(newMsgObj);
-
-    // 2. ユーザーアプリ側が直接監視している 'INQ-5001' にも同時に保存
-    if (targetKey !== 'INQ-5001') {
-        db.ref('admin_data/contact_replies/INQ-5001').push(newMsgObj);
-    }
-
-    // お問い合わせ親ノードのステータス更新
-    db.ref(`admin_data/inquiries/${targetKey}`).update({
-        status: '返信済み',
-        verified: true,
-        lastMessage: msgText,
-        updatedAt: new Date().toLocaleString('ja-JP')
-    });
-
-    msgInput.value = '';
-};
 
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
