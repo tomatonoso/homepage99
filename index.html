@@ -3846,17 +3846,18 @@ window.openRequestChat = function(id) {
                 key = Object.keys(inqData)[0];
             }
 
-            // keyが取得できなくてもフォールバック用パスに保存して確実にデータを届ける
-            const targetKey = key || 'general';
+            // 3850行目：keyが取れない場合は受信側と同じ 'INQ-5001' をデフォルトにする
+const targetKey = key || window.currentReplyItemKey || 'INQ-5001';
 
-            // 1. 返信データを追加
-            db.ref(`admin_data/contact_replies/${targetKey}`).push({
-                senderName: 'ユーザー',
-                role: 'user',
-                message: text,
-                text: text,
-                timestamp: new Date().toLocaleString('ja-JP')
-            });
+// 1. 返信データを追加
+db.ref(`admin_data/contact_replies/${targetKey}`).push({
+    senderName: 'わたし',
+    role: 'user',
+    own: true,             // ユーザー自身のメッセージ判定用
+    message: text,
+    text: text,
+    timestamp: new Date().toLocaleString('ja-JP')
+});
 
             // 2. お問い合わせ親データのステータス・最終更新日・未読フラグを更新（管理画面側のリアルタイム反映用）
             if (key) {
