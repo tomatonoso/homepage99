@@ -242,7 +242,7 @@
         reports: { path: 'admin_data/reports', headers: ['確認', '通報ID', '通報者', '対象コンテンツ/ユーザー', '通報理由・詳細', 'ステータス', '対応アクション', '発生日時'], fields: ['verified', 'id', 'reporterName', 'targetInfo', 'reason', 'statusBadge', 'reportActionBtn', 'createdAt'] },
         news: { path: 'admin_data/news', headers: ['確認', 'お知らせID', 'タイトル', '配信本文', '投稿者', '投稿日時'], fields: ['verified', 'id', 'title', 'content', 'author', 'createdAt'] },
         faqs: { path: 'admin_data/faqs', headers: ['確認', 'FAQ-ID', '質問 (Q)', '回答 (A)', '更新日時'], fields: ['verified', 'id', 'question', 'answer', 'createdAt'] },
-        contacts: { path: 'admin_data/contacts', headers: ['確認', '問合せID', '返信・履歴', 'お名前', 'メールアドレス', 'お問い合わせ内容', 'ステータス', '受付日時'], fields: ['verified', 'id', 'replyBtn', 'name', 'email', 'messageContent', 'statusBadge', 'createdAt'] },
+       inquiries: { path: 'admin_data/inquiries', headers: ['確認', '問合せID', '返信・履歴', 'お名前', 'メールアドレス', 'お問い合わせ内容', 'ステータス', '受付日時'], fields: ['verified', 'id', 'replyBtn', 'userName', 'email', 'message', 'statusBadge', 'createdAt'] },
         refunds: { path: 'admin_data/refunds', headers: ['確認', '取引ID', '購入者', '出品者', '対象商品・取引名', '決済金額 (円)', '決済ステータス', '返金・保留操作', '取引日時'], fields: ['verified', 'id', 'buyerName', 'sellerName', 'itemTitle', 'amount', 'statusBadge', 'refundActionBtn', 'createdAt'] },
         logs: { path: 'admin_data/logs', headers: ['ログID', '操作内容', '対象・詳細', '実行者', '実行日時'], fields: ['id', 'action', 'detail', 'operator', 'createdAt'] }
     };
