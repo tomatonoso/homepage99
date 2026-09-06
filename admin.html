@@ -547,44 +547,46 @@ window.openReplyModal = function(key, name, email, message) {
 
         if (activeReplyRef) activeReplyRef.off();
 
-        // 読み込みパスをユーザー共通メッセージパスに統一
-        activeReplyRef = db.ref(`admin_data/contact_replies/${key}/messages`);
+        const historyList = document.getElementById('reply-history-list');
+        if (!historyList) return;
+
+        // ユーザー画面と同じ "chats" ノードを直接参照
+        activeReplyRef = db.ref(`chats/${key}`);
         activeReplyRef.on('value', function(snapshot) {
-            const historyList = document.getElementById('reply-history-list');
-            if (!historyList) return;
-
             historyList.innerHTML = '';
-            const historyData = snapshot.val();
+            const rawData = snapshot.val();
 
-            if (!historyData) {
-                // messages配下にない場合、旧データ構造(直下)を試行
-                db.ref(`admin_data/contact_replies/${key}`).once('value', function(oldSnap) {
-                    const oldData = oldSnap.val();
-                    if (oldData && !oldData.messages) {
-                        renderHistory(oldData, historyList, displayName);
+            if (!rawData) {
+                // chats側になければ admin_data/contact_replies 側を試行 (フォールバック)
+                db.ref(`admin_data/contact_replies/${key}`).once('value', function(fallbackSnap) {
+                    const fbData = fallbackSnap.val();
+                    if (fbData) {
+                        const msgData = fbData.messages ? fbData.messages : fbData;
+                        renderChatBubbles(msgData, historyList, displayName);
                     } else {
-                        historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
+                        historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージ履歴はありません</div>';
                     }
                 });
                 return;
             }
 
-            renderHistory(historyData, historyList, displayName);
+            const historyData = rawData.messages ? rawData.messages : rawData;
+            renderChatBubbles(historyData, historyList, displayName);
         });
     };
 
-    // 描画共通関数
-    function renderHistory(historyData, historyList, displayName) {
+    function renderChatBubbles(historyData, historyList, displayName) {
         historyList.innerHTML = '';
         Object.keys(historyData).forEach(function(msgKey) {
             const item = historyData[msgKey];
             if (typeof item !== 'object' || item === null) return;
 
-            // 管理者メッセージ判定（senderName, role, isAdmin, または user/admin区分）
+            // 管理者メッセージ判定（サポート事務局・adminフラグ・または own===false の場合）
             const isAdmin = (item.role === 'admin') || 
                             (item.isAdmin === true) || 
                             (item.senderName === 'サポート事務局') ||
-                            (item.sender === 'admin');
+                            (item.sender === 'admin') ||
+                            (item.own === false);
 
             const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
             const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
@@ -617,7 +619,6 @@ window.openReplyModal = function(key, name, email, message) {
         }
 
         const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const targetChatPath = `admin_data/contact_replies/${currentReplyItemKey}`;
 
         const newMsgObj = {
             own: false,
@@ -630,18 +631,17 @@ window.openReplyModal = function(key, name, email, message) {
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        db.ref(`${targetChatPath}/messages`).push(newMsgObj, function(err) {
+        // chats ノードへ返信を直接書き込み（ユーザー画面にも即時届く）
+        db.ref(`chats/${currentReplyItemKey}/messages`).push(newMsgObj, function(err) {
             if (err) {
-                alert('送信エラーが発生しました: ' + err.message);
-                return;
+                // モーダルが直接配列/オブジェクト構造で保存されている場合のフォールバック
+                db.ref(`chats/${currentReplyItemKey}`).push(newMsgObj);
             }
 
-            db.ref(targetChatPath).update({
-                unread: true,
-                lastMessage: msgText,
-                lastTime: nowTime
-            });
+            // バックアップ用にも保存
+            db.ref(`admin_data/contact_replies/${currentReplyItemKey}/messages`).push(newMsgObj);
 
+            // ステータス更新
             db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
                 status: '返信済み',
                 verified: true
@@ -654,7 +654,6 @@ window.openReplyModal = function(key, name, email, message) {
             msgInput.value = '';
         });
     };
-
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
             const data = snapshot.val() || {};
