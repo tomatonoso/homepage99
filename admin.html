@@ -710,6 +710,51 @@ window.viewKycImage = function(imageUrl, userName) {
             </html>
         `);
     };
+// KYCステータス更新処理
+window.updateKycStatus = function(key, newStatus) {
+    if (!key) return;
+    
+    // 1. Firebase Realtime Database のステータスを更新
+    db.ref(`admin_data/users/${key}`).update({
+        kycStatus: newStatus
+    }, (err) => {
+        if (err) {
+            alert('ステータス更新に失敗しました: ' + err.message);
+            return;
+        }
+        
+        // ログ記録
+        if (typeof addAuditLog === 'function') {
+            addAuditLog('KYCステータス変更', `ユーザーKey: ${key} -> ${newStatus}`);
+        }
+        alert(`KYCステータスを「${newStatus}」に変更しました。`);
+    });
+
+    // 2. スプレッドシート（Google Apps Script）へ更新情報を送信する場合
+    sendKycStatusToSpreadsheet(key, newStatus);
+};
+
+// スプレッドシート（GAS）送信関数
+function sendKycStatusToSpreadsheet(userKey, kycStatus) {
+    // ★ご自身のGoogle Apps Script (GAS) Web App URLを設定してください
+    const gasUrl = 'https://script.google.com/macros/s/YOUR_GAS_SCRIPT_ID/exec';
+    
+    if (gasUrl.includes('YOUR_GAS_SCRIPT_ID')) return; // URL未設定時はスキップ
+
+    const payload = {
+        action: 'updateKycStatus',
+        userKey: userKey,
+        kycStatus: kycStatus,
+        updatedAt: new Date().toLocaleString('ja-JP')
+    };
+
+    fetch(gasUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    }).catch(err => console.error('スプレッドシート送信エラー:', err));
+}
     </script>
 </body>
 </html>
