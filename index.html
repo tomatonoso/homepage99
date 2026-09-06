@@ -6747,11 +6747,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupRealtimeChat() {
         if (typeof db === 'undefined') return;
 
-        // 描画エリアの取得
-        const messagesDiv = document.querySelector('.chat-detail-modal .chat-body')
-                          || document.querySelector('.chat-detail-modal > div:nth-child(2)')
-                          || document.querySelector('#chat-modal .chat-body');
-
+        // メッセージ表示枠 (.chat-messages) をピンポイント指定
+        const messagesDiv = document.querySelector('.chat-messages');
         if (!messagesDiv) return;
 
         db.ref('chats/admin-1/messages').on('value', function(snapshot) {
@@ -6780,19 +6777,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 messagesDiv.insertAdjacentHTML('beforeend', bubbleHtml);
             });
 
+            // 自動で最下部へスクロール
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
     }
 
-    // 2. 送信イベントの強制バインド
+    // 2. 送信ボタンとEnterキーのイベント紐付け
     function attachChatEvents() {
-        const sendBtn = document.querySelector('.chat-detail-modal button') 
-                     || document.querySelector('#chat-modal button')
-                     || document.querySelector('.chat-panel button');
+        const sendBtn = document.querySelector('.chat-input-area button') 
+                     || document.querySelector('.chat-input-area a')
+                     || document.querySelector('.chat-input-area img')?.parentElement;
 
-        const inputEl = document.getElementById('chat-input-msg') 
-                     || document.querySelector('.chat-detail-modal input')
-                     || document.querySelector('#chat-modal input');
+        const inputEl = document.getElementById('chat-input-msg');
 
         if (sendBtn) {
             sendBtn.onclick = function(e) {
@@ -6815,16 +6811,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // エスケープ処理（未定義時用）
     function escapeHtml(str) {
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    // 実行と DOM 監視
     setupRealtimeChat();
     attachChatEvents();
 
+    // 動的更新への対応
     const observer = new MutationObserver(function() {
         setupRealtimeChat();
         attachChatEvents();
