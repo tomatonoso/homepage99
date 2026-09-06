@@ -3809,7 +3809,7 @@ window.openRequestChat = function(id) {
     if (typeof openModal === 'function') openModal('request-chat-modal');
 };
 
-      window.sendChatMessage = function() {
+    window.sendChatMessage = function() {
     const input = document.getElementById('chat-input-msg') || document.querySelector('.chat-detail-modal input, .chat-panel input');
     const text = (input && input.value || '').trim();
 
@@ -3820,29 +3820,16 @@ window.openRequestChat = function(id) {
 
     const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // 1. ローカル配列 (chatConversations) の更新
-    if (typeof chatConversations !== 'undefined') {
-        const targetConv = chatConversations.find(c => c.id === 'admin-1');
-        if (targetConv) {
-            if (!targetConv.messages) targetConv.messages = [];
-            targetConv.messages.push({ own: true, text: text, time: nowTime });
-            targetConv.lastMessage = text;
-            targetConv.lastTime = nowTime;
-        }
-    }
-
-    // 2. Firebase への保存
     if (typeof db !== 'undefined' && db) {
-        // 対象の問い合わせキー（key）を取得して書き込み
         db.ref('admin_data/inquiries').limitToLast(1).once('value', function(snapshot) {
             const inqData = snapshot.val();
-            let targetKey = 'INQ-5001'; // デフォルト
+            let targetKey = 'INQ-5001';
 
             if (inqData) {
                 targetKey = Object.keys(inqData)[0] || targetKey;
             }
 
-            // A. お問い合わせ返信ノードへ追記（管理画面がモーダルで参照する場所）
+            // お問い合わせ返信ノードへ追記保存（唯一の保存先）
             db.ref(`admin_data/contact_replies/${targetKey}`).push({
                 own: true,
                 role: 'user',
@@ -3853,18 +3840,7 @@ window.openRequestChat = function(id) {
                 timestamp: new Date().toLocaleString('ja-JP')
             });
 
-            // B. 互換性のために chats/admin-1/messages にも追記
-            db.ref('chats/admin-1/messages').push({
-                own: true,
-                role: 'user',
-                senderName: 'わたし',
-                text: text,
-                message: text,
-                time: nowTime,
-                timestamp: new Date().toLocaleString('ja-JP')
-            });
-
-            // C. お問い合わせ親データのステータス更新
+            // 親ステータスの更新
             db.ref(`admin_data/inquiries/${targetKey}`).update({
                 status: '未返信',
                 verified: false,
@@ -5293,47 +5269,43 @@ function initFirebaseChatSync() {
     }
     if (typeof db === 'undefined') return;
 
-    // chats/admin-1 全体を監視して messages と直下データ（unread等）の両方を取得
-    db.ref('chats/admin-1').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-
+    // 問い合わせ返信ノードを直接監視
+    db.ref('admin_data/contact_replies/INQ-5001').on('value', (snapshot) => {
+        const rawData = snapshot.val();
         const targetConv = chatConversations.find(c => c.id === 'admin-1');
         if (!targetConv) return;
 
-        // Firebaseの messages オブジェクトまたは直下メッセージを配列に変換
-        let msgArray = [];
-        if (data.messages && typeof data.messages === 'object') {
-            msgArray = Array.isArray(data.messages) 
-                ? data.messages 
-                : Object.values(data.messages);
+        if (!rawData) {
+            targetConv.messages = [];
+            return;
         }
 
-        targetConv.messages = msgArray;
+        const msgList = Object.keys(rawData).map(key => {
+            const item = rawData[key];
+            const isUser = (item.role === 'user' || item.own === true);
+            return {
+                own: isUser,
+                text: item.text || item.message || '',
+                time: item.time || ''
+            };
+        });
 
-        // 最終メッセージの更新
-        const lastMsg = targetConv.messages[targetConv.messages.length - 1];
-        if (lastMsg) {
-            targetConv.lastMessage = lastMsg.text || lastMsg.message || '';
-            targetConv.lastTime = lastMsg.time || '';
+        targetConv.messages = msgList;
+
+        if (msgList.length > 0) {
+            const lastMsg = msgList[msgList.length - 1];
+            targetConv.lastMessage = lastMsg.text;
+            targetConv.lastTime = lastMsg.time;
         }
 
-        // 未読数の更新
-        if (data.unread !== undefined) {
-            targetConv.unread = data.unread;
-        }
-
-        // チャット画面が開いている場合の再描画処理
+        // 画面の再描画
         if (typeof renderChatMessages === 'function') {
             renderChatMessages('admin-1');
         } else if (typeof renderMessages === 'function') {
             renderMessages();
-        } else if (typeof updateChatUI === 'function') {
-            updateChatUI();
         }
     });
 }
-
 document.addEventListener('DOMContentLoaded', initFirebaseChatSync);
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     initFirebaseChatSync();
