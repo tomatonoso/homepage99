@@ -550,63 +550,64 @@ window.openReplyModal = function(key, name, email, message) {
         const historyList = document.getElementById('reply-history-list');
         if (!historyList) return;
 
-        // ユーザー側が固定で利用している "chats/admin-1" または固有キーパスを両方参照
-        const targetPath = (key && key !== 'undefined') ? `chats/${key}` : 'chats/admin-1';
-
-        activeReplyRef = db.ref(targetPath);
+        // chats/admin-1 への参照
+        activeReplyRef = db.ref('chats/admin-1');
+        
         activeReplyRef.on('value', function(snapshot) {
-            historyList.innerHTML = '';
-            let rawData = snapshot.val();
-
-            // targetPathでデータが取得できない場合は "chats/admin-1" をフォールバック取得
-            if (!rawData && targetPath !== 'chats/admin-1') {
-                db.ref('chats/admin-1').once('value', function(fallbackSnap) {
-                    const fbData = fallbackSnap.val();
-                    if (fbData) {
-                        const msgData = fbData.messages ? fbData.messages : fbData;
-                        renderChatBubbles(msgData, historyList, displayName);
-                    } else {
-                        historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージ履歴はありません</div>';
-                    }
-                });
-                return;
-            }
-
+            const rawData = snapshot.val();
+            
             if (!rawData) {
-                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージ履歴はありません</div>';
+                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
                 return;
             }
 
-            const historyData = rawData.messages ? rawData.messages : rawData;
-            renderChatBubbles(historyData, historyList, displayName);
+            // 直下と messages 配下のデータをマージして抽出
+            let allMessages = {};
+
+            if (rawData.messages && typeof rawData.messages === 'object') {
+                Object.assign(allMessages, rawData.messages);
+            }
+
+            // 直下に存在するメッセージオブジェクトも統合
+            Object.keys(rawData).forEach(function(k) {
+                if (k !== 'messages' && typeof rawData[k] === 'object' && rawData[k] !== null) {
+                    allMessages[k] = rawData[k];
+                }
+            });
+
+            renderChatBubbles(allMessages, historyList, displayName);
         });
     };
 
-    function renderChatBubbles(historyData, historyList, displayName) {
-        historyList.innerHTML = '';
-        Object.keys(historyData).forEach(function(msgKey) {
-            const item = historyData[msgKey];
-            if (typeof item !== 'object' || item === null) return;
+    function renderChatBubbles(messagesObj, container, displayName) {
+        container.innerHTML = '';
 
-            // 送信者判定
-            // own === false または senderName/role が管理者の場合は右側（緑）
-            // own === true または それ以外はユーザー（左側・白）
-            let isAdmin = false;
+        const keys = Object.keys(messagesObj);
+        if (keys.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
+            return;
+        }
 
-            if (item.role === 'admin' || item.isAdmin === true || item.senderName === 'サポート事務局' || item.sender === 'admin') {
-                isAdmin = true;
-            } else if (item.own === false) {
-                isAdmin = true;
-            }
+        // タイムスタンプ順などに整列可能な配列を作成
+        const list = keys.map(k => messagesObj[k]).filter(item => typeof item === 'object' && item !== null);
+
+        list.forEach(function(item) {
+            const msgText = item.text || item.message || item.content || '';
+            if (!msgText) return;
+
+            // 送信者判定ロジック
+            // isAdmin, role==='admin', senderName==='サポート事務局' のいずれかに当てはまる場合は管理者（右・緑）
+            // それ以外（own===true または ユーザー送信）はユーザー（左・白）
+            const isAdmin = (item.role === 'admin') || 
+                            (item.isAdmin === true) || 
+                            (item.senderName === 'サポート事務局') || 
+                            (item.sender === 'admin');
 
             const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
             const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
             const borderColor = isAdmin ? '#badbcc' : '#ced4da';
             const textColor = '#333333';
             const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
-            
-            const msgText = item.text || item.message || item.content || '';
-            if (!msgText) return;
 
             const bubbleHtml = `
                 <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
@@ -616,12 +617,13 @@ window.openReplyModal = function(key, name, email, message) {
                     </div>
                 </div>
             `;
-            historyList.insertAdjacentHTML('beforeend', bubbleHtml);
+            container.insertAdjacentHTML('beforeend', bubbleHtml);
         });
-        historyList.scrollTop = historyList.scrollHeight;
+
+        container.scrollTop = container.scrollHeight;
     }
 
-  window.sendReplySubmit = function() {
+    window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
         if (!msgText) return alert('メッセージを入力してください。');
@@ -639,21 +641,16 @@ window.openReplyModal = function(key, name, email, message) {
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        // ユーザーアプリおよび管理者モーダルの監視階層（chats/admin-1 直下）へ直接push
-        const targetRef = db.ref('chats/admin-1');
-
-        targetRef.push(newMsgObj, function(err) {
+        // chats/admin-1 直下と messages 配下の両方に同時に送信・同期
+        db.ref('chats/admin-1').push(newMsgObj, function(err) {
             if (err) {
                 alert('送信エラーが発生しました: ' + err.message);
                 return;
             }
 
-            // 万一 /messages 階層側で受信している画面用のフォールバック送信
             db.ref('chats/admin-1/messages').push(newMsgObj);
 
-            // 問い合わせ管理用のステータス更新・履歴保存
             if (currentReplyItemKey && currentReplyItemKey !== 'undefined') {
-                db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push(newMsgObj);
                 db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
                     status: '返信済み',
                     verified: true
@@ -664,7 +661,6 @@ window.openReplyModal = function(key, name, email, message) {
                 addAuditLog('問い合わせ返信', `メッセージ送信: ${msgText}`);
             }
 
-            // 入力欄のクリア
             msgInput.value = '';
         });
     };
