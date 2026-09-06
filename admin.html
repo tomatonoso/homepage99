@@ -550,78 +550,53 @@ window.openReplyModal = function(key, name, email, message) {
         const historyList = document.getElementById('reply-history-list');
         if (!historyList) return;
 
-        // chats/admin-1 への参照
-        activeReplyRef = db.ref('chats/admin-1');
-        
+        // ユーザーアプリが書き込んでいる chats/admin-1/messages を直接リアルタイム監視
+        activeReplyRef = db.ref('chats/admin-1/messages');
+
         activeReplyRef.on('value', function(snapshot) {
+            historyList.innerHTML = '';
             const rawData = snapshot.val();
-            
+
             if (!rawData) {
                 historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
                 return;
             }
 
-            // 直下と messages 配下のデータをマージして抽出
-            let allMessages = {};
+            Object.keys(rawData).forEach(function(msgKey) {
+                const item = rawData[msgKey];
+                if (typeof item !== 'object' || item === null) return;
 
-            if (rawData.messages && typeof rawData.messages === 'object') {
-                Object.assign(allMessages, rawData.messages);
-            }
+                const msgText = item.text || item.message || item.content || '';
+                if (!msgText) return;
 
-            // 直下に存在するメッセージオブジェクトも統合
-            Object.keys(rawData).forEach(function(k) {
-                if (k !== 'messages' && typeof rawData[k] === 'object' && rawData[k] !== null) {
-                    allMessages[k] = rawData[k];
+                // 送信者判定
+                // role==='admin' または own===false または isAdmin===true の場合は管理者（右・緑）
+                // own===true または それ以外はユーザー（左・白）
+                let isAdmin = false;
+                if (item.role === 'admin' || item.isAdmin === true || item.senderName === 'サポート事務局' || item.own === false) {
+                    isAdmin = true;
                 }
+
+                const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
+                const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
+                const borderColor = isAdmin ? '#badbcc' : '#ced4da';
+                const textColor = '#333333';
+                const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
+
+                const bubbleHtml = `
+                    <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
+                        <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
+                        <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; text-align:left; word-break:break-all; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="color:${textColor}; font-size:13px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+                        </div>
+                    </div>
+                `;
+                historyList.insertAdjacentHTML('beforeend', bubbleHtml);
             });
 
-            renderChatBubbles(allMessages, historyList, displayName);
+            historyList.scrollTop = historyList.scrollHeight;
         });
     };
-
-    function renderChatBubbles(messagesObj, container, displayName) {
-        container.innerHTML = '';
-
-        const keys = Object.keys(messagesObj);
-        if (keys.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
-            return;
-        }
-
-        // タイムスタンプ順などに整列可能な配列を作成
-        const list = keys.map(k => messagesObj[k]).filter(item => typeof item === 'object' && item !== null);
-
-        list.forEach(function(item) {
-            const msgText = item.text || item.message || item.content || '';
-            if (!msgText) return;
-
-            // 送信者判定ロジック
-            // isAdmin, role==='admin', senderName==='サポート事務局' のいずれかに当てはまる場合は管理者（右・緑）
-            // それ以外（own===true または ユーザー送信）はユーザー（左・白）
-            const isAdmin = (item.role === 'admin') || 
-                            (item.isAdmin === true) || 
-                            (item.senderName === 'サポート事務局') || 
-                            (item.sender === 'admin');
-
-            const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
-            const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
-            const borderColor = isAdmin ? '#badbcc' : '#ced4da';
-            const textColor = '#333333';
-            const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
-
-            const bubbleHtml = `
-                <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
-                    <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
-                    <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; text-align:left; word-break:break-all; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                        <div style="color:${textColor}; font-size:13px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', bubbleHtml);
-        });
-
-        container.scrollTop = container.scrollHeight;
-    }
 
     window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
@@ -641,15 +616,20 @@ window.openReplyModal = function(key, name, email, message) {
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        // chats/admin-1 直下と messages 配下の両方に同時に送信・同期
-        db.ref('chats/admin-1').push(newMsgObj, function(err) {
+        // ユーザー側が読み込んでいる chats/admin-1/messages へ保存
+        db.ref('chats/admin-1/messages').push(newMsgObj, function(err) {
             if (err) {
                 alert('送信エラーが発生しました: ' + err.message);
                 return;
             }
 
-            db.ref('chats/admin-1/messages').push(newMsgObj);
+            // chats/admin-1 の最終メッセージ更新
+            db.ref('chats/admin-1').update({
+                lastMessage: msgText,
+                lastTime: nowTime
+            });
 
+            // ステータス更新
             if (currentReplyItemKey && currentReplyItemKey !== 'undefined') {
                 db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
                     status: '返信済み',
