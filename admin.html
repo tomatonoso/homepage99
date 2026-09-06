@@ -258,21 +258,34 @@
         });
     }
 
-    function checkAndSeedData(callback) {
-        db.ref('admin_data/users').once('value', (snap) => {
-            if (!snap.exists()) {
-                db.ref('admin_data/users').push().set({ id: 'USR-101', verified: true, name: '山田 太郎', email: 'yamada@example.com', kycStatus: '承認済み', status: '正常', createdAt: new Date().toLocaleString('ja-JP') });
-            }
-        });
-        db.ref('admin_data/refunds').once('value', (snap) => {
-            if (!snap.exists()) {
-                db.ref('admin_data/refunds').push().set({ id: 'PAY-7001', verified: false, buyerName: '佐藤 花子', sellerName: '山田 太郎', itemTitle: '一眼レフカメラレンズ', amount: 48000, status: '売上保留中', createdAt: new Date().toLocaleString('ja-JP') });
-                db.ref('admin_data/refunds').push().set({ id: 'PAY-7002', verified: true, buyerName: '鈴木 一郎', sellerName: '高橋 健太', itemTitle: 'ヴィンテージ時計', amount: 120000, status: '通常決済完了', createdAt: new Date().toLocaleString('ja-JP') });
-            }
-        });
-        if (callback) callback();
-    }
-
+   function checkAndSeedData(callback) {
+    db.ref('admin_data/users').once('value', (snap) => {
+        if (!snap.exists()) {
+            db.ref('admin_data/users').push().set({ id: 'USR-101', verified: true, name: '山田 太郎', email: 'yamada@example.com', kycStatus: '承認済み', status: '正常', createdAt: new Date().toLocaleString('ja-JP') });
+        }
+    });
+    db.ref('admin_data/refunds').once('value', (snap) => {
+        if (!snap.exists()) {
+            db.ref('admin_data/refunds').push().set({ id: 'PAY-7001', verified: false, buyerName: '佐藤 花子', sellerName: '山田 太郎', itemTitle: '一眼レフカメラレンズ', amount: 48000, status: '売上保留中', createdAt: new Date().toLocaleString('ja-JP') });
+            db.ref('admin_data/refunds').push().set({ id: 'PAY-7002', verified: true, buyerName: '鈴木 一郎', sellerName: '高橋 健太', itemTitle: 'ヴィンテージ時計', amount: 120000, status: '通常決済完了', createdAt: new Date().toLocaleString('ja-JP') });
+        }
+    });
+    // ★ 購入リクエストの初期データ作成を追加
+    db.ref('admin_data/buy_requests').once('value', (snap) => {
+        if (!snap.exists()) {
+            db.ref('admin_data/buy_requests').push().set({
+                id: 'REQ-3001',
+                verified: false,
+                requestTitle: 'MacBook Pro M2 16インチ',
+                requesterName: '佐藤 花子',
+                budget: 180000,
+                status: '受付中',
+                createdAt: new Date().toLocaleString('ja-JP')
+            });
+        }
+    });
+    if (callback) callback();
+}
     window.switchAdminTab = function(tabKey, element) {
         currentAdminTab = tabKey;
         document.querySelectorAll('.sheet-tab').forEach(btn => btn.classList.remove('active'));
