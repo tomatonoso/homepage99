@@ -5303,9 +5303,10 @@ function initFirebaseChatSync() {
         // 描画更新
         if (typeof renderChatList === 'function') renderChatList();
         if (typeof updateChatBadge === 'function') updateChatBadge();
-        if (typeof renderChatMessages === 'function' && typeof currentChatId !== 'undefined' && currentChatId === 'admin-1') {
-            renderChatMessages('admin-1');
-        }
+       if (typeof renderChatMessages === 'function' && typeof currentChatId !== 'undefined' && currentChatId === 'admin-1') {
+    const adminConv = chatConversations.find(c => c.id === 'admin-1');
+    if (adminConv) renderChatMessages(adminConv);
+}
     });
 }
 
@@ -5339,10 +5340,8 @@ window.openChatDetail = function(chatId) {
         titleElem.innerText = conv.title;
     }
 
-    // メッセージ配列を安全に抽出して描画
-    const messages = Array.isArray(conv.messages) ? conv.messages : (Array.isArray(conv) ? conv : []);
-    renderChatMessages(messages);
-
+    renderChatMessages(conv);
+  
     // 既読にする
     conv.unread = false;
     if (typeof updateChatBadge === 'function') {
@@ -5379,12 +5378,16 @@ function renderChatMessages(conv) {
     const titleDiv = document.getElementById('chat-detail-title');
     const productTitleDiv = document.getElementById('chat-product-title');
 
-    // 1. conv が undefined や配列で渡された場合の安全補正
-    if (!conv || typeof conv !== 'object') {
-        conv = { userName: 'チャット', messages: [] };
+    // 文字列(ID)が渡された場合はオブジェクトを取得する
+    if (typeof conv === 'string') {
+        conv = chatConversations.find(c => c.id === conv) || { userName: 'チャット', messages: [] };
     } else if (Array.isArray(conv)) {
         conv = { userName: 'チャット', messages: conv };
+    } else if (!conv || typeof conv !== 'object') {
+        conv = { userName: 'チャット', messages: [] };
     }
+    
+    // 以下、元々の処理 (5389行目以降) に続く...
 
     // 2. タイトルの安全な表示
     if (titleDiv) {
