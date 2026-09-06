@@ -3840,7 +3840,7 @@ window.openRequestChat = function(id) {
                 timestamp: new Date().toLocaleString('ja-JP')
     });
 
-    // 親ステータスの更新
+   // 親ステータスの更新
     db.ref(`admin_data/inquiries/${targetKey}`).update({
         status: '未返信',
         verified: false,
@@ -3851,8 +3851,12 @@ window.openRequestChat = function(id) {
     if (input) input.value = '';
 
     // 3. UIの再描画
-    if (typeof renderChatMessages === 'function') renderChatMessages('admin-1');
-    if (typeof renderChatList === 'function') renderChatList();
+    if (typeof renderChatMessages === 'function') {
+        renderChatMessages('admin-1');
+    }
+    if (typeof renderChatList === 'function') {
+        renderChatList();
+    }
 };
 
 window.sendPriceProposal = function() {
