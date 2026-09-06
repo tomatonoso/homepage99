@@ -530,68 +530,68 @@
         });
     };
 
-    // お問い合わせ返信モーダルを開く関数
-    window.openReplyModal = function(key, name, email, message) {
-        currentReplyItemKey = key;
-        
-        const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
-        const displayEmail = (email && email !== 'undefined') ? email : '未設定';
-        const displayMsg = (message && message !== 'undefined') ? message : '';
+   // お問い合わせ返信モーダルを開く関数
+window.openReplyModal = function(key, name, email, message) {
+    currentReplyItemKey = key;
+    
+    const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
+    const displayEmail = (email && email !== 'undefined') ? email : '未設定';
+    const displayMsg = (message && message !== 'undefined') ? message : '';
 
-        const infoEl = document.getElementById('reply-target-info');
-        if (infoEl) {
-            infoEl.innerHTML = `<strong>お名前:</strong> ${displayName} 様 &nbsp;|&nbsp; <strong>メール:</strong> ${displayEmail}<br><strong>内容:</strong> ${displayMsg}`;
+    const infoEl = document.getElementById('reply-target-info');
+    if (infoEl) {
+        infoEl.innerHTML = `<strong>お名前:</strong> ${displayName} 様 &nbsp;|&nbsp; <strong>メール:</strong> ${displayEmail}<br><strong>内容:</strong> ${displayMsg}`;
+    }
+    
+    const modal = document.getElementById('reply-modal');
+    if (modal) modal.style.display = 'flex';
+
+    if (activeReplyRef) activeReplyRef.off();
+
+    // 問い合わせのやり取り履歴をリアルタイム取得
+    activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
+    activeReplyRef.on('value', (snapshot) => {
+        const historyData = snapshot.val();
+        const historyList = document.getElementById('reply-history-list');
+        if (!historyList) return;
+        
+        historyList.innerHTML = '';
+        if (!historyData) {
+            historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">履歴はありません。</div>';
+            return;
         }
-        
-        const modal = document.getElementById('reply-modal');
-        if (modal) modal.style.display = 'flex';
 
-        if (activeReplyRef) activeReplyRef.off();
-
-        // 問い合わせのやり取り履歴をリアルタイム取得
-        activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
-        activeReplyRef.on('value', (snapshot) => {
-            const historyData = snapshot.val();
-            const historyList = document.getElementById('reply-history-list');
-            if (!historyList) return;
-            
-            historyList.innerHTML = '';
-            if (!historyData) {
-                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">履歴はありません。</div>';
-                return;
-            }
-
-            Object.keys(historyData).forEach(msgKey => {
-                const item = historyData[msgKey];
-                historyList.insertAdjacentHTML('beforeend', `
-                    <div class="chat-bubble ${item.role === 'admin' ? 'admin' : 'user'}">
-                        <div class="meta"><strong>${escapeHtml(item.senderName || 'サポート事務局')}</strong><span>${item.timestamp || ''}</span></div>
-                        <div>${escapeHtml(item.message || '').replace(/\n/g, '<br>')}</div>
-                    </div>
-                `);
-            });
-            historyList.scrollTop = historyList.scrollHeight;
+        Object.keys(historyData).forEach(msgKey => {
+            const item = historyData[msgKey];
+            historyList.insertAdjacentHTML('beforeend', `
+                <div class="chat-bubble ${item.role === 'admin' ? 'admin' : 'user'}">
+                    <div class="meta"><strong>${escapeHtml(item.senderName || 'サポート事務局')}</strong><span>${item.timestamp || ''}</span></div>
+                    <div>${escapeHtml(item.message || '').replace(/\n/g, '<br>')}</div>
+                </div>
+            `);
         });
-    };
+        historyList.scrollTop = historyList.scrollHeight;
+    });
+};
 
-    window.closeReplyModal = function() {
-        document.getElementById('reply-modal').style.display = 'none';
-        if (activeReplyRef) { activeReplyRef.off(); activeReplyRef = null; }
-        currentReplyItemKey = null;
-    };
+window.sendReplySubmit = function() {
+    const msgInput = document.getElementById('reply-input-message');
+    const msgText = msgInput ? msgInput.value.trim() : '';
+    if (!msgText) return alert('メッセージを入力してください。');
+    if (!currentReplyItemKey || currentReplyItemKey === 'undefined') {
+        return alert('送信対象の問い合わせが選択されていません。');
+    }
 
-    window.sendReplySubmit = function() {
-        const msgInput = document.getElementById('reply-input-message');
-        const msgText = msgInput ? msgInput.value.trim() : '';
-        if (!msgText) return alert('メッセージを入力してください。');
-        if (!currentReplyItemKey || currentReplyItemKey === 'undefined') {
-            return alert('送信対象の問い合わせが選択されていません。一度モーダルを閉じて「返信」ボタンを押し直してください。');
-        }
+    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // お問い合わせデータから送信対象ユーザーのIDを取得して送信
+    db.ref(`admin_data/inquiries/${currentReplyItemKey}`).once('value', (snapshot) => {
+        const inqData = snapshot.val() || {};
+        // ユーザーIDが存在すればそのパスへ、無ければ問い合わせKeyのパスへ書き込む
+        const targetChatPath = inqData.userId ? `chats/${inqData.userId}` : `chats/${currentReplyItemKey}`;
 
-        // 1. ユーザー側画面 (chats/admin-1/messages) に即座に届ける
-        db.ref('chats/admin-1/messages').push({
+        // 1. ユーザー側チャット画面へメッセージを追加
+        db.ref(`${targetChatPath}/messages`).push({
             own: false,
             role: 'admin',
             senderName: 'サポート事務局',
@@ -601,7 +601,7 @@
             timestamp: new Date().toLocaleString('ja-JP')
         });
 
-        db.ref('chats/admin-1').update({
+        db.ref(targetChatPath).update({
             unread: true,
             lastMessage: msgText,
             lastTime: nowTime
@@ -627,7 +627,8 @@
 
         msgInput.value = '';
         alert('返信を送信しました。');
-    };
+    });
+};
 
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
