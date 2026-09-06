@@ -530,7 +530,7 @@
         });
     };
 
-  window.openReplyModal = function(key, name, email, message) {
+window.openReplyModal = function(key, name, email, message) {
         currentReplyItemKey = key;
 
         const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
@@ -565,10 +565,12 @@
                 const item = historyData[msgKey];
                 if (typeof item !== 'object' || item === null) return;
 
-                // 管理者（サポート事務局）からのメッセージ判定を厳密化
+                // 送信者の厳密な判定: 
+                // own === false (ユーザー画面から見て相手=管理者) または role === 'admin' または isAdmin === true
                 const isAdmin = (item.role === 'admin') || 
-                                (item.senderName === 'サポート事務局') || 
-                                (item.isAdmin === true);
+                                (item.isAdmin === true) || 
+                                (item.senderName === 'サポート事務局') ||
+                                (item.own === false);
 
                 const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
                 const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
@@ -576,8 +578,10 @@
                 const textColor = '#333333';
                 const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
                 
-                // メッセージ本文の取得（text、message、bodyなど表記ゆれに対応）
-                const msgText = item.text || item.message || item.body || '';
+                // 本文テキストの抽出 (text / message / content 互換)
+                const msgText = item.text || item.message || item.content || '';
+
+                if (!msgText) return; // 空白メッセージはスキップ
 
                 const bubbleHtml = `
                     <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
@@ -595,11 +599,6 @@
         });
     };
 
-    window.closeReplyModal = function() {
-        document.getElementById('reply-modal').style.display = 'none';
-        if (activeReplyRef) { activeReplyRef.off(); activeReplyRef = null; }
-    };
-
     window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
@@ -610,29 +609,35 @@
 
         const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        db.ref(`admin_data/inquiries/${currentReplyItemKey}`).once('value', (snapshot) => {
-            const targetChatPath = `admin_data/contact_replies/${currentReplyItemKey}`;
+        const targetChatPath = `admin_data/contact_replies/${currentReplyItemKey}`;
 
-            // ユーザー側のチャット描画と管理画面側の双方に対応した構造で保存
-            const newMsgObj = {
-                own: false,
-                role: 'admin',
-                senderName: 'サポート事務局',
-                text: msgText,
-                message: msgText,
-                time: nowTime,
-                timestamp: new Date().toLocaleString('ja-JP')
-            };
+        // ユーザー側アプリの構造に合わせてデータを出力
+        const newMsgObj = {
+            own: false,             // ユーザー側からは「相手(管理者)のメッセージ」として扱わせる
+            role: 'admin',
+            isAdmin: true,
+            senderName: 'サポート事務局',
+            text: msgText,
+            message: msgText,
+            time: nowTime,
+            timestamp: new Date().toLocaleString('ja-JP')
+        };
 
-            // /messages 直下にメッセージデータを出力
-            db.ref(`${targetChatPath}/messages`).push(newMsgObj);
+        // messages 配下にメッセージを追加
+        db.ref(`${targetChatPath}/messages`).push(newMsgObj, function(err) {
+            if (err) {
+                alert('送信エラーが発生しました: ' + err.message);
+                return;
+            }
 
+            // メタデータの更新
             db.ref(targetChatPath).update({
                 unread: true,
                 lastMessage: msgText,
                 lastTime: nowTime
             });
 
+            // ステータスを返信済みに変更
             db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
                 status: '返信済み',
                 verified: true
