@@ -5240,6 +5240,44 @@ function renderChatList() {
         </div>
     `).join('');
 }
+// Firebase Realtime Database からチャットデータをリアルタイム取得する処理
+function initFirebaseChatSync() {
+    if (typeof db === 'undefined' && typeof firebase !== 'undefined') {
+        window.db = firebase.database();
+    }
+    if (typeof db === 'undefined') return;
+
+    db.ref('chats/admin-1').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        const targetConv = chatConversations.find(c => c.id === 'admin-1');
+        if (!targetConv) return;
+
+        if (data.messages) {
+            const msgList = Object.values(data.messages);
+            targetConv.messages = msgList;
+
+            const lastMsg = msgList[msgList.length - 1];
+            if (lastMsg) {
+                targetConv.lastMessage = lastMsg.text;
+                targetConv.lastTime = lastMsg.time;
+            }
+        }
+
+        if (data.unread !== undefined) {
+            targetConv.unread = data.unread;
+        }
+
+        if (typeof renderChatList === 'function') renderChatList();
+        if (typeof updateChatBadge === 'function') updateChatBadge();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initFirebaseChatSync);
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initFirebaseChatSync();
+}
 
 // チャット詳細を開く関数
 window.openChatDetail = function(chatId) {
