@@ -283,6 +283,19 @@
                 createdAt: new Date().toLocaleString('ja-JP')
             });
         }
+    // お問い合わせの初期データ作成
+    db.ref('admin_data/inquiries').once('value', (snap) => {
+        if (!snap.exists()) {
+            db.ref('admin_data/inquiries').push().set({
+                id: 'INQ-5001',
+                userName: 'テスト 太郎',
+                email: 'test@example.com',
+                message: 'サービスの利用方法について確認したいです。',
+                status: '未対応',
+                createdAt: new Date().toLocaleString('ja-JP')
+            });
+        }
+    });
     });
     if (callback) callback();
 }
