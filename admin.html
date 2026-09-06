@@ -550,7 +550,6 @@ window.openReplyModal = function(key, name, email, message) {
         const historyList = document.getElementById('reply-history-list');
         if (!historyList) return;
 
-        // ユーザーアプリが書き込んでいる chats/admin-1/messages を直接リアルタイム監視
         activeReplyRef = db.ref('chats/admin-1/messages');
 
         activeReplyRef.on('value', function(snapshot) {
@@ -569,13 +568,12 @@ window.openReplyModal = function(key, name, email, message) {
                 const msgText = item.text || item.message || item.content || '';
                 if (!msgText) return;
 
-                // 送信者判定
-                // role==='admin' または own===false または isAdmin===true の場合は管理者（右・緑）
-                // own===true または それ以外はユーザー（左・白）
-                let isAdmin = false;
-                if (item.role === 'admin' || item.isAdmin === true || item.senderName === 'サポート事務局' || item.own === false) {
-                    isAdmin = true;
-                }
+                // 【厳格な送信者判定】
+                // 明確に role==='admin' または isAdmin===true または senderName==='サポート事務局' の場合のみ管理者（右・緑）
+                // それ以外（ユーザーからの送信）はすべて ユーザー（左・白）とする
+                const isAdmin = (item.role === 'admin') || 
+                                (item.isAdmin === true) || 
+                                (item.senderName === 'サポート事務局');
 
                 const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
                 const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
