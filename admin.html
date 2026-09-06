@@ -564,41 +564,46 @@
         currentReplyItemKey = null;
     };
 
-  window.sendReplySubmit = function() {
-    const msgInput = document.getElementById('reply-input-message');
-    const msgText = msgInput ? msgInput.value.trim() : '';
-    if (!msgText || !currentReplyItemKey) return alert('メッセージを入力してください。');
+window.sendReplySubmit = function() {
+        const msgInput = document.getElementById('reply-input-message');
+        const msgText = msgInput ? msgInput.value.trim() : '';
+        if (!msgText) return alert('メッセージを入力してください。');
 
-    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // 1. 新しいメッセージを作成
-    const newMsg = {
-        own: false,
-        text: msgText,
-        time: nowTime
+        // 1. ユーザー側画面 (chats/admin-1/messages) へ書き込み
+        db.ref('chats/admin-1/messages').push({
+            own: false, // 事務局側のメッセージなので false
+            text: msgText,
+            time: nowTime
+        });
+
+        // 2. ユーザー側チャット一覧のステータス更新
+        db.ref('chats/admin-1').update({
+            unread: true,
+            lastMessage: msgText,
+            lastTime: nowTime
+        });
+
+        // 3. 管理画面内の履歴保持 (currentReplyItemKey が未定義の場合は fallback 用パスへ保存)
+        const targetKey = (currentReplyItemKey && currentReplyItemKey !== 'undefined') ? currentReplyItemKey : 'general';
+
+        db.ref(`admin_data/contact_replies/${targetKey}`).push({
+            senderName: 'サポート事務局',
+            role: 'admin',
+            message: msgText,
+            timestamp: new Date().toLocaleString('ja-JP')
+        });
+
+        if (targetKey !== 'general') {
+            db.ref(`admin_data/inquiries/${targetKey}`).update({ status: '返信済み', verified: true });
+        }
+
+        addAuditLog('問い合わせ返信', `問い合わせKey: ${targetKey}`);
+
+        msgInput.value = '';
+        alert('返信を送信しました。');
     };
-
-    // 2. chats/admin-1/messages の配下に安全に追加 (.push)
-    db.ref('chats/admin-1/messages').push(newMsg);
-
-    // 3. 未読フラグと最終更新情報を更新 (.update)
-    db.ref('chats/admin-1').update({
-        unread: true,
-        lastMessage: msgText,
-        lastTime: nowTime
-    });
-
-    // 4. 管理画面内の履歴保持
-    db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
-        senderName: 'サポート事務局', role: 'admin', message: msgText, timestamp: new Date().toLocaleString('ja-JP')
-    });
-    db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({ status: '返信済み', verified: true });
-    addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
-
-    msgInput.value = '';
-    alert('返信を送信しました。');
-};
-
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
             const data = snapshot.val() || {};
