@@ -6664,7 +6664,13 @@ if (typeof db !== 'undefined') {
     db.ref(`admin_data/contact_replies/${targetInquiryId}`).on('value', function(snapshot) {
         console.log("【DEBUG】Firebaseから取得した生データ:", snapshot.val());
 
-      const messagesDiv = document.getElementById('chat-history');
+     // 6667行目〜6671行目を書き換え
+const messagesDiv = document.querySelector('.chat-messages') || document.getElementById('chat-messages');
+
+// モーダルが開いていない（要素が存在しない）場合は静かに処理をスキップ（errorログを出さない）
+if (!messagesDiv) {
+    return;
+}
         if (!messagesDiv) {
             console.error("【DEBUG ERROR】表示先要素 '.chat-messages' が見つかりません。");
             return;
