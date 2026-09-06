@@ -3682,7 +3682,13 @@ window.submitNewProduct = function(e) {
     if (titleEl) titleEl.value = "";
     if (priceEl) priceEl.value = "";
     if (descEl) descEl.value = "";
-
+　　// ★ 運営管理画面へのリアルタイム送信処理
+        if (typeof sendPurchaseRequestToAdmin === 'function') {
+            sendPurchaseRequestToAdmin({
+                productTitle: titleEl ? titleEl.value : '',
+                price: priceEl ? priceEl.value : ''
+            });
+        }
     alert('購入リクエストを投稿しました！');
 };
    window.renderPurchaseRequests = function() {
@@ -6466,6 +6472,29 @@ function watchUserKycStatus(userIdentifier) {
         });
     } catch (e) {
         console.log('KYC watch error:', e);
+    }
+}
+// ==========================================
+// 購入リクエスト管理画面送信機能
+// ==========================================
+function sendPurchaseRequestToAdmin(requestData) {
+    try {
+        if (typeof db === 'undefined' || !db.ref) return;
+
+        const requestRef = db.ref('admin_data/purchase_requests').push();
+        const payload = {
+            id: requestRef.key,
+            userEmail: currentUser ? currentUser.email : (requestData.email || '未ログイン'),
+            userName: currentUser ? currentUser.name : (requestData.name || 'ゲスト'),
+            productTitle: requestData.productTitle || requestData.title || '',
+            price: requestData.price || 0,
+            status: '未対応',
+            createdAt: new Date().toLocaleString('ja-JP')
+        };
+
+        requestRef.set(payload);
+    } catch (e) {
+        console.log('Purchase request sync error:', e);
     }
 }
 </script>
