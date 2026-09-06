@@ -3517,13 +3517,18 @@ window.checkAuthAndOpenJobPost = function() {
     };
 };
 
-  window.submitNewProduct = function(e) {
+window.submitNewProduct = function(e) {
     if (e && e.preventDefault) e.preventDefault();
-    
-    if (!currentUser) { 
-        alert('出品するにはログインが必要です。'); 
-        openModal('buyer-auth-modal'); 
-        return false; 
+
+    // ★ ここから3行追加（絶対にこれ以上書き換えないでください）
+    if (typeof checkKycPermission === 'function' && !checkKycPermission('出品')) {
+        return false;
+    }
+
+    if (!currentUser) {
+        alert('出品するにはログインが必要です。 ');
+        openModal('buyer-auth-modal');
+        return false;
     }
 
     // 出品者情報の取得
@@ -4034,7 +4039,10 @@ window.sendPriceProposal = function() {
         }
         // ★ ここまで ★
 
-        currentUser = newUser;
+       currentUser = newUser;
+if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
+    watchUserKycStatus(email);
+}
         alert('新規登録が完了し、ログインしました！');
         closeModal('buyer-auth-modal');
         updateAuthUI();
@@ -6421,6 +6429,44 @@ if (typeof firebase !== 'undefined') {
             renderProducts();
         }
     });
+}
+// ==========================================
+// KYC機能（安全版）
+// ==========================================
+function checkKycPermission(actionName) {
+    if (!currentUser) {
+        alert(actionName + 'するにはログインが必要です。');
+        if (typeof openModal === 'function') openModal('buyer-auth-modal');
+        return false;
+    }
+
+    const status = currentUser.kycStatus || '未提出';
+    if (status !== '承認済み') {
+        if (status === '審査中') {
+            alert('現在、本人確認（KYC）の審査中です。承認完了まで' + actionName + 'はご利用いただけません。');
+        } else if (status === '再提出') {
+            alert('本人確認書類の再提出が必要です。確認書類を再アップロードしてください。');
+        } else {
+            alert(actionName + 'を行うには本人確認（KYC）の提出と運営の承認が必要です。');
+        }
+        return false;
+    }
+    return true;
+}
+
+function watchUserKycStatus(userIdentifier) {
+    try {
+        if (!userIdentifier || typeof db === 'undefined' || !db.ref) return;
+        const safeKey = String(userIdentifier).replace(/[.#$\[\]]/g, '_');
+        db.ref('admin_data/users/' + safeKey).on('value', function(snapshot) {
+            const data = snapshot.val();
+            if (data && typeof currentUser !== 'undefined' && currentUser) {
+                currentUser.kycStatus = data.kycStatus || '未提出';
+            }
+        });
+    } catch (e) {
+        console.log('KYC watch error:', e);
+    }
 }
 </script>
 </body>
