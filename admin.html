@@ -601,43 +601,43 @@
         if (activeReplyRef) { activeReplyRef.off(); activeReplyRef = null; }
     };
 
-    window.sendReplySubmit = function() {
-        const msgInput = document.getElementById('reply-input-message');
-        const msgText = msgInput ? msgInput.value.trim() : '';
-        if (!msgText) return alert('メッセージを入力してください。');
+  window.sendReplySubmit = function() {
+    const msgInput = document.getElementById('reply-input-message');
+    const msgText = msgInput ? msgInput.value.trim() : '';
+    if (!msgText) return alert('メッセージを入力してください。');
 
-        const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const targetKey = currentReplyItemKey || 'INQ-5001';
+    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const targetKey = currentReplyItemKey || 'INQ-5001';
 
-        const newMsgObj = {
-            own: false,
-            role: 'admin',
-            isAdmin: true,
-            senderName: 'サポート事務局',
-            text: msgText,
-            message: msgText,
-            time: nowTime,
-            timestamp: new Date().toLocaleString('ja-JP')
-        };
-
-        // admin_data/contact_replies にのみ追加保存（chats/admin-1/messages への重複更新を除去）
-        db.ref(`admin_data/contact_replies/${targetKey}`).push(newMsgObj, function(err) {
-            if (err) {
-                alert('送信エラー: ' + err.message);
-                return;
-            }
-
-            // お問い合わせ親ノードのステータス更新
-            db.ref(`admin_data/inquiries/${targetKey}`).update({
-                status: '返信済み',
-                verified: true,
-                lastMessage: msgText,
-                updatedAt: new Date().toLocaleString('ja-JP')
-            });
-
-            msgInput.value = '';
-        });
+    const newMsgObj = {
+        own: false,
+        role: 'admin',
+        isAdmin: true,
+        senderName: 'サポート事務局',
+        text: msgText,
+        message: msgText,
+        time: nowTime,
+        timestamp: new Date().toLocaleString('ja-JP')
     };
+
+    // 1. 現在選択されている問い合わせキーに保存
+    db.ref(`admin_data/contact_replies/${targetKey}`).push(newMsgObj);
+
+    // 2. ユーザーアプリ側が直接監視している 'INQ-5001' にも同時に保存
+    if (targetKey !== 'INQ-5001') {
+        db.ref('admin_data/contact_replies/INQ-5001').push(newMsgObj);
+    }
+
+    // お問い合わせ親ノードのステータス更新
+    db.ref(`admin_data/inquiries/${targetKey}`).update({
+        status: '返信済み',
+        verified: true,
+        lastMessage: msgText,
+        updatedAt: new Date().toLocaleString('ja-JP')
+    });
+
+    msgInput.value = '';
+};
 
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
