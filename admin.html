@@ -547,55 +547,67 @@ window.openReplyModal = function(key, name, email, message) {
 
         if (activeReplyRef) activeReplyRef.off();
 
-        activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
+        // 読み込みパスをユーザー共通メッセージパスに統一
+        activeReplyRef = db.ref(`admin_data/contact_replies/${key}/messages`);
         activeReplyRef.on('value', function(snapshot) {
-            const rawData = snapshot.val();
             const historyList = document.getElementById('reply-history-list');
             if (!historyList) return;
 
             historyList.innerHTML = '';
-            if (!rawData) {
-                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
+            const historyData = snapshot.val();
+
+            if (!historyData) {
+                // messages配下にない場合、旧データ構造(直下)を試行
+                db.ref(`admin_data/contact_replies/${key}`).once('value', function(oldSnap) {
+                    const oldData = oldSnap.val();
+                    if (oldData && !oldData.messages) {
+                        renderHistory(oldData, historyList, displayName);
+                    } else {
+                        historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
+                    }
+                });
                 return;
             }
 
-            const historyData = rawData.messages ? rawData.messages : rawData;
-
-            Object.keys(historyData).forEach(function(msgKey) {
-                const item = historyData[msgKey];
-                if (typeof item !== 'object' || item === null) return;
-
-                // 管理者（サポート事務局）送信分の判定基準
-                // ユーザーが送信した own: true に惑わされないよう、管理者の明確な識別子のみをチェック
-                const isAdmin = (item.role === 'admin') || 
-                                (item.isAdmin === true) || 
-                                (item.senderName === 'サポート事務局');
-
-                const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
-                const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
-                const borderColor = isAdmin ? '#badbcc' : '#ced4da';
-                const textColor = '#333333';
-                const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
-                
-                const msgText = item.text || item.message || item.content || '';
-
-                if (!msgText) return;
-
-                const bubbleHtml = `
-                    <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
-                        <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
-                        <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; text-align:left; word-break:break-all; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                            <div style="color:${textColor}; font-size:13px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
-                        </div>
-                    </div>
-                `;
-
-                historyList.insertAdjacentHTML('beforeend', bubbleHtml);
-            });
-
-            historyList.scrollTop = historyList.scrollHeight;
+            renderHistory(historyData, historyList, displayName);
         });
     };
+
+    // 描画共通関数
+    function renderHistory(historyData, historyList, displayName) {
+        historyList.innerHTML = '';
+        Object.keys(historyData).forEach(function(msgKey) {
+            const item = historyData[msgKey];
+            if (typeof item !== 'object' || item === null) return;
+
+            // 管理者メッセージ判定（senderName, role, isAdmin, または user/admin区分）
+            const isAdmin = (item.role === 'admin') || 
+                            (item.isAdmin === true) || 
+                            (item.senderName === 'サポート事務局') ||
+                            (item.sender === 'admin');
+
+            const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
+            const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
+            const borderColor = isAdmin ? '#badbcc' : '#ced4da';
+            const textColor = '#333333';
+            const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || displayName || 'ユーザー');
+            
+            const msgText = item.text || item.message || item.content || '';
+            if (!msgText) return;
+
+            const bubbleHtml = `
+                <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
+                    <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
+                    <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; border:1px solid ${borderColor}; color:${textColor}; text-align:left; word-break:break-all; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                        <div style="color:${textColor}; font-size:13px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+                    </div>
+                </div>
+            `;
+            historyList.insertAdjacentHTML('beforeend', bubbleHtml);
+        });
+        historyList.scrollTop = historyList.scrollHeight;
+    }
+
     window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
@@ -605,12 +617,10 @@ window.openReplyModal = function(key, name, email, message) {
         }
 
         const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
         const targetChatPath = `admin_data/contact_replies/${currentReplyItemKey}`;
 
-        // ユーザー側アプリの構造に合わせてデータを出力
         const newMsgObj = {
-            own: false,             // ユーザー側からは「相手(管理者)のメッセージ」として扱わせる
+            own: false,
             role: 'admin',
             isAdmin: true,
             senderName: 'サポート事務局',
@@ -620,21 +630,18 @@ window.openReplyModal = function(key, name, email, message) {
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        // messages 配下にメッセージを追加
         db.ref(`${targetChatPath}/messages`).push(newMsgObj, function(err) {
             if (err) {
                 alert('送信エラーが発生しました: ' + err.message);
                 return;
             }
 
-            // メタデータの更新
             db.ref(targetChatPath).update({
                 unread: true,
                 lastMessage: msgText,
                 lastTime: nowTime
             });
 
-            // ステータスを返信済みに変更
             db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
                 status: '返信済み',
                 verified: true
@@ -645,7 +652,6 @@ window.openReplyModal = function(key, name, email, message) {
             }
 
             msgInput.value = '';
-            alert('返信を送信しました。');
         });
     };
 
