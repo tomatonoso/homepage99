@@ -2975,16 +2975,16 @@ function submitNewProduct(event) {
     </div>
 
     <div id="inquiry-modal" class="modal-panel">
-        <div class="modal-content modal-content-sm">
-            <span class="close-modal" onclick="closeModal('inquiry-modal')">&times;</span>
-            <h2><i class="fa-solid fa-headset" style="color: var(--brand-red);"></i> お問い合わせ</h2>
-            <hr style="margin: 15px 0;">
-            <div class="form-group"><label>お名前 *</label><input type="text" class="form-control" placeholder="山田 太郎"></div>
-            <div class="form-group"><label>メールアドレス *</label><input type="email" class="form-control" placeholder="user@example.com"></div>
-            <div class="form-group"><label>お問い合わせ内容 *</label><textarea class="form-control" rows="4" placeholder="ご質問・ご要望をご記入ください"></textarea></div>
-            <button class="btn-red-sm" style="width:100%; margin-top:10px; padding:10px;" onclick="alert('お問い合わせを送信しました。'); closeModal('inquiry-modal');">送信する</button>
-        </div>
+    <div class="modal-content modal-content-sm">
+        <span class="close-modal" onclick="closeModal('inquiry-modal')">&times;</span>
+        <h2><i class="fa-solid fa-headset" style="color: var(--brand-red);"></i> お問い合わせ</h2>
+        <hr style="margin: 15px 0;">
+        <div class="form-group"><label>お名前 *</label><input type="text" id="inquiry-name" class="form-control" placeholder="山田 太郎"></div>
+        <div class="form-group"><label>メールアドレス *</label><input type="email" id="inquiry-email" class="form-control" placeholder="user@example.com"></div>
+        <div class="form-group"><label>お問い合わせ内容 *</label><textarea id="inquiry-message" class="form-control" rows="4" placeholder="ご質問・ご要望をご記入ください"></textarea></div>
+        <button class="btn-red-sm" style="width:100%; margin-top:10px; padding:10px;" onclick="submitInquiry()">送信する</button>
     </div>
+</div>
 
    <div id="tokusho-modal" class="modal-panel">
     <div class="modal-content modal-content-sm">
@@ -6505,6 +6505,45 @@ function sendPurchaseRequestToAdmin(requestData) {
         requestRef.set(payload);
     } catch (e) {
         console.log('Purchase request sync error:', e);
+    }
+}
+// お問い合わせ送信処理（運営管理画面のFirebaseへ送信）
+function submitInquiry() {
+    const nameEl = document.getElementById('inquiry-name');
+    const emailEl = document.getElementById('inquiry-email');
+    const messageEl = document.getElementById('inquiry-message');
+
+    const name = nameEl ? nameEl.value.trim() : '';
+    const email = emailEl ? emailEl.value.trim() : '';
+    const message = messageEl ? messageEl.value.trim() : '';
+
+    if (!name || !email || !message) {
+        alert('すべてのお問い合わせ項目を入力してください。');
+        return;
+    }
+
+    // Firebase (admin_data/inquiries) へデータ保存
+    if (typeof db !== 'undefined') {
+        db.ref('admin_data/inquiries').push().set({
+            id: 'INQ-' + Math.floor(1000 + Math.random() * 9000),
+            userName: name,
+            email: email,
+            category: '一般問い合わせ',
+            message: message,
+            status: '未対応',
+            createdAt: new Date().toLocaleString('ja-JP')
+        }).then(() => {
+            alert('お問い合わせを送信しました。');
+            if (nameEl) nameEl.value = '';
+            if (emailEl) emailEl.value = '';
+            if (messageEl) messageEl.value = '';
+            if (typeof closeModal === 'function') closeModal('inquiry-modal');
+        }).catch((err) => {
+            console.error('送信エラー:', err);
+            alert('送信に失敗しました: ' + err.message);
+        });
+    } else {
+        alert('データベース接続エラーが発生しました。');
     }
 }
 </script>
