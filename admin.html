@@ -564,19 +564,33 @@
         currentReplyItemKey = null;
     };
 
-    window.sendReplySubmit = function() {
-        const msgInput = document.getElementById('reply-input-message');
-        const msgText = msgInput.value.trim();
-        if (!msgText || !currentReplyItemKey) return alert('メッセージを入力してください。');
+   window.sendReplySubmit = function() {
+    const msgInput = document.getElementById('reply-input-message');
+    const msgText = msgInput ? msgInput.value.trim() : '';
+    if (!msgText || !currentReplyItemKey) return alert('メッセージを入力してください。');
 
-        db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
-            senderName: 'サポート事務局', role: 'admin', message: msgText, timestamp: new Date().toLocaleString('ja-JP')
-        });
-        db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({ status: '返信済み', verified: true });
-        addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
-        msgInput.value = '';
-        alert('返信を送信しました。');
-    };
+    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // 1. 表側のチャット (chats/admin-1) にメッセージを追加して未読に設定
+    db.ref('chats/admin-1/messages').push({
+        own: false,
+        text: msgText,
+        time: nowTime
+    });
+    db.ref('chats/admin-1').update({
+        unread: true
+    });
+
+    // 2. 既存の管理画面データ更新処理
+    db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
+        senderName: 'サポート事務局', role: 'admin', message: msgText, timestamp: new Date().toLocaleString('ja-JP')
+    });
+    db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({ status: '返信済み', verified: true });
+    addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
+
+    msgInput.value = '';
+    alert('返信を送信しました。表側サイトにリアルタイム反映されます。');
+};
 
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
