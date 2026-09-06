@@ -530,27 +530,40 @@
         });
     };
 
-    window.openReplyModal = function(key, name, email, message) {
+   window.openReplyModal = function(key, name, email, message) {
+        // キーと情報を正しく保持
         currentReplyItemKey = key;
-        document.getElementById('reply-target-info').innerHTML = `<strong>お名前:</strong> ${name} 様 &nbsp;|&nbsp; <strong>メール:</strong> ${email}<br><strong>内容:</strong> ${message}`;
+        
+        const displayKey = key || '不明';
+        const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
+        const displayEmail = (email && email !== 'undefined') ? email : '未設定';
+        const displayMsg = (message && message !== 'undefined') ? message : '';
+
+        document.getElementById('reply-target-info').innerHTML = 
+            `<strong>お名前:</strong> ${displayName} 様 &nbsp;|&nbsp; <strong>メール:</strong> ${displayEmail}<br><strong>内容:</strong> ${displayMsg}`;
         document.getElementById('reply-modal').style.display = 'flex';
 
         if (activeReplyRef) activeReplyRef.off();
+
+        // 問い合わせのやり取り履歴をリアルタイム取得
         activeReplyRef = db.ref(`admin_data/contact_replies/${key}`);
         activeReplyRef.on('value', (snapshot) => {
             const historyData = snapshot.val();
             const historyList = document.getElementById('reply-history-list');
+            if (!historyList) return;
+            
             historyList.innerHTML = '';
             if (!historyData) {
                 historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">履歴はありません。</div>';
                 return;
             }
+
             Object.keys(historyData).forEach(msgKey => {
                 const item = historyData[msgKey];
                 historyList.insertAdjacentHTML('beforeend', `
                     <div class="chat-bubble ${item.role === 'admin' ? 'admin' : 'user'}">
-                        <div class="meta"><strong>${escapeHtml(item.senderName)}</strong><span>${item.timestamp}</span></div>
-                        <div>${escapeHtml(item.message).replace(/\n/g, '<br>')}</div>
+                        <div class="meta"><strong>${escapeHtml(item.senderName || 'サポート事務局')}</strong><span>${item.timestamp || ''}</span></div>
+                        <div>${escapeHtml(item.message || '').replace(/\n/g, '<br>')}</div>
                     </div>
                 `);
             });
@@ -568,41 +581,41 @@ window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
         if (!msgText) return alert('メッセージを入力してください。');
+        if (!currentReplyItemKey || currentReplyItemKey === 'undefined') {
+            return alert('送信対象の問い合わせが選択されていません。一度モーダルを閉じて「返信」ボタンを押し直してください。');
+        }
 
         const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        // 1. ユーザー側画面 (chats/admin-1/messages) へ書き込み
+        // 1. ユーザー側画面 (chats/admin-1/messages) に即座に届ける
         db.ref('chats/admin-1/messages').push({
-            own: false, // 事務局側のメッセージなので false
+            own: false,
             text: msgText,
             time: nowTime
         });
 
-        // 2. ユーザー側チャット一覧のステータス更新
         db.ref('chats/admin-1').update({
             unread: true,
             lastMessage: msgText,
             lastTime: nowTime
         });
 
-        // 3. 管理画面内の履歴保持 (currentReplyItemKey が未定義の場合は fallback 用パスへ保存)
-        const targetKey = (currentReplyItemKey && currentReplyItemKey !== 'undefined') ? currentReplyItemKey : 'general';
-
-        db.ref(`admin_data/contact_replies/${targetKey}`).push({
+        // 2. 管理画面側の問い合わせ返信履歴に保存
+        db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
             senderName: 'サポート事務局',
             role: 'admin',
             message: msgText,
             timestamp: new Date().toLocaleString('ja-JP')
         });
 
-        if (targetKey !== 'general') {
-            db.ref(`admin_data/inquiries/${targetKey}`).update({ status: '返信済み', verified: true });
-        }
+        db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
+            status: '返信済み',
+            verified: true
+        });
 
-        addAuditLog('問い合わせ返信', `問い合わせKey: ${targetKey}`);
+        addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
 
         msgInput.value = '';
-        alert('返信を送信しました。');
     };
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
