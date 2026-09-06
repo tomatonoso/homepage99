@@ -530,7 +530,8 @@
         });
     };
 
-window.openReplyModal = function(key, name, email, message) {
+// モーダルを開いて Firebase からリアルタイム取得
+    window.openReplyModal = function(key, name, email, message) {
         currentReplyItemKey = key;
 
         const displayName = (name && name !== 'undefined') ? name : 'ユーザー';
@@ -550,6 +551,7 @@ window.openReplyModal = function(key, name, email, message) {
         const historyList = document.getElementById('reply-history-list');
         if (!historyList) return;
 
+        // chats/admin-1/messages を監視
         activeReplyRef = db.ref('chats/admin-1/messages');
 
         activeReplyRef.on('value', function(snapshot) {
@@ -561,16 +563,21 @@ window.openReplyModal = function(key, name, email, message) {
                 return;
             }
 
-            Object.keys(rawData).forEach(function(msgKey) {
+            // 配列またはPush IDオブジェクトに対応
+            const messageKeys = Object.keys(rawData);
+            if (messageKeys.length === 0) {
+                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージはありません</div>';
+                return;
+            }
+
+            messageKeys.forEach(function(msgKey) {
                 const item = rawData[msgKey];
                 if (typeof item !== 'object' || item === null) return;
 
                 const msgText = item.text || item.message || item.content || '';
                 if (!msgText) return;
 
-                // 【厳格な送信者判定】
-                // 明確に role==='admin' または isAdmin===true または senderName==='サポート事務局' の場合のみ管理者（右・緑）
-                // それ以外（ユーザーからの送信）はすべて ユーザー（左・白）とする
+                // 送信者判定：role==='admin' または isAdmin===true または senderName==='サポート事務局' のみ管理者
                 const isAdmin = (item.role === 'admin') || 
                                 (item.isAdmin === true) || 
                                 (item.senderName === 'サポート事務局');
@@ -596,6 +603,7 @@ window.openReplyModal = function(key, name, email, message) {
         });
     };
 
+    // 管理者からの返信送信処理
     window.sendReplySubmit = function() {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
@@ -614,20 +622,19 @@ window.openReplyModal = function(key, name, email, message) {
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        // ユーザー側が読み込んでいる chats/admin-1/messages へ保存
+        // 既存データを消さないよう push() を使用してメッセージを追加
         db.ref('chats/admin-1/messages').push(newMsgObj, function(err) {
             if (err) {
                 alert('送信エラーが発生しました: ' + err.message);
                 return;
             }
 
-            // chats/admin-1 の最終メッセージ更新
+            // メッセージ親ノードの最終メッセージ情報のみ更新（messages配下は破壊しない）
             db.ref('chats/admin-1').update({
                 lastMessage: msgText,
                 lastTime: nowTime
             });
 
-            // ステータス更新
             if (currentReplyItemKey && currentReplyItemKey !== 'undefined') {
                 db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
                     status: '返信済み',
