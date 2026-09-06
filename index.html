@@ -6741,20 +6741,60 @@ function escapeHtml(str) {
 }
 </script>
 <script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 送信処理の設定関数
+    // 1. Firebase リアルタイム受信＆表示設定
+    function setupRealtimeChat() {
+        if (typeof db === 'undefined') return;
+
+        // 描画エリアの取得
+        const messagesDiv = document.querySelector('.chat-detail-modal .chat-body')
+                          || document.querySelector('.chat-detail-modal > div:nth-child(2)')
+                          || document.querySelector('#chat-modal .chat-body');
+
+        if (!messagesDiv) return;
+
+        db.ref('chats/admin-1/messages').on('value', function(snapshot) {
+            const data = snapshot.val();
+            messagesDiv.innerHTML = '';
+
+            if (!data) {
+                messagesDiv.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">メッセージはまだありません</div>';
+                return;
+            }
+
+            Object.keys(data).forEach(function(key) {
+                const msg = data[key];
+                const isOwn = msg.own === true;
+
+                const bubbleHtml = `
+                    <div style="display:flex; justify-content:${isOwn ? 'flex-end' : 'flex-start'}; margin: 8px 12px;">
+                        <div style="max-width:75%; padding:10px 14px; border-radius:15px; font-size:14px; line-height:1.4; 
+                                    background:${isOwn ? '#e63946' : '#f1f3f4'}; 
+                                    color:${isOwn ? '#ffffff' : '#333333'};">
+                            <div>${escapeHtml(msg.text || msg.message || '')}</div>
+                            <div style="font-size:10px; opacity:0.7; text-align:right; margin-top:4px;">${escapeHtml(msg.time || '')}</div>
+                        </div>
+                    </div>
+                `;
+                messagesDiv.insertAdjacentHTML('beforeend', bubbleHtml);
+            });
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+    }
+
+    // 2. 送信イベントの強制バインド
     function attachChatEvents() {
-        // 赤い送信ボタンを判定（svgやimgが含まれるボタン要素）
         const sendBtn = document.querySelector('.chat-detail-modal button') 
                      || document.querySelector('#chat-modal button')
                      || document.querySelector('.chat-panel button');
-        
+
         const inputEl = document.getElementById('chat-input-msg') 
                      || document.querySelector('.chat-detail-modal input')
                      || document.querySelector('#chat-modal input');
 
         if (sendBtn) {
-            // ボタンのクリックイベントを上書き設定
             sendBtn.onclick = function(e) {
                 e.preventDefault();
                 if (typeof window.sendChatMessage === 'function') {
@@ -6764,7 +6804,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (inputEl) {
-            // Enterキーでの送信を設定
             inputEl.onkeypress = function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -6776,11 +6815,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 初回実行およびチャットモーダルが開いた際にも再適用
+    // エスケープ処理（未定義時用）
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 実行と DOM 監視
+    setupRealtimeChat();
     attachChatEvents();
 
-    // 画面変更に対応するための監視（モーダルが開いたとき対策）
-    const observer = new MutationObserver(attachChatEvents);
+    const observer = new MutationObserver(function() {
+        setupRealtimeChat();
+        attachChatEvents();
+    });
     observer.observe(document.body, { childList: true, subtree: true });
 });
 </script>
