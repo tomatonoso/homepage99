@@ -3809,7 +3809,7 @@ window.openRequestChat = function(id) {
     if (typeof openModal === 'function') openModal('request-chat-modal');
 };
 
-    window.sendChatMessage = function() {
+   window.sendChatMessage = function() {
     const input = document.getElementById('chat-input-msg') || document.querySelector('.chat-detail-modal input, .chat-panel input');
     const text = (input && input.value || '').trim();
 
@@ -3829,33 +3829,35 @@ window.openRequestChat = function(id) {
                 targetKey = Object.keys(inqData)[0] || targetKey;
             }
 
-            // お問い合わせ返信ノードへ追記保存（唯一の保存先）
-            db.ref(`admin_data/contact_replies/${targetKey}`).push({
+            // お問い合わせ返信ノードへ追記保存
+            db.ref('admin_data/contact_replies/' + targetKey).push({
                 own: true,
                 role: 'user',
                 senderName: 'わたし',
                 text: text,
                 message: text,
                 time: nowTime,
-               timestamp: new Date().toLocaleString('ja-JP')
-    });
+                timestamp: new Date().toLocaleString('ja-JP')
+            });
 
-    // 親ステータスの更新
-    db.ref('admin_data/inquiries/' + targetKey).update({
-        status: '未返信',
-        verified: false,
-        lastMessage: text,
-        updatedAt: new Date().toLocaleString('ja-JP')
-    });
+            // 親ステータスの更新
+            db.ref('admin_data/inquiries/' + targetKey).update({
+                status: '未返信',
+                verified: false,
+                lastMessage: text,
+                updatedAt: new Date().toLocaleString('ja-JP')
+            });
 
-    if (input) input.value = '';
+            if (input) input.value = '';
 
-    // 3. UIの再描画
-    if (typeof renderChatMessages === 'function') {
-        renderChatMessages('admin-1');
-    }
-    if (typeof renderChatList === 'function') {
-        renderChatList();
+            // 3. UIの再描画
+            if (typeof renderChatMessages === 'function') {
+                renderChatMessages('admin-1');
+            }
+            if (typeof renderChatList === 'function') {
+                renderChatList();
+            }
+        });
     }
 };
 
