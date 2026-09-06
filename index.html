@@ -6634,6 +6634,32 @@ function submitInquiry() {
         alert('データベース接続エラーが発生しました。');
     }
 }
+// ユーザー側チャットのリアルタイム受信設定
+(function setupUserChatListener() {
+    if (typeof db === 'undefined') return;
+
+    // chats/admin-1/messages をリアルタイム監視
+    db.ref('chats/admin-1/messages').on('value', (snapshot) => {
+        const messages = snapshot.val();
+        if (!messages) return;
+
+        // メッセージ配列を整形
+        const msgList = Object.values(messages);
+
+        // ローカル変数(chatConversations)のメッセージを更新
+        if (typeof chatConversations !== 'undefined') {
+            const conv = chatConversations.find(c => c.id === 'admin-1');
+            if (conv) {
+                conv.messages = msgList;
+            }
+        }
+
+        // チャット画面が開いている場合は描画更新
+        if (typeof renderChatMessages === 'function') {
+            renderChatMessages('admin-1');
+        }
+    });
+})();
 </script>
 </body>
 </html>
