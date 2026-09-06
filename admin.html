@@ -578,45 +578,53 @@
     };
 
 window.sendReplySubmit = function() {
-        const msgInput = document.getElementById('reply-input-message');
-        const msgText = msgInput ? msgInput.value.trim() : '';
-        if (!msgText) return alert('メッセージを入力してください。');
-        if (!currentReplyItemKey || currentReplyItemKey === 'undefined') {
-            return alert('送信対象の問い合わせが選択されていません。一度モーダルを閉じて「返信」ボタンを押し直してください。');
-        }
+    const msgInput = document.getElementById('reply-input-message');
+    const msgText = msgInput ? msgInput.value.trim() : '';
+    if (!msgText) return alert('メッセージを入力してください。');
+    if (!currentReplyItemKey || currentReplyItemKey === 'undefined') {
+        return alert('送信対象の問い合わせが選択されていません。一度モーダルを閉じて「返信」ボタンを押し直してください。');
+    }
 
-        const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        // 1. ユーザー側画面 (chats/admin-1/messages) に即座に届ける
-        db.ref('chats/admin-1/messages').push({
-            own: false,
-            text: msgText,
-            time: nowTime
-        });
+    // 1. ユーザー側画面 (chats/admin-1/messages) に即座に届ける (両方のキーを付与)
+    db.ref('chats/admin-1/messages').push({
+        own: false,
+        role: 'admin',
+        senderName: 'サポート事務局',
+        text: msgText,
+        message: msgText,
+        time: nowTime,
+        timestamp: new Date().toLocaleString('ja-JP')
+    });
 
-        db.ref('chats/admin-1').update({
-            unread: true,
-            lastMessage: msgText,
-            lastTime: nowTime
-        });
+    db.ref('chats/admin-1').update({
+        unread: true,
+        lastMessage: msgText,
+        lastTime: nowTime
+    });
 
-        // 2. 管理画面側の問い合わせ返信履歴に保存
-        db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
-            senderName: 'サポート事務局',
-            role: 'admin',
-            message: msgText,
-            timestamp: new Date().toLocaleString('ja-JP')
-        });
+    // 2. 管理画面側の問い合わせ返信履歴に保存
+    db.ref(`admin_data/contact_replies/${currentReplyItemKey}`).push({
+        senderName: 'サポート事務局',
+        role: 'admin',
+        message: msgText,
+        text: msgText,
+        timestamp: new Date().toLocaleString('ja-JP')
+    });
 
-        db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
-            status: '返信済み',
-            verified: true
-        });
+    db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
+        status: '返信済み',
+        verified: true
+    });
 
+    if (typeof addAuditLog === 'function') {
         addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
+    }
 
-        msgInput.value = '';
-    };
+    msgInput.value = '';
+    alert('返信を送信しました。');
+};
     function loadTokushoData() {
         db.ref('admin_data/settings/tokusho').once('value', (snapshot) => {
             const data = snapshot.val() || {};
