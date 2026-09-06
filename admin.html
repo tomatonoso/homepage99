@@ -765,53 +765,95 @@
             body: JSON.stringify(payload)
         }).catch(err => console.error('スプレッドシート送信エラー:', err));
     }
-  // 問い合わせ詳細モーダルのリアルタイム監視を安全に拡張
+ // 問い合わせ詳細モーダルのリアルタイム監視を安全に拡張
 (function() {
-    const originalOpen = window.openReplyModal;
+    // ページロード時点の既存関数を確実に保持
+    const _baseOpen = window.openReplyModal;
+
     window.openReplyModal = function(key) {
-        // 1. 元々の開く処理（名前・メール・本文のセットなど）を完全に実行
-        if (typeof originalOpen === 'function') {
-            originalOpen(key);
+        // 1. 引数の key、またはグローバル変数から key を取得
+        let targetKey = key || window.currentReplyItemKey;
+
+        // 元の関数があれば呼び出して画面描画を行う
+        if (typeof _baseOpen === 'function' && _baseOpen !== window.openReplyModal) {
+            _baseOpen(key);
         } else {
-            window.currentReplyItemKey = key;
+            window.currentReplyItemKey = targetKey;
             const modal = document.getElementById('reply-modal');
             if (modal) modal.style.display = 'block';
         }
 
-        // key が存在しない場合は処理を中断
-        const targetKey = key || window.currentReplyItemKey;
-        if (!targetKey || targetKey === 'undefined' || typeof db === 'undefined') return;
+        if (typeof db === 'undefined') return;
 
-        // 2. 返信履歴エリアの取得（既存の表示要素を判定）
-        const container = document.getElementById('reply-messages-list') || 
-                          document.getElementById('reply-history') || 
-                          document.querySelector('.reply-messages');
+        // 2. key が無い、または undefined の場合は Firebase から最新の問い合わせキーを取得
+        const startWatch = (validKey) => {
+            if (!validKey) return;
+            window.currentReplyItemKey = validKey;
 
-        if (!container) return;
-
-        // 3. リアルタイム監視設定
-        db.ref(`admin_data/contact_replies/${targetKey}`).off();
-        db.ref(`admin_data/contact_replies/${targetKey}`).on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (!data) return;
-
-            container.innerHTML = '';
-            Object.values(data).forEach(msg => {
-                const isUser = msg.role === 'user';
-                const msgHtml = `
-                    <div style="margin: 8px 0; text-align: ${isUser ? 'left' : 'right'};">
-                        <div style="font-size: 11px; color: #666; margin-bottom: 2px;">
-                            ${msg.senderName || (isUser ? 'ユーザー' : 'サポート事務局')} (${msg.timestamp || ''})
-                        </div>
-                        <div style="display: inline-block; padding: 8px 12px; border-radius: 8px; background: ${isUser ? '#f0f0f0' : '#d4edda'}; max-width: 80%; text-align: left; word-break: break-all;">
-                            ${msg.message}
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += msgHtml;
+            // 名前やメールが undefined の場合に Firebase から復元
+            db.ref(`admin_data/inquiries/${validKey}`).once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const nameEl = document.getElementById('reply-user-name');
+                    const emailEl = document.getElementById('reply-user-email');
+                    const contentEl = document.getElementById('reply-user-content');
+                    
+                    if (nameEl && (nameEl.textContent.includes('undefined') || !nameEl.textContent)) {
+                        nameEl.textContent = data.userName || data.name || 'ユーザー';
+                    }
+                    if (emailEl && (emailEl.textContent.includes('undefined') || !emailEl.textContent)) {
+                        emailEl.textContent = data.email || '';
+                    }
+                    if (contentEl && (contentEl.textContent.includes('undefined') || !contentEl.textContent)) {
+                        contentEl.textContent = data.message || '';
+                    }
+                }
             });
-            container.scrollTop = container.scrollHeight;
-        });
+
+            // 3. 返信履歴エリアを取得してリアルタイム監視設定
+            const container = document.getElementById('reply-messages-list') || 
+                              document.getElementById('reply-history') || 
+                              document.querySelector('.reply-messages') ||
+                              document.querySelector('#reply-modal .modal-body');
+
+            if (!container) return;
+
+            db.ref(`admin_data/contact_replies/${validKey}`).off();
+            db.ref(`admin_data/contact_replies/${validKey}`).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                container.innerHTML = '';
+                Object.values(data).forEach(msg => {
+                    const isUser = msg.role === 'user';
+                    const msgHtml = `
+                        <div style="margin: 8px 0; text-align: ${isUser ? 'left' : 'right'};">
+                            <div style="font-size: 11px; color: #666; margin-bottom: 2px;">
+                                ${msg.senderName || (isUser ? 'ユーザー' : 'サポート事務局')} (${msg.timestamp || ''})
+                            </div>
+                            <div style="display: inline-block; padding: 8px 12px; border-radius: 8px; background: ${isUser ? '#ffffff' : '#d4edda'}; border: ${isUser ? '1px solid #ccc' : 'none'}; max-width: 80%; text-align: left; word-break: break-all;">
+                                ${msg.message}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += msgHtml;
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        };
+
+        if (!targetKey || targetKey === 'undefined') {
+            // key が取れない場合は最新データを参照
+            db.ref('admin_data/inquiries').limitToLast(1).once('value', (snapshot) => {
+                const inq = snapshot.val();
+                if (inq) {
+                    const autoKey = Object.keys(inq)[0];
+                    startWatch(autoKey);
+                }
+            });
+        } else {
+            startWatch(targetKey);
+        }
     };
 })();
     </script>
