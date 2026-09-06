@@ -550,15 +550,17 @@ window.openReplyModal = function(key, name, email, message) {
         const historyList = document.getElementById('reply-history-list');
         if (!historyList) return;
 
-        // ユーザー画面と同じ "chats" ノードを直接参照
-        activeReplyRef = db.ref(`chats/${key}`);
+        // ユーザー側が固定で利用している "chats/admin-1" または固有キーパスを両方参照
+        const targetPath = (key && key !== 'undefined') ? `chats/${key}` : 'chats/admin-1';
+
+        activeReplyRef = db.ref(targetPath);
         activeReplyRef.on('value', function(snapshot) {
             historyList.innerHTML = '';
-            const rawData = snapshot.val();
+            let rawData = snapshot.val();
 
-            if (!rawData) {
-                // chats側になければ admin_data/contact_replies 側を試行 (フォールバック)
-                db.ref(`admin_data/contact_replies/${key}`).once('value', function(fallbackSnap) {
+            // targetPathでデータが取得できない場合は "chats/admin-1" をフォールバック取得
+            if (!rawData && targetPath !== 'chats/admin-1') {
+                db.ref('chats/admin-1').once('value', function(fallbackSnap) {
                     const fbData = fallbackSnap.val();
                     if (fbData) {
                         const msgData = fbData.messages ? fbData.messages : fbData;
@@ -567,6 +569,11 @@ window.openReplyModal = function(key, name, email, message) {
                         historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージ履歴はありません</div>';
                     }
                 });
+                return;
+            }
+
+            if (!rawData) {
+                historyList.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">メッセージ履歴はありません</div>';
                 return;
             }
 
@@ -581,12 +588,16 @@ window.openReplyModal = function(key, name, email, message) {
             const item = historyData[msgKey];
             if (typeof item !== 'object' || item === null) return;
 
-            // 管理者メッセージ判定（サポート事務局・adminフラグ・または own===false の場合）
-            const isAdmin = (item.role === 'admin') || 
-                            (item.isAdmin === true) || 
-                            (item.senderName === 'サポート事務局') ||
-                            (item.sender === 'admin') ||
-                            (item.own === false);
+            // 送信者判定
+            // own === false または senderName/role が管理者の場合は右側（緑）
+            // own === true または それ以外はユーザー（左側・白）
+            let isAdmin = false;
+
+            if (item.role === 'admin' || item.isAdmin === true || item.senderName === 'サポート事務局' || item.sender === 'admin') {
+                isAdmin = true;
+            } else if (item.own === false) {
+                isAdmin = true;
+            }
 
             const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
             const bgColor = isAdmin ? '#d1e7dd' : '#ffffff';
@@ -614,9 +625,6 @@ window.openReplyModal = function(key, name, email, message) {
         const msgInput = document.getElementById('reply-input-message');
         const msgText = msgInput ? msgInput.value.trim() : '';
         if (!msgText) return alert('メッセージを入力してください。');
-        if (!currentReplyItemKey || currentReplyItemKey === 'undefined') {
-            return alert('送信対象の問い合わせが選択されていません。');
-        }
 
         const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -631,24 +639,27 @@ window.openReplyModal = function(key, name, email, message) {
             timestamp: new Date().toLocaleString('ja-JP')
         };
 
-        // chats ノードへ返信を直接書き込み（ユーザー画面にも即時届く）
-        db.ref(`chats/${currentReplyItemKey}/messages`).push(newMsgObj, function(err) {
+        // ユーザーアプリが監視している chats/admin-1 配下へ書き込み
+        const targetPath = (currentReplyItemKey && currentReplyItemKey !== 'undefined') 
+            ? `chats/${currentReplyItemKey}/messages` 
+            : 'chats/admin-1/messages';
+
+        db.ref('chats/admin-1/messages').push(newMsgObj, function(err) {
             if (err) {
-                // モーダルが直接配列/オブジェクト構造で保存されている場合のフォールバック
-                db.ref(`chats/${currentReplyItemKey}`).push(newMsgObj);
+                db.ref('chats/admin-1').push(newMsgObj);
             }
 
-            // バックアップ用にも保存
-            db.ref(`admin_data/contact_replies/${currentReplyItemKey}/messages`).push(newMsgObj);
-
-            // ステータス更新
-            db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
-                status: '返信済み',
-                verified: true
-            });
+            // バックアップ記録
+            if (currentReplyItemKey) {
+                db.ref(`admin_data/contact_replies/${currentReplyItemKey}/messages`).push(newMsgObj);
+                db.ref(`admin_data/inquiries/${currentReplyItemKey}`).update({
+                    status: '返信済み',
+                    verified: true
+                });
+            }
 
             if (typeof addAuditLog === 'function') {
-                addAuditLog('問い合わせ返信', `問い合わせKey: ${currentReplyItemKey}`);
+                addAuditLog('問い合わせ返信', `メッセージ送信完了`);
             }
 
             msgInput.value = '';
