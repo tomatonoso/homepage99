@@ -5270,41 +5270,31 @@ function initFirebaseChatSync() {
     if (typeof db === 'undefined') return;
 
     // 問い合わせ返信ノードを直接監視
-    db.ref('admin_data/contact_replies/INQ-5001').on('value', (snapshot) => {
-        const rawData = snapshot.val();
-        const targetConv = chatConversations.find(c => c.id === 'admin-1');
-        if (!targetConv) return;
+db.ref('admin_data/contact_replies/INQ-5001').on('value', (snapshot) => {
+    const rawData = snapshot.val();
+    const targetConv = chatConversations.find(c => c.id === 'admin-1');
+    if (!targetConv) return;
 
-        if (!rawData) {
-            targetConv.messages = [];
-            return;
-        }
-
-        const msgList = Object.keys(rawData).map(key => {
+    if (!rawData) {
+        targetConv.messages = [];
+    } else {
+        targetConv.messages = Object.keys(rawData).map(key => {
             const item = rawData[key];
-            const isUser = (item.role === 'user' || item.own === true);
             return {
-                own: isUser,
+                sender: item.isAdmin || item.role === 'admin' ? 'admin' : 'user',
                 text: item.text || item.message || '',
                 time: item.time || ''
             };
         });
+    }
 
-        targetConv.messages = msgList;
-
-        if (msgList.length > 0) {
-            const lastMsg = msgList[msgList.length - 1];
-            targetConv.lastMessage = lastMsg.text;
-            targetConv.lastTime = lastMsg.time;
-        }
-
-        // 画面の再描画
-        if (typeof renderChatMessages === 'function') {
-            renderChatMessages('admin-1');
-        } else if (typeof renderMessages === 'function') {
-            renderMessages();
-        }
-    });
+    // チャット画面が開いている場合はメッセージ一覧を再描画
+    if (typeof renderChatMessages === 'function') {
+        renderChatMessages('admin-1');
+    } else if (typeof renderMessages === 'function') {
+        renderMessages();
+    }
+});
 }
 document.addEventListener('DOMContentLoaded', initFirebaseChatSync);
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
