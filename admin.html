@@ -594,22 +594,24 @@
         Object.keys(historyData).forEach(function(msgKey) {
             const item = historyData[msgKey];
             const isAdmin = item.role === 'admin' || item.senderName === 'サポート事務局';
-            const bubbleClass = isAdmin ? 'admin' : 'user';
-            const senderName = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
+            
+            const alignStyle = isAdmin ? 'flex-end' : 'flex-start';
+            const bgColor = isAdmin ? '#d1e7dd' : '#f1f3f4';
+            const textColor = '#333333';
+            const senderLabel = isAdmin ? 'サポート事務局' : (item.senderName || 'ユーザー');
             const msgText = item.text || item.message || '';
 
-            const bubbleHtml = '' +
-                '<div class="chat-bubble ' + bubbleClass + '">' +
-                    '<div class="meta"><strong>' + escapeHtml(senderName) + '</strong></div>' +
-                    '<div class="message-text">' + escapeHtml(msgText).replace(/\n/g, '<br>') + '</div>' +
-                '</div>';
+            const bubbleHtml = `
+                <div style="display:flex; flex-direction:column; align-items:${alignStyle}; margin-bottom:12px; width:100%;">
+                    <div style="font-size:10px; color:#888; margin-bottom:2px;">${escapeHtml(senderLabel)}</div>
+                    <div style="max-width:75%; padding:10px 14px; border-radius:12px; background:${bgColor}; color:${textColor}; text-align:left; word-break:break-all;">
+                        <div style="color:${textColor}; font-size:14px; line-height:1.4;">${escapeHtml(msgText).replace(/\n/g, '<br>')}</div>
+                    </div>
+                </div>
+            `;
 
             historyList.insertAdjacentHTML('beforeend', bubbleHtml);
         });
-
-        historyList.scrollTop = historyList.scrollHeight;
-    });
-};
 window.sendReplySubmit = function() {
     const msgInput = document.getElementById('reply-input-message');
     const msgText = msgInput ? msgInput.value.trim() : '';
