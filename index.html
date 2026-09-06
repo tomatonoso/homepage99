@@ -6423,18 +6423,23 @@ function openAdminMenu() {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-    // admin.html と同じ設定値で初期化
-    const firebaseConfig = {
+    // 既存の設定があれば再利用し、なければ定義
+    window.firebaseConfig = window.firebaseConfig || {
         apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
         authDomain: "yauwo-a9ba1.firebaseapp.com",
         databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
         projectId: "yauwo-a9ba1",
         storageBucket: "yauwo-a9ba1.firebasestorage.app",
-        messagingSenderId: "574142452627",
-        appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
+        messagingSenderId: "57414245267",
+        appId: "1:57414245267:web:6867c60d9fe8c9b545ce66"
     };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+
+    if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(window.firebaseConfig);
+        }
+        window.db = firebase.database();
+    }
 </script>
 <script>
 // Step 2 の関数をここに貼り付けて追加
