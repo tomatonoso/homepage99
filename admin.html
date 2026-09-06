@@ -890,6 +890,36 @@ window.sendReplySubmit = function() {
         }
     };
 })();
+// 管理画面の返信モーダルリアルタイム監視処理
+function watchReplyMessages(key) {
+    if (!key || typeof db === 'undefined') return;
+    
+    // 特定の問い合わせに対する返信履歴をリアルタイム監視
+    db.ref(`admin_data/contact_replies/${key}`).on('value', (snapshot) => {
+        const data = snapshot.val();
+        const container = document.getElementById('reply-messages-list') || document.getElementById('contact-reply-history');
+        if (!container) return;
+
+        container.innerHTML = '';
+        if (!data) return;
+
+        Object.values(data).forEach(item => {
+            const isUser = item.role === 'user' || item.senderName === 'ユーザー';
+            const div = document.createElement('div');
+            div.style.cssText = `margin-bottom: 10px; text-align: ${isUser ? 'left' : 'right'};`;
+            div.innerHTML = `
+                <div style="font-size: 11px; color: #666;">${item.senderName || (isUser ? 'ユーザー' : 'サポート事務局')} (${item.timestamp || ''})</div>
+                <div style="display: inline-block; padding: 8px 12px; border-radius: 8px; background: ${isUser ? '#e9ecef' : '#007bff'}; color: ${isUser ? '#333' : '#fff'}; max-width: 80%;">
+                    ${item.message || item.text || ''}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        
+        // 最新メッセージへスクロール
+        container.scrollTop = container.scrollHeight;
+    });
+}
     </script>
 </body>
 </html>
