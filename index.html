@@ -2076,7 +2076,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             <hr style="margin: 15px 0;">
 
             <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
-    <button class="admin-tab-btn active" onclick="openMypageTab('mypage-tab-chats', this)">メール（チャット）</button>
+    <button class="admin-tab-btn active" onclick="closeModal('buyer-mypage-modal'); if(typeof toggleTalkModal==='function') toggleTalkModal();">メール（チャット）</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">現在のカート内商品</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-my-products', this)">出品した商品</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-my-requests', this)">リクエスト投稿</button>
@@ -2088,13 +2088,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-property', this)">不動産出品</button>
 </div>
 
-            <div id="mypage-tab-chats" class="admin-tab-content active">
-                <h3>送信済みの非公開チャット・お問い合わせ</h3>
-                <div id="mypage-chats-list" style="max-height:350px; overflow-y:auto; margin-top:10px;">
-                    <p style="color:#888; font-size:0.9rem;">現在やり取り中のチャットはありません。</p>
-                </div>
-            </div>
-
+         
             <div id="mypage-tab-cart" class="admin-tab-content">
                 <h3>現在のカート内商品</h3>
                 <div id="mypage-cart-list" style="min-height: 100px; max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
