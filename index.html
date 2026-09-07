@@ -2076,7 +2076,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             <hr style="margin: 15px 0;">
 
             <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
-  <button class="admin-tab-btn active" onclick="openMypageTab('mypage-tab-chats', this); syncMypageTalkRooms();">メール（チャット）</button>
+  <button class="admin-tab-btn active" onclick="openMypageTab('mypage-tab-chats', this); if (typeof syncMypageTalkRooms === 'function') syncMypageTalkRooms();">メール（チャット）</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">現在のカート内商品</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-my-products', this)">出品した商品</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-my-requests', this)">リクエスト投稿</button>
@@ -7346,6 +7346,26 @@ function openSupportChat() {
         loadTalkMessages('support');
     }
 }
+if (typeof loadTalkMessages === 'function') {
+        loadTalkMessages('support');
+    }
+}
+
+// 7330行目の </script> の手前に定義
+window.syncMypageTalkRooms = function() {
+    const mypageList = document.getElementById('mypage-talk-rooms-list');
+    if (!mypageList) return;
+
+    const headerTalkList = document.getElementById('talk-rooms-list') 
+                        || document.getElementById('talk-list-modal') 
+                        || document.querySelector('.talk-list-body') 
+                        || document.querySelector('.talk-list');
+
+    if (headerTalkList && headerTalkList.innerHTML.trim() !== '') {
+        mypageList.innerHTML = headerTalkList.innerHTML;
+    }
+};
+
 </script>
 </body>
 </html>
