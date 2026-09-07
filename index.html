@@ -4571,11 +4571,13 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
         : '<p style="color:#888;font-size:.85rem;">まだコメントはありません。</p>';
 
     const topBid = auction.bids.length ? auction.bids[auction.bids.length - 1] : null;
+    const categoryBadgeHtml = `<div style="margin-bottom:8px;"><span style="background:#f0f0f0; color:#555; font-size:0.8rem; padding:3px 10px; border-radius:12px; font-weight:bold; border:1px solid #ddd;"><i class="fa-solid fa-tag"></i> ${escapeAuctionText(auction.category || 'その他')}</span></div>`;
 
     // 3. HTMLの描画（ID引数をシングルクォートで囲みエラーを防止）
     const contentEl = document.getElementById('auction-detail-content');
     if (contentEl) {
         contentEl.innerHTML = `
+        ${categoryBadgeHtml}
             <h2 style="margin-right:35px;"><i class="fa-solid fa-gavel" style="color:var(--brand-red);"></i> ${escapeAuctionText(auction.title || '無題')}</h2>
             <div class="auction-detail-grid" style="margin-top:18px;">
                 <div>
