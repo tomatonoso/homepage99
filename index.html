@@ -2076,7 +2076,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
             <hr style="margin: 15px 0;">
 
             <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
-    <button class="admin-tab-btn active" onclick="closeModal('buyer-mypage-modal'); if(typeof toggleTalkModal==='function') toggleTalkModal();">メール（チャット）</button>
+   <button class="admin-tab-btn active" onclick="openMypageTab('mypage-tab-chats', this)">メール（チャット）</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">現在のカート内商品</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-my-products', this)">出品した商品</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-my-requests', this)">リクエスト投稿</button>
@@ -2089,6 +2089,19 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
 </div>
 
          
+     <div id="mypage-tab-chats" class="admin-tab-content active">
+    <h3>メール（チャット）</h3>
+    <div style="margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; height: 450px; display: flex; flex-direction: column; background: #fff;">
+        <div style="background: #2a9d8f; color: #fff; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span id="current-room-title" style="font-weight: bold; font-size: 14px; flex: 1;">トーク相手</span>
+        </div>
+        <div id="talk-messages-body" style="flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #f9f9f9;"></div>
+        <div style="background: #fff; padding: 8px; display: flex; gap: 6px; border-top: 1px solid #ddd;">
+            <textarea id="talk-message-input" placeholder="メッセージを入力..." style="flex: 1; height: 36px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; resize: none;"></textarea>
+            <button type="button" onclick="sendActiveRoomMessage()" style="background: #2a9d8f; color: #fff; border: none; padding: 0 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">送信</button>
+        </div>
+    </div>
+</div>      
             <div id="mypage-tab-cart" class="admin-tab-content">
                 <h3>現在のカート内商品</h3>
                 <div id="mypage-cart-list" style="min-height: 100px; max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
