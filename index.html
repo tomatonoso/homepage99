@@ -4462,14 +4462,22 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
             }
         };
 
-        window.renderAuctions = function() {
-            const container = document.getElementById('auction-list-container');
-            if (!container) return;
+       window.renderAuctions = function() {
+    // 1. HTML側のID名が「auction-list-container」「auction-container」「auction-list」のどれでも認識するように取得
+    const container = document.getElementById('auction-list-container') || 
+                      document.getElementById('auction-container') || 
+                      document.getElementById('auction-list');
+    if (!container) return;
 
-            if (auctions.length === 0) {
-                container.innerHTML = '<p style="color:#888; font-size:0.9rem; padding:10px 0;">現在、オークションはありません。</p>';
-                return;
-            }
+    // 2. localStorage から最新のオークションデータを取得
+    auctions = JSON.parse(localStorage.getItem('minatomo_auctions')) || [];
+
+    if (!auctions || auctions.length === 0) {
+        container.innerHTML = '<p style="color:#888; font-size:0.9rem; padding:10px 0;">現在、オークションはありません。</p>';
+        return;
+    }
+
+    container.innerHTML = auctions.map(a => {
 
             container.innerHTML = auctions.map(a => {
                 const isOwner = currentUser && currentUser.name === a.author;
