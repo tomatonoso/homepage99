@@ -4477,54 +4477,55 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
         return;
     }
 
-    container.innerHTML = auctions.map(a => {
+   container.innerHTML = auctions.map(a => {
+        const isOwner = currentUser && currentUser.name === a.author;
+        const typeLabel = a.type === 'live' ? 'ライブ配信' : (a.type === 'video' ? '動画' : '画像');
+        let mediaHtml = '<i class="fa-solid fa-gavel" style="font-size:2rem; color:#bbb;"></i>';
+        if (a.media && a.mediaType === 'image') {
+            mediaHtml = `<img src="${a.media}" alt="${escapeAuctionText(a.title)}">`;
+        } else if (a.media && a.mediaType === 'video') {
+            mediaHtml = `<video src="${a.media}" controls onclick="event.stopPropagation();"></video>`;
+        } else if (a.type === 'live') {
+            mediaHtml = '<i class="fa-solid fa-video" style="font-size:2rem; color:#bbb;"></i>';
+        }
 
-            container.innerHTML = auctions.map(a => {
-                const isOwner = currentUser && currentUser.name === a.author;
-                const typeLabel = a.type === 'live' ? 'ライブ配信' : (a.type === 'video' ? '動画' : '画像');
-                let mediaHtml = '<i class="fa-solid fa-gavel" style="font-size:2rem; color:#bbb;"></i>';
-                if (a.media && a.mediaType === 'image') {
-                    mediaHtml = `<img src="${a.media}" alt="${escapeAuctionText(a.title)}">`;
-                } else if (a.media && a.mediaType === 'video') {
-                    mediaHtml = `<video src="${a.media}" controls onclick="event.stopPropagation();"></video>`;
-                } else if (a.type === 'live') {
-                    mediaHtml = '<i class="fa-solid fa-video" style="font-size:2rem; color:#bbb;"></i>';
-                }
+        const liveState = a.type === 'live'
+            ? (a.liveEnded ? '<span class="auction-type-badge">ライブ終了</span>' :
+              (a.liveStarted ? '<span class="auction-live-badge">• LIVE配信中</span>' :
+              '<span class="auction-type-badge">ライブ配信予定</span>'))
+            : `<span class="auction-type-badge">${typeLabel}</span>`;
 
-                const liveState = a.type === 'live'
-                    ? (a.liveEnded ? '<span class="auction-type-badge">ライブ終了</span>' :
-                       (a.liveStarted ? '<span class="auction-live-badge">● LIVE配信中</span>' :
-                        '<span class="auction-type-badge">ライブ配信予定</span>'))
-                    : `<span class="auction-type-badge">${typeLabel}</span>`;
+        let ownerButtons = '';
+        if (isOwner && a.type === 'live') {
+            ownerButtons = `
+                <div class="auction-actions" onclick="event.stopPropagation();">
+                    <button class="btn-success" onclick="openAuctionLive('${a.id}')" ${a.liveEnded ? 'disabled' : ''}>
+                        <i class="fa-solid fa-video"></i> ライブを開始
+                    </button>
+                    <button class="btn-danger" onclick="endAuctionLiveById('${a.id}')" ${(!a.liveStarted || a.liveEnded) ? 'disabled' : ''}>
+                        <i class="fa-solid fa-stop"></i> 終了
+                    </button>
+                </div>`;
+        }
 
-                let ownerButtons = '';
-                if (isOwner && a.type === 'live') {
-                    ownerButtons = `
-                        <div class="auction-actions" onclick="event.stopPropagation();">
-                            <button class="btn-success" onclick="openAuctionLive(${a.id})" ${a.liveEnded ? 'disabled' : ''}>
-                                <i class="fa-solid fa-video"></i> ライブを開始
-                            </button>
-                            <button class="btn-danger" onclick="endAuctionLiveById(${a.id})" ${(!a.liveStarted || a.liveEnded) ? 'disabled' : ''}>
-                                <i class="fa-solid fa-stop"></i> 終了
-                            </button>
-                        </div>`;
-                }
+        const startPrice = Number(a.startPrice || 0).toLocaleString();
+        const currentPrice = Number(a.currentPrice || 0).toLocaleString();
 
-                return `
-                    <div class="auction-card" role="button" tabindex="0" onclick="openAuctionDetail(${a.id})" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); openAuctionDetail(${a.id}); }">
-                        <div class="auction-media">${mediaHtml}</div>
-                        <div>${liveState}</div>
-                        <div class="auction-title">${escapeAuctionText(a.title)}</div>
-                        <div class="auction-price">開始価格: ¥${Number(a.startPrice).toLocaleString()}</div>
-                        <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">現在価格: ¥${Number(a.currentPrice).toLocaleString()}</div>
-                        <div class="auction-desc">${escapeAuctionText(a.desc)}</div>
-                        <div class="auction-author">投稿者: ${escapeAuctionText(a.author)}</div>
-                        <div style="font-size:.75rem;color:${a.sold ? '#28a745' : '#007bff'};margin-top:6px;">${a.sold ? '<i class="fa-solid fa-circle-check"></i> 落札済み' : '<i class="fa-regular fa-hand-pointer"></i> クリックして詳細・入札・コメント'}</div>
-                        ${ownerButtons}
-                    </div>
-                `;
-            }).join('');
-        };
+        return `
+            <div class="auction-card" role="button" tabindex="0" onclick="openAuctionDetail('${a.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openAuctionDetail('${a.id}');}">
+                <div class="auction-media">${mediaHtml}</div>
+                <div>${liveState}</div>
+                <div class="auction-title">${escapeAuctionText(a.title)}</div>
+                <div class="auction-price">開始価格: ¥${startPrice}</div>
+                <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">現在価格: ¥${currentPrice}</div>
+                <div class="auction-desc">${escapeAuctionText(a.desc)}</div>
+                <div class="auction-author">投稿者: ${escapeAuctionText(a.author)}</div>
+                <div style="font-size:.75rem; color:${a.sold ? '#28a745' : '#007bff'}; margin-top:6px;">${a.sold ? '<i class="fa-solid fa-circle-check"></i> 落札済み' : ''}</div>
+                ${ownerButtons}
+            </div>
+        `;
+    }).join('');
+};
 
 
         window.openAuctionDetail = function(id) {
