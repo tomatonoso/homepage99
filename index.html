@@ -1063,35 +1063,50 @@
         margin-bottom: 15px;
     }
 }
-/* スマホ画面の崩れ防止スタイル調整 */
+/* スマホ画面の崩れ防止スタイル調整（完全上書き版） */
 @media screen and (max-width: 600px) {
-    /* ヘッダー各要素の折り返しを禁止し横並びに固定 */
-    header, .header-container {
+    /* 1. ヘッダー全体の横並び整列 */
+    header, .header-container, nav, div[class*="header"] {
         display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
         align-items: center !important;
         justify-content: space-between !important;
-        flex-wrap: nowrap !important;
-        padding: 5px 10px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 4px 8px !important;
     }
 
-    /* ロゴの縦書き・折れ曲がりを防止 */
-    .logo, .logo-text, .logo a {
-        white-space: nowrap !important;
+    /* 2. ヘッダー内の全要素に対して縦書き化・折り返しを完全無効化 */
+    header *, .header-container *, nav *, div[class*="header"] * {
         writing-mode: horizontal-tb !important;
-        font-size: 16px !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
     }
 
-    /* ログイン・登録ボタンの縦書化を防ぎ、コンパクト化 */
-    a[onclick*="login"], .login-btn, .btn-login {
-        white-space: nowrap !important;
-        writing-mode: horizontal-tb !important;
+    /* 3. ロゴ（ミナトモ！）の調整 */
+    .logo, .logo-text, header a, header h1 {
+        font-size: 15px !important;
+        line-height: 1.2 !important;
+    }
+
+    /* 4. 「ログイン / 登録」ボタンの調整 */
+    a[onclick*="login"], .login-btn, .btn-login, header a[style*="border"], header div[style*="border"] {
         font-size: 11px !important;
-        padding: 4px 6px !important;
-        min-width: auto !important;
+        padding: 3px 6px !important;
+        min-width: unset !important;
+        height: auto !important;
     }
 
-    /* カテゴリー選択ボタン等の横スクロール対応 */
-    .category-container, .filter-buttons {
+    /* 5. 検索バーの縮小 */
+    header input, .search-container input {
+        max-width: 90px !important;
+        font-size: 11px !important;
+        padding: 3px !important;
+    }
+
+    /* 6. カテゴリー等の横スクロール対応 */
+    .category-container, .filter-buttons, div[class*="category"], div[class*="filter"] {
         display: flex !important;
         overflow-x: auto !important;
         white-space: nowrap !important;
