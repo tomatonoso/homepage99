@@ -7261,82 +7261,7 @@ window.filterAuctionsByCategory = function(selectedCategory) {
         `;
     }).join('');
 };
-// チャット相手を選択した時の処理
-function selectMypageChatRoom(roomId, partnerName) {
-    const titleEl = document.getElementById('current-room-title');
-    if (titleEl) titleEl.textContent = partnerName;
-
-    if (typeof loadTalkMessages === 'function') {
-        loadTalkMessages(roomId);
-    }
-}
-
-// マイページのトーク一覧を生成・描画する処理
-function renderMypageTalkRooms(roomsData) {
-    const listContainer = document.getElementById('mypage-talk-rooms-list');
-    if (!listContainer) return;
-
-    if (!roomsData || roomsData.length === 0) {
-        listContainer.innerHTML = '<div style="padding: 10px; font-size: 12px; color: #888; text-align: center;">会話履歴のあるトークルームはありません</div>';
-        return;
-    }
-
-    listContainer.innerHTML = roomsData.map(room => `
-        <div onclick="selectMypageChatRoom('${room.id}', '${room.name}')" 
-             style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; background: #fff;"
-             onmouseover="this.style.background='#f9f9f9'" 
-             onmouseout="this.style.background='#fff'">
-            <div style="width: 38px; height: 38px; background: #2a9d8f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; flex-shrink: 0;">
-                <i class="fa-solid fa-user"></i>
-            </div>
-            <div style="flex: 1; overflow: hidden;">
-                <div style="font-weight: bold; font-size: 13px; color: #333;">${room.name || 'ユーザー'}</div>
-                <div style="font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${room.lastMessage || '会話を表示'}</div>
-            </div>
-        </div>
-   `).join('');
-
-   // マイページ側の一覧要素へ同期コピー
-    syncMypageTalkRooms();
-}
-
-function syncMypageTalkRooms() {
-    const mypageList = document.getElementById('mypage-talk-rooms-list');
-    if (!mypageList) return;
-
-    // ヘッダーポップアップ側の要素があればコピー
-    const headerTalkList = document.getElementById('talk-rooms-list') 
-                        || document.getElementById('talk-list-modal') 
-                        || document.querySelector('.talk-list-body') 
-                        || document.querySelector('.talk-list');
-
-    if (headerTalkList && headerTalkList.innerHTML.trim() !== '') {
-        mypageList.innerHTML = headerTalkList.innerHTML;
-        return;
-    }
-
-    // データ変数から直接生成（グローバル変数等の保持データを利用）
-    const rooms = window.talkRooms || window.talkRoomList || window.chatRooms || [];
-    if (Array.isArray(rooms) && rooms.length > 0) {
-        mypageList.innerHTML = rooms.map(room => `
-            <div onclick="selectMypageChatRoom('${room.id || room.roomId}', '${room.name || room.partnerName || 'ユーザー'}')" 
-                 style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; background: #fff;"
-                 onmouseover="this.style.background='#f9f9f9'" 
-                 onmouseout="this.style.background='#fff'">
-                <div style="width: 38px; height: 38px; background: #2a9d8f; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; flex-shrink: 0;">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-                <div style="flex: 1; overflow: hidden;">
-                    <div style="font-weight: bold; font-size: 13px; color: #333;">${room.name || room.partnerName || 'ユーザー'}</div>
-                    <div style="font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${room.lastMessage || '会話を開く'}</div>
-                </div>
-            </div>
-        `).join('');
-    } else {
-        if (typeof renderTalkList === 'function') renderTalkList();
-        if (typeof loadTalkRooms === 'function') loadTalkRooms();
-    }
-// チャット相手を選択した時の処理
+// チャット相手の選択処理
 window.selectMypageChatRoom = function(roomId, partnerName) {
     const titleEl = document.getElementById('current-room-title');
     if (titleEl) titleEl.textContent = partnerName;
@@ -7346,7 +7271,7 @@ window.selectMypageChatRoom = function(roomId, partnerName) {
     }
 };
 
-// 運営サポート選択処理
+// 運営サポートの選択処理
 window.openSupportChat = function() {
     const titleEl = document.getElementById('current-room-title');
     if (titleEl) titleEl.textContent = '運営サポート';
@@ -7356,12 +7281,12 @@ window.openSupportChat = function() {
     }
 };
 
-// マイページトーク一覧同期関数
+// マイページトーク一覧生成・同期関数
 window.syncMypageTalkRooms = function() {
     const mypageList = document.getElementById('mypage-talk-rooms-list');
     if (!mypageList) return;
 
-    // ヘッダー（ポップアップ）側の要素を取得
+    // ヘッダー（ポップアップ）側の要素があればコピー
     const headerTalkList = document.getElementById('talk-rooms-list') 
                         || document.getElementById('talk-list-modal') 
                         || document.querySelector('.talk-list-body') 
@@ -7394,15 +7319,8 @@ window.syncMypageTalkRooms = function() {
         if (typeof loadTalkRooms === 'function') loadTalkRooms();
     }
 };
-// どこからでも呼び出せるように明示的にグローバル（window）に登録
-window.selectMypageChatRoom = function(roomId, partnerName) {
-    const titleEl = document.getElementById('current-room-title');
-    if (titleEl) titleEl.textContent = partnerName;
 
-    if (typeof loadTalkMessages === 'function') {
-        loadTalkMessages(roomId);
-    }
-};
+window.renderMypageTalkRooms = window.syncMypageTalkRooms;
 </script>
 </body>
 </html>
