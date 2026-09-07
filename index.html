@@ -1822,6 +1822,45 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         if (typeof listenToNews === 'function') listenToNews();
         listenToPrivacyPolicy();
     });
+// 特定商取引法に基づく表記をリアルタイム取得・表示
+function listenToTokusho() {
+    const tokushoContainer = document.getElementById('display-tokusho-content');
+    if (!tokushoContainer) return;
+
+    // 管理画面の保存先「admin_data/settings/tokusho」を監視
+    db.ref('admin_data/settings/tokusho').on('value', (snapshot) => {
+        const data = snapshot.val();
+
+        if (!data) {
+            tokushoContainer.innerHTML = '<p style="color:#888;">特定商取引法に基づく表記はまだ設定されていません。</p>';
+            return;
+        }
+
+        // テキスト内容（またはオブジェクト形式）の判定処理
+        if (typeof data === 'string') {
+            tokushoContainer.style.whiteSpace = 'pre-wrap';
+            tokushoContainer.innerHTML = data;
+        } else if (data.content) {
+            tokushoContainer.style.whiteSpace = 'pre-wrap';
+            tokushoContainer.innerHTML = data.content;
+        } else {
+            // テーブル項目などで保存されている場合用のフォールバック表示
+            let html = '<table style="width:100%; border-collapse:collapse; font-size:13px;">';
+            if (data.seller) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left; width:30%;">販売事業者</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.seller)}</td></tr>`;
+            if (data.manager) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">運営責任者</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.manager)}</td></tr>`;
+            if (data.address) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">所在地</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.address)}</td></tr>`;
+            if (data.phone) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">電話番号</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.phone)}</td></tr>`;
+            if (data.email) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">メールアドレス</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.email)}</td></tr>`;
+            if (data.price) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">販売価格</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.price)}</td></tr>`;
+            if (data.extra_fee) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">必要料金</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.extra_fee)}</td></tr>`;
+            if (data.payment) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">支払方法</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.payment)}</td></tr>`;
+            if (data.delivery) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">引き渡し時期</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.delivery)}</td></tr>`;
+            if (data.returns) html += `<tr><th style="padding:8px; border:1px solid #ddd; background:#f9f9f9; text-align:left;">返品・交換</th><td style="padding:8px; border:1px solid #ddd;">${escapeNewsHtml(data.returns)}</td></tr>`;
+            html += '</table>';
+            tokushoContainer.innerHTML = html;
+        }
+    });
+}
 </script>
 </head>
 <body>
@@ -5469,6 +5508,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof initNotificationSystem === 'function') initNotificationSystem();
     if (typeof renderJobs === 'function') renderJobs();
     if (typeof renderRealestates === 'function') renderRealestates();
+    if (typeof listenToPrivacyPolicy === 'function') listenToPrivacyPolicy();
+    if (typeof listenToTokusho === 'function') listenToTokusho();
 });
 </script>
 <script>
