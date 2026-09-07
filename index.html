@@ -4507,7 +4507,7 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
               (a.liveStarted ? '<span class="auction-live-badge">• LIVE配信中</span>' :
               '<span class="auction-type-badge">ライブ配信予定</span>'))
             : `<span class="auction-type-badge">${typeLabel}</span>`;
-
+　　　　const categoryBadge = `<span class="auction-type-badge" style="background:#f0f0f0; color:#333; margin-right:4px;">${escapeAuctionText(a.category || 'その他')}</span>`;
         let ownerButtons = '';
         if (isOwner && a.type === 'live') {
             ownerButtons = `
@@ -4527,7 +4527,7 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
         return `
             <div class="auction-card" role="button" tabindex="0" onclick="openAuctionDetail('${a.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openAuctionDetail('${a.id}');}">
                 <div class="auction-media">${mediaHtml}</div>
-                <div>${liveState}</div>
+              <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">${categoryBadge}${liveState}</div>
                 <div class="auction-title">${escapeAuctionText(a.title)}</div>
                 <div class="auction-price">開始価格: ¥${startPrice}</div>
                 <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">現在価格: ¥${currentPrice}</div>
@@ -6435,6 +6435,7 @@ window.submitAuction = function(e) {
     const newAuction = {
         id: Date.now().toString(),
         title: document.getElementById('auction-title-input')?.value || 'タイトルなし',
+        category: document.getElementById('auction-category-input')?.value || 'その他',
         price: document.getElementById('auction-price-input')?.value || 0,
         desc: document.getElementById('auction-desc-input')?.value || '',
         image: document.getElementById('auction-media-preview')?.querySelector('img')?.src || ''
