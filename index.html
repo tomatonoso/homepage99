@@ -1063,130 +1063,48 @@
         margin-bottom: 15px;
     }
 }
-/* スマホ画面レイアウト（商品一覧：横5列・正方形・要素絞り込み） */
 @media screen and (max-width: 600px) {
-    /* 1. 画面全体の横スクロール（はみ出し）を完全禁止 */
-    html, body {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* 2. ヘッダーの一元収容 */
-    header, .header-container, nav, div[class*="header"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-        padding: 4px 2px !important;
-        gap: 1px !important;
-    }
-
-    header *, .header-container *, nav * {
-        writing-mode: horizontal-tb !important;
-        white-space: nowrap !important;
-        box-sizing: border-box !important;
-    }
-
-    .logo, .logo-text, header a[class*="logo"] {
-        font-size: 10px !important;
-        padding: 0 1px !important;
-    }
-
-    header button, header a, header input, header .btn {
-        font-size: 8px !important;
-        padding: 2px 3px !important;
-        height: 24px !important;
-        min-width: unset !important;
-    }
-
-    header input[type="text"], header input[type="search"] {
-        width: 40px !important;
-        font-size: 8px !important;
-    }
-
-    /* 3. 商品一覧グリッド（横5列・自動折り返し） */
+    /* グリッドの隙間を完全にゼロ化 */
     .product-grid, .item-list, .auction-grid, div[class*="grid"], div[class*="list"] {
         display: flex !important;
         flex-wrap: wrap !important;
         width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        padding: 2px !important;
-        gap: 2px !important; /* カード同士の隙間を最小限にして画像を確保 */
-        justify-content: flex-start !important;
+        padding: 0 !important;
+        gap: 0 !important;
     }
 
-    /* 商品カード（余計な枠線やパディングを除去） */
+    /* 各カードの幅をピッタリ20%に指定 */
     .product-card, .item-card, .auction-card, div[class*="card"] {
-        width: calc(20% - 1.6px) !important;
-        max-width: calc(20% - 1.6px) !important;
-        min-width: unset !important;
-        box-sizing: border-box !important;
+        width: 20% !important;
+        max-width: 20% !important;
         margin: 0 !important;
-        padding: 0 0 4px 0 !important;
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
+        padding: 1px !important; /* 最小限の区切り線代わりに1pxのみ */
+        box-sizing: border-box !important;
     }
 
-    /* 【画像】完全な正方形（1:1）で表示 */
+    /* 画像を正方形で横幅100%表示 */
     .product-card img, .item-card img, .auction-card img, div[class*="card"] img {
         width: 100% !important;
         height: auto !important;
-        aspect-ratio: 1 / 1 !important; /* 正方形固定 */
-        object-fit: cover !important;  /* 枠に合わせて綺麗にトリミング */
-        border-radius: 4px !important;
+        aspect-ratio: 1 / 1 !important;
+        object-fit: cover !important;
+        border-radius: 0 !important;
         display: block !important;
     }
 
-    /* 【商品名】1行で収め、あふれた文字は「…」表記 */
-    .product-card h3, .product-card h4, .auction-card-title, div[class*="card"] div[class*="title"], div[class*="card"] p {
-        font-size: 9px !important;
-        line-height: 1.2 !important;
-        margin: 2px 0 0 0 !important;
-        padding: 0 !important;
+    /* タイトルと価格の文字サイズを最小化 */
+    .product-card h3, .auction-card-title, div[class*="card"] div[class*="title"] {
+        font-size: 8px !important;
+        margin: 1px 0 0 0 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        font-weight: normal !important;
-        color: #333 !important;
     }
 
-    /* 【価格】太字で簡潔に表示 */
-    .product-card .price, .auction-card [class*="price"], div[class*="card"] span[class*="price"] {
-        font-size: 10px !important;
-        font-weight: bold !important;
-        color: #d9534f !important;
-        margin: 1px 0 0 0 !important;
-        padding: 0 !important;
-        display: block !important;
-    }
-
-    /* 【非表示化】カテゴリタグ・説明文・評価などを非表示（画像・名前・価格のみ残す） */
-    div[class*="card"] .badge,
-    div[class*="card"] .category,
-    div[class*="card"] .description,
-    div[class*="card"] .seller,
-    div[class*="card"] .time {
-        display: none !important;
-    }
-
-    /* 4. 丸型「出品」ボタン */
-    .exhibit-btn, .sell-btn, button[class*="exhibit"], a[class*="exhibit"] {
-        width: 48px !important;
-        height: 48px !important;
-        border-radius: 50% !important;
+    .product-card .price, .auction-card [class*="price"] {
         font-size: 8px !important;
-        position: fixed !important;
-        bottom: 20px !important;
-        right: 12px !important;
-        z-index: 9999 !important;
+        font-weight: bold !important;
+        margin: 0 !important;
     }
 }
 /* 詳細モーダルの表示スタイル */
