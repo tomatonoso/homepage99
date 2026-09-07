@@ -7185,37 +7185,35 @@ function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 window.filterAuctionsByCategory = function(selectedCategory) {
-    // 1. localStorage から全データを取得
+    // 1. 全オークションデータを取得
     let auctions = JSON.parse(localStorage.getItem('minatomo_auctions')) || [];
 
-    // 2. カテゴリーで絞り込み（「すべて」の場合はそのまま）
+    // 2. カテゴリーで絞り込み
     if (selectedCategory && selectedCategory !== '') {
-        auctions = auctions.filter(a => a.category === selectedCategory);
+        auctions = auctions.filter(a => {
+            // categoryが未定義の場合は「その他」として扱う
+            const itemCat = a.category || 'その他';
+            return itemCat === selectedCategory;
+        });
     }
 
-    // 3. 現在選択されている並び替え順を適用（もし sortAuctions がある場合）
-    const sortValue = document.getElementById('auction-sort-select')?.value;
-    if (sortValue && typeof window.sortAuctions === 'function') {
-        // 並び替え処理
-        if (sortValue === 'newest') auctions.sort((a, b) => b.id - a.id);
-        if (sortValue === 'oldest') auctions.sort((a, b) => a.id - b.id);
-        if (sortValue === 'price-high') auctions.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));
-        if (sortValue === 'price-low') auctions.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));
-    }
+    // 3. モーダル内の表示コンテナを取得
+    const container = document.getElementById('all-auctions-container') || 
+                      document.getElementById('auction-modal-list') ||
+                      document.querySelector('#all-auctions-modal .modal-body');
 
-    // 4. 絞り込んだデータで描画（全件モーダル内の表示領域にセット）
-    const modalContainer = document.getElementById('all-auctions-container') || 
-                           document.getElementById('auction-list-container');
-                           
-    if (!modalContainer) return;
+    if (!container) return;
 
+    // 4. データがない場合の表示
     if (auctions.length === 0) {
-        modalContainer.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">該当するカテゴリーのオークションはありません。</p>';
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:#888;">該当するカテゴリーのオークションはありません。</div>';
         return;
     }
 
-    // 既存のrenderAuctionsと同様の描画ロジックで表示
-    renderFilteredList(modalContainer, auctions);
+    // 5. 既存の描画ロジック（renderAuctions相当）で描画
+    if (typeof window.renderAuctions === 'function') {
+        window.renderAuctions(auctions, container);
+    }
 };
 </script>
 </body>
