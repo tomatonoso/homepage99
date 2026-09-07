@@ -7210,10 +7210,24 @@ window.filterAuctionsByCategory = function(selectedCategory) {
         return;
     }
 
-    // 5. 既存の描画ロジック（renderAuctions相当）で描画
-    if (typeof window.renderAuctions === 'function') {
-        window.renderAuctions(auctions, container);
-    }
+    // 5. モーダル内に直接カードを描画
+    container.innerHTML = auctions.map(a => {
+        const startPrice = Number(a.startPrice || a.price || 0).toLocaleString();
+        const currentPrice = Number(a.currentPrice || a.price || 0).toLocaleString();
+        const categoryBadge = `<span class="auction-type-badge" style="background:#e9ecef; color:#495057; font-weight:bold; margin-right:4px;">${escapeAuctionText(a.category || 'その他')}</span>`;
+
+        return `
+            <div class="auction-card" role="button" tabindex="0" onclick="openAuctionDetail('${a.id}')">
+                <div class="auction-media">${a.image ? `<img src="${a.image}" alt="">` : '<i class="fa-solid fa-gavel" style="font-size:2rem;color:#bbb;"></i>'}</div>
+                <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">${categoryBadge}</div>
+                <div class="auction-title">${escapeAuctionText(a.title)}</div>
+                <div class="auction-price">開始価格: ¥${startPrice}</div>
+                <div style="font-size:0.85rem; font-weight:bold; margin-bottom:6px;">現在価格: ¥${currentPrice}</div>
+                <div class="auction-desc">${escapeAuctionText(a.desc)}</div>
+                <div class="auction-author">投稿者: ${escapeAuctionText(a.author || '匿名')}</div>
+            </div>
+        `;
+    }).join('');
 };
 </script>
 </body>
