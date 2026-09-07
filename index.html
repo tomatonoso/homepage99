@@ -6553,9 +6553,23 @@ function openAdminMenu() {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-right: 24px;">
             <h3 style="margin: 0;">開催中のオークション（全件）</h3>
             
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <!-- カテゴリー絞り込み -->
+                <label for="auction-category-filter" style="font-size: 0.85rem; color: #555; font-weight: bold;">カテゴリー:</label>
+                <select id="auction-category-filter" onchange="filterAuctionsByCategory(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.85rem;">
+                    <option value="">すべて</option>
+                    <option value="ファッション">ファッション</option>
+                    <option value="家電・スマホ・カメラ">家電・スマホ・カメラ</option>
+                    <option value="インテリア・家具">インテリア・家具</option>
+                    <option value="アクア・ペット用品">アクア・ペット用品</option>
+                    <option value="本・音楽・ゲーム">本・音楽・ゲーム</option>
+                    <option value="生活雑貨">生活雑貨</option>
+                    <option value="その他">その他</option>
+                </select>
+
+                <!-- 並び替え -->
                 <label for="auction-sort-select" style="font-size: 0.85rem; color: #555; font-weight: bold;">並び替え:</label>
-                <select id="auction-sort-select" onchange="sortAuctions(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.85rem; background-color: #fff; cursor: pointer;">
+                <select id="auction-sort-select" onchange="sortAuctions(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.85rem;">
                     <option value="newest">最新順</option>
                     <option value="oldest">古い順</option>
                     <option value="price-high">現在価格が高い順</option>
@@ -7167,6 +7181,39 @@ function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+window.filterAuctionsByCategory = function(selectedCategory) {
+    // 1. localStorage から全データを取得
+    let auctions = JSON.parse(localStorage.getItem('minatomo_auctions')) || [];
+
+    // 2. カテゴリーで絞り込み（「すべて」の場合はそのまま）
+    if (selectedCategory && selectedCategory !== '') {
+        auctions = auctions.filter(a => a.category === selectedCategory);
+    }
+
+    // 3. 現在選択されている並び替え順を適用（もし sortAuctions がある場合）
+    const sortValue = document.getElementById('auction-sort-select')?.value;
+    if (sortValue && typeof window.sortAuctions === 'function') {
+        // 並び替え処理
+        if (sortValue === 'newest') auctions.sort((a, b) => b.id - a.id);
+        if (sortValue === 'oldest') auctions.sort((a, b) => a.id - b.id);
+        if (sortValue === 'price-high') auctions.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));
+        if (sortValue === 'price-low') auctions.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));
+    }
+
+    // 4. 絞り込んだデータで描画（全件モーダル内の表示領域にセット）
+    const modalContainer = document.getElementById('all-auctions-container') || 
+                           document.getElementById('auction-list-container');
+                           
+    if (!modalContainer) return;
+
+    if (auctions.length === 0) {
+        modalContainer.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">該当するカテゴリーのオークションはありません。</p>';
+        return;
+    }
+
+    // 既存のrenderAuctionsと同様の描画ロジックで表示
+    renderFilteredList(modalContainer, auctions);
+};
 </script>
 </body>
 </html>
