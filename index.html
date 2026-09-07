@@ -1797,6 +1797,31 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
 
     // 画面読み込み完了時に実行
     document.addEventListener('DOMContentLoaded', listenToNews);
+// 個人情報保護方針（プライバシーポリシー）をリアルタイム取得・表示
+    function listenToPrivacyPolicy() {
+        const privacyContainer = document.getElementById('display-privacy-content');
+        if (!privacyContainer) return;
+
+        // Firebaseの「admin_data/privacy」を監視
+        db.ref('admin_data/privacy').on('value', (snapshot) => {
+            const data = snapshot.val();
+
+            if (!data || !data.content) {
+                privacyContainer.innerHTML = '<p style="color:#888;">個人情報保護方針はまだ設定されていません。</p>';
+                return;
+            }
+
+            // 改行を維持して表示
+            privacyContainer.style.whiteSpace = 'pre-wrap';
+            privacyContainer.innerHTML = escapeNewsHtml(data.content);
+        });
+    }
+
+    // 画面読み込み時に呼び出し（listenToNews と一緒に呼び出す）
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof listenToNews === 'function') listenToNews();
+        listenToPrivacyPolicy();
+    });
 </script>
 </head>
 <body>
