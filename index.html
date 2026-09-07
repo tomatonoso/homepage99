@@ -2091,17 +2091,39 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
          
      <div id="mypage-tab-chats" class="admin-tab-content active">
     <h3>メール（チャット）</h3>
-    <div style="margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; height: 450px; display: flex; flex-direction: column; background: #fff;">
-        <div style="background: #2a9d8f; color: #fff; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <span id="current-room-title" style="font-weight: bold; font-size: 14px; flex: 1;">トーク相手</span>
+    
+    <div style="margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff; display: flex; flex-direction: column; height: 480px;">
+        <!-- トーク一覧エリア -->
+        <div id="mypage-talk-list-section" style="border-bottom: 1px solid #eee; max-height: 180px; overflow-y: auto;">
+            <!-- 運営サポート項目 -->
+            <div onclick="openSupportChat()" style="display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; background: #fff;" onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='#fff'">
+                <div style="width: 40px; height: 40px; background: #e63946; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; flex-shrink: 0;">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: bold; font-size: 14px; color: #333;">運営サポート</div>
+                    <div style="font-size: 12px; color: #777; margin-top: 2px;">運営への相談・お問い合わせ</div>
+                </div>
+            </div>
+            <!-- 他のトークルームが動的に入るエリア -->
+            <div id="mypage-talk-rooms-list"></div>
         </div>
-        <div id="talk-messages-body" style="flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #f9f9f9;"></div>
-        <div style="background: #fff; padding: 8px; display: flex; gap: 6px; border-top: 1px solid #ddd;">
-            <textarea id="talk-message-input" placeholder="メッセージを入力..." style="flex: 1; height: 36px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; resize: none;"></textarea>
-            <button type="button" onclick="sendActiveRoomMessage()" style="background: #2a9d8f; color: #fff; border: none; padding: 0 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">送信</button>
+
+        <!-- メッセージ表示・入力エリア -->
+        <div id="mypage-chat-room-section" style="flex: 1; display: flex; flex-direction: column; background: #f9f9f9; overflow: hidden;">
+            <div style="background: #34495e; color: #fff; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+                <span id="current-room-title" style="font-weight: bold; font-size: 14px;">運営サポート</span>
+            </div>
+            
+            <div id="talk-messages-body" style="flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+
+            <div style="background: #fff; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #ddd;">
+                <textarea id="talk-message-input" placeholder="メッセージを入力..." style="flex: 1; height: 38px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; resize: none; font-size: 14px;"></textarea>
+                <button type="button" onclick="sendActiveRoomMessage()" style="background: #2a9d8f; color: #fff; border: none; padding: 0 16px; border-radius: 4px; font-weight: bold; cursor: pointer;">送信</button>
+            </div>
         </div>
     </div>
-</div>      
+</div>
             <div id="mypage-tab-cart" class="admin-tab-content">
                 <h3>現在のカート内商品</h3>
                 <div id="mypage-cart-list" style="min-height: 100px; max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
@@ -7238,6 +7260,15 @@ window.filterAuctionsByCategory = function(selectedCategory) {
         `;
     }).join('');
 };
+function openSupportChat() {
+    const titleEl = document.getElementById('current-room-title');
+    if (titleEl) titleEl.textContent = '運営サポート';
+
+    // 既存のチャット読み込み処理があれば呼び出す
+    if (typeof loadTalkMessages === 'function') {
+        loadTalkMessages('support');
+    }
+}
 </script>
 </body>
 </html>
