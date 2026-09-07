@@ -1803,7 +1803,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         if (!privacyContainer) return;
 
         // Firebaseの「admin_data/privacy」を監視
-        db.ref('admin_data/privacy').on('value', (snapshot) => {
+       db.ref('admin_data/settings/privacy').on('value', (snapshot) => {
             const data = snapshot.val();
 
             if (!data || !data.content) {
