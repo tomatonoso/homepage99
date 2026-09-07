@@ -7394,7 +7394,15 @@ window.syncMypageTalkRooms = function() {
         if (typeof loadTalkRooms === 'function') loadTalkRooms();
     }
 };
+// どこからでも呼び出せるように明示的にグローバル（window）に登録
+window.selectMypageChatRoom = function(roomId, partnerName) {
+    const titleEl = document.getElementById('current-room-title');
+    if (titleEl) titleEl.textContent = partnerName;
 
+    if (typeof loadTalkMessages === 'function') {
+        loadTalkMessages(roomId);
+    }
+};
 </script>
 </body>
 </html>
