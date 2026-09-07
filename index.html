@@ -1063,6 +1063,41 @@
         margin-bottom: 15px;
     }
 }
+/* スマホ画面の崩れ防止スタイル調整 */
+@media screen and (max-width: 600px) {
+    /* ヘッダー各要素の折り返しを禁止し横並びに固定 */
+    header, .header-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: nowrap !important;
+        padding: 5px 10px !important;
+    }
+
+    /* ロゴの縦書き・折れ曲がりを防止 */
+    .logo, .logo-text, .logo a {
+        white-space: nowrap !important;
+        writing-mode: horizontal-tb !important;
+        font-size: 16px !important;
+    }
+
+    /* ログイン・登録ボタンの縦書化を防ぎ、コンパクト化 */
+    a[onclick*="login"], .login-btn, .btn-login {
+        white-space: nowrap !important;
+        writing-mode: horizontal-tb !important;
+        font-size: 11px !important;
+        padding: 4px 6px !important;
+        min-width: auto !important;
+    }
+
+    /* カテゴリー選択ボタン等の横スクロール対応 */
+    .category-container, .filter-buttons {
+        display: flex !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch;
+    }
+}
 /* 詳細モーダルの表示スタイル */
 #job-detail-modal {
     display: none;
