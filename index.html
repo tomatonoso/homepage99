@@ -1749,17 +1749,54 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-  const firebaseConfig = {
-      apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
-      authDomain: "yauwo-a9ba1.firebaseapp.com",
-      databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
-      projectId: "yauwo-a9ba1",
-      storageBucket: "yauwo-a9ba1.firebasestorage.app",
-      messagingSenderId: "574142452627",
-      appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
-  };
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+    const firebaseConfig = {
+        apiKey: "AIzaSyA_44lKUpSN3pONSrp8qJ3Zq1GNvosx_xg",
+        authDomain: "yauwo-a9ba1.firebaseapp.com",
+        databaseURL: "https://yauwo-a9ba1-default-rtdb.firebaseio.com",
+        projectId: "yauwo-a9ba1",
+        storageBucket: "yauwo-a9ba1.firebasestorage.app",
+        messagingSenderId: "574142452627",
+        appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 運営からのお知らせを自動取得・表示する処理
+    function listenToNews() {
+        const newsContainer = document.getElementById('news-list-container');
+        if (!newsContainer) return;
+
+        db.ref('admin_data/news').on('value', (snapshot) => {
+            const data = snapshot.val();
+            newsContainer.innerHTML = '';
+
+            if (!data) {
+                newsContainer.innerHTML = '<p style="padding:10px; color:#888; font-size:12px; text-align:center;">現在お知らせはありません。</p>';
+                return;
+            }
+
+            // 最新のお知らせが上にくるように逆順にして表示
+            const newsList = Object.keys(data).map(key => data[key]).reverse();
+
+            newsContainer.innerHTML = newsList.map(item => `
+                <div style="padding: 10px 12px; border-bottom: 1px solid #eee; background: #fff;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-weight: bold; font-size: 13px; color: #1d3557;">${escapeNewsHtml(item.title || '')}</span>
+                        <span style="font-size: 11px; color: #888;">${escapeNewsHtml(item.createdAt || '')}</span>
+                    </div>
+                    <div style="font-size: 12px; color: #444; white-space: pre-wrap; line-height: 1.4;">${escapeNewsHtml(item.content || '')}</div>
+                </div>
+            `).join('');
+        });
+    }
+
+    function escapeNewsHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 画面読み込み完了時に実行
+    document.addEventListener('DOMContentLoaded', listenToNews);
 </script>
 </head>
 <body>
