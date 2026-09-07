@@ -6355,22 +6355,26 @@ window.submitAuction = function(e) {
     if (e && e.preventDefault) e.preventDefault();
     console.log('submitAuction が実行されました');
 
-    // 1. 入力値から新しいオークションオブジェクトを作成
+   // 1. 投稿データのオブジェクト作成
     const newAuction = {
         id: Date.now().toString(),
-        title: document.getElementById('auction-title-input')?.value || '',
+        title: document.getElementById('auction-title-input')?.value || 'タイトルなし',
         price: document.getElementById('auction-price-input')?.value || 0,
-        desc: document.getElementById('auction-desc-input')?.value || ''
+        desc: document.getElementById('auction-desc-input')?.value || '',
+        image: document.getElementById('auction-media-preview')?.querySelector('img')?.src || ''
     };
 
-    // 2. window.auctions 配列が存在しなければ初期化し、先頭に追加
-    if (!window.auctions) window.auctions = [];
-    window.auctions.unshift(newAuction);
+    // 2. 配列の取得と追加（`auctions` 変数に統一）
+    if (typeof auctions === 'undefined' || !Array.isArray(auctions)) {
+        auctions = [];
+    }
+    auctions.unshift(newAuction);
+    window.auctions = auctions;
 
-    // 3. ローカルストレージへ保存
-    localStorage.setItem('auctions', JSON.stringify(window.auctions));
+    // 3. ローカルストレージへ保存（キー名を 'minatomo_auctions' に統一）
+    localStorage.setItem('minatomo_auctions', JSON.stringify(auctions));
 
-    // 4. メイン画面・一覧の再描画処理を呼び出し
+    // 4. メイン画面の再描画処理を呼び出し
     if (typeof renderAuctions === 'function') {
         renderAuctions();
     }
@@ -6382,7 +6386,7 @@ window.submitAuction = function(e) {
 
     alert('オークションを出品しました！');
 
-    // 投稿フォームのモーダルを閉じる
+    // 6. 投稿フォームのモーダルを閉じる
     const postModal = document.getElementById('auction-post-modal');
     if (postModal) {
         postModal.style.display = 'none';
