@@ -2476,6 +2476,17 @@ function submitNewProduct(event) {
                     <input type="text" id="auction-title-input" class="form-control" required placeholder="例: 希少な〇〇をオークションします">
                 </div>
                 <div class="form-group">
+                            <label>カテゴリー *</label>
+                            <select id="auction-category-input" class="form-control" required>
+                                <option value="">カテゴリーを選択してください</option>
+                                <option value="figure">フィギュア・ホビー</option>
+                                <option value="card">トレカ・カード</option>
+                                <option value="game">ゲーム・ゲーム機</option>
+                                <option value="fashion">ファッション・服飾</option>
+                                <option value="other">その他</option>
+                            </select>
+                        </div>
+                <div class="form-group">
                     <label>開始価格 (円) *</label>
                     <input type="number" id="auction-price-input" class="form-control" required min="1" placeholder="1000">
                 </div>
