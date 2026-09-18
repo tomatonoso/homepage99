@@ -8,6 +8,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
         :root {
@@ -1789,8 +1790,6 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
 @media(max-width:600px){.ai-choices{grid-template-columns:1fr}.ai-bubble{max-width:90%}}
 </style>
 <!-- Firebase 共通接続設定 -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
     const firebaseConfig = {
@@ -1803,7 +1802,8 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
         appId: "1:574142452627:web:6867c60d9fe8c9b545ce66"
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    window.auth = firebase.auth();
+    window.db = firebase.database();
 
     // 運営からのお知らせを自動取得・表示する処理
     function listenToNews() {
@@ -3300,6 +3300,7 @@ window.checkAuthAndOpenJobPost = function() {
     renderJobs(); // ← アルバイト一覧描画処理を追加
     updateGachaSettings();
     generateGachaCapsules();
+    if (typeof auth !== "undefined") { auth.onAuthStateChanged(async function(firebaseUser) { if (firebaseUser) { const snapshot = await db.ref("profiles/" + firebaseUser.uid).once("value"); const profile = snapshot.val() || {}; currentUser = { uid: firebaseUser.uid, name: profile.name || firebaseUser.email, email: firebaseUser.email, phone: "" }; updateAuthUI(); } else { currentUser = null; } }); }
 });
         function saveToStorage() {
             localStorage.setItem('minatomo_products', JSON.stringify(products));
@@ -4275,11 +4276,7 @@ window.sendPriceProposal = function() {
             }
         };
 
-       window.handleBuyerAuth = function(type) {
-    // localStorageから登録済みユーザー一覧を取得
-    const getBuyers = function() {
-        return JSON.parse(localStorage.getItem('minatomo_registered_buyers')) || [];
-    };
+       window.handleBuyerAuth = async function(type) {
 
     if (type === 'signup') {
         const name = document.getElementById('buyer-signup-name').value.trim();
@@ -4298,18 +4295,7 @@ window.sendPriceProposal = function() {
             return;
         }
 
-        const buyers = getBuyers();
-
-        // 既に同じメールアドレスが登録されていないかチェック
-        if (buyers.some(buyer => buyer.email === email)) {
-            alert('このメールアドレスは既に登録されています。ログイン画面からログインしてください。');
-            return;
-        }
-
-        // 新規ユーザー情報を保存
-        const newUser = { name: name, email: email, phone: phone, pass: pass };
-        buyers.push(newUser);
-        localStorage.setItem('minatomo_registered_buyers', JSON.stringify(buyers));
+        try { const userCredential = await auth.createUserWithEmailAndPassword(email, pass); const firebaseUser = userCredential.user; currentUser = { uid: firebaseUser.uid, name: name, email: email, phone: phone, kycStatus: window.buyerIdImageData ? "審査中" : "未提出" }; await db.ref("profiles/" + firebaseUser.uid).set({ uid: firebaseUser.uid, name: name }); await db.ref("private_users/" + firebaseUser.uid).update({ email: email, phone: phone }); alert("新規登録が完了し、ログインしました！"); closeModal("buyer-auth-modal"); updateAuthUI(); return; } catch (error) { console.error("Firebase Authentication registration error:", error); if (error.code === "auth/email-already-in-use") alert("このメールアドレスは既に登録されています。ログインしてください。"); else if (error.code === "auth/weak-password") alert("パスワードが弱すぎます。6文字以上のパスワードを使用してください。"); else if (error.code === "auth/invalid-email") alert("メールアドレスの形式が正しくありません。"); else alert("登録に失敗しました。時間をおいてもう一度お試しください。"); return; }
 
         // ★ ここから Firebase 送信処理を追加 ★
         if (typeof db !== 'undefined' && db.ref) {
@@ -4345,17 +4331,8 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
             return;
         }
 
-        const buyers = getBuyers();
-
-        // 登録データからメールアドレスとパスワードが一致するユーザーを検索
-        const matchedBuyer = buyers.find(buyer => buyer.email === email && buyer.pass === pass);
-
-        if (!matchedBuyer) {
-            alert('エラー: 登録されていないメールアドレスか、パスワードが間違っています。');
-            return;
-        }
-
-        currentUser = matchedBuyer;
+        // FIREBASE_AUTH_LOGIN_HERE
+        try { const userCredential = await auth.signInWithEmailAndPassword(email, pass); const firebaseUser = userCredential.user; const profileSnapshot = await db.ref("profiles/" + firebaseUser.uid).once("value"); const profile = profileSnapshot.val() || {}; currentUser = { uid: firebaseUser.uid, name: profile.name || firebaseUser.email, email: firebaseUser.email, phone: "" }; alert("ログインしました！"); closeModal("buyer-auth-modal"); updateAuthUI(); return; } catch (error) { console.error("Firebase Authentication login error:", error); if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") alert("メールアドレスまたはパスワードが正しくありません。"); else alert("ログインに失敗しました。時間をおいてもう一度お試しください。"); return; }
         alert('ログインしました！');
         closeModal('buyer-auth-modal');
         updateAuthUI();
@@ -4370,7 +4347,8 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
             }
         };
 
-        window.handleLogout = function() {
+        window.handleLogout = async function() {
+            if (typeof auth !== "undefined" && auth.currentUser) { await auth.signOut(); }
             currentUser = null;
             cart = [];
             document.getElementById('user-auth-btn-area').innerHTML = `<button class="btn-outline" onclick="openModal('buyer-auth-modal')"><i class="fa-solid fa-user"></i> ログイン / 登録</button>`;
@@ -6242,8 +6220,6 @@ window.openAdminModal = function() {
 
 <!-- 外部ライブラリ (QRコード生成 & Firebase) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
 // --- Firebase初期化設定 ---
@@ -6765,8 +6741,6 @@ function openAdminMenu() {
         </div>
     </div>
 </div>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
     // 既存の設定があれば再利用し、なければ定義
