@@ -84,10 +84,10 @@ async function performMobileFaceAuth() {
                 <p style="font-size: 0.85rem; color: #666; line-height: 1.5;">パソコン側の画面が自動的に切り替わりました。<br>この画面は閉じて構いません。</p>
             `;
         }
-    } catch (err) {
-        console.error(err);
-        alert("生体認証がキャンセルされたか、失敗しました。");
-    }
+  } catch (err) {
+    console.error(err);
+    alert("WebAuthnエラー\n名前: " + err.name + "\n内容: " + err.message);
+}
 }
 </script>
 </body>
