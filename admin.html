@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
         body { background: #f4f6f8; margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         .admin-card { max-width: 100%; margin: 0 auto; padding: 20px; background: #ffffff; border: 2px solid #e63946; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -58,9 +59,33 @@
         .chat-bubble.buyer, .chat-bubble.user { align-self: flex-start; background: #ffffff; border: 1px solid #ced4da; color: #212529; }
         .chat-bubble.seller, .chat-bubble.admin { align-self: flex-end; background: #d1e7dd; border: 1px solid #badbcc; color: #0f5132; }
         .chat-bubble .meta { font-size: 10px; color: #888; margin-bottom: 3px; display: flex; justify-content: space-between; gap: 10px; }
+            /* 管理者認証ゲート */
+        #admin-auth-gate { position: fixed; inset: 0; z-index: 100000; display: flex; justify-content: center; align-items: center; background: #f4f6f8; padding: 20px; box-sizing: border-box; }
+        #admin-auth-box { width: 420px; max-width: 100%; background: #fff; border: 2px solid #1d3557; border-radius: 12px; padding: 28px; box-shadow: 0 8px 30px rgba(0,0,0,.12); box-sizing: border-box; }
+        #admin-auth-box h2 { margin: 0 0 8px; color: #1d3557; font-size: 1.25rem; }
+        #admin-auth-box p { color: #666; font-size: 13px; line-height: 1.6; }
+        #admin-auth-box input { width: 100%; box-sizing: border-box; padding: 11px; margin-top: 8px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; }
+        #admin-auth-box button { width: 100%; margin-top: 12px; padding: 11px; border: 0; border-radius: 6px; background: #1d3557; color: #fff; font-weight: bold; cursor: pointer; }
+        #admin-auth-error { display:none; margin-top:10px; padding:10px; border-radius:6px; background:#f8d7da; color:#842029; font-size:12px; }
+        #admin-auth-loading { color:#666; font-size:12px; }
+        #admin-signout-btn { display:none; margin-left:10px; padding:6px 10px; border:1px solid #dc3545; border-radius:5px; background:#fff; color:#dc3545; cursor:pointer; font-size:11px; }
     </style>
 </head>
 <body>
+    <div id="admin-auth-gate">
+        <div id="admin-auth-box">
+            <h2><i class="fa-solid fa-shield-halved"></i> 管理者認証</h2>
+            <p>このページは管理者専用です。Firebase Authenticationでログインし、管理者権限が確認された場合のみ管理画面を表示します。</p>
+            <form id="admin-login-form">
+                <input id="admin-email" type="email" autocomplete="username" placeholder="管理者メールアドレス" required>
+                <input id="admin-password" type="password" autocomplete="current-password" placeholder="パスワード" required>
+                <button type="submit">管理者としてログイン</button>
+            </form>
+            <div id="admin-auth-loading"></div>
+            <div id="admin-auth-error"></div>
+        </div>
+    </div>
+
 
     <!-- Firebase 初期化設定 -->
     <script>
@@ -75,12 +100,78 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const auth = firebase.auth();
+
+        function showAdminAuthError(message) {
+            const el = document.getElementById('admin-auth-error');
+            if (el) { el.textContent = message; el.style.display = 'block'; }
+        }
+
+        function setAdminAuthLoading(message) {
+            const el = document.getElementById('admin-auth-loading');
+            if (el) el.textContent = message || '';
+        }
+
+        function showAdminPanel(user) {
+            document.getElementById('admin-auth-gate').style.display = 'none';
+            document.getElementById('admin-signout-btn').style.display = 'inline-block';
+            setAdminAuthLoading('');
+            checkAndSeedData(() => { loadDashboardKPI(); });
+        }
+
+        function denyAdminAccess(message) {
+            document.querySelector('.admin-card').style.display = 'none';
+            showAdminAuthError(message);
+            setAdminAuthLoading('');
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                document.querySelector('.admin-card').style.display = 'none';
+                document.getElementById('admin-auth-gate').style.display = 'flex';
+                return;
+            }
+            try {
+                const tokenResult = await user.getIdTokenResult(true);
+                if (tokenResult.claims && tokenResult.claims.admin === true) {
+                    showAdminPanel(user);
+                } else {
+                    await auth.signOut();
+                    denyAdminAccess('このアカウントには管理者権限がありません。');
+                }
+            } catch (error) {
+                await auth.signOut();
+                denyAdminAccess('管理者権限の確認に失敗しました。もう一度ログインしてください。');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('admin-login-form').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const email = document.getElementById('admin-email').value.trim();
+                const password = document.getElementById('admin-password').value;
+                document.getElementById('admin-auth-error').style.display = 'none';
+                setAdminAuthLoading('認証しています…');
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                } catch (error) {
+                    const messageMap = {
+                        'auth/invalid-credential': 'メールアドレスまたはパスワードが正しくありません。',
+                        'auth/user-disabled': 'このアカウントは無効化されています。',
+                        'auth/too-many-requests': '試行回数が多すぎます。しばらく待ってから再試行してください。'
+                    };
+                    showAdminAuthError(messageMap[error.code] || 'ログインに失敗しました。');
+                    setAdminAuthLoading('');
+                }
+            });
+            document.getElementById('admin-signout-btn').addEventListener('click', () => auth.signOut());
+        });
     </script>
 
     <div class="admin-card">
         <div class="admin-header">
             <h2><i class="fa-solid fa-sliders" style="color: #e63946; margin-right: 8px;"></i> 統合運営管理スプレッドシート</h2>
-            <span style="font-size: 12px; color: #666;"><i class="fa-solid fa-shield-halved"></i> 管理者専用モード</span>
+            <span style="font-size: 12px; color: #666;"><i class="fa-solid fa-shield-halved"></i> 管理者専用モード <button id="admin-signout-btn" type="button">ログアウト</button></span>
         </div>
 
         <!-- 15のタブ切替バー -->
@@ -782,12 +873,7 @@
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    // ページの初期化処理
-    document.addEventListener('DOMContentLoaded', function() {
-        checkAndSeedData(() => { 
-            loadDashboardKPI();
-        });
-    });
+    // ページの初期化は管理者権限確認後に実行する。
 
     window.viewKycImage = function(imageUrl, userName) {
         const win = window.open("", "_blank", "width=600,height=600");
