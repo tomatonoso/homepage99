@@ -804,6 +804,14 @@
         const passwordEl = document.getElementById('admin-login-password');
         const loginBtn = document.getElementById('admin-login-button');
 
+        // 管理画面の認証状態は「セッション中のみ」保持する
+        // ブラウザを完全に閉じると、次回は必ずログイン画面から開始します。
+        firebase.auth().setPersistence(
+            firebase.auth.Auth.Persistence.SESSION
+        ).catch(function(err) {
+            console.error('認証状態の保存方式を設定できませんでした:', err);
+        });
+
         function showError(message) {
             errorEl.textContent = message;
             errorEl.style.display = 'block';
@@ -852,6 +860,12 @@
             }
             setLoading(true);
             try {
+                // ブラウザを閉じたらログイン状態を終了する
+                // SESSIONでは、同じブラウザのセッション中だけ認証状態を保持します。
+                await firebase.auth().setPersistence(
+                    firebase.auth.Auth.Persistence.SESSION
+                );
+
                 const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
                 await verifyAdmin(credential.user);
             } catch (err) {
@@ -928,3 +942,4 @@
     </script>
 </body>
 </html>
+
