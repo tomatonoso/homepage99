@@ -804,10 +804,11 @@
         const passwordEl = document.getElementById('admin-login-password');
         const loginBtn = document.getElementById('admin-login-button');
 
-        // 管理画面の認証状態は「セッション中のみ」保持する
-        // ブラウザを完全に閉じると、次回は必ずログイン画面から開始します。
+        // 管理画面は「毎回、本人が入力してログイン」する方式に固定します。
+        // Firebaseのログイン状態をブラウザやタブに保存しません。
+        // そのため、admin.htmlを開くたびにメールアドレスとパスワードの入力が必要です。
         firebase.auth().setPersistence(
-            firebase.auth.Auth.Persistence.SESSION
+            firebase.auth.Auth.Persistence.NONE
         ).catch(function(err) {
             console.error('認証状態の保存方式を設定できませんでした:', err);
         });
@@ -836,6 +837,10 @@
                 const tokenResult = await user.getIdTokenResult(true);
                 if (tokenResult.claims && tokenResult.claims.admin === true) {
                     overlay.style.display = 'none';
+                    // 認証成功後にだけ管理画面データを読み込みます。
+                    checkAndSeedData(() => {
+                        loadDashboardKPI();
+                    });
                     return;
                 }
 
@@ -860,10 +865,10 @@
             }
             setLoading(true);
             try {
-                // ブラウザを閉じたらログイン状態を終了する
-                // SESSIONでは、同じブラウザのセッション中だけ認証状態を保持します。
+                // ログイン状態を保存しません。
+                // 管理画面を開くたびに、必ず本人が入力してログインします。
                 await firebase.auth().setPersistence(
-                    firebase.auth.Auth.Persistence.SESSION
+                    firebase.auth.Auth.Persistence.NONE
                 );
 
                 const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
@@ -880,13 +885,6 @@
 
         firebase.auth().onAuthStateChanged(verifyAdmin);
     })();
-
-    // ページの初期化処理
-    document.addEventListener('DOMContentLoaded', function() {
-        checkAndSeedData(() => { 
-            loadDashboardKPI();
-        });
-    });
 
     window.viewKycImage = function(imageUrl, userName) {
         const win = window.open("", "_blank", "width=600,height=600");
@@ -942,4 +940,5 @@
     </script>
 </body>
 </html>
+
 
