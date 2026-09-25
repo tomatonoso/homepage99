@@ -6257,7 +6257,7 @@ function initPCFaceAuth() {
     // ② Firebaseリアルタイム監視
     try {
         if (typeof db !== 'undefined' && db) {
-            db.ref('sessions/' + currentSessionId).set({ status: 'PENDING' });
+            db.ref('sessions/' + currentSessionId).set({ status: 'PENDING', createdAt: firebase.database.ServerValue.TIMESTAMP });
             db.ref('sessions/' + currentSessionId).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data && data.status === 'APPROVED') {
