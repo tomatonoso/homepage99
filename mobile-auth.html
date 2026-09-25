@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>運営者 顔認証</title>
+    <title>ミナトモ！ 管理者QR認証</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body style="font-family: sans-serif; background: #f4f5f7; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; box-sizing: border-box;">
 
 <div id="auth-card" style="background: #fff; width: 100%; max-width: 360px; padding: 24px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
     <div style="font-size: 3rem; margin-bottom: 12px;">👤</div>
-    <h3 style="margin: 0 0 8px 0; color: #333;">運営者 顔認証</h3>
+    <h3 style="margin: 0 0 8px 0; color: #333;">ミナトモ！ 管理者QR認証</h3>
     <p style="font-size: 0.85rem; color: #666; margin-bottom: 24px; line-height: 1.5;">
-        ボタンを押して Face ID / Touch ID または画面ロック解除を行い、パソコン側の画面を進めてください。
+        管理者アカウントで認証して、パソコン側のQRセッションを承認してください。
     </p>
 
-    <button onclick="performMobileFaceAuth()" style="width: 100%; padding: 14px; background: #e63946; color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer;">
-        生体認証を開始する
+    <input id="admin-email" type="email" value="minatomogakusyuu374649@gmail.com" autocomplete="username" placeholder="管理者メールアドレス" style="width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem;">
+    <input id="admin-password" type="password" autocomplete="current-password" placeholder="管理者パスワード" style="width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem;">
+    <button onclick="performMobileQrAuth()" style="width: 100%; padding: 14px; background: #e63946; color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer;">
+        管理者認証して承認する
     </button>
 </div>
 
@@ -41,52 +44,58 @@ const db = firebase.database();
 const urlParams = new URLSearchParams(window.location.search);
 const sessionId = urlParams.get('session');
 
-async function performMobileFaceAuth() {
+async function performMobileQrAuth() {
     if (!sessionId) {
         alert("エラー: セッション情報が見つかりません。PC画面のQRコードを読み直してください。");
         return;
     }
 
+    const email = document.getElementById("admin-email").value.trim();
+    const password = document.getElementById("admin-password").value;
+
+    if (!email || !password) {
+        alert("管理者メールアドレスとパスワードを入力してください。");
+        return;
+    }
+
+    const ADMIN_UID = "AbcuCZXecHQZ7e2oJLeUnh5U3oz2";
+
     try {
-        if (!window.PublicKeyCredential) {
-            alert("お使いのスマートフォンは生体認証に対応していません。");
+        const auth = firebase.auth();
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const firebaseUser = userCredential.user;
+
+        if (!firebaseUser || firebaseUser.uid !== ADMIN_UID) {
+            await auth.signOut();
+            alert("このアカウントは管理者として認証されていません。");
             return;
         }
 
-        // 事前登録なしで直接Face ID / Touch IDを呼び出す設定
-        const options = {
-            publicKey: {
-                challenge: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
-                rp: { name: "運営者認証" },
-                user: {
-                    id: new Uint8Array([1, 2, 3, 4]),
-                    name: "admin",
-                    displayName: "Admin"
-                },
-                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                authenticatorSelection: {
-                    authenticatorAttachment: "platform", // スマホ端末本体の生体認証を強制
-                    userVerification: "required"
-                },
-                timeout: 60000
-            }
-        };
+        await db.ref("sessions/" + sessionId).update({
+            status: "APPROVED",
+            uid: firebaseUser.uid,
+            authenticatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
 
-        const credential = await navigator.credentials.create(options);
+        await auth.signOut();
 
-        if (credential) {
-            // 生体認証が成功したらFirebaseのステータスを APPROVED に更新
-            await db.ref('sessions/' + sessionId).update({ status: 'APPROVED' });
-
-            document.getElementById('auth-card').innerHTML = `
-                <div style="font-size: 3.5rem; color: #28a745; margin-bottom: 12px;">✓</div>
-                <h3 style="margin: 0 0 8px 0; color: #333;">認証完了</h3>
-                <p style="font-size: 0.85rem; color: #666; line-height: 1.5;">パソコン側の画面が自動的に切り替わりました。<br>この画面は閉じて構いません。</p>
-            `;
-        }
+        document.getElementById("auth-card").innerHTML = `
+            <div style="font-size: 3.5rem; color: #28a745; margin-bottom: 12px;">✓</div>
+            <h3 style="margin: 0 0 8px 0; color: #333;">認証完了</h3>
+            <p style="font-size: 0.85rem; color: #666; line-height: 1.5;">パソコン側の画面が自動的に切り替わりました。<br>この画面は閉じて構いません。</p>
+        `;
     } catch (err) {
-        console.error(err);
-        alert("生体認証がキャンセルされたか、失敗しました。");
+        console.error("管理者認証エラー:", err);
+
+        if (
+            err.code === "auth/user-not-found" ||
+            err.code === "auth/wrong-password" ||
+            err.code === "auth/invalid-credential"
+        ) {
+            alert("メールアドレスまたはパスワードが正しくありません。");
+        } else {
+            alert("管理者認証に失敗しました。時間をおいてもう一度お試しください。");
+        }
     }
 }
 </script>
