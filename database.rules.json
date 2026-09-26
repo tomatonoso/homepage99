@@ -15,130 +15,148 @@
 
     "profiles": {
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
+        ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
         ".write": "auth != null && auth.uid === $uid && !data.exists()",
+
+        "status": {
+          ".write": "auth != null && auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2'",
+          ".validate": "newData.isString()"
+        },
+
         ".validate": "newData.hasChildren(['uid']) && newData.child('uid').val() === $uid"
       }
     },
 
     "private_users": {
-  "$uid": {
-    ".read": false,
-    ".write": "auth != null && auth.uid === $uid && !newData.child('kyc').exists() && !newData.child('bank_account').exists()",
+      "$uid": {
+        ".read": false,
+        ".write": false,
 
-    "email": {
-      ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
-      ".write": "auth != null && auth.uid === $uid"
+        "email": {
+          ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+          ".write": "auth != null && auth.uid === $uid"
+        },
+
+        "phone": {
+          ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+          ".write": "auth != null && auth.uid === $uid"
+        },
+
+        "settings": {
+          ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+          ".write": "auth != null && auth.uid === $uid"
+        },
+
+        "legacyIdentifiers": {
+          ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+          ".write": "auth != null && auth.uid === $uid"
+        },
+
+        "kyc": {
+          ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+          ".write": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || (auth.uid === $uid && !data.exists() && newData.child('status').val() === '蟇ｩ譟ｻ荳ｭ'))",
+          ".validate": "newData.hasChildren(['status', 'updatedAt']) && newData.child('status').isString() && newData.child('updatedAt').isNumber()"
+        },
+
+        "bank_account": {
+          ".read": "auth != null && auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2'",
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['bankName', 'bankBranch', 'accountType', 'accountNumber', 'accountHolder'])"
+        }
+      }
     },
 
-    "phone": {
-      ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
-      ".write": "auth != null && auth.uid === $uid"
+    "products": {
+      "$productId": {
+        ".read": true,
+
+        ".write": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || (!data.exists() && newData.child('sellerUid').val() === auth.uid))",
+
+        ".validate": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || (newData.hasChildren(['sellerUid']) && newData.child('sellerUid').val() === auth.uid))"
+      }
     },
-
-    "settings": {
-      ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
-      ".write": "auth != null && auth.uid === $uid"
-    },
-
-    "legacyIdentifiers": {
-      ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
-      ".write": "auth != null && auth.uid === $uid"
-    },
-
-    "kyc": {
-      ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
-      ".write": false,
-      ".validate": false
-    },
-
-    "bank_account": {
-      ".read": "auth != null && auth.token.admin === true",
-      ".write": false,
-      ".validate": false
-    }
-  }
-},
-
-  "products": {
-  "$productId": {
-    ".read": true,
-    ".write": "auth != null && auth.token.admin === true",
-    ".validate": "auth != null && auth.token.admin === true && (!newData.exists() || newData.hasChildren(['sellerUid']))"
-  }
-},
 
     "purchase_requests": {
       "$requestId": {
-        ".read": "auth != null && (data.child('requesterUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid || auth.token.admin === true)",
-        ".write": "auth != null && (newData.child('requesterUid').val() === auth.uid || data.child('requesterUid').val() === auth.uid || auth.token.admin === true)"
+        ".read": "auth != null && (data.child('requesterUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+
+        ".write": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || newData.child('requesterUid').val() === auth.uid || data.child('requesterUid').val() === auth.uid)"
       }
     },
 
     "orders": {
       "$orderId": {
-        ".read": "auth != null && (data.child('buyerUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid || auth.token.admin === true)",
-        ".write": "auth != null && (data.child('buyerUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid || auth.token.admin === true)"
+        ".read": "auth != null && (data.child('buyerUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+
+        ".write": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || data.child('buyerUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid)"
       }
     },
 
     "support_tickets": {
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
+        ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+
         ".write": "auth != null && auth.uid === $uid",
 
         "$ticketId": {
-          ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
-          ".write": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
+          ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+
+          ".write": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
 
           "messages": {
             "$messageId": {
-              ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
-              ".write": "auth != null && (auth.uid === $uid || auth.token.admin === true)"
+              ".read": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+
+              ".write": "auth != null && (auth.uid === $uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')"
             }
           }
         }
       }
     },
 
-   "chat_rooms": {
-  "$roomId": {
-    ".read": "auth != null && data.child('members').child(auth.uid).val() === true",
-    ".write": false,
+    "chat_rooms": {
+      "$roomId": {
+        ".read": "auth != null && data.child('members').child(auth.uid).val() === true",
 
-    "members": {
-      "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true)",
-        ".write": "auth != null && auth.uid === $uid && (!data.exists() || data.val() === true) && newData.val() === true"
+        ".write": false,
+
+        "members": {
+          "$uid": {
+            ".read": "auth != null && (auth.uid === $uid || root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true)",
+
+            ".write": "auth != null && auth.uid === $uid && (!data.exists() || data.val() === true) && newData.val() === true"
+          }
+        },
+
+        "messages": {
+          "$messageId": {
+            ".read": "auth != null && root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true",
+
+            ".write": "auth != null && root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true && newData.child('senderUid').val() === auth.uid"
+          }
+        }
       }
     },
 
-    "messages": {
-      "$messageId": {
-        ".read": "auth != null && root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true",
-        ".write": "auth != null && root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true && newData.child('senderUid').val() === auth.uid"
-      }
-    }
-  }
-},
-
     "reports": {
       "$reportId": {
-        ".read": "auth != null && (data.child('reporterUid').val() === auth.uid || auth.token.admin === true)",
-        ".write": "auth != null && (newData.child('reporterUid').val() === auth.uid || auth.token.admin === true)"
+        ".read": "auth != null && (data.child('reporterUid').val() === auth.uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+
+        ".write": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || newData.child('reporterUid').val() === auth.uid)"
       }
     },
 
     "withdrawals": {
       "$withdrawalId": {
-        ".read": "auth != null && (data.child('sellerUid').val() === auth.uid || auth.token.admin === true)",
-        ".write": "auth != null && auth.token.admin === true"
+        ".read": "auth != null && (data.child('sellerUid').val() === auth.uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
+
+        ".write": "auth != null && auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2'"
       }
     },
 
     "admin_data": {
-      ".read": "auth != null && auth.token.admin === true",
-      ".write": "auth != null && auth.token.admin === true"
+      ".read": "auth != null && auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2'",
+      ".write": "auth != null && auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2'"
     },
 
     "sessions": {
@@ -151,6 +169,17 @@
     "chats": {
       ".read": false,
       ".write": false
+    },
+
+    "admin_user_index": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2'",
+
+        ".write": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || (auth.uid === $uid && !data.exists()))",
+
+        ".validate": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || (newData.hasChildren(['uid','name','email','kycStatus','status','createdAt']) && newData.child('uid').val() === auth.uid && newData.child('email').val() === auth.token.email && newData.child('name').isString() && newData.child('email').isString() && newData.child('kycStatus').isString() && newData.child('status').isString() && newData.child('createdAt').isNumber()))"
+      }
     }
   }
 }
+```

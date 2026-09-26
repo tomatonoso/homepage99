@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
         body { background: #f4f6f8; margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         .admin-card { max-width: 100%; margin: 0 auto; padding: 20px; background: #ffffff; border: 2px solid #e63946; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -39,6 +40,8 @@
         .edit-input, .edit-textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
         .btn-save { background: #2a9d8f; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .btn-save:hover { background: #218377; }
+        .btn-logout { background: #e63946; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; white-space: nowrap; }
+        .btn-logout:hover { background: #c92f3a; }
 
         .btn-chat-open, .btn-reply-open { background: #2a9d8f; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; }
         .btn-reply-open { background: #e76f51; }
@@ -62,6 +65,18 @@
 </head>
 <body>
 
+    <!-- 管理者認証ゲート -->
+    <div id="admin-auth-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(244,246,248,0.98); display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
+        <div style="width:100%; max-width:420px; background:#fff; border:2px solid #e63946; border-radius:14px; padding:28px; box-shadow:0 8px 30px rgba(0,0,0,.15); box-sizing:border-box;">
+            <h2 style="margin:0 0 8px; color:#1d3557;">管理者ログイン</h2>
+            <p id="admin-auth-status" style="margin:0 0 18px; color:#666; font-size:13px;">管理者アカウントでログインしてください。</p>
+            <input id="admin-login-email" type="email" autocomplete="username" placeholder="メールアドレス" style="width:100%; padding:11px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+            <input id="admin-login-password" type="password" autocomplete="current-password" placeholder="パスワード" style="width:100%; padding:11px; margin-bottom:12px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box;">
+            <button id="admin-login-button" type="button" style="width:100%; padding:11px; border:0; border-radius:6px; background:#1d3557; color:#fff; font-weight:bold; cursor:pointer;">ログイン</button>
+            <p id="admin-auth-error" style="display:none; margin:12px 0 0; color:#c1121f; font-size:13px; white-space:pre-wrap;"></p>
+        </div>
+    </div>
+
     <!-- Firebase 初期化設定 -->
     <script>
         const firebaseConfig = {
@@ -80,7 +95,12 @@
     <div class="admin-card">
         <div class="admin-header">
             <h2><i class="fa-solid fa-sliders" style="color: #e63946; margin-right: 8px;"></i> 統合運営管理スプレッドシート</h2>
-            <span style="font-size: 12px; color: #666;"><i class="fa-solid fa-shield-halved"></i> 管理者専用モード</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size: 12px; color: #666;"><i class="fa-solid fa-shield-halved"></i> 管理者専用モード</span>
+                <button id="admin-logout-button" type="button" class="btn-logout" onclick="logoutAdmin()">
+                    <i class="fa-solid fa-right-from-bracket"></i> ログアウト
+                </button>
+            </div>
         </div>
 
         <!-- 15のタブ切替バー -->
@@ -782,12 +802,121 @@
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    // ページの初期化処理
-    document.addEventListener('DOMContentLoaded', function() {
-        checkAndSeedData(() => { 
-            loadDashboardKPI();
+    // 管理者認証: Firebase Authentication + Custom Claim(admin=true)
+    (function initAdminAuthGate() {
+        const overlay = document.getElementById('admin-auth-overlay');
+        const statusEl = document.getElementById('admin-auth-status');
+        const errorEl = document.getElementById('admin-auth-error');
+        const emailEl = document.getElementById('admin-login-email');
+        const passwordEl = document.getElementById('admin-login-password');
+        const loginBtn = document.getElementById('admin-login-button');
+
+        // 管理画面は「毎回、本人が入力してログイン」する方式に固定します。
+        // Firebaseのログイン状態をブラウザやタブに保存しません。
+        // そのため、admin.htmlを開くたびにメールアドレスとパスワードの入力が必要です。
+        firebase.auth().setPersistence(
+            firebase.auth.Auth.Persistence.NONE
+        ).catch(function(err) {
+            console.error('認証状態の保存方式を設定できませんでした:', err);
         });
-    });
+
+        function showError(message) {
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        function setLoading(loading) {
+            loginBtn.disabled = loading;
+            loginBtn.style.opacity = loading ? '0.6' : '1';
+            loginBtn.textContent = loading ? '確認中...' : 'ログイン';
+        }
+
+        async function verifyAdmin(user) {
+            if (!user) {
+                overlay.style.display = 'flex';
+                statusEl.textContent = '管理者アカウントでログインしてください。';
+                setLoading(false);
+                return;
+            }
+
+            try {
+                statusEl.textContent = '管理者権限を確認しています...';
+                const tokenResult = await user.getIdTokenResult(true);
+                if (tokenResult.claims && tokenResult.claims.admin === true) {
+                    overlay.style.display = 'none';
+                    // 認証成功後にだけ管理画面データを読み込みます。
+                    checkAndSeedData(() => {
+                        loadDashboardKPI();
+                    });
+                    return;
+                }
+
+                await firebase.auth().signOut();
+                overlay.style.display = 'flex';
+                setLoading(false);
+                showError('このアカウントには管理者権限（admin=true）がありません。');
+            } catch (err) {
+                overlay.style.display = 'flex';
+                setLoading(false);
+                showError('管理者権限の確認に失敗しました。\n' + (err.message || err));
+            }
+        }
+
+        loginBtn.addEventListener('click', async function() {
+            const email = emailEl.value.trim();
+            const password = passwordEl.value;
+            errorEl.style.display = 'none';
+            if (!email || !password) {
+                showError('メールアドレスとパスワードを入力してください。');
+                return;
+            }
+            setLoading(true);
+            try {
+                // ログイン状態を保存しません。
+                // 管理画面を開くたびに、必ず本人が入力してログインします。
+                await firebase.auth().setPersistence(
+                    firebase.auth.Auth.Persistence.NONE
+                );
+
+                const credential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                await verifyAdmin(credential.user);
+            } catch (err) {
+                setLoading(false);
+                showError('ログインに失敗しました。\n' + (err.message || err));
+            }
+        });
+
+        passwordEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+
+        firebase.auth().onAuthStateChanged(verifyAdmin);
+    })();
+
+    // 管理者ログアウト
+    // Firebase Authから明示的にサインアウトし、管理画面を再読み込みして
+    // ログイン画面以外の管理情報が残らない状態に戻します。
+    window.logoutAdmin = async function() {
+        const logoutBtn = document.getElementById('admin-logout-button');
+        if (logoutBtn) {
+            logoutBtn.disabled = true;
+            logoutBtn.style.opacity = '0.6';
+            logoutBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ログアウト中...';
+        }
+
+        try {
+            await firebase.auth().signOut();
+            window.location.reload();
+        } catch (err) {
+            console.error('ログアウトに失敗しました:', err);
+            if (logoutBtn) {
+                logoutBtn.disabled = false;
+                logoutBtn.style.opacity = '1';
+                logoutBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> ログアウト';
+            }
+            alert('ログアウトに失敗しました。\n' + (err.message || err));
+        }
+    };
 
     window.viewKycImage = function(imageUrl, userName) {
         const win = window.open("", "_blank", "width=600,height=600");
@@ -843,3 +972,4 @@
     </script>
 </body>
 </html>
+
