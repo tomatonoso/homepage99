@@ -6264,7 +6264,7 @@ async function initPCFaceAuth() {
         }
     }
 
-    currentSessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
+    currentSessionId = 'sess_' + crypto.randomUUID();
     const baseUrl = 'https://tomatonoso.github.io/homepage99';
     const authUrl = `${baseUrl}/mobile-auth.html?session=${currentSessionId}`;
 

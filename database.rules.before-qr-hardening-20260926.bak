@@ -161,8 +161,8 @@
 
     "sessions": {
       "$session_id": {
-        ".read": "auth != null && auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2'",
-        ".write": "auth != null && auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' && ((!data.exists() && newData.child('status').val() === 'PENDING') || (data.exists() && data.child('status').val() === 'PENDING' && newData.child('status').val() === 'APPROVED' && newData.child('uid').val() === auth.uid && newData.child('createdAt').val() === data.child('createdAt').val() && data.child('createdAt').val() + 300000 > now))"
+        ".read": false,
+        ".write": false
       }
     },
 
@@ -182,3 +182,4 @@
     }
   }
 }
+```
