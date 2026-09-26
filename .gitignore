@@ -72,3 +72,8 @@ node_modules/
 index-backup-*.html
 
 index-firebase-paths.txt
+
+# Local secret keys - never commit
+192.168.0.29+2-key.pem
+192.168.0.29+2.pem
+firebase-service-account.json
