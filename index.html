@@ -6242,9 +6242,30 @@ window.db = window.db || firebase.database();
 let currentSessionId = '';
 
 // --- PC側: 顔認証QRコード生成 & 監視 ---
-function initPCFaceAuth() {
-    const currentSessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
-    const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+async function initPCFaceAuth() {
+    const ADMIN_UID = "AbcuCZXecHQZ7e2oJLeUnh5U3oz2";
+
+    if (!auth || !auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+        const email = prompt("QR管理者認証\n管理者メールアドレスを入力してください。");
+        if (!email) { alert("管理者認証をキャンセルしました。"); return; }
+        const password = prompt("QR管理者認証\n管理者パスワードを入力してください。");
+        if (!password) { alert("管理者認証をキャンセルしました。"); return; }
+        try {
+            const credential = await auth.signInWithEmailAndPassword(email.trim(), password);
+            if (!credential.user || credential.user.uid !== ADMIN_UID) {
+                await auth.signOut();
+                alert("このアカウントはQR管理者として認証されていません。");
+                return;
+            }
+        } catch (error) {
+            console.error("QR管理者認証エラー:", error);
+            alert("QR管理者認証に失敗しました。メールアドレスまたはパスワードを確認してください。");
+            return;
+        }
+    }
+
+    currentSessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now();
+    const baseUrl = 'https://tomatonoso.github.io/homepage99';
     const authUrl = `${baseUrl}/mobile-auth.html?session=${currentSessionId}`;
 
     // ① QRコードを確実に描画
@@ -6257,7 +6278,7 @@ function initPCFaceAuth() {
     // ② Firebaseリアルタイム監視
     try {
         if (typeof db !== 'undefined' && db) {
-            db.ref('sessions/' + currentSessionId).set({ status: 'PENDING' });
+            db.ref('sessions/' + currentSessionId).set({ status: 'PENDING', createdAt: firebase.database.ServerValue.TIMESTAMP });
             db.ref('sessions/' + currentSessionId).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data && data.status === 'APPROVED') {
