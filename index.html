@@ -3113,10 +3113,10 @@ function listenToTokusho() {
 <p id="admin-modal-desc" style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">プラットフォームの運営管理者は**1人のみ**登録可能です。</p>
 <hr style="margin: 10px 0 15px 0;">
 
-<!-- ステップ1: スマホ顔認証待機エリア -->
+<!-- ステップ1: QR管理者認証待機エリア -->
 <div id="admin-face-auth-step" style="text-align: center; padding: 10px 0;">
     <p style="font-size: 0.85rem; color: #444; font-weight: bold; margin-bottom: 10px;">
-        スマホのカメラで以下のQRコードを読み取り、顔認証を行ってください。
+        スマホのカメラで以下のQRコードを読み取り、QR管理者認証を行ってください。
     </p>
     <div id="admin-qrcode-area" style="display: flex; justify-content: center; margin: 15px 0;"></div>
     <div id="admin-auth-status" style="font-size: 0.85rem; color: #555; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; display: inline-block;">
@@ -3127,7 +3127,7 @@ function listenToTokusho() {
 <!-- ステップ2: 管理者フォーム -->
 <div id="admin-form-step" style="display: none;">
     <p style="color: #28a745; font-size: 0.85rem; margin-bottom: 12px; background: #e8f5e9; padding: 8px 12px; border-radius: 6px; font-weight: bold; text-align: center;">
-        <i class="fa-solid fa-circle-check"></i> スマホでの顔認証が完了しました
+        <i class="fa-solid fa-circle-check"></i> スマホでのQR管理者認証が完了しました
     </p>
     <form id="admin-form-element" onsubmit="handleAdminRegister(event)">
         <div class="form-group">
@@ -6241,7 +6241,7 @@ window.db = window.db || firebase.database();
 
 let currentSessionId = '';
 
-// --- PC側: 顔認証QRコード生成 & 監視 ---
+// --- PC側: QR管理者認証QRコード生成 & 監視 ---
 async function initPCFaceAuth() {
     const ADMIN_UID = "AbcuCZXecHQZ7e2oJLeUnh5U3oz2";
 
@@ -6689,7 +6689,7 @@ function openAdminMenu() {
             if (loginModal) loginModal.style.display = 'flex';
         }
     } else {
-        // 未登録の場合は新規登録（顔認証）画面を開く
+        // 未登録の場合は新規登録画面を開く
         if (typeof openModal === 'function') {
             openModal('admin-signup-modal');
         } else {
