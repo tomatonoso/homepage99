@@ -80,3 +80,6 @@ firebase-service-account.json
 
 # Local backup files - never commit
 index.html.before-device-gate-20260926.bak
+
+# Local backup files - never commit
+index.html.before-fixed-device-20260927.bak

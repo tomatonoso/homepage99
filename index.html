@@ -6240,7 +6240,7 @@ if (!firebase.apps.length) {
 
 window.db = window.db || firebase.database();
 
-function getAdminDeviceId(){let k='minatomo_admin_device_id',d=localStorage.getItem(k);if(d==null){d='device_'+crypto.randomUUID();localStorage.setItem(k,d)}return d} function isAdminTargetDevice(){return Boolean(localStorage.getItem('minatomo_admin_device_id'))}
+function getAdminDeviceId(){let k='minatomo_admin_device_id',d=localStorage.getItem(k);if(d==null){d='device_'+crypto.randomUUID();localStorage.setItem(k,d)}return d} function isAdminTargetDevice(){return localStorage.getItem('minatomo_admin_device_id') === 'device_bb91cf87-ea83-4f30-820e-0e1e452ea294'}
 let currentSessionId = '';
 
 // --- PC側: QR管理者認証QRコード生成 & 監視 ---
