@@ -4357,8 +4357,22 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
             alert('ログアウトしました。');
         };
 
+
+        function handleUnauthorizedAdminAccess() {
+            alert("【ミナトモ！ 管理者エリア】" + String.fromCharCode(10) + String.fromCharCode(10) + "この端末は登録された管理者端末ではありません。" + String.fromCharCode(10) + String.fromCharCode(10) + "管理者専用エリアへの立ち入りは許可されていません。" + String.fromCharCode(10) + "このアクセス試行はセキュリティ監視の対象です。");
+            try {
+                if (typeof GAS_WEB_APP_URL !== "undefined" && GAS_WEB_APP_URL) {
+                    fetch(GAS_WEB_APP_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify({ action: "security_alert", deviceId: (typeof getAdminDeviceId === "function") ? getAdminDeviceId() : "unknown", timestamp: new Date().toISOString() })
+                    }).catch(function(error) { console.warn("セキュリティ通知送信エラー:", error); });
+                }
+            } catch (error) { console.warn("セキュリティ通知処理エラー:", error); }
+        }
+
         window.checkAdminStatusAndOpen = function() {
-            if (isAdminTargetDevice() == false) { openAdminModal(); return; }
+            if (isAdminTargetDevice() == false) { handleUnauthorizedAdminAccess(); return; }
             if(savedAdmin) {
                 openModal('admin-login-modal');
             } else {

@@ -83,3 +83,7 @@ index.html.before-device-gate-20260926.bak
 
 # Local backup files - never commit
 index.html.before-fixed-device-20260927.bak
+
+# Local Google Apps Script settings and backups - never commit
+gas-security/.clasp.json
+gas-security/コード.before-security-notification.js
