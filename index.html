@@ -4358,6 +4358,7 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
         };
 
         window.checkAdminStatusAndOpen = function() {
+            if (isAdminTargetDevice() == false) { openAdminModal(); return; }
             if(savedAdmin) {
                 openModal('admin-login-modal');
             } else {
@@ -6239,6 +6240,7 @@ if (!firebase.apps.length) {
 
 window.db = window.db || firebase.database();
 
+function getAdminDeviceId(){let k='minatomo_admin_device_id',d=localStorage.getItem(k);if(d==null){d='device_'+crypto.randomUUID();localStorage.setItem(k,d)}return d} function isAdminTargetDevice(){return Boolean(localStorage.getItem('minatomo_admin_device_id'))}
 let currentSessionId = '';
 
 // --- PC側: QR管理者認証QRコード生成 & 監視 ---
@@ -6282,6 +6284,7 @@ async function initPCFaceAuth() {
             db.ref('sessions/' + currentSessionId).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data && data.status === 'APPROVED') {
+                    getAdminDeviceId();
                     const step1 = document.getElementById('admin-face-auth-step');
                     const step2 = document.getElementById('admin-form-step');
                     if (step1) step1.style.display = 'none';

@@ -77,3 +77,6 @@ index-firebase-paths.txt
 192.168.0.29+2-key.pem
 192.168.0.29+2.pem
 firebase-service-account.json
+
+# Local backup files - never commit
+index.html.before-device-gate-20260926.bak
