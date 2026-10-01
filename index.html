@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
@@ -387,6 +388,7 @@
             overflow-y: auto;
             padding: 20px 10px;
         }
+        #seller-profile-modal { z-index: 1100; }
 
         .modal-content {
             background-color: white;
@@ -1804,6 +1806,7 @@ background:#fff;border-radius:10px;padding:10px;margin:8px 0;cursor:pointer}
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     window.auth = firebase.auth();
     window.db = firebase.database();
+    window.firestore = firebase.firestore();
 
     // 運営からのお知らせを自動取得・表示する処理
     function listenToNews() {
@@ -2933,7 +2936,7 @@ function listenToTokusho() {
             <div style="display: flex; gap: 8px; flex-direction: column;">
                 <div style="display: flex; gap: 8px;">
                     <input type="text" id="chat-input-msg" class="form-control" placeholder="メッセージを入力..." style="flex:1;">
-                    <button class="btn-red-sm" style="padding: 0 20px;" onclick="sendChatMessage()">送信</button>
+                    <button class="btn-red-sm" style="padding: 0 20px;" onclick="sendPurchaseRequestChatMessage()">送信</button>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center; background: #f1f3f5; padding: 8px; border-radius: 4px;">
                     <span style="font-size: 0.82rem; font-weight: bold;">販売価格を提示:</span>
@@ -3277,7 +3280,7 @@ window.checkAuthAndOpenJobPost = function() {
             { id: 1, title: "〇〇の限定フィギュア探しています", price: 5000, desc: "箱無しでも構いません。傷が少ないものを希望します。", author: "青山 太郎", messages: [ { sender: "システム", text: "購入リクエストが投稿されました。提案者はチャットから価格を提案できます。" } ], proposedPrice: null }
         ];
         let products = JSON.parse(localStorage.getItem('minatomo_products')) || defaultProducts;
-        let purchaseRequests = JSON.parse(localStorage.getItem('minatomo_requests')) || defaultRequests;
+        let purchaseRequests = [];
         let reviews = JSON.parse(localStorage.getItem('minatomo_reviews')) || [ { seller: "テックショップ", rating: "★★★★★", comment: "迅速なご対応ありがとうございました！", author: "青山 太郎" } ];
         let registeredUsers = [ { id: 101, name: "青山 太郎", email: "aoyama@example.com", phone: "090-1234-5678", bank: "ゆうちょ銀行 本店 普通 1234567 (ヤマダタロウ)", status: "通常会員", verify: "確認済", eval: "★★★★★" } ];
         let savedAdmin = JSON.parse(localStorage.getItem('minatomo_single_admin')) || null;
@@ -3300,11 +3303,10 @@ window.checkAuthAndOpenJobPost = function() {
     renderJobs(); // ← アルバイト一覧描画処理を追加
     updateGachaSettings();
     generateGachaCapsules();
-    if (typeof auth !== "undefined") { auth.onAuthStateChanged(async function(firebaseUser) { if (firebaseUser) { const snapshot = await db.ref("profiles/" + firebaseUser.uid).once("value"); const profile = snapshot.val() || {}; currentUser = { uid: firebaseUser.uid, name: profile.name || firebaseUser.email, email: firebaseUser.email, phone: "" }; updateAuthUI(); } else { currentUser = null; } }); }
+    if (typeof auth !== "undefined") { auth.onAuthStateChanged(async function(firebaseUser) { if (firebaseUser) { const snapshot = await db.ref("profiles/" + firebaseUser.uid).once("value"); const profile = snapshot.val() || {}; currentUser = { uid: firebaseUser.uid, name: profile.name || firebaseUser.email, email: firebaseUser.email, phone: "" }; updateAuthUI(); await loadPurchaseRequestsFromFirestore(); } else { currentUser = null; } }); }
 });
         function saveToStorage() {
             localStorage.setItem('minatomo_products', JSON.stringify(products));
-            localStorage.setItem('minatomo_requests', JSON.stringify(purchaseRequests));
             localStorage.setItem('minatomo_reviews', JSON.stringify(reviews));
         }
 
@@ -3516,9 +3518,9 @@ window.checkAuthAndOpenJobPost = function() {
         };
 
         /* 追加: 出品者情報モーダルを開く関数 */
-        window.openSellerModal = function() {
-            if (!currentSelectedProduct) return;
-            const sellerName = currentSelectedProduct.seller;
+        window.openSellerModal = function(sellerNameOverride) {
+            if (currentSelectedProduct == null && sellerNameOverride == null) return;
+            const sellerName = sellerNameOverride || (currentSelectedProduct && currentSelectedProduct.seller);
             document.getElementById('seller-modal-name').innerText = sellerName;
             
             // 出品者の自己紹介文（商品説明やデフォルトから生成、または個別設定）
@@ -3540,7 +3542,9 @@ window.checkAuthAndOpenJobPost = function() {
             openModal('seller-profile-modal');
         };
 
-        window.renderDetailReviews = function(sellerName) {
+        window.openPurchaseChatProfile = function(uid) { const request = currentActiveRequest; if (request == null || Array.isArray(request.messages) === false) return; const msg = request.messages.find(function(m) { return m && String(m.senderUid || "") === String(uid || ""); }); if (msg == null) return; window.openSellerModal(msg.senderName || "ユーザー"); };
+
+window.renderDetailReviews = function(sellerName) {
             const list = document.getElementById('detail-reviews-list');
             const targetReviews = reviews.filter(r => r.seller === sellerName);
             if(targetReviews.length === 0) {
@@ -3877,76 +3881,66 @@ window.submitNewProduct = function(e) {
             openModal('request-post-modal');
         };
 
-       window.submitNewRequest = function(e) {
-    // eが存在する場合のみpreventDefaultを実行（エラー防止）
-    if (e && typeof e.preventDefault === 'function') {
-        e.preventDefault();
-    }
-
-    // 入力値の取得と安全な数値変換
-    const titleEl = document.getElementById('req-title-input');
-    const priceEl = document.getElementById('req-price-input');
-    const descEl = document.getElementById('req-desc-input');
-
-    const title = titleEl ? titleEl.value.trim() : '';
+       window.submitNewRequest = async function(e) {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
+    const titleEl = document.getElementById("req-title-input");
+    const priceEl = document.getElementById("req-price-input");
+    const descEl = document.getElementById("req-desc-input");
+    const title = titleEl ? titleEl.value.trim() : "";
     const price = priceEl ? (parseInt(priceEl.value, 10) || 0) : 0;
-    const desc = descEl ? descEl.value.trim() : '';
-
-    if (!title) {
-        alert('タイトルを入力してください。');
-        return;
-    }
-
-    // ユーザー名の安全な取得（currentUserが未定義でもエラーにしない）
-    const authorName = (typeof currentUser !== 'undefined' && currentUser && currentUser.name) 
-                       ? currentUser.name 
-                       : 'ゲスト';
-
-   const newReq = {
-        id: Date.now(),
-        title: title,
-        price: price,
-        desc: desc,
-        author: authorName,
-        messages: [{ sender: "システム", text: "購入リクエストが投稿されました。提案者はチャットから価格を提案できます。" }],
-        proposedPrice: null
-    };
-
-    // 配列の安全な初期化と先頭追加
-    if (!window.purchaseRequests) {
-        window.purchaseRequests = [];
-    }
-    window.purchaseRequests.unshift(newReq);
-    purchaseRequests = window.purchaseRequests;
-
-    // ローカル保存・再描画・モーダル非表示
-    if (typeof saveRequestsToStorage === 'function') saveRequestsToStorage();
-    if (typeof renderPurchaseRequests === 'function') renderPurchaseRequests();
-    if (typeof closeModal === 'function') closeModal('request-post-modal');
-
-    // ★ 運営管理画面（Firebase）への直接送信処理
-    if (typeof db !== 'undefined') {
-        db.ref('admin_data/buy_requests').push().set({
-            id: 'REQ-' + Math.floor(1000 + Math.random() * 9000),
-            verified: false,
-            requestTitle: title,
-            requesterName: authorName || '匿名ユーザー',
-            budget: Number(price) || 0,
-            status: '受付中',
-            createdAt: new Date().toLocaleString('ja-JP')
-        }).then(() => {
-            console.log("Firebase送信完了");
-        }).catch((err) => {
-            console.error("Firebase送信エラー:", err);
+    const desc = descEl ? descEl.value.trim() : "";
+    if (!title) { alert("タイトルを入力してください。"); return; }
+    if (typeof auth === "undefined" || !auth.currentUser) { alert("購入リクエストを投稿するにはログインしてください。"); if (typeof openModal === "function") openModal("buyer-auth-modal"); return; }
+    if (typeof firestore === "undefined") { alert("データベースに接続できません。時間をおいて再度お試しください。"); return; }
+    const firebaseUser = auth.currentUser;
+    const authorName = (typeof currentUser !== "undefined" && currentUser && currentUser.name) ? currentUser.name : (firebaseUser.email || "ユーザー");
+    try {
+        const requestRef = firestore.collection("purchase_requests").doc();
+        await requestRef.set({
+            requesterUid: firebaseUser.uid,
+            requesterName: authorName,
+            title: title,
+            price: price,
+            desc: desc,
+            status: "受付中",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        await requestRef.collection("messages").add({
+            senderUid: firebaseUser.uid,
+            senderName: "システム",
+            text: "購入リクエストが投稿されました。提案者はチャットから価格を提案できます。",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        const newReq = {
+            id: requestRef.id,
+            requesterUid: firebaseUser.uid,
+            requesterName: authorName,
+            title: title,
+            price: price,
+            desc: desc,
+            status: "受付中",
+            createdAt: null,
+            updatedAt: null,
+            createdAtMs: Date.now(),
+            author: authorName,
+            messages: [{ senderUid: firebaseUser.uid, senderName: "システム", sender: "システム", text: "購入リクエストが投稿されました。提案者はチャットから価格を提案できます。" }],
+            proposedPrice: null,
+            proposedPriceId: null
+        };
+        if (!window.purchaseRequests) window.purchaseRequests = [];
+        window.purchaseRequests.unshift(newReq);
+        purchaseRequests = window.purchaseRequests;
+        if (typeof renderPurchaseRequests === "function") renderPurchaseRequests();
+        if (typeof closeModal === "function") closeModal("request-post-modal");
+        if (titleEl) titleEl.value = "";
+        if (priceEl) priceEl.value = "";
+        if (descEl) descEl.value = "";
+        alert("購入リクエストを投稿しました！");
+    } catch (err) {
+        console.error("購入リクエストFirestore保存エラー:", err);
+        alert("購入リクエストの投稿に失敗しました。時間をおいて再度お試しください。");
     }
-
-    // ★ フォームのクリア処理（送信後に実行）
-    if (titleEl) titleEl.value = "";
-    if (priceEl) priceEl.value = "";
-    if (descEl) descEl.value = "";
-
-    alert('購入リクエストを投稿しました！');
 };
    window.renderPurchaseRequests = function() {
     const container = document.getElementById('request-list-container');
@@ -4043,12 +4037,36 @@ window.openRequestChat = function(id) {
     document.getElementById('chat-req-author').innerText = req.author || '';
     document.getElementById('chat-req-desc').innerText = req.desc || '';
 
+    loadPurchaseRequestChatData(req);
     if (typeof renderChatMessages === 'function') renderChatMessages();
     if (typeof updateProposalUI === 'function') updateProposalUI();
     if (typeof openModal === 'function') openModal('request-chat-modal');
 };
+async function loadPurchaseRequestChatData(request) { if (typeof firestore === 'undefined' || !request || !request.id) return; try { const requestRef = firestore.collection('purchase_requests').doc(String(request.id)); const messagesSnapshot = await requestRef.collection('messages').orderBy('createdAt', 'asc').get(); request.messages = []; messagesSnapshot.forEach(function(doc) { const data = doc.data() || {}; request.messages.push({ senderUid: data.senderUid || '', senderName: data.senderName || '', sender: data.senderName || '', text: data.text || '', own: typeof currentUser !== 'undefined' && currentUser && data.senderUid === currentUser.uid, createdAt: data.createdAt || null }); }); const proposalsSnapshot = await requestRef.collection('proposals').orderBy('createdAt', 'desc').limit(1).get(); request.proposedPrice = null; request.proposedPriceId = null; proposalsSnapshot.forEach(function(doc) { const data = doc.data() || {}; request.proposedPrice = Number(data.price) || null; request.proposedPriceId = doc.id; }); renderPurchaseRequestChatMessages(request); updateProposalUI(); } catch (err) { console.error('購入リクエストチャットFirestore読み込みエラー:', err); } }
+function renderPurchaseRequestChatMessages(request) {
+    const container = document.getElementById("chat-messages-container");
+    if (!container) return;
+    const messages = request && Array.isArray(request.messages) ? request.messages : [];
+    if (!messages.length) {
+        container.innerHTML = "<div style='text-align:center;color:#8a9199;padding:45px 10px;font-size:0.9rem;'>メッセージはまだありません</div>";
+        return;
+    }
+    container.innerHTML = messages.map(function(msg) {
+        const own = !!(msg && msg.own);
+        const uid = String((msg && msg.senderUid) || "").replace(/'/g, "");
+        const name = String((msg && msg.senderName) || "ユーザー").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        const text = String((msg && msg.text) || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        const initial = String((msg && msg.senderName) || "U").trim().charAt(0) || "U";
+        return "<div style='display:flex;align-items:flex-end;gap:8px;justify-content:" + (own ? "flex-end" : "flex-start") + ";margin:2px 0;'>" +
+            "<button type='button' onclick='openPurchaseChatProfile(\"" + uid + "\")' style='width:38px;height:38px;min-width:38px;border:0;border-radius:50%;background:#e3e8ee;color:#59636e;font-weight:bold;font-size:.95rem;cursor:pointer;order:" + (own ? "2" : "0") + ";' title='プロフィールを見る'>" + initial + "</button>" +
+            "<div style='max-width:72%;order:1;'>" +
+            "<div style='font-size:.72rem;color:#737b84;margin:0 6px 4px;text-align:" + (own ? "right" : "left") + ";'>" + name + "</div>" +
+            "<div style='padding:10px 13px;border-radius:" + (own ? "16px 16px 4px 16px" : "16px 16px 16px 4px") + ";background:" + (own ? "#dff1ff" : "#fff") + ";border:1px solid " + (own ? "#c7e5f8" : "#e1e5e9") + ";color:#30363b;line-height:1.5;word-break:break-word;box-shadow:0 1px 2px rgba(0,0,0,.04);'>" + text + "</div></div></div>";
+    }).join("");
+    container.scrollTop = container.scrollHeight;
+}
 
-   window.sendChatMessage = function() {
+window.sendPurchaseRequestChatMessage = async function() {
     const input = document.getElementById('chat-input-msg') || document.querySelector('.chat-detail-modal input, .chat-panel input');
     const text = (input && input.value || '').trim();
 
@@ -4056,59 +4074,47 @@ window.openRequestChat = function(id) {
         alert('メッセージを入力してください。');
         return;
     }
+    if (!currentUser) {
+        alert('メッセージを送信するにはログインが必要です。ログイン画面を開きます。');
+        openModal('buyer-auth-modal');
+        return;
+    }
+    if (!currentActiveRequest || !currentActiveRequest.id) {
+        alert('チャット対象の購入リクエストが選択されていません。');
+        return;
+    }
+    if (typeof firestore === 'undefined') {
+        alert('購入リクエスト機能の準備ができていません。');
+        return;
+    }
 
-    const nowTime = "今日 " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    if (typeof db !== 'undefined' && db) {
-        db.ref('admin_data/inquiries').limitToLast(1).once('value', function(snapshot) {
-            const inqData = snapshot.val();
-            let targetKey = 'INQ-5001';
-
-            if (inqData) {
-                targetKey = Object.keys(inqData)[0] || targetKey;
-            }
-
-          // お問い合わせ返信ノードへ追記保存（選択キーおよび INQ-5001 両方へ確実に届ける）
-            const replyMsgObj = {
-                own: true,
-                role: 'user',
-                isAdmin: false,
-                senderName: 'わたし',
-                text: text,
-                message: text,
-                time: nowTime,
-                timestamp: new Date().toLocaleString('ja-JP')
-            };
-
-            // 1. 動的取得したキーへ保存
-            db.ref('admin_data/contact_replies/' + targetKey).push(replyMsgObj);
-
-            // 2. INQ-5001 にも確実に同期保存
-            if (targetKey !== 'INQ-5001') {
-                db.ref('admin_data/contact_replies/INQ-5001').push(replyMsgObj);
-            }
-            // 親ステータスの更新
-            db.ref('admin_data/inquiries/' + targetKey).update({
-                status: '未返信',
-                verified: false,
-                lastMessage: text,
-                updatedAt: new Date().toLocaleString('ja-JP')
-            });
-
-            if (input) input.value = '';
-
-            // 3. UIの再描画
-            if (typeof renderChatMessages === 'function') {
-                renderChatMessages('admin-1');
-            }
-            if (typeof renderChatList === 'function') {
-                renderChatList();
-            }
+    try {
+        const requestRef = firestore.collection('purchase_requests').doc(String(currentActiveRequest.id));
+        await requestRef.collection('messages').add({
+            senderUid: currentUser.uid,
+            senderName: currentUser.name || currentUser.email || '',
+            text: text,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+
+        if (!Array.isArray(currentActiveRequest.messages)) currentActiveRequest.messages = [];
+        currentActiveRequest.messages.push({
+            senderUid: currentUser.uid,
+            senderName: currentUser.name || currentUser.email || '',
+            sender: currentUser.name || currentUser.email || '',
+            text: text,
+            own: true,
+            createdAt: null
+        });
+
+        if (input) input.value = '';
+        renderPurchaseRequestChatMessages(currentActiveRequest);
+    } catch (err) {
+        console.error('購入リクエストメッセージFirestore保存エラー:', err);
+        alert('メッセージの送信に失敗しました。時間をおいて再度お試しください。');
     }
 };
-
-window.sendPriceProposal = function() {
+window.sendPriceProposal = async function() {
     const inputPrice = document.getElementById('chat-input-price');
     const price = parseInt((inputPrice && inputPrice.value) || '', 10);
 
@@ -4121,48 +4127,115 @@ window.sendPriceProposal = function() {
         openModal('buyer-auth-modal');
         return;
     }
-    if (!currentActiveRequest) {
+    if (!currentActiveRequest || !currentActiveRequest.id) {
         alert('チャット対象の購入リクエストが選択されていません。');
         return;
     }
+    if (typeof firestore === 'undefined') {
+        alert('購入リクエスト機能の準備ができていません。');
+        return;
+    }
 
-    currentActiveRequest.proposedPrice = price;
-    currentActiveRequest.messages.push({
-        sender: currentUser.name,
-        text: `【販売価格の提案】 ¥${price.toLocaleString()} で販売を提案しました。`
-    });
-    saveToStorage();
-    inputPrice.value = "";
-    renderChatMessages();
-    updateProposalUI();
-    alert(`¥${price.toLocaleString()} の価格を提示しました。`);
+    try {
+        const requestRef = firestore.collection('purchase_requests').doc(String(currentActiveRequest.id));
+        const proposalRef = requestRef.collection('proposals').doc();
+        const participantRef = requestRef.collection('participants').doc(currentUser.uid);
+        const messageRef = requestRef.collection('messages').doc();
+        const batch = firestore.batch();
+
+        batch.set(proposalRef, {
+            proposerUid: currentUser.uid,
+            proposerName: currentUser.name || currentUser.email || '',
+            price: price,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        batch.set(participantRef, {
+            uid: currentUser.uid,
+            proposalId: proposalRef.id,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        batch.set(messageRef, {
+            senderUid: currentUser.uid,
+            senderName: currentUser.name || currentUser.email || '',
+            text: `【販売価格の提案】 ¥${price.toLocaleString()} で販売を提案しました。`,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await batch.commit();
+
+        currentActiveRequest.proposedPrice = price;
+        currentActiveRequest.proposedPriceId = proposalRef.id;
+        if (!Array.isArray(currentActiveRequest.messages)) currentActiveRequest.messages = [];
+        currentActiveRequest.messages.push({
+            senderUid: currentUser.uid,
+            senderName: currentUser.name || currentUser.email || '',
+            sender: currentUser.name || currentUser.email || '',
+            text: `【販売価格の提案】 ¥${price.toLocaleString()} で販売を提案しました。`,
+            own: true,
+            createdAt: null,
+            id: messageRef.id
+        });
+
+        inputPrice.value = '';
+        renderPurchaseRequestChatMessages(currentActiveRequest);
+        updateProposalUI();
+        alert(`¥${price.toLocaleString()} の価格を提示しました。`);
+    } catch (err) {
+        console.error('購入リクエスト価格提案Firestore保存エラー:', err);
+        alert('価格の提案に失敗しました。時間をおいて再度お試しください。');
+    }
 };
 
         window.updateProposalUI = function() {
             const banner = document.getElementById('proposal-banner');
             const priceDisplay = document.getElementById('proposal-price-display');
+            const acceptButton = document.getElementById('accept-proposal-btn');
             if(currentActiveRequest && currentActiveRequest.proposedPrice) {
                 banner.style.display = 'flex';
                 priceDisplay.innerText = `¥${currentActiveRequest.proposedPrice.toLocaleString()}`;
+                if (acceptButton) acceptButton.style.display = (currentUser && currentActiveRequest.requesterUid === currentUser.uid) ? 'inline-block' : 'none';
             } else {
                 banner.style.display = 'none';
             }
         };
 
-        window.acceptProposalAndCheckout = function() {
+        window.acceptProposalAndCheckout = async function() {
             if (!currentUser) {
                 alert('決済へ進むにはログインが必要です。');
                 openModal('buyer-auth-modal');
                 return;
             }
-            if(!currentActiveRequest || !currentActiveRequest.proposedPrice) return;
-            
-            closeModal('request-chat-modal');
-            openModal('checkout-modal');
+            if (!currentActiveRequest || !currentActiveRequest.proposedPrice || !currentActiveRequest.proposedPriceId) return;
+            if (typeof firestore === 'undefined') {
+                alert('購入リクエスト機能の準備ができていません。');
+                return;
+            }
 
-            document.getElementById('selected-prod-display').innerText = `【リクエスト合意】 ${currentActiveRequest.title}`;
-            document.getElementById('out-prod-price').innerText = `¥${currentActiveRequest.proposedPrice.toLocaleString()}`;
-            document.getElementById('out-total-price').innerText = `¥${currentActiveRequest.proposedPrice.toLocaleString()}`;
+            try {
+                const requestRef = firestore.collection('purchase_requests').doc(String(currentActiveRequest.id));
+                await requestRef.update({
+                    acceptedProposalId: currentActiveRequest.proposedPriceId,
+                    agreedPrice: Number(currentActiveRequest.proposedPrice),
+                    status: '合意',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                currentActiveRequest.status = '合意';
+                currentActiveRequest.acceptedProposalId = currentActiveRequest.proposedPriceId;
+                currentActiveRequest.agreedPrice = Number(currentActiveRequest.proposedPrice);
+
+                closeModal('request-chat-modal');
+                openModal('checkout-modal');
+
+                document.getElementById('selected-prod-display').innerText = `【リクエスト合意】 ${currentActiveRequest.title}`;
+                document.getElementById('out-prod-price').innerText = `¥${currentActiveRequest.proposedPrice.toLocaleString()}`;
+                document.getElementById('out-total-price').innerText = `¥${currentActiveRequest.proposedPrice.toLocaleString()}`;
+            } catch (err) {
+                console.error('購入リクエスト合意Firestore保存エラー:', err);
+                alert('合意内容の保存に失敗しました。時間をおいて再度お試しください。');
+            }
         };
 
         window.openMypageTab = function(tabId, btn) {
@@ -4246,7 +4319,7 @@ window.sendPriceProposal = function() {
             const listEl = document.getElementById('mypage-my-requests-list');
             if(!listEl) return;
             if(!currentUser) { listEl.innerHTML = '<p style="color:#888;">ログインしていません。</p>'; return; }
-            const myReqs = purchaseRequests.filter(r => r.author === currentUser.name);
+            const myReqs = purchaseRequests.filter(r => r.requesterUid === currentUser.uid);
             if(myReqs.length === 0) {
                 listEl.innerHTML = '<p style="color:#888; font-size:0.9rem;">投稿したリクエストはありません。</p>';
                 return;
@@ -6443,23 +6516,6 @@ document.addEventListener('click', function(e) {
     }
 }, true);
 // ローカルストレージへ保存
-function saveRequestsToStorage() {
-    localStorage.setItem('purchaseRequests', JSON.stringify(window.purchaseRequests || []));
-}
-
-// ローカルストレージから読み込み
-function loadRequestsFromStorage() {
-    const saved = localStorage.getItem('purchaseRequests');
-    if (saved) {
-        try {
-            window.purchaseRequests = JSON.parse(saved);
-        } catch(e) {
-            console.error('データの読み込みエラー:', e);
-        }
-    }
-}
-// 起動時にデータを復元して画面を描画
-loadRequestsFromStorage();
 if (typeof renderPurchaseRequests === 'function') {
     renderPurchaseRequests();
 }
@@ -6493,10 +6549,10 @@ window.sortPurchaseRequests = function(sortType) {
 
     switch (sortType) {
         case 'newest': // 最新順（ID降順）
-            window.purchaseRequests.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+            window.purchaseRequests.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
             break;
         case 'oldest': // 古い順（ID昇順）
-            window.purchaseRequests.sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+            window.purchaseRequests.sort((a, b) => (a.createdAtMs || 0) - (b.createdAtMs || 0));
             break;
         case 'price-high': // 希望予算が高い順
             window.purchaseRequests.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
@@ -6801,37 +6857,6 @@ function openAdminMenu() {
 </script>
 <script>
 // Step 2 の関数をここに貼り付けて追加
-function submitBuyRequestToFirebase(title, requesterName, budget) {
-    const newRef = db.ref('admin_data/buy_requests').push();
-    newRef.set({
-        id: 'REQ-' + Math.floor(1000 + Math.random() * 9000),
-        requestTitle: title,
-        requesterName: requesterName,
-        budget: Number(budget) || 0,
-        status: '受付中',
-        verified: false,
-        createdAt: new Date().toLocaleString('ja-JP')
-    }, (error) => {
-        if (!error) {
-            alert('購入リクエストを投稿しました。運営管理画面へリアルタイム共有されました。');
-        } else {
-            alert('送信エラー: ' + error.message);
-        }
-    });
-}
-
-// 送信ボタンが押されたときのイベント処理
-function handleBuyRequestSubmit(event) {
-    if (event) event.preventDefault(); // 画面リロードを防ぐ
-
-    // 入力欄（input）の画面上のIDに合わせて取得
-    const title = document.getElementById('request-title-input').value;
-    const requesterName = document.getElementById('request-user-input').value;
-    const budget = document.getElementById('request-budget-input').value;
-
-    // 定義した関数を実行してFirebaseへ送信
-    submitBuyRequestToFirebase(title, requesterName, budget);
-}
 function submitProductToFirebase(seller, sellerEmail, sellerPhone, title, category, price, shippingFee) {
     const newRef = db.ref('admin_data/products').push();
     newRef.set({
@@ -6938,26 +6963,6 @@ function watchUserKycStatus(userIdentifier) {
 // ==========================================
 // 購入リクエスト管理画面送信機能
 // ==========================================
-function sendPurchaseRequestToAdmin(requestData) {
-    try {
-        if (typeof db === 'undefined' || !db.ref) return;
-
-        const requestRef = db.ref('admin_data/purchase_requests').push();
-        const payload = {
-            id: requestRef.key,
-            userEmail: currentUser ? currentUser.email : (requestData.email || '未ログイン'),
-            userName: currentUser ? currentUser.name : (requestData.name || 'ゲスト'),
-            productTitle: requestData.productTitle || requestData.title || '',
-            price: requestData.price || 0,
-            status: '未対応',
-            createdAt: new Date().toLocaleString('ja-JP')
-        };
-
-        requestRef.set(payload);
-    } catch (e) {
-        console.log('Purchase request sync error:', e);
-    }
-}
 // お問い合わせ送信処理（運営管理画面のFirebaseへ送信）
 function submitInquiry() {
     const nameEl = document.getElementById('inquiry-name');
@@ -7480,6 +7485,7 @@ window.syncMypageTalkRooms = function() {
 };
 
 window.renderMypageTalkRooms = window.syncMypageTalkRooms;
+async function loadPurchaseRequestsFromFirestore() { if (typeof firestore === 'undefined') return; try { const snapshot = await firestore.collection('purchase_requests').get(); const requests = []; snapshot.forEach(function(doc) { const data = doc.data() || {}; const createdAtMs = data.createdAt && typeof data.createdAt.toMillis === 'function' ? data.createdAt.toMillis() : 0; requests.push({ id: doc.id, requesterUid: data.requesterUid || '', requesterName: data.requesterName || '', title: data.title || '', price: Number(data.price) || 0, desc: data.desc || '', status: data.status || '受付中', createdAt: data.createdAt || null, updatedAt: data.updatedAt || null, createdAtMs: createdAtMs, author: data.requesterName || '', messages: [], proposedPrice: null, proposedPriceId: null }); }); requests.sort(function(a, b) { return (b.createdAtMs || 0) - (a.createdAtMs || 0); }); window.purchaseRequests = requests; purchaseRequests = requests; if (typeof renderPurchaseRequests === 'function') renderPurchaseRequests(); } catch (err) { console.error('purchase_requests Firestore load error:', err); } }
 </script>
 </body>
 </html>
