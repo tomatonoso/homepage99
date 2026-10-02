@@ -77,19 +77,13 @@
     },
 
     "purchase_requests": {
-      "$requestId": {
-        ".read": "auth != null && (data.child('requesterUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
-
-        ".write": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || newData.child('requesterUid').val() === auth.uid || data.child('requesterUid').val() === auth.uid)"
-      }
+      ".read": false,
+      ".write": false
     },
 
     "orders": {
-      "$orderId": {
-        ".read": "auth != null && (data.child('buyerUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid || auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2')",
-
-        ".write": "auth != null && (auth.uid === 'AbcuCZXecHQZ7e2oJLeUnh5U3oz2' || data.child('buyerUid').val() === auth.uid || data.child('sellerUid').val() === auth.uid)"
-      }
+      ".read": false,
+      ".write": false
     },
 
     "support_tickets": {
@@ -115,27 +109,8 @@
     },
 
     "chat_rooms": {
-      "$roomId": {
-        ".read": "auth != null && data.child('members').child(auth.uid).val() === true",
-
-        ".write": false,
-
-        "members": {
-          "$uid": {
-            ".read": "auth != null && (auth.uid === $uid || root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true)",
-
-            ".write": "auth != null && auth.uid === $uid && (!data.exists() || data.val() === true) && newData.val() === true"
-          }
-        },
-
-        "messages": {
-          "$messageId": {
-            ".read": "auth != null && root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true",
-
-            ".write": "auth != null && root.child('chat_rooms').child($roomId).child('members').child(auth.uid).val() === true && newData.child('senderUid').val() === auth.uid"
-          }
-        }
-      }
+      ".read": false,
+      ".write": false
     },
 
     "reports": {
