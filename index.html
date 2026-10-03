@@ -3958,8 +3958,8 @@ window.submitNewProduct = function(e) {
     let html = displayItems.map(req => `
         <div style="min-width: 240px; background-color: #ffffff; border-radius: var(--radius); padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; flex-shrink: 0;">
             <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: var(--brand-red); font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
-            <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
-            <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${req.desc || ''}</div>
+            <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${escapeHtml(req.title || '')}</div>
+            <div style="font-size: 0.8rem; color: var(--text-sub); margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(req.desc || '')}</div>
             <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}')"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
         </div>
     `).join('');
@@ -3985,8 +3985,8 @@ window.openAllRequestsModal = function() {
             container.innerHTML = requests.map(req => `
                 <div style="background-color: #ffffff; border-radius: 8px; padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
                     <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: #d9534f; font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
-                    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">${req.desc || ''}</div>
+                    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${escapeHtml(req.title || '')}</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">${escapeHtml(req.desc || '')}</div>
                     <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}')"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
                 </div>
             `).join('');
@@ -6456,8 +6456,8 @@ window.openAllRequestsModal = function() {
             container.innerHTML = requests.map(req => `
                 <div style="background-color: #ffffff; border-radius: 8px; padding: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 12px;">
                     <div style="font-size: 0.75rem; color: #888; margin-bottom: 4px;">希望予算: <span style="color: #d9534f; font-weight: bold; font-size: 1rem;">¥${req.price ? Number(req.price).toLocaleString() : 0}</span></div>
-                    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${req.title || ''}</div>
-                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">${req.desc || ''}</div>
+                    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">${escapeHtml(req.title || '')}</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">${escapeHtml(req.desc || '')}</div>
                     <div style="font-size: 0.75rem; color: #007bff; text-align: right; font-weight: bold; cursor: pointer;" onclick="openRequestChat('${req.id}')"><i class="fa-solid fa-comments"></i> 相談チャットを開く</div>
                 </div>
             `).join('');
