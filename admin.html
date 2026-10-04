@@ -441,7 +441,7 @@
                         tr += `<td><span class="status-badge ${badgeClass}">${status}</span></td>`;
                     } else if (field === 'refundActionBtn') {
                         tr += `<td>
-                            <button onclick="processRefund('${key}', '${escapeHtml(rowData.buyerName)}')" style="background:#dc3545; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px; font-weight:bold;">💸 返金実行</button>
+                            <button onclick="processRefund('${key}', '${escapeJsString(rowData.buyerName)}')" style="background:#dc3545; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px; font-weight:bold;">💸 返金実行</button>
                             <button onclick="togglePaymentHold('${key}', '${rowData.status}')" style="background:#ffc107; color:#333; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px; margin-left:4px;">${rowData.status === '売上保留中' ? '解除' : '保留'}</button>
                         </td>`;
                     } else if (field === 'userActionBtn') {
@@ -460,7 +460,7 @@
                     } else if (field === 'replyBtn') {
                         const name = rowData.userName || rowData.name || '名前なし';
                         const msg = rowData.message || rowData.messageContent || '';
-                        tr += `<td><button onclick="openReplyModal('${key}', '${escapeHtml(name)}', '${escapeHtml(rowData.email || '')}', '${escapeHtml(msg)}')" style="background:#0d6efd; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px;">返信</button></td>`;
+                        tr += `<td><button onclick="openReplyModal('${key}', '${escapeJsString(name)}', '${escapeJsString(rowData.email || '')}', '${escapeJsString(msg)}')" style="background:#0d6efd; color:#fff; border:none; padding:3px 8px; border-radius:3px; cursor:pointer; font-size:11px;">返信</button></td>`;
                     } else {
                         const val = rowData[field] !== undefined && rowData[field] !== '' ? rowData[field] : '-';
                         tr += `<td>${typeof val === 'number' ? val.toLocaleString() : val}</td>`;
@@ -801,6 +801,8 @@
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
+
+    function escapeJsString(str) { if (str === null || str === undefined) return ''; return JSON.stringify(String(str)).slice(1,-1).replace(/'/g, String.fromCharCode(92)+'u0027'); }
 
     // 管理者認証: Firebase Authentication + Custom Claim(admin=true)
     (function initAdminAuthGate() {
