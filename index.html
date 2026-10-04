@@ -2223,6 +2223,7 @@ function listenToTokusho() {
             </div>
             <hr style="margin: 15px 0;">
 
+            <div id="mypage-kyc-status" style="margin:0 0 15px 0;padding:10px 14px;border:1px solid #ddd;border-radius:6px;background:#f8f9fa;">本人確認ステータス：<strong>未提出</strong></div>
             <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
   <button class="admin-tab-btn active" onclick="openMypageTab('mypage-tab-chats', this); if (typeof syncMypageTalkRooms === 'function') syncMypageTalkRooms();">メール（チャット）</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">現在のカート内商品</button>
@@ -4240,6 +4241,7 @@ window.sendPriceProposal = async function() {
 
         window.openMypageTab = function(tabId, btn) {
             const modal = document.getElementById('buyer-mypage-modal');
+            if (currentUser && typeof watchCurrentUserKycStatus === "function") watchCurrentUserKycStatus();
             modal.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
             modal.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
@@ -4368,7 +4370,7 @@ window.sendPriceProposal = async function() {
             return;
         }
 
-        try { const userCredential = await auth.createUserWithEmailAndPassword(email, pass); const firebaseUser = userCredential.user; currentUser = { uid: firebaseUser.uid, name: name, email: email, phone: phone, kycStatus: window.buyerIdImageData ? "審査中" : "未提出" }; await db.ref("profiles/" + firebaseUser.uid).set({ uid: firebaseUser.uid, name: name }); await db.ref("private_users/" + firebaseUser.uid).update({ email: email, phone: phone }); alert("新規登録が完了し、ログインしました！"); closeModal("buyer-auth-modal"); updateAuthUI(); return; } catch (error) { console.error("Firebase Authentication registration error:", error); if (error.code === "auth/email-already-in-use") alert("このメールアドレスは既に登録されています。ログインしてください。"); else if (error.code === "auth/weak-password") alert("パスワードが弱すぎます。6文字以上のパスワードを使用してください。"); else if (error.code === "auth/invalid-email") alert("メールアドレスの形式が正しくありません。"); else alert("登録に失敗しました。時間をおいてもう一度お試しください。"); return; }
+        try { const userCredential = await auth.createUserWithEmailAndPassword(email, pass); const firebaseUser = userCredential.user; currentUser = { uid: firebaseUser.uid, name: name, email: email, phone: phone, kycStatus: window.buyerIdImageData ? "審査中" : "未提出" }; await db.ref("profiles/" + firebaseUser.uid).set({ uid: firebaseUser.uid, name: name }); await db.ref("private_users/" + firebaseUser.uid).update({ email: email, phone: phone }); await db.ref("private_users/" + firebaseUser.uid + "/kyc").set({ status: "審査中", updatedAt: Date.now() }); alert("新規登録が完了し、ログインしました！"); closeModal("buyer-auth-modal"); updateAuthUI(); return; } catch (error) { console.error("Firebase Authentication registration error:", error); if (error.code === "auth/email-already-in-use") alert("このメールアドレスは既に登録されています。ログインしてください。"); else if (error.code === "auth/weak-password") alert("パスワードが弱すぎます。6文字以上のパスワードを使用してください。"); else if (error.code === "auth/invalid-email") alert("メールアドレスの形式が正しくありません。"); else alert("登録に失敗しました。時間をおいてもう一度お試しください。"); return; }
 
         // ★ ここから Firebase 送信処理を追加 ★
         if (typeof db !== 'undefined' && db.ref) {
@@ -6957,9 +6959,24 @@ function watchUserKycStatus(userIdentifier) {
             }
         });
     } catch (e) {
+
         console.log('KYC watch error:', e);
     }
 }
+function watchCurrentUserKycStatus() {
+    try {
+        if (!currentUser || !currentUser.uid || typeof db === "undefined" || !db.ref) return;
+        db.ref("private_users/" + currentUser.uid + "/kyc/status").on("value", function(snapshot) {
+            const status = snapshot.val() || "未提出";
+            currentUser.kycStatus = status;
+            const el = document.getElementById("mypage-kyc-status");
+            if (el) el.textContent = "本人確認ステータス：" + status;
+        });
+    } catch (e) {
+        console.log("KYC realtime watch error:", e);
+    }
+}
+
 // ==========================================
 // 購入リクエスト管理画面送信機能
 // ==========================================
