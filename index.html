@@ -1384,6 +1384,7 @@ window.submitJob = function(event) {
 };
 
 // 1. 不動産データおよび保存済みリストの初期化
+function escapeJsString(str) { if (str === null || str === undefined) return ""; return JSON.stringify(String(str)).slice(1,-1).replace(/'/g, String.fromCharCode(92) + "u0027"); }
 let realestates = JSON.parse(localStorage.getItem('minatomo_realestates')) || [];
 let savedRealestates = JSON.parse(localStorage.getItem('minatomo_saved_realestates')) || [];
 
@@ -1401,14 +1402,14 @@ function renderRealestates() {
         const isSaved = savedRealestates.includes(item.id);
         
         return `
-        <div onclick="openRealestateDetail(${item.id})" style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; position: relative;">
+        <div onclick="openRealestateDetail(Number(item.id))" style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer; position: relative;">
             
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:bold;">${item.type}</span>
-                <span style="font-size:0.85rem; color:#666;">${item.transactionType}</span>
+                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:bold;">${escapeHtml(item.type)}</span>
+                <span style="font-size:0.85rem; color:#666;">${escapeHtml(item.transactionType)}</span>
             </div>
 
-            <h4 style="margin:0 0 8px 0; font-size:1.15rem; color:#333;">${item.title}${item.roomNumber ? '(' + item.roomNumber + ')' : ''}</h4>
+            <h4 style="margin:0 0 8px 0; font-size:1.15rem; color:#333;">${escapeHtml(item.title)}${item.roomNumber ? '(' + escapeHtml(item.roomNumber) + ')' : ''}</h4>
             
             <div style="font-size:1.3rem; font-weight:bold; color:var(--brand-red, #e63946); margin-bottom:12px;">
                 ${Number(item.price).toLocaleString()} 円
@@ -1416,17 +1417,17 @@ function renderRealestates() {
             </div>
 
             <div style="font-size:0.85rem; color:#555; line-height:1.6; margin-bottom:12px;">
-                <div>📍 <strong>所在地:</strong> ${item.address}</div>
-                <div>📐 <strong>間取り / 面積:</strong> ${item.layout} /${item.area}㎡ (${item.structure})</div>${item.companyName ? `<div style="color:#777; font-size:0.8rem; margin-top:4px;">🏢 ${item.companyName} (${item.companyPhone})</div>` : ''}
+                <div>📍 <strong>所在地:</strong> ${escapeHtml(item.address)}</div>
+                <div>📐 <strong>間取り / 面積:</strong> ${escapeHtml(item.layout)} /${escapeHtml(item.area)}㎡ (${escapeHtml(item.structure)})</div>${item.companyName ? `<div style="color:#777; font-size:0.8rem; margin-top:4px;">🏢 ${escapeHtml(item.companyName)} (${escapeHtml(item.companyPhone)})</div>` : ''}
             </div>
 
             <div style="display:flex; gap:8px; border-top:1px solid #f0f0f0; padding-top:12px; margin-top:8px;" onclick="event.stopPropagation();">
-                <button onclick="toggleSaveRealestate(${item.id})" style="flex:1; padding:8px 12px; border:1px solid ${isSaved ? '#e63946' : '#ccc'}; background:${isSaved ? '#fff0f3' : '#fff'}; color:${isSaved ? '#e63946' : '#555'}; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:5px;">
+                <button onclick="toggleSaveRealestate(Number(item.id))" style="flex:1; padding:8px 12px; border:1px solid ${isSaved ? '#e63946' : '#ccc'}; background:${isSaved ? '#fff0f3' : '#fff'}; color:${isSaved ? '#e63946' : '#555'}; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:5px;">
                     <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bookmark"></i>
                     ${isSaved ? '保存済み' : '保存'}
                 </button>
 
-                <button onclick="contactRealestate('${item.companyPhone}', '${item.title}')" style="flex:2; padding:8px 12px; border:none; background:var(--brand-red, #e63946); color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:5px;">
+                <button onclick="contactRealestate('${escapeJsString(item.companyPhone)}', '${escapeJsString(item.title)}')" style="flex:2; padding:8px 12px; border:none; background:var(--brand-red, #e63946); color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:5px;">
                     <i class="fa-solid fa-envelope"></i> お問合せ
                 </button>
             </div>
@@ -1477,31 +1478,31 @@ function openRealestateDetail(id) {
     if (modal && content) {
         content.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.8rem; padding:4px 10px; border-radius:4px; font-weight:bold;">${item.type} (${item.transactionType})</span>
+                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.8rem; padding:4px 10px; border-radius:4px; font-weight:bold;">${escapeHtml(item.type)} (${escapeHtml(item.transactionType)})</span>
                 <button onclick="closeRealestateDetail()" style="border:none; background:none; font-size:1.5rem; cursor:pointer; color:#888;">&times;</button>
             </div>
             
-            <h2 style="margin:0 0 10px 0; font-size:1.3rem;">${item.title}${item.roomNumber ? '(' + item.roomNumber + ')' : ''}</h2>
+            <h2 style="margin:0 0 10px 0; font-size:1.3rem;">${escapeHtml(item.title)}${item.roomNumber ? '(' + escapeHtml(item.roomNumber) + ')' : ''}</h2>
             <div style="font-size:1.5rem; font-weight:bold; color:var(--brand-red, #e63946); margin-bottom:15px;">
                 ${Number(item.price).toLocaleString()} 円
                 ${item.adminFee ? `<span style="font-size:0.9rem; color:#666; font-weight:normal;"> (管理費: ${Number(item.adminFee).toLocaleString()}円)</span>` : ''}
             </div>
 
             <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:15px;">
-                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9; width:30%;">所在地</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.address}</td></tr>${item.access ? `<tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">交通</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.access}</td></tr>` : ''}
-                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">間取り / 面積</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.layout} /${item.area}㎡</td></tr>
-                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">建物構造</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.structure}</td></tr>
-                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">取扱い会社</th><td style="padding:8px; border-bottom:1px solid #eee;">${item.companyName} (${item.companyPhone})</td></tr>
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9; width:30%;">所在地</th><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(item.address)}</td></tr>${item.access ? `<tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">交通</th><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(item.access)}</td></tr>` : ''}
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">間取り / 面積</th><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(item.layout)} /${escapeHtml(item.area)}㎡</td></tr>
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">建物構造</th><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(item.structure)}</td></tr>
+                <tr><th style="padding:8px; border-bottom:1px solid #eee; text-align:left; background:#f9f9f9;">取扱い会社</th><td style="padding:8px; border-bottom:1px solid #eee;">${escapeHtml(item.companyName)} (${escapeHtml(item.companyPhone)})</td></tr>
             </table>
 
           ${item.comment ? `
                 <div style="margin-bottom:15px;">
                     <h4 style="margin:0 0 5px 0; font-size:0.95rem; color:#444;">物件説明・コメント</h4>
-                    <p style="font-size:0.85rem; background:#f9f9f9; padding:10px; border-radius:6px; color:#333; margin:0; line-height:1.5;">${item.comment}</p>
+                    <p style="font-size:0.85rem; background:#f9f9f9; padding:10px; border-radius:6px; color:#333; margin:0; line-height:1.5;">${escapeHtml(item.comment)}</p>
                 </div>
             ` : ''}
 
-            <button onclick="contactRealestate('${item.companyPhone || ''}', '${item.title || ''}')" style="width:100%; padding:12px; background:var(--brand-red, #e63946); color:#fff; border:none; border-radius:8px; font-weight:bold; font-size:1rem; cursor:pointer;">
+            <button onclick="contactRealestate('${escapeJsString(item.companyPhone || '')}', '${escapeJsString(item.title || '')}')" style="width:100%; padding:12px; background:var(--brand-red, #e63946); color:#fff; border:none; border-radius:8px; font-weight:bold; font-size:1rem; cursor:pointer;">
                 📞 お問合せをする
             </button>
         `;
@@ -6154,20 +6155,20 @@ function renderRealestates() {
     container.innerHTML = realestates.map(item => `
         <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:bold;">${item.type}</span>
-                <span style="font-size:0.85rem; color:#666;">${item.transactionType}</span>
+                <span style="background:var(--brand-red, #e63946); color:#fff; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:bold;">${escapeHtml(item.type)}</span>
+                <span style="font-size:0.85rem; color:#666;">${escapeHtml(item.transactionType)}</span>
             </div>
-            <h4 style="margin:0 0 8px 0; font-size:1.1rem; color:#333;">${item.title} ${item.roomNumber ? '(' + item.roomNumber + ')' : ''}</h4>
+            <h4 style="margin:0 0 8px 0; font-size:1.1rem; color:#333;">${escapeHtml(item.title)} ${item.roomNumber ? '(' + escapeHtml(item.roomNumber) + ')' : ''}</h4>
             <div style="font-size:1.2rem; font-weight:bold; color:var(--brand-red, #e63946); margin-bottom:10px;">
                 ${Number(item.price).toLocaleString()} 円 ${item.adminFee ? '<span style="font-size:0.85rem; color:#666; font-weight:normal;">(管理費: ' + Number(item.adminFee).toLocaleString() + '円)</span>' : ''}
             </div>
             <div style="font-size:0.85rem; color:#555; line-height:1.6;">
-                <div>📍 <strong>所在地:</strong> ${item.address}</div>
-                ${item.access ? `<div>🚶 <strong>交通:</strong> ${item.access}</div>` : ''}
-                <div>📐 <strong>間取り / 面積:</strong> ${item.layout} / ${item.area}㎡ (${item.structure})</div>
-                ${item.companyName ? `<div style="margin-top:6px; color:#777; font-size:0.8rem;">🏢 ${item.companyName} (${item.companyPhone})</div>` : ''}
+                <div>📍 <strong>所在地:</strong> ${escapeHtml(item.address)}</div>
+                ${item.access ? `<div>🚶 <strong>交通:</strong> ${escapeHtml(item.access)}</div>` : ''}
+                <div>📐 <strong>間取り / 面積:</strong> ${escapeHtml(item.layout)} / ${escapeHtml(item.area)}㎡ (${escapeHtml(item.structure)})</div>
+                ${item.companyName ? `<div style="margin-top:6px; color:#777; font-size:0.8rem;">🏢 ${escapeHtml(item.companyName)} (${escapeHtml(item.companyPhone)})</div>` : ''}
             </div>
-            ${item.comment ? `<p style="font-size:0.85rem; background:#f9f9f9; padding:8px; border-radius:4px; margin-top:10px; color:#444;">${item.comment}</p>` : ''}
+            ${item.comment ? `<p style="font-size:0.85rem; background:#f9f9f9; padding:8px; border-radius:4px; margin-top:10px; color:#444;">${escapeHtml(item.comment)}</p>` : ''}
         </div>
     `).join('');
 }
