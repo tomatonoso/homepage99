@@ -4743,9 +4743,9 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
         const typeLabel = a.type === 'live' ? 'ライブ配信' : (a.type === 'video' ? '動画' : '画像');
         let mediaHtml = '<i class="fa-solid fa-gavel" style="font-size:2rem; color:#bbb;"></i>';
         if (a.media && a.mediaType === 'image') {
-            mediaHtml = `<img src="${a.media}" alt="${escapeAuctionText(a.title)}">`;
+            mediaHtml = safeAuctionMediaUrl(a.media, a.mediaType) ? `<img src="${safeAuctionMediaUrl(a.media, a.mediaType)}" alt="${escapeAuctionText(a.title)}">` : '<i class="fa-solid fa-gavel" style="font-size:2rem; color:#bbb;"></i>';
         } else if (a.media && a.mediaType === 'video') {
-            mediaHtml = `<video src="${a.media}" controls onclick="event.stopPropagation();"></video>`;
+            mediaHtml = safeAuctionMediaUrl(a.media, a.mediaType) ? `<video src="${safeAuctionMediaUrl(a.media, a.mediaType)}" controls onclick="event.stopPropagation();"></video>` : '<i class="fa-solid fa-gavel" style="font-size:2rem; color:#bbb;"></i>';
         } else if (a.type === 'live') {
             mediaHtml = '<i class="fa-solid fa-video" style="font-size:2rem; color:#bbb;"></i>';
         }
@@ -4807,10 +4807,11 @@ if (typeof watchUserKycStatus === 'function' && typeof email !== 'undefined') {
     const startPrice = auction.startPrice ?? auction.price ?? 0;
 
     // メディア領域の生成
-    const media = auction.media && auction.mediaType === 'image'
-        ? `<img src="${auction.media}" alt="${escapeAuctionText(auction.title || '')}">`
-        : auction.media && auction.mediaType === 'video'
-        ? `<video src="${auction.media}" controls></video>`
+    const safeMedia = safeAuctionMediaUrl(auction.media, auction.mediaType);
+    const media = safeMedia && auction.mediaType === 'image'
+        ? `<img src="${safeMedia}" alt="${escapeAuctionText(auction.title || '')}">`
+        : safeMedia && auction.mediaType === 'video'
+        ? `<video src="${safeMedia}" controls></video>`
         : `<div style="color:#aaa;text-align:center;padding:70px 20px;"><i class="fa-solid fa-gavel" style="font-size:4rem;"></i><div style="margin-top:10px;">${escapeAuctionText(auction.title || '')}</div></div>`;
 
     // コメント一覧の生成
@@ -4957,6 +4958,8 @@ function startAuctionChat(partnerUserId, partnerName, itemTitle) {
         openTalkRoom(roomId, partnerName + (itemTitle ? ` (${itemTitle})` : ''), false);
     }
 }
+
+        function safeAuctionMediaUrl(value, mediaType) { const s = String(value || ""); const type = String(mediaType || "").toLowerCase(); const pattern = type === "image" ? new RegExp("^data:image/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/]*={0,2}$", "i") : type === "video" ? new RegExp("^data:video/(mp4|webm|ogg);base64,[A-Za-z0-9+/]*={0,2}$", "i") : null; return pattern && pattern.test(s) ? s : ""; }
 
         function escapeAuctionText(value) {
             return String(value ?? '').replace(/[&<>"']/g, function(ch) {
