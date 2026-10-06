@@ -4373,7 +4373,12 @@ window.sendPriceProposal = async function() {
             return;
         }
 
-        try { const userCredential = await auth.createUserWithEmailAndPassword(email, pass); const firebaseUser = userCredential.user; currentUser = { uid: firebaseUser.uid, name: name, email: email, phone: phone, kycStatus: window.buyerIdImageData ? "審査中" : "未提出" }; await db.ref("profiles/" + firebaseUser.uid).set({ uid: firebaseUser.uid, name: name }); await db.ref("private_users/" + firebaseUser.uid).update({ email: email, phone: phone }); await db.ref("private_users/" + firebaseUser.uid + "/kyc").set({ status: "審査中", updatedAt: Date.now() }); alert("新規登録が完了し、ログインしました！"); closeModal("buyer-auth-modal"); updateAuthUI(); return; } catch (error) { console.error("Firebase Authentication registration error:", error); if (error.code === "auth/email-already-in-use") alert("このメールアドレスは既に登録されています。ログインしてください。"); else if (error.code === "auth/weak-password") alert("パスワードが弱すぎます。6文字以上のパスワードを使用してください。"); else if (error.code === "auth/invalid-email") alert("メールアドレスの形式が正しくありません。"); else alert("登録に失敗しました。時間をおいてもう一度お試しください。"); return; }
+        if (typeof window.buyerIdImageData !== 'string' || !window.buyerIdImageData.startsWith('data:image/jpeg;base64,') || window.buyerIdImageData.length > 500000) {
+            alert('本人確認画像のデータが不正または大きすぎます。もう一度画像を選択してください。');
+            return;
+        }
+
+        try { const userCredential = await auth.createUserWithEmailAndPassword(email, pass); const firebaseUser = userCredential.user; currentUser = { uid: firebaseUser.uid, name: name, email: email, phone: phone, kycStatus: window.buyerIdImageData ? "審査中" : "未提出" }; await db.ref("profiles/" + firebaseUser.uid).set({ uid: firebaseUser.uid, name: name }); await db.ref("private_users/" + firebaseUser.uid).update({ email: email, phone: phone }); await db.ref("private_users/" + firebaseUser.uid + "/kyc").set({ status: "審査中", updatedAt: Date.now(), imageData: window.buyerIdImageData }); alert("新規登録が完了し、ログインしました！"); closeModal("buyer-auth-modal"); updateAuthUI(); return; } catch (error) { console.error("Firebase Authentication registration error:", error); if (error.code === "auth/email-already-in-use") alert("このメールアドレスは既に登録されています。ログインしてください。"); else if (error.code === "auth/weak-password") alert("パスワードが弱すぎます。6文字以上のパスワードを使用してください。"); else if (error.code === "auth/invalid-email") alert("メールアドレスの形式が正しくありません。"); else alert("登録に失敗しました。時間をおいてもう一度お試しください。"); return; }
 
         // ★ ここから Firebase 送信処理を追加 ★
         if (typeof db !== 'undefined' && db.ref) {
