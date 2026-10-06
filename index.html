@@ -6972,12 +6972,20 @@ function watchUserKycStatus(userIdentifier) {
 function watchCurrentUserKycStatus() {
     try {
         if (!currentUser || !currentUser.uid || typeof db === "undefined" || !db.ref) return;
-        db.ref("private_users/" + currentUser.uid + "/kyc/status").on("value", function(snapshot) {
+        var uid = currentUser.uid;
+        if (window.currentKycListenerUid === uid && window.currentKycListenerRef) return;
+        if (window.currentKycListenerRef && window.currentKycListenerCallback) window.currentKycListenerRef.off("value", window.currentKycListenerCallback);
+        var kycRef = db.ref("private_users/" + uid + "/kyc/status");
+        var kycCallback = function(snapshot) {
             const status = snapshot.val() || "未提出";
             currentUser.kycStatus = status;
             const el = document.getElementById("mypage-kyc-status");
             if (el) el.textContent = "本人確認ステータス：" + status;
-        });
+        };
+        window.currentKycListenerUid = uid;
+        window.currentKycListenerRef = kycRef;
+        window.currentKycListenerCallback = kycCallback;
+        kycRef.on("value", kycCallback);
     } catch (e) {
         console.log("KYC realtime watch error:", e);
     }
