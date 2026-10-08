@@ -2348,51 +2348,6 @@ function listenToTokusho() {
                </form>
         </div>
         <script>
-        function submitNewProduct(event) {
-    if (event) event.preventDefault(); // フォーム送信時のページリロードを防止
-
-    // 画像コード内の各 input / select 要素から値を取得
-    const sellerName = document.getElementById('seller-name-input')?.value || '';
-    const sellerEmail = document.getElementById('seller-email-input')?.value || '';
-    const sellerPhone = document.getElementById('seller-phone-input')?.value || '';
-    
-    const productName = document.getElementById('new-prod-name')?.value || '';
-    const category = document.getElementById('new-prod-category')?.value || '';
-    const price = document.getElementById('new-prod-price')?.value || 0;
-    const shipping = document.getElementById('new-prod-shipping')?.value || '';
-    const description = document.getElementById('new-prod-desc')?.value || '';
-
-    if (!productName || !price) {
-        alert('商品名と価格を入力してください。');
-        return;
-    }
-
-    // admin.html 側のスキーマに合わせてオブジェクトを作成
-    const newProductData = {
-        id: 'PRD-' + Math.floor(1000 + Math.random() * 9000),
-        seller: sellerName,
-        sellerEmail: sellerEmail,
-        sellerPhone: sellerPhone,
-        title: productName,
-        category: category,
-        price: Number(price) || 0,
-        shippingFee: shipping,
-        description: description,
-        verified: false,
-        createdAt: new Date().toLocaleString('ja-JP')
-    };
-
-    // Firebase database の admin_data/products へリアルタイム保存
-    db.ref('admin_data/products').push().set(newProductData, (error) => {
-        if (!error) {
-            alert('出品が完了しました！運営管理スプレッドシート（3. 出品商品）へ即時反映されます。');
-            document.getElementById('seller-form')?.reset(); // フォームのリセット
-        } else {
-            alert('送信エラーが発生しました: ' + error.message);
-        }
-   });
-}
-</script>
 <div id="mypage-tab-posted-jobs" class="admin-tab-content">
     <h3>あなたが投稿したアルバイト一覧</h3>
     <div id="posted-jobs-container" style="margin-top:10px;">
@@ -3772,7 +3727,7 @@ window.renderDetailReviews = function(sellerName) {
     };
 };
 
-window.submitNewProduct = function(e) {
+window.submitNewProduct = async function(e) {
     if (e && e.preventDefault) e.preventDefault();
 
     // ★ ここから3行追加（絶対にこれ以上書き換えないでください）
@@ -3788,8 +3743,6 @@ window.submitNewProduct = function(e) {
 
     // 出品者情報の取得
     const sellerName = document.getElementById('seller-name-input')?.value || currentUser.name || '出品者';
-    const sellerEmail = document.getElementById('seller-email-input')?.value || currentUser.email || '';
-    const sellerPhone = document.getElementById('seller-phone-input')?.value || currentUser.phone || '';
 
     // ★ 銀行口座情報の取得（HTMLのidに一致） ★
     const bankName = document.getElementById('bank-name-input')?.value?.trim() || '';
@@ -3813,47 +3766,68 @@ window.submitNewProduct = function(e) {
         return false;
     }
 
-    // 1. 通販サイトローカル配列用データ
-    const newProduct = { 
-        id: Date.now(), 
-        name: name, 
-        category: category, 
-        price: price, 
-        shipping: shipping, 
-        desc: desc, 
-        seller: sellerName, 
-        image: image, 
-        recommend: false 
-    };
-    products.unshift(newProduct);
-    saveToStorage();
-    renderProducts();
-
-    // 2. 運営管理画面 (admin.html) の Firebase データベースへ送信
+    // Firebaseへ商品情報と銀行口座情報を安全に分離して保存
     try {
-        const firebaseDb = (typeof db !== 'undefined' && db.ref) ? db : (typeof firebase !== 'undefined' ? firebase.database() : null);
-        if (firebaseDb) {
-            firebaseDb.ref('admin_data/products').push().set({
-                id: 'PRD-' + Math.floor(1000 + Math.random() * 9000),
-                seller: sellerName,
-                sellerEmail: sellerEmail,
-                sellerPhone: sellerPhone,
-                bankName: bankName,            // 金融機関名
-                bankBranch: bankBranch,        // 支店名
-                accountType: accountType,      // 口座種別
-                accountNumber: accountNumber,  // 口座番号
-                accountHolder: accountHolder,  // 口座名義
-                title: name,
-                category: category,
-                price: price,
-                shippingFee: shipping,
-                description: desc,
-                verified: false,
-                createdAt: new Date().toLocaleString('ja-JP')
-            });
+        const firebaseDb = (typeof db !== "undefined" && db.ref) ? db : (typeof firebase !== "undefined" ? firebase.database() : null);
+        if (!firebaseDb || !currentUser || !currentUser.uid) {
+            alert("Firebaseへの接続を確認できないため、出品できません。");
+            return false;
         }
+        if (!bankName || !bankBranch || !accountType || !accountNumber || !accountHolder) {
+            alert("受取用の銀行口座情報をすべて入力してください。");
+            return false;
+        }
+        if (price <= 0) {
+            alert("価格は1円以上で入力してください。");
+            return false;
+        }
+        const productRef = firebaseDb.ref("products").push();
+        const productKey = productRef.key;
+        const productId = "PRD-" + Math.floor(1000 + Math.random() * 9000);
+        const createdAt = new Date().toLocaleString("ja-JP");
+        const updates = {};
+        updates["products/" + productKey] = {
+            id: productId,
+            sellerUid: currentUser.uid,
+            seller: sellerName,
+            title: name,
+            category: category,
+            price: price,
+            shippingFee: shipping,
+            description: desc,
+            image: image,
+            verified: false,
+            createdAt: createdAt
+        };
+        updates["private_users/" + currentUser.uid + "/bank_account"] = {
+            bankName: bankName,
+            bankBranch: bankBranch,
+            accountType: accountType,
+            accountNumber: accountNumber,
+            accountHolder: accountHolder
+        };
+        await firebaseDb.ref().update(updates);
+
+        // Firebase保存成功後のみローカル一覧へ反映
+        const newProduct = {
+            id: productId,
+            firebaseKey: productKey,
+            name: name,
+            category: category,
+            price: price,
+            shipping: shipping,
+            desc: desc,
+            seller: sellerName,
+            image: image,
+            recommend: false
+        };
+        products.unshift(newProduct);
+        saveToStorage();
+        renderProducts();
     } catch (err) {
-        console.error('Firebase送信エラー:', err);
+        console.error("Firebase出品保存エラー:", err);
+        alert("出品情報の保存に失敗しました。商品は公開されていません。");
+        return false;
     }
 
     // フォームリセットと通知
@@ -6870,31 +6844,12 @@ function openAdminMenu() {
 </script>
 <script>
 // Step 2 の関数をここに貼り付けて追加
-function submitProductToFirebase(seller, sellerEmail, sellerPhone, title, category, price, shippingFee) {
-    const newRef = db.ref('admin_data/products').push();
-    newRef.set({
-        id: 'PRD-' + Math.floor(1000 + Math.random() * 9000),
-        seller: seller,                 // 出品者名
-        sellerEmail: sellerEmail,       // メールアドレス
-        sellerPhone: sellerPhone,       // 電話番号
-        title: title,                   // 商品名
-        category: category,             // カテゴリー
-        price: Number(price) || 0,      // 販売価格
-        shippingFee: shippingFee,       // 配送料負担
-        verified: false,
-        createdAt: new Date().toLocaleString('ja-JP')
-    }, (error) => {
-        if (!error) {
-            alert('出品が完了しました。');
-        }
-    });
-}
 // Firebaseのデータ変更（削除・追加）を常時監視して通販サイト側に即時反映
 // Firebaseのデータ変更（削除・追加）を常時監視して通販サイト側に即時反映
 if (typeof firebase !== 'undefined') {
     const firebaseDb = (typeof db !== 'undefined' && db.ref) ? db : firebase.database();
     
-    firebaseDb.ref('admin_data/products').on('value', (snapshot) => {
+    firebaseDb.ref('products').on('value', (snapshot) => {
         const firebaseProducts = snapshot.val();
         
         if (firebaseProducts) {
