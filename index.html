@@ -1288,6 +1288,264 @@
         gap: 12px !important;
     }
 }
+/* MINATOMO DESIGN REFRESH 2026-11-13 */
+:root {
+    --brand-red: #e54843;
+    --brand-red-hover: #cc3834;
+    --bg-gray: #f6f7f9;
+    --text-dark: #252b36;
+    --text-sub: #687181;
+    --border-color: #e7eaf0;
+    --radius: 12px;
+}
+body {
+    background: #f6f7f9;
+    color: #252b36;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
+    line-height: 1.6;
+}
+header {
+    background: rgba(255,255,255,.97);
+    border-bottom: 1px solid #e7eaf0;
+    box-shadow: 0 3px 16px rgba(25,35,50,.045);
+    padding: 12px 24px;
+}
+.container {
+    max-width: 1280px;
+    width: calc(100% - 40px);
+    margin-left: auto;
+    margin-right: auto;
+}
+.filter-section {
+    background: #fff;
+    border: 1px solid #e7eaf0;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 18px rgba(25,35,50,.035);
+}
+.section-header {
+    color: #252b36;
+    margin-top: 28px;
+    margin-bottom: 16px;
+}
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 18px;
+}
+.product-card {
+    background: #fff;
+    border: 1px solid #e9ecf1;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(25,35,50,.045);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 24px rgba(25,35,50,.10);
+}
+.product-card .product-image-box {
+    overflow: hidden;
+    background: #f1f3f6;
+}
+.product-card .product-image-box img {
+    transition: transform .25s ease;
+}
+.product-card:hover .product-image-box img {
+    transform: scale(1.035);
+}
+.product-info {
+    padding: 13px;
+}
+.product-card h3 {
+    color: #303746;
+    line-height: 1.5;
+}
+.product-card .price {
+    color: #df4540;
+    font-weight: 750;
+}
+.auction-card {
+    background: #fff;
+    border: 1px solid #e7eaf0;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(25,35,50,.045);
+}
+.btn-red-sm {
+    background: #e54843;
+    border-radius: 9px;
+    transition: background .18s ease, transform .18s ease;
+}
+.btn-red-sm:hover {
+    background: #cc3834;
+}
+.form-control {
+    border: 1px solid #dfe3ea;
+    border-radius: 9px;
+    color: #252b36;
+    min-height: 42px;
+}
+.form-control:focus {
+    border-color: #e54843;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(229,72,67,.12);
+}
+.modal-content {
+    border: 1px solid #e8ebf0;
+    border-radius: 18px;
+    box-shadow: 0 18px 60px rgba(20,28,40,.18);
+}
+.admin-tab-btn {
+    border-radius: 9px;
+    transition: background .18s ease, color .18s ease;
+}
+@media screen and (max-width: 900px) {
+    .container {
+        width: calc(100% - 28px);
+    }
+    .product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 13px;
+    }
+}
+@media screen and (max-width: 600px) {
+    header {
+        padding: 10px 12px;
+    }
+    .container {
+        width: calc(100% - 20px);
+    }
+    .filter-section {
+        padding: 13px;
+        border-radius: 12px;
+    }
+    .product-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    .product-grid > .product-card {
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 11px;
+    }
+    .product-card .product-image-box img,
+    .product-card img {
+        width: 100% !important;
+        aspect-ratio: 1 / 1 !important;
+        height: auto !important;
+        object-fit: cover !important;
+    }
+    .product-info {
+        padding: 9px;
+    }
+    .product-card h3 {
+        font-size: .82rem !important;
+        white-space: normal !important;
+        line-height: 1.4;
+    }
+    .product-card .price {
+        font-size: .98rem !important;
+    }
+    .auction-grid,
+    #all-auctions-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+    .auction-grid .auction-card,
+    #all-auctions-grid .auction-card,
+    #job-list-container .auction-card {
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 10px !important;
+        border-radius: 11px;
+    }
+    #job-list-container .auction-card {
+        width: 100% !important;
+    }
+    .modal-content {
+        width: calc(100% - 24px);
+        max-width: none;
+        padding: 17px;
+        border-radius: 15px;
+    }
+}
+
+
+/* MINATOMO MOBILE HEADER FIX 2026-11-13 */
+@media screen and (max-width: 600px) {
+    header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+    header > .header-logo {
+        order: 1;
+        flex: 0 0 auto;
+        white-space: nowrap;
+        font-size: 1.35rem;
+    }
+    header > .header-user-nav {
+        order: 2;
+        flex: 1 1 auto;
+        min-width: 0;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+    header > .btn-red-sm {
+        order: 2;
+    }
+    header > .hamburger-menu-container {
+        order: 2;
+    }
+    header > .search-container {
+        order: 3;
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+    }
+    header .header-user-nav #user-auth-btn-area {
+        display: none !important;
+    }
+    header .header-user-nav > div[style*="position: relative"] {
+        flex-shrink: 0;
+    }
+    header .header-user-nav > .btn-red-sm {
+        flex-shrink: 0;
+        white-space: nowrap;
+        padding: 8px 10px;
+    }
+    header .hamburger-menu-container {
+        flex-shrink: 0;
+        margin-left: 0 !important;
+    }
+    header .search-input {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    header .search-btn {
+        flex-shrink: 0;
+    }
+}
+
+/* MINATOMO MOBILE FLOATING SELL FIX 2026-11-13 */
+@media screen and (max-width: 600px) {
+    .floating-sell-btn {
+        display: none !important;
+    }
+}
 </style>
 <script>
 function getOrCreateUserId() {
