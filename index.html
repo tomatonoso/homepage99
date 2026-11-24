@@ -3317,6 +3317,30 @@ header .search-btn {
 }
 /* MINATOMO PURCHASE REQUEST SQUARE CARDS END 20261123 */
 
+
+/* MINATOMO MOBILE OVERFLOW AND SERVICE SPACING 20261124 */
+@media screen and (max-width: 600px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: clip;
+    }
+    .minatomo-services {
+        width: auto !important;
+        max-width: none !important;
+        margin-left: 12px !important;
+        margin-right: 12px !important;
+        box-sizing: border-box !important;
+    }
+    .minatomo-services > .minatomo-service-card {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+/* MINATOMO MOBILE OVERFLOW AND SERVICE SPACING END */
+
 /* MINATOMO MOBILE REFRESH END */
 
 </style>
