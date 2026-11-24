@@ -3767,9 +3767,6 @@ function listenToTokusho() {
         <button id="btn-open-all-requests" onclick="event.stopPropagation(); openAllRequestsModal();" style="background-color: #f8f9fa; color: #333333; border: 1px solid #cccccc; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-list"></i> すべて見る
         </button>
-        <button onclick="checkAuthAndOpenRequestPost()" style="background-color: #e53935; color: #ffffff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-            <i class="fa-solid fa-plus"></i> 投稿
-        </button>
     </div>
 </div>
         <div id="request-list-container" style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 20px;"></div>
@@ -3783,7 +3780,6 @@ function listenToTokusho() {
             <button id="btn-open-all-auctions" onclick="event.stopPropagation(); openAllAuctionsModal();" style="background-color: #f8f9fa; color: #333; border: 1px solid #ccc; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
                 <i class="fa-solid fa-list"></i> すべて見る
             </button>
-            <button class="auction-post-btn" onclick="checkAuthAndOpenAuctionPost()"><i class="fa-solid fa-plus"></i> 投稿</button>
         </div>
     </div>
     <div id="auction-list-container" class="auction-list-container"></div>
@@ -3793,9 +3789,6 @@ function listenToTokusho() {
         <div id="job-section" class="auction-section">
             <div class="section-header">
                 <span><i class="fa-solid fa-briefcase" style="color: var(--brand-red);"></i> アルバイト</span>
-                <div style="display: flex; gap: 10px;">
-                    <button class="auction-post-btn" onclick="checkAuthAndOpenJobPost()"><i class="fa-solid fa-plus"></i> 投稿</button>
-                </div>
             </div>
             <div id="job-list-container" class="auction-list-container"></div>
         </div>
@@ -3812,10 +3805,6 @@ function listenToTokusho() {
     </div>
     </div>
 
-    <button class="floating-sell-btn" onclick="checkAuthAndOpenSell()">
-        <i class="fa-solid fa-camera"></i>
-        <span>出品</span>
-    </button>
 
     <footer>
     <div class="footer-links">
@@ -3908,6 +3897,7 @@ function listenToTokusho() {
 
             <div id="mypage-kyc-status" style="margin:0 0 15px 0;padding:10px 14px;border:1px solid #ddd;border-radius:6px;background:#f8f9fa;">本人確認ステータス：<strong>未提出</strong></div>
             <div class="admin-tab-nav" style="border-bottom: 2px solid var(--brand-red);">
+  <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-posting', this)">投稿する</button>
   <button class="admin-tab-btn active" onclick="openMypageTab('mypage-tab-chats', this); if (typeof syncMypageTalkRooms === 'function') syncMypageTalkRooms();">メール（チャット）</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-cart', this)">現在のカート内商品</button>
     <button class="admin-tab-btn" onclick="openMypageTab('mypage-tab-my-products', this)">出品した商品</button>
@@ -3921,6 +3911,32 @@ function listenToTokusho() {
 </div>
 
          
+    <div id="mypage-tab-posting" class="admin-tab-content">
+        <h3><i class="fa-solid fa-square-plus"></i> 投稿するサービスを選択</h3>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:1px solid #ddd; border-radius:8px; background:#fff;">
+                <div><strong>商品</strong><div style="font-size:.82rem; color:#777; margin-top:3px;">商品を出品する</div></div>
+                <button class="btn-red-sm" onclick="openMypageTab('mypage-tab-sell', document.querySelector('#buyer-mypage-modal .admin-tab-btn[onclick*=\'mypage-tab-sell\']'))">出品する</button>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:1px solid #ddd; border-radius:8px; background:#fff;">
+                <div><strong>購入リクエスト</strong><div style="font-size:.82rem; color:#777; margin-top:3px;">探している商品を投稿する</div></div>
+                <button class="btn-red-sm" onclick="closeModal('buyer-mypage-modal'); checkAuthAndOpenRequestPost();">投稿する</button>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:1px solid #ddd; border-radius:8px; background:#fff;">
+                <div><strong>オークション</strong><div style="font-size:.82rem; color:#777; margin-top:3px;">画像・動画・ライブ形式で投稿する</div></div>
+                <button class="btn-red-sm" onclick="closeModal('buyer-mypage-modal'); checkAuthAndOpenAuctionPost();">投稿する</button>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:1px solid #ddd; border-radius:8px; background:#fff;">
+                <div><strong>求人・アルバイト</strong><div style="font-size:.82rem; color:#777; margin-top:3px;">求人情報を投稿する</div></div>
+                <button class="btn-red-sm" onclick="closeModal('buyer-mypage-modal'); checkAuthAndOpenJobPost();">投稿する</button>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:1px solid #ddd; border-radius:8px; background:#fff;">
+                <div><strong>不動産</strong><div style="font-size:.82rem; color:#777; margin-top:3px;">宅地建物取引業者・事業者専用</div></div>
+                <button class="btn-red-sm" onclick="openMypageTab('mypage-tab-property', document.querySelector('#buyer-mypage-modal .admin-tab-btn[onclick*=\'mypage-tab-property\']'))">投稿画面へ</button>
+            </div>
+        </div>
+    </div>
+
     <div id="mypage-tab-chats" class="admin-tab-content active">
     <h3>メール（チャット）</h3>
     
@@ -5647,7 +5663,7 @@ window.submitNewProduct = async function(e) {
                 return;
             }
             openModal('buyer-mypage-modal');
-            openMypageTab('mypage-tab-sell', document.querySelector('.admin-tab-btn:nth-child(5)'));
+            openMypageTab('mypage-tab-sell', document.querySelector('#buyer-mypage-modal .admin-tab-btn[onclick*=\'mypage-tab-sell\']'));
         };
 
         window.checkAuthAndOpenRequestPost = function() {
