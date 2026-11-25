@@ -8992,8 +8992,8 @@ window.sortAuctions = function(sortType) {
         window.openAllAuctionsModal();
     }
 };
-// オークション投稿フォームの送信処理（onsubmit="submitAuction(event)" 用）
-window.submitAuction = function(e) {
+// 旧形式のオークション投稿処理（動画対応版との上書き競合を防止）
+window.submitAuctionLegacy = function(e) {
     if (e && e.preventDefault) e.preventDefault();
     console.log('submitAuction が実行されました');
 
