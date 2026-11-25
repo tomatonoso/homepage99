@@ -3540,6 +3540,171 @@ function listenToTokusho() {
   }
 }
 </style>
+
+<style>
+/* MINATOMO MOBILE BOTTOM NAV AND VIDEO FEED 20261125 */
+#minatomo-bottom-nav {
+  display:none;
+}
+#minatomo-video-feed {
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:20000;
+  background:#080b10;
+  color:#fff;
+  overflow:hidden;
+}
+#minatomo-video-feed.is-open {
+  display:block;
+}
+#minatomo-video-feed .mvf-header {
+  position:absolute;
+  z-index:3;
+  top:0;
+  left:0;
+  right:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
+  background:linear-gradient(#0009,transparent);
+}
+#minatomo-video-feed .mvf-close {
+  border:0;
+  border-radius:50%;
+  width:42px;
+  height:42px;
+  color:#fff;
+  background:#ffffff25;
+  font-size:25px;
+}
+#minatomo-video-feed .mvf-list {
+  height:100%;
+  overflow-y:auto;
+  scroll-snap-type:y mandatory;
+  overscroll-behavior-y:contain;
+}
+#minatomo-video-feed .mvf-card {
+  position:relative;
+  height:100%;
+  min-height:100%;
+  scroll-snap-align:start;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#111820;
+  overflow:hidden;
+}
+#minatomo-video-feed .mvf-media {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#080b10;
+}
+#minatomo-video-feed .mvf-placeholder {
+  padding:28px;
+  text-align:center;
+  color:#fff;
+}
+#minatomo-video-feed .mvf-placeholder i {
+  display:block;
+  font-size:54px;
+  margin-bottom:18px;
+  color:#8bd5b1;
+}
+#minatomo-video-feed .mvf-info {
+  position:absolute;
+  z-index:2;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:65px 18px calc(28px + env(safe-area-inset-bottom));
+  background:linear-gradient(transparent,#000d);
+}
+#minatomo-video-feed .mvf-title {
+  font-size:1.08rem;
+  font-weight:700;
+  margin:0 0 8px;
+  overflow-wrap:anywhere;
+}
+#minatomo-video-feed .mvf-author {
+  font-size:.85rem;
+  color:#eee;
+  margin-bottom:12px;
+}
+#minatomo-video-feed .mvf-detail {
+  border:0;
+  border-radius:22px;
+  padding:10px 18px;
+  background:#198754;
+  color:#fff;
+  font-weight:700;
+}
+#minatomo-video-feed .mvf-status {
+  display:inline-block;
+  margin-bottom:10px;
+  padding:5px 10px;
+  border-radius:15px;
+  background:#b3261e;
+  font-size:.78rem;
+  font-weight:700;
+}
+#minatomo-video-feed .mvf-empty {
+  padding:100px 24px;
+  text-align:center;
+  color:#ddd;
+}
+@media (max-width:700px) {
+  body {
+    padding-bottom:calc(66px + env(safe-area-inset-bottom)) !important;
+  }
+  #minatomo-bottom-nav {
+    display:grid;
+    position:fixed;
+    z-index:15000;
+    left:0;
+    right:0;
+    bottom:0;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    min-height:62px;
+    padding:5px 4px calc(5px + env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid #e5e7eb;
+    box-shadow:0 -3px 14px #00000012;
+  }
+  #minatomo-bottom-nav button {
+    border:0;
+    background:transparent;
+    color:#536174;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:3px;
+    min-width:0;
+    font-size:.68rem;
+    font-weight:600;
+  }
+  #minatomo-bottom-nav button i {
+    font-size:1.2rem;
+  }
+  #minatomo-bottom-nav button:active {
+    color:#16865a;
+  }
+  #minatomo-bottom-nav button[data-action="video"] {
+    color:#16865a;
+  }
+  body.minatomo-feed-open {
+    overflow:hidden !important;
+  }
+}
+@media (min-width:701px) {
+  #minatomo-bottom-nav {
+    display:none !important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -9671,6 +9836,176 @@ async function loadPurchaseRequestsFromFirestore() {
     }
 }
 
+</script>
+
+<nav id="minatomo-bottom-nav" aria-label="スマートフォン用メニュー">
+  <button type="button" data-action="home"><i class="fa-solid fa-house"></i><span>ホーム</span></button>
+  <button type="button" data-action="search"><i class="fa-solid fa-magnifying-glass"></i><span>探す</span></button>
+  <button type="button" data-action="sell"><i class="fa-solid fa-circle-plus"></i><span>出品</span></button>
+  <button type="button" data-action="video"><i class="fa-solid fa-play"></i><span>動画</span></button>
+  <button type="button" data-action="mypage"><i class="fa-solid fa-user"></i><span>マイページ</span></button>
+</nav>
+<section id="minatomo-video-feed" aria-label="動画・ライブフィード" aria-hidden="true">
+  <div class="mvf-header">
+    <strong>動画・ライブ</strong>
+    <button type="button" class="mvf-close" aria-label="閉じる">&times;</button>
+  </div>
+  <div class="mvf-list" id="minatomo-video-feed-list"></div>
+</section>
+<script>
+(function() {
+  'use strict';
+
+  var nav = document.getElementById('minatomo-bottom-nav');
+  var feed = document.getElementById('minatomo-video-feed');
+  var list = document.getElementById('minatomo-video-feed-list');
+  if (!nav || !feed || !list) return;
+
+  function getAuctionPosts() {
+    try {
+      var items = JSON.parse(localStorage.getItem('minatomo_auctions') || '[]');
+      return Array.isArray(items) ? items : [];
+    } catch (error) {
+      console.warn('動画フィードの投稿を読み込めませんでした。', error);
+      return [];
+    }
+  }
+
+  function safeText(value) {
+    return typeof escapeAuctionText === 'function'
+      ? escapeAuctionText(value == null ? '' : String(value))
+      : String(value == null ? '' : value).replace(/[&<>"']/g, function(c) {
+          return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+        });
+  }
+
+  function renderFeed() {
+    var posts = getAuctionPosts().filter(function(item) {
+      return item && (item.type === 'live' || item.mediaType === 'video');
+    });
+
+    posts.sort(function(a, b) {
+      return Number(b.createdAt || b.createdAtMs || 0) -
+             Number(a.createdAt || a.createdAtMs || 0);
+    });
+
+    if (!posts.length) {
+      list.innerHTML = '<div class="mvf-empty">動画・ライブ投稿はまだありません。<p>オークションの動画投稿がここに表示されます。</p></div>';
+      return;
+    }
+
+    list.innerHTML = posts.map(function(item) {
+      var isLive = item.type === 'live';
+      var title = safeText(item.title || (isLive ? 'ライブ配信' : '動画投稿'));
+      var author = safeText(item.author || 'ユーザー');
+      var id = encodeURIComponent(String(item.id == null ? '' : item.id));
+      var media = '';
+      var status = '';
+
+      if (isLive) {
+        status = item.liveEnded
+          ? '<span class="mvf-status">ライブ終了</span>'
+          : '<span class="mvf-status">ライブ投稿</span>';
+        media = '<div class="mvf-placeholder"><i class="fa-solid fa-tower-broadcast"></i><strong>ライブ映像</strong><p>この投稿のリアルタイム配信機能は準備中です。</p></div>';
+      } else {
+        var safeUrl = typeof safeAuctionMediaUrl === 'function'
+          ? safeAuctionMediaUrl(item.media, 'video') : '';
+        if (safeUrl) {
+          media = '<video class="mvf-media" src="' + safeUrl + '" muted playsinline loop preload="metadata"></video>';
+        } else {
+          media = '<div class="mvf-placeholder"><i class="fa-solid fa-video"></i><strong>動画を再生できません</strong><p>投稿データまたは動画形式をご確認ください。</p></div>';
+        }
+      }
+
+      return '<article class="mvf-card" data-auction-id="' + id + '">' +
+        media +
+        '<div class="mvf-info">' + status +
+        '<h2 class="mvf-title">' + title + '</h2>' +
+        '<div class="mvf-author">投稿者：' + author + '</div>' +
+        '<button type="button" class="mvf-detail">投稿の詳細を見る</button>' +
+        '</div></article>';
+    }).join('');
+
+    observeVideos();
+  }
+
+  function observeVideos() {
+    var videos = list.querySelectorAll('video');
+    if (!('IntersectionObserver' in window)) {
+      videos.forEach(function(video) {
+        video.play().catch(function() {});
+      });
+      return;
+    }
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        var video = entry.target;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.65) {
+          video.play().catch(function() {});
+        } else {
+          video.pause();
+        }
+      });
+    }, { root: list, threshold: [0, 0.65, 1] });
+    videos.forEach(function(video) { observer.observe(video); });
+  }
+
+  window.openMinatomoVideoFeed = function() {
+    renderFeed();
+    feed.classList.add('is-open');
+    feed.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('minatomo-feed-open');
+    list.scrollTop = 0;
+  };
+
+  function closeFeed() {
+    feed.classList.remove('is-open');
+    feed.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('minatomo-feed-open');
+    list.querySelectorAll('video').forEach(function(video) {
+      video.pause();
+    });
+  }
+
+  feed.querySelector('.mvf-close').addEventListener('click', closeFeed);
+
+  list.addEventListener('click', function(event) {
+    var button = event.target.closest('.mvf-detail');
+    var card = event.target.closest('.mvf-card');
+    if (!button || !card) return;
+    var id = decodeURIComponent(card.getAttribute('data-auction-id') || '');
+    if (typeof window.openAuctionDetail === 'function' && id) {
+      closeFeed();
+      window.openAuctionDetail(id);
+    }
+  });
+
+  nav.addEventListener('click', function(event) {
+    var button = event.target.closest('button[data-action]');
+    if (!button) return;
+
+    var action = button.getAttribute('data-action');
+    if (action === 'home') {
+      window.scrollTo({top:0, behavior:'smooth'});
+    } else if (action === 'search') {
+      var search = document.getElementById('search-keyword');
+      if (search) {
+        search.scrollIntoView({behavior:'smooth', block:'center'});
+        window.setTimeout(function() { search.focus(); }, 350);
+      }
+    } else if (action === 'sell') {
+      if (typeof window.checkAuthAndOpenSell === 'function') {
+        window.checkAuthAndOpenSell();
+      }
+    } else if (action === 'video') {
+      window.openMinatomoVideoFeed();
+    } else if (action === 'mypage') {
+      if (typeof window.openModal === 'function') {
+        window.openModal('buyer-mypage-modal');
+      }
+    }
+  });
+})();
 </script>
 </body>
 </html>
