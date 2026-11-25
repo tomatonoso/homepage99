@@ -3705,6 +3705,25 @@ function listenToTokusho() {
   }
 }
 </style>
+<style id="auction-post-modal-scroll-fix">
+#auction-post-modal {
+  box-sizing: border-box;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+#auction-post-modal .modal-content {
+  box-sizing: border-box;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+@supports (height: 100dvh) {
+  #auction-post-modal .modal-content {
+    max-height: calc(100dvh - 40px);
+  }
+}
+</style>
 </head>
 <body>
 
